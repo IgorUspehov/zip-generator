@@ -1,0 +1,37 @@
+{
+  "business_name": "Mikhailo Mashiko",
+  "business_type": "real_estate",
+  "email": "uspeh.polimer2022@gmail.com",
+  "phone": "+4915258400610",
+  "telegram": "@Ihor_Kriazhev",
+  "whatsapp": "+79881554136",
+  "address": "",
+  "working_hours": {
+    "monday": "09:00-18:00",
+    "tuesday": "09:00-18:00",
+    "wednesday": "09:00-18:00",
+    "thursday": "09:00-18:00",
+    "friday": "09:00-18:00",
+    "saturday": "10:00-15:00",
+    "sunday": "closed"
+  },
+  "language": "ru",
+  "currency": "EUR",
+  "website": "",
+  "social_links": {
+    "instagram": "",
+    "facebook": "",
+    "tiktok": "",
+    "website": ""
+  },
+  "logo": "assets/logo.png",
+  "business_questions": {},
+  "delivery_method": "zip",
+  "plan_id": "free",
+  "plan": "Free",
+  "amount": 0,
+  "payment_status": "FREE",
+  "terms_accepted": true,
+  "privacy_accepted": true,
+  "accepted_at": "2026-06-20T19:21:50.827Z"
+}

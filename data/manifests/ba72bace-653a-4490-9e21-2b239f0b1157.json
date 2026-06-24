@@ -1,0 +1,359 @@
+{
+  "businessName": "Test Restaurant Client",
+  "niche": "restaurant",
+  "businessType": "restaurant",
+  "language": "ru",
+  "primaryColor": "#bd7c14",
+  "theme": {
+    "primary": "#945214",
+    "secondary": "#ce9a69",
+    "accent": "#bd7c14",
+    "hero_bg": "linear-gradient(135deg, #5e340d 0%, #af8e18 100%)",
+    "text": "#2a231d",
+    "border": "#e0dbd7"
+  },
+  "promotion": {
+    "ru": "По вторникам после 18:00 — десерт за €1",
+    "de": "Dienstags ab 18:00 — Dessert für €1",
+    "en": "Tuesdays after 6PM — dessert for €1"
+  },
+  "scenario": {
+    "metrics": {
+      "ru": [
+        "Гостей сегодня",
+        "Бронирований",
+        "Средний чек",
+        "Свободных столов"
+      ],
+      "de": [
+        "Gäste heute",
+        "Reservierungen",
+        "Durchschnittsscheck",
+        "Freie Tische"
+      ],
+      "en": [
+        "Guests Today",
+        "Reservations",
+        "Average Check",
+        "Free Tables"
+      ]
+    },
+    "metric_values": [
+      "84",
+      "23",
+      "€45",
+      "6"
+    ],
+    "today_items": [
+      {
+        "name": {
+          "ru": "Стол 5 — Семья Вебер",
+          "de": "Tisch 5 — Familie Weber",
+          "en": "Table 5 — Weber Family"
+        },
+        "service": {
+          "ru": "Бронирование 19:00",
+          "de": "Reservierung 19:00",
+          "en": "Reservation 19:00"
+        },
+        "time": "19:00"
+      },
+      {
+        "name": {
+          "ru": "Стол 3 — Г-н Мюллер",
+          "de": "Tisch 3 — Herr Müller",
+          "en": "Table 3 — Mr Miller"
+        },
+        "service": {
+          "ru": "Бронирование 20:00",
+          "de": "Reservierung 20:00",
+          "en": "Reservation 20:00"
+        },
+        "time": "20:00"
+      },
+      {
+        "name": {
+          "ru": "VIP — Фирма Шмидт",
+          "de": "VIP — Firma Schmidt",
+          "en": "VIP — Schmidt Corp"
+        },
+        "service": {
+          "ru": "Деловой ужин",
+          "de": "Geschäftsessen",
+          "en": "Business Dinner"
+        },
+        "time": "20:30"
+      },
+      {
+        "name": {
+          "ru": "Терраса — Группа",
+          "de": "Terrasse — Gruppe",
+          "en": "Terrace — Group"
+        },
+        "service": {
+          "ru": "День рождения",
+          "de": "Geburtstag",
+          "en": "Birthday Party"
+        },
+        "time": "21:00"
+      }
+    ],
+    "popular_services": {
+      "ru": [
+        "Жареный лосось",
+        "Стейк рибай",
+        "Паста карбонара",
+        "Тирамису"
+      ],
+      "de": [
+        "Gegrillter Lachs",
+        "Ribeye Steak",
+        "Pasta Carbonara",
+        "Tiramisu"
+      ],
+      "en": [
+        "Grilled Salmon",
+        "Ribeye Steak",
+        "Pasta Carbonara",
+        "Tiramisu"
+      ]
+    },
+    "records": {
+      "reservations": [
+        {
+          "id": "1",
+          "guest": {
+            "ru": "Семья Вебер",
+            "de": "Familie Weber",
+            "en": "Weber Family"
+          },
+          "table": {
+            "ru": "Стол 5",
+            "de": "Tisch 5",
+            "en": "Table 5"
+          },
+          "time": "19:00",
+          "status": {
+            "ru": "Подтверждён",
+            "de": "Bestätigt",
+            "en": "Confirmed"
+          }
+        },
+        {
+          "id": "2",
+          "guest": {
+            "ru": "Г-н Мюллер",
+            "de": "Herr Müller",
+            "en": "Mr Miller"
+          },
+          "table": {
+            "ru": "Стол 3",
+            "de": "Tisch 3",
+            "en": "Table 3"
+          },
+          "time": "20:00",
+          "status": {
+            "ru": "Ожидает",
+            "de": "Ausstehend",
+            "en": "Pending"
+          }
+        },
+        {
+          "id": "3",
+          "guest": {
+            "ru": "Анна Шмидт",
+            "de": "Anna Schmidt",
+            "en": "Anna Schmidt"
+          },
+          "table": {
+            "ru": "Стол 8",
+            "de": "Tisch 8",
+            "en": "Table 8"
+          },
+          "time": "18:30",
+          "status": {
+            "ru": "Подтверждён",
+            "de": "Bestätigt",
+            "en": "Confirmed"
+          }
+        }
+      ],
+      "tables": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Стол 1",
+            "de": "Tisch 1",
+            "en": "Table 1"
+          },
+          "seats": 2,
+          "status": {
+            "ru": "Свободен",
+            "de": "Frei",
+            "en": "Free"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Стол 5",
+            "de": "Tisch 5",
+            "en": "Table 5"
+          },
+          "seats": 4,
+          "status": {
+            "ru": "Забронирован",
+            "de": "Reserviert",
+            "en": "Reserved"
+          }
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Стол 8",
+            "de": "Tisch 8",
+            "en": "Table 8"
+          },
+          "seats": 6,
+          "status": {
+            "ru": "Занят",
+            "de": "Besetzt",
+            "en": "Occupied"
+          }
+        }
+      ],
+      "menu": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Бизнес-ланч",
+            "de": "Business Lunch",
+            "en": "Business Lunch"
+          },
+          "price": "€9.90",
+          "category": {
+            "ru": "Обед",
+            "de": "Mittagessen",
+            "en": "Lunch"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Паста карбонара",
+            "de": "Pasta Carbonara",
+            "en": "Pasta Carbonara"
+          },
+          "price": "€14.50",
+          "category": {
+            "ru": "Основное",
+            "de": "Hauptgericht",
+            "en": "Main"
+          }
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Тирамису",
+            "de": "Tiramisu",
+            "en": "Tiramisu"
+          },
+          "price": "€6.50",
+          "category": {
+            "ru": "Десерт",
+            "de": "Dessert",
+            "en": "Dessert"
+          }
+        }
+      ],
+      "staff": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Марко Росси",
+            "de": "Marco Rossi",
+            "en": "Marco Rossi"
+          },
+          "role": {
+            "ru": "Шеф-повар",
+            "de": "Küchenchef",
+            "en": "Chef"
+          },
+          "status": {
+            "ru": "Доступен",
+            "de": "Verfügbar",
+            "en": "Available"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Лиза Браун",
+            "de": "Lisa Braun",
+            "en": "Lisa Braun"
+          },
+          "role": {
+            "ru": "Официант",
+            "de": "Kellnerin",
+            "en": "Waiter"
+          },
+          "status": {
+            "ru": "На смене",
+            "de": "Im Dienst",
+            "en": "On shift"
+          }
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Том Келлер",
+            "de": "Tom Keller",
+            "en": "Tom Keller"
+          },
+          "role": {
+            "ru": "Хостес",
+            "de": "Gastgeber",
+            "en": "Host"
+          },
+          "status": {
+            "ru": "Доступен",
+            "de": "Verfügbar",
+            "en": "Available"
+          }
+        }
+      ]
+    }
+  },
+  "galleryPhotos": [
+    "/assets/niches/restaurant/restaurant_14.jpg",
+    "/assets/niches/restaurant/restaurant_09.jpg",
+    "/assets/niches/restaurant/restaurant_04.jpg",
+    "/assets/niches/restaurant/restaurant_17.jpg",
+    "/assets/niches/restaurant/restaurant_10.jpg"
+  ],
+  "heroPhoto": "/assets/niches/restaurant/restaurant_07.jpg",
+  "phone": "+491111111111",
+  "email": "test-client@example.com",
+  "city": "München",
+  "features": [
+    "booking",
+    "clients",
+    "analytics"
+  ],
+  "pages": [
+    "dashboard",
+    "reservations",
+    "tables",
+    "menu",
+    "staff",
+    "settings"
+  ],
+  "demoData": {},
+  "workingHours": {
+    "monday": "09:00-18:00",
+    "tuesday": "09:00-18:00",
+    "wednesday": "09:00-18:00",
+    "thursday": "09:00-18:00",
+    "friday": "09:00-18:00"
+  }
+}

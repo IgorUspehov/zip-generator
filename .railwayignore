@@ -1,0 +1,11 @@
+node_modules
+.next
+.netlify
+artifacts
+output
+.vercel
+mvp-funnel-template/node_modules
+factory
+knowledge_library
+data/pending-deletions.json
+*.tar.gz

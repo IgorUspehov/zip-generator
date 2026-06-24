@@ -1,0 +1,18 @@
+{
+  "run_id": "run_001",
+  "client_id": "client_001",
+  "segment": "beauty_salon",
+  "status": "PENDING",
+  "source": "client_questionnaire",
+  "note": "Copy from input/client_onboarding_questionnaire.json after client completes Stage 3",
+  "session_started_at": null,
+  "questionnaire_submitted_at": null,
+  "business_name": null,
+  "business_type": "beauty_salon",
+  "email": null,
+  "phone": null,
+  "language": null,
+  "currency": "EUR",
+  "plan_id": null,
+  "llm_used": false
+}

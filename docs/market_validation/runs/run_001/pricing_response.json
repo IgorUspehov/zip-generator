@@ -1,0 +1,19 @@
+{
+  "run_id": "run_001",
+  "client_id": "client_001",
+  "segment": "beauty_salon",
+  "status": "PENDING",
+  "quoted_price_eur": 99,
+  "pricing_hypothesis": "V9 default — Professional tier",
+  "responses": {
+    "would_pay": null,
+    "wtp_option": null,
+    "wtp_other_eur": null,
+    "would_use_in_business": null
+  },
+  "payment_received": false,
+  "actual_paid_eur": null,
+  "payment_date": null,
+  "notes": null,
+  "llm_used": false
+}

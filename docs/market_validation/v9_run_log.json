@@ -1,0 +1,29 @@
+{
+  "version": "V9_RUN_LOG_V1",
+  "updated_at": "2026-06-13T00:00:00+00:00",
+  "total_runs": 1,
+  "completed_runs": 0,
+  "feedback_received": 0,
+  "client_happy_rate": null,
+  "feedback_response_rate": 0,
+  "potential_paid_clients": 0,
+  "runs": [
+    {
+      "run_id": "run_001",
+      "client_id": "client_001",
+      "segment": "beauty_salon",
+      "status": "PENDING",
+      "showcase_opened": false,
+      "demo_viewed": false,
+      "questionnaire_completed": false,
+      "feedback_received": false,
+      "client_happy": null,
+      "would_pay": null,
+      "stated_wtp_eur": null,
+      "payment_received": false,
+      "time_to_questionnaire_min": null,
+      "session_date": null,
+      "artifacts_dir": "docs/market_validation/runs/run_001/"
+    }
+  ]
+}

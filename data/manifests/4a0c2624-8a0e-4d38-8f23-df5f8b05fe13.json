@@ -1,0 +1,491 @@
+{
+  "businessName": "Mikhailo Mashiko",
+  "niche": "real_estate",
+  "businessType": "real_estate",
+  "language": "ru",
+  "primaryColor": "#40916C",
+  "theme": {
+    "primary": "#1A3C34",
+    "secondary": "#2D6A4F",
+    "accent": "#40916C",
+    "hero_bg": "linear-gradient(135deg, #1A3C34 0%, #2D6A4F 100%)",
+    "text": "#F0F7F4",
+    "border": "#95D5B2"
+  },
+  "promotion": {
+    "ru": "Бесплатная консультация по подбору объекта недвижимости!",
+    "de": "Kostenlose Beratung zur Immobilienauswahl!",
+    "en": "Free consultation on property selection!"
+  },
+  "scenario": {
+    "metrics": {
+      "ru": [
+        "Активных клиентов",
+        "Показов сегодня",
+        "Выручка сегодня",
+        "Свободных слотов"
+      ],
+      "de": [
+        "Aktive Kunden",
+        "Besichtigungen heute",
+        "Umsatz heute",
+        "Freie Slots"
+      ],
+      "en": [
+        "Active Clients",
+        "Viewings Today",
+        "Revenue Today",
+        "Free Slots"
+      ]
+    },
+    "metric_values": [
+      "47",
+      "12",
+      "€840",
+      "5"
+    ],
+    "today_items": [
+      {
+        "name": {
+          "ru": "Thomas Bauer",
+          "de": "Thomas Bauer",
+          "en": "Thomas Bauer"
+        },
+        "service": {
+          "ru": "Показ квартиры",
+          "de": "Wohnungsbesichtigung",
+          "en": "Apartment Viewing"
+        },
+        "time": "10:00"
+      },
+      {
+        "name": {
+          "ru": "Helga Richter",
+          "de": "Helga Richter",
+          "en": "Helga Richter"
+        },
+        "service": {
+          "ru": "Оценка дома",
+          "de": "Hausbewertung",
+          "en": "House Valuation"
+        },
+        "time": "13:00"
+      },
+      {
+        "name": {
+          "ru": "Klaus Hoffmann",
+          "de": "Klaus Hoffmann",
+          "en": "Klaus Hoffmann"
+        },
+        "service": {
+          "ru": "Просмотр офиса",
+          "de": "Bürobesichtigung",
+          "en": "Office Viewing"
+        },
+        "time": "15:00"
+      }
+    ],
+    "popular_services": {
+      "ru": [
+        "Продажа недвижимости",
+        "Аренда",
+        "Оценка объекта"
+      ],
+      "de": [
+        "Immobilienverkauf",
+        "Vermietung",
+        "Objektbewertung"
+      ],
+      "en": [
+        "Property Sales",
+        "Rental",
+        "Property Valuation"
+      ]
+    },
+    "records": {
+      "clients": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Thomas Bauer",
+            "de": "Thomas Bauer",
+            "en": "Thomas Bauer"
+          },
+          "phone": "+49 89 123 4501",
+          "note": {
+            "ru": "Ищет квартиру 3 комн.",
+            "de": "Sucht 3-Zimmer-Wohnung",
+            "en": "Looking for 3-room apartment"
+          },
+          "visits": 2
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Helga Richter",
+            "de": "Helga Richter",
+            "en": "Helga Richter"
+          },
+          "phone": "+49 89 123 4502",
+          "note": {
+            "ru": "Продаёт дом в пригороде",
+            "de": "Verkauft Haus im Vorort",
+            "en": "Selling suburban house"
+          },
+          "visits": 5
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Klaus Hoffmann",
+            "de": "Klaus Hoffmann",
+            "en": "Klaus Hoffmann"
+          },
+          "phone": "+49 89 123 4503",
+          "note": {
+            "ru": "Аренда офиса",
+            "de": "Bürovermietung",
+            "en": "Office rental"
+          },
+          "visits": 1
+        }
+      ],
+      "viewings": [
+        {
+          "id": "1",
+          "client": {
+            "ru": "Thomas Bauer",
+            "de": "Thomas Bauer",
+            "en": "Thomas Bauer"
+          },
+          "service": {
+            "ru": "Показ квартиры Maxvorstadt",
+            "de": "Besichtigung Wohnung Maxvorstadt",
+            "en": "Apartment Viewing Maxvorstadt"
+          },
+          "time": "2026-06-18 10:00",
+          "status": {
+            "ru": "Подтверждён",
+            "de": "Bestätigt",
+            "en": "Confirmed"
+          }
+        },
+        {
+          "id": "2",
+          "client": {
+            "ru": "Helga Richter",
+            "de": "Helga Richter",
+            "en": "Helga Richter"
+          },
+          "service": {
+            "ru": "Оценка дома",
+            "de": "Hausbewertung",
+            "en": "House Valuation"
+          },
+          "time": "2026-06-18 13:00",
+          "status": {
+            "ru": "Ожидает",
+            "de": "Ausstehend",
+            "en": "Pending"
+          }
+        },
+        {
+          "id": "3",
+          "client": {
+            "ru": "Klaus Hoffmann",
+            "de": "Klaus Hoffmann",
+            "en": "Klaus Hoffmann"
+          },
+          "service": {
+            "ru": "Просмотр офиса",
+            "de": "Bürobesichtigung",
+            "en": "Office Viewing"
+          },
+          "time": "2026-06-18 15:00",
+          "status": {
+            "ru": "Подтверждён",
+            "de": "Bestätigt",
+            "en": "Confirmed"
+          }
+        }
+      ],
+      "appointments": [
+        {
+          "id": "1",
+          "client": {
+            "ru": "Thomas Bauer",
+            "de": "Thomas Bauer",
+            "en": "Thomas Bauer"
+          },
+          "service": {
+            "ru": "Показ квартиры Maxvorstadt",
+            "de": "Besichtigung Wohnung Maxvorstadt",
+            "en": "Apartment Viewing Maxvorstadt"
+          },
+          "time": "2026-06-18 10:00",
+          "status": {
+            "ru": "Подтверждён",
+            "de": "Bestätigt",
+            "en": "Confirmed"
+          }
+        },
+        {
+          "id": "2",
+          "client": {
+            "ru": "Helga Richter",
+            "de": "Helga Richter",
+            "en": "Helga Richter"
+          },
+          "service": {
+            "ru": "Оценка дома",
+            "de": "Hausbewertung",
+            "en": "House Valuation"
+          },
+          "time": "2026-06-18 13:00",
+          "status": {
+            "ru": "Ожидает",
+            "de": "Ausstehend",
+            "en": "Pending"
+          }
+        },
+        {
+          "id": "3",
+          "client": {
+            "ru": "Klaus Hoffmann",
+            "de": "Klaus Hoffmann",
+            "en": "Klaus Hoffmann"
+          },
+          "service": {
+            "ru": "Просмотр офиса",
+            "de": "Bürobesichtigung",
+            "en": "Office Viewing"
+          },
+          "time": "2026-06-18 15:00",
+          "status": {
+            "ru": "Подтверждён",
+            "de": "Bestätigt",
+            "en": "Confirmed"
+          }
+        }
+      ],
+      "services": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Продажа недвижимости",
+            "de": "Immobilienverkauf",
+            "en": "Property Sales"
+          },
+          "duration": {
+            "ru": "Полное сопровождение сделки купли-продажи",
+            "de": "Begleitung des gesamten Verkaufsprozesses",
+            "en": "Full support for buying and selling"
+          },
+          "price": {
+            "ru": "Комиссия 3%",
+            "de": "3% Provision",
+            "en": "3% commission"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Аренда",
+            "de": "Vermietung",
+            "en": "Rental"
+          },
+          "duration": {
+            "ru": "Подбор арендаторов и оформление договора",
+            "de": "Mietersuche und Vertragsabwicklung",
+            "en": "Tenant search and contract processing"
+          },
+          "price": {
+            "ru": "Комиссия 1 месяц",
+            "de": "1 Monat Miete",
+            "en": "1 month rent"
+          }
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Оценка объекта",
+            "de": "Objektbewertung",
+            "en": "Property Valuation"
+          },
+          "duration": {
+            "ru": "Профессиональная оценка рыночной стоимости",
+            "de": "Professionelle Marktwertschätzung",
+            "en": "Professional market value assessment"
+          },
+          "price": {
+            "ru": "€150 фиксированно",
+            "de": "€150 pauschal",
+            "en": "€150 flat fee"
+          }
+        }
+      ],
+      "agents": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Maximilian Kern",
+            "de": "Maximilian Kern",
+            "en": "Maximilian Kern"
+          },
+          "role": {
+            "ru": "Агент по продажам",
+            "de": "Verkaufsmakler",
+            "en": "Sales Agent"
+          },
+          "status": {
+            "ru": "Доступен",
+            "de": "Verfügbar",
+            "en": "Available"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Laura Vogt",
+            "de": "Laura Vogt",
+            "en": "Laura Vogt"
+          },
+          "role": {
+            "ru": "Специалист по аренде",
+            "de": "Vermietungsspezialistin",
+            "en": "Rental Specialist"
+          },
+          "status": {
+            "ru": "Занят",
+            "de": "Besetzt",
+            "en": "Busy"
+          }
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Stefan Braun",
+            "de": "Stefan Braun",
+            "en": "Stefan Braun"
+          },
+          "role": {
+            "ru": "Старший агент",
+            "de": "Senior-Makler",
+            "en": "Senior Agent"
+          },
+          "status": {
+            "ru": "Доступен",
+            "de": "Verfügbar",
+            "en": "Available"
+          }
+        }
+      ]
+    }
+  },
+  "galleryPhotos": [
+    "/image-library/real_estate/gallery-1.jpg",
+    "/image-library/real_estate/gallery-2.jpg",
+    "/image-library/real_estate/gallery-3.jpg"
+  ],
+  "heroPhoto": "/image-library/real_estate/hero.jpg",
+  "phone": "+4915258400610",
+  "email": "uspeh.polimer2022@gmail.com",
+  "city": "München",
+  "features": [
+    "booking",
+    "clients",
+    "analytics"
+  ],
+  "pages": [
+    "dashboard",
+    "properties",
+    "agents",
+    "clients",
+    "viewings",
+    "contracts",
+    "settings"
+  ],
+  "demoData": {
+    "business_name": "UrbanKey Realty",
+    "contact": {
+      "phone": "+49 30 884 2200",
+      "email": "hello@real-estate-crm.de",
+      "working_hours": "Mon–Sat 09:00–20:00"
+    },
+    "records": {
+      "properties": [
+        {
+          "id": "1",
+          "title": "Loft Mitte",
+          "price": "€420,000",
+          "agent": "Elena K.",
+          "status": "active"
+        }
+      ],
+      "agents": [
+        {
+          "id": "1",
+          "name": "Elena Kozlova",
+          "deals": 12,
+          "phone": "+49 176 901 4422",
+          "status": "active"
+        }
+      ],
+      "clients": [
+        {
+          "id": "1",
+          "name": "Thomas Weber",
+          "phone": "+49 160 778 3301",
+          "interest": "Buy",
+          "status": "qualified"
+        }
+      ],
+      "viewings": [
+        {
+          "id": "1",
+          "property": "Loft Mitte",
+          "client": "Thomas Weber",
+          "date": "2026-06-09 11:00",
+          "status": "scheduled"
+        }
+      ],
+      "contracts": [
+        {
+          "id": "1",
+          "property": "Loft Mitte",
+          "client": "Thomas Weber",
+          "value": "€420,000",
+          "status": "draft"
+        }
+      ]
+    },
+    "appointments": [
+      {
+        "id": "1",
+        "title": "Loft Mitte",
+        "price": "€420,000",
+        "agent": "Elena K.",
+        "status": "active"
+      }
+    ],
+    "clients": [
+      {
+        "id": "1",
+        "name": "Thomas Weber",
+        "phone": "+49 160 778 3301",
+        "interest": "Buy",
+        "status": "qualified"
+      }
+    ],
+    "staff": []
+  },
+  "workingHours": {
+    "monday": "09:00-18:00",
+    "tuesday": "09:00-18:00",
+    "wednesday": "09:00-18:00",
+    "thursday": "09:00-18:00",
+    "friday": "09:00-18:00",
+    "saturday": "10:00-15:00",
+    "sunday": "closed"
+  }
+}

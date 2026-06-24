@@ -1,0 +1,55 @@
+{
+  "feedback_id": "fb_run_001",
+  "run_id": "run_001",
+  "client_id": "client_001",
+  "segment": "beauty_salon",
+  "status": "PENDING",
+  "source": "v9_run_001_session",
+  "module": "V9.2_FIRST_REAL_CLIENT_RUN",
+  "showcase_url": "/showcase",
+  "demo_url": "https://harmonious-unicorn-e1596b.netlify.app",
+  "questions": {
+    "q1_product_understood": {
+      "question": "Поняли ли вы, что делает продукт?",
+      "answer": null,
+      "allowed": ["yes", "partial", "no"]
+    },
+    "q2_result_liked": {
+      "question": "Понравился ли результат?",
+      "answer": null,
+      "allowed": ["yes", "partial", "no"]
+    },
+    "q3_would_use_in_business": {
+      "question": "Использовали бы вы это для своего бизнеса?",
+      "answer": null,
+      "allowed": ["yes", "maybe", "no"]
+    },
+    "q4_unclear": {
+      "question": "Что было непонятно?",
+      "answer": null
+    },
+    "q5_improvements": {
+      "question": "Что следует улучшить?",
+      "answer": null
+    },
+    "q6_would_pay": {
+      "question": "Заплатили бы вы за такой результат?",
+      "answer": null,
+      "allowed": ["yes", "maybe", "no"]
+    },
+    "q7_price": {
+      "question": "Если да — сколько?",
+      "answer": null,
+      "allowed": ["49", "99", "199", "499", "other"],
+      "other_amount": null,
+      "currency": "EUR"
+    }
+  },
+  "derived": {
+    "client_happy": null,
+    "feedback_result": null,
+    "expectations_met": null
+  },
+  "feedback_submitted_at": null,
+  "llm_used": false
+}

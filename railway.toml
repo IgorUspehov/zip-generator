@@ -1,0 +1,8 @@
+[build]
+# mvp-template/dist is built locally and uploaded; Railway only needs Next.js server build.
+buildCommand = "npm run build:railway"
+
+[deploy]
+startCommand = "npm run start"
+healthcheckPath = "/api/client-questionnaire"
+healthcheckTimeout = 120
