@@ -24,6 +24,8 @@ const LEMONSQUEEZY_VARIANT_MVP_DEMO = "1801729";
 const LEMONSQUEEZY_VARIANT_MVP_PRO = "1807661";
 const LEMONSQUEEZY_VARIANT_CRM_FULL = "1807671";
 
+const PADDLE_PRODUCT_MVP_PRO = "pri_01kvwyb0r4rpvv3xrfbyths7tw";
+
 function LogoIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
@@ -161,6 +163,12 @@ function buildPayHref(input: {
     params.set("email", input.email);
     params.set("name", input.name);
     return `/pay?${params.toString()}`;
+  }
+
+  if (variantId === LEMONSQUEEZY_VARIANT_MVP_PRO) {
+    const paddleUrl = new URL(`https://buy.paddle.com/product/${PADDLE_PRODUCT_MVP_PRO}`);
+    if (input.email) paddleUrl.searchParams.set("prefilled_email", input.email);
+    return paddleUrl.toString();
   }
 
   const params = new URLSearchParams();
