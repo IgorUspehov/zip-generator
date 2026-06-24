@@ -92,9 +92,6 @@ export function PayPageContent() {
   const demoUrl = searchParams?.get("demo_url")?.trim() ?? "";
   const email = searchParams?.get("email")?.trim() ?? "";
   const name = searchParams?.get("name")?.trim() ?? "";
-  const siteId = searchParams?.get("site_id")?.trim() ?? "";
-  const clientId = searchParams?.get("client_id")?.trim() ?? "";
-
   const [lang, setLang] = useState<PayLang>("de");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,7 +100,7 @@ export function PayPageContent() {
   const hasValidDemoUrl = isValidHttpUrl(demoUrl);
   const canCheckout = hasValidDemoUrl && email && name;
 
-  async function handleCheckout() {
+  function handleCheckout() {
     if (!canCheckout) {
       setError(t.missingParams);
       return;
@@ -112,32 +109,9 @@ export function PayPageContent() {
     setLoading(true);
     setError(null);
 
-    try {
-      const response = await fetch("/api/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          client_email: email,
-          client_name: name,
-          demo_url: demoUrl,
-          ...(siteId ? { site_id: siteId } : {}),
-          ...(clientId ? { client_id: clientId } : {}),
-        }),
-      });
-
-      const data = (await response.json()) as { checkout_url?: string; error?: string };
-
-      if (!response.ok || !data.checkout_url) {
-        throw new Error(data.error ?? t.checkoutError);
-      }
-
-      window.location.href = data.checkout_url;
-    } catch (checkoutError) {
-      const message =
-        checkoutError instanceof Error ? checkoutError.message : t.checkoutError;
-      setError(message);
-      setLoading(false);
-    }
+    const paddleUrl = new URL("https://buy.paddle.com/product/pri_01kvwhkc64zgmfmedgdgvdpz2g");
+    if (email) paddleUrl.searchParams.set("prefilled_email", email);
+    window.location.href = paddleUrl.toString();
   }
 
   return (
@@ -188,7 +162,7 @@ export function PayPageContent() {
         <div className="mt-10 text-center">
           <button
             type="button"
-            onClick={() => void handleCheckout()}
+            onClick={() => handleCheckout()}
             disabled={!canCheckout || loading}
             className="inline-flex w-full max-w-xl items-center justify-center rounded-2xl bg-violet-600 px-8 py-5 text-xl font-bold text-white shadow-lg shadow-violet-200 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
