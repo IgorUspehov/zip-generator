@@ -358,7 +358,7 @@ export default function Page() {
               {t.price_demo}
             </p>
             <div className="mt-10">
-              <CtaButton href="/client">{t.price_button}</CtaButton>
+              <CtaButton href="https://buy.paddle.com/product/pri_01kvwhkc64zgmfmedgdgvdpz2g">{t.price_button}</CtaButton>
             </div>
           </div>
         </div>
