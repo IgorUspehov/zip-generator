@@ -3,6 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+const PROMO_CODE = "serafim01";
+
 type PayLang = "en" | "de" | "ru";
 
 const translations = {
@@ -10,36 +12,40 @@ const translations = {
     demoReady: "Ihre Demo ist fertig!",
     openDemo: "Demo in neuem Tab öffnen",
     buyButton: "€99 kaufen — für immer behalten",
-    redirecting: "Weiterleitung zur Zahlung…",
+    freeButton: "Kostenlos erhalten →",
+    redirecting: "Weiterleitung…",
     missingParams: "Geben Sie demo_url, email und name in der URL an.",
     checkoutError: "Zahlung konnte nicht erstellt werden",
-    missingDemoUrl:
-      "Fügen Sie den Parameter demo_url zur URL hinzu, um die Vorschau zu sehen.",
+    missingDemoUrl: "Fügen Sie den Parameter demo_url zur URL hinzu, um die Vorschau zu sehen.",
     example: "Beispiel: /pay?demo_url=https://example.com&email=anna@example.com&name=Anna",
-    loading: "Laden…",
+    promoPlaceholder: "Promo-Code (optional)",
+    promoInvalid: "Ungültiger Promo-Code",
   },
   en: {
     demoReady: "Your demo is ready!",
     openDemo: "Open demo in new tab",
     buyButton: "Buy for €99 — keep forever",
-    redirecting: "Redirecting to checkout…",
+    freeButton: "Get for free →",
+    redirecting: "Redirecting…",
     missingParams: "Add demo_url, email and name to the URL.",
     checkoutError: "Could not create checkout",
     missingDemoUrl: "Add the demo_url parameter to the link to see the preview.",
     example: "Example: /pay?demo_url=https://example.com&email=anna@example.com&name=Anna",
-    loading: "Loading…",
+    promoPlaceholder: "Promo code (optional)",
+    promoInvalid: "Invalid promo code",
   },
   ru: {
     demoReady: "Ваш демо-сайт готов!",
     openDemo: "Открыть демо в новой вкладке",
     buyButton: "Купить за €99 — сохранить навсегда",
-    redirecting: "Перенаправляем на оплату…",
+    freeButton: "Получить бесплатно →",
+    redirecting: "Перенаправляем…",
     missingParams: "Укажите demo_url, email и name в ссылке.",
     checkoutError: "Не удалось создать оплату",
-    missingDemoUrl:
-      "Добавьте параметр demo_url в ссылку, чтобы увидеть превью.",
+    missingDemoUrl: "Добавьте параметр demo_url в ссылку, чтобы увидеть превью.",
     example: "Пример: /pay?demo_url=https://example.com&email=anna@example.com&name=Anna",
-    loading: "Загрузка…",
+    promoPlaceholder: "Промо-код (необязательно)",
+    promoInvalid: "Неверный промо-код",
   },
 } as const;
 
@@ -74,9 +80,7 @@ function LanguageSwitcher({
             type="button"
             onClick={() => onChange(code)}
             className={`uppercase tracking-wide transition ${
-              lang === code
-                ? "text-violet-600"
-                : "text-slate-500 hover:text-slate-800"
+              lang === code ? "text-violet-600" : "text-slate-500 hover:text-slate-800"
             }`}
           >
             {code}
@@ -92,13 +96,16 @@ export function PayPageContent() {
   const demoUrl = searchParams?.get("demo_url")?.trim() ?? "";
   const email = searchParams?.get("email")?.trim() ?? "";
   const name = searchParams?.get("name")?.trim() ?? "";
+
   const [lang, setLang] = useState<PayLang>("de");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [promoInput, setPromoInput] = useState("");
 
   const t = translations[lang];
   const hasValidDemoUrl = isValidHttpUrl(demoUrl);
   const canCheckout = hasValidDemoUrl && email && name;
+  const promoApplied = promoInput.trim().toLowerCase() === PROMO_CODE;
 
   function handleCheckout() {
     if (!canCheckout) {
@@ -108,6 +115,11 @@ export function PayPageContent() {
 
     setLoading(true);
     setError(null);
+
+    if (promoApplied) {
+      window.location.href = demoUrl;
+      return;
+    }
 
     const paddleUrl = new URL("https://buy.paddle.com/product/pri_01kvwhkc64zgmfmedgdgvdpz2g");
     if (email) paddleUrl.searchParams.set("prefilled_email", email);
@@ -160,13 +172,37 @@ export function PayPageContent() {
         </div>
 
         <div className="mt-10 text-center">
+          {/* Promo code input */}
+          <div className="mx-auto mb-4 max-w-xl">
+            <input
+              type="text"
+              value={promoInput}
+              onChange={(e) => setPromoInput(e.target.value)}
+              placeholder={t.promoPlaceholder}
+              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:ring-2 ${
+                promoInput && !promoApplied
+                  ? "border-red-300 focus:ring-red-200"
+                  : promoApplied
+                    ? "border-green-400 bg-green-50 text-green-800 focus:ring-green-200"
+                    : "border-slate-200 focus:ring-violet-200"
+              }`}
+            />
+            {promoInput && !promoApplied ? (
+              <p className="mt-1 text-xs text-red-500">{t.promoInvalid}</p>
+            ) : null}
+          </div>
+
           <button
             type="button"
             onClick={() => handleCheckout()}
             disabled={!canCheckout || loading}
-            className="inline-flex w-full max-w-xl items-center justify-center rounded-2xl bg-violet-600 px-8 py-5 text-xl font-bold text-white shadow-lg shadow-violet-200 transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className={`inline-flex w-full max-w-xl items-center justify-center rounded-2xl px-8 py-5 text-xl font-bold text-white shadow-lg transition disabled:cursor-not-allowed disabled:opacity-60 ${
+              promoApplied
+                ? "bg-green-600 shadow-green-200 hover:bg-green-700"
+                : "bg-violet-600 shadow-violet-200 hover:bg-violet-700"
+            }`}
           >
-            {loading ? t.redirecting : t.buyButton}
+            {loading ? t.redirecting : promoApplied ? t.freeButton : t.buyButton}
           </button>
 
           {error ? <p className="mt-4 text-sm font-medium text-red-600">{error}</p> : null}
