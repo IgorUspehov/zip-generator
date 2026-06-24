@@ -35,7 +35,8 @@
     "clientNotifications": "Client Notifications",
     "pricing": "Preise",
     "terms": "AGB",
-    "privacy": "Datenschutz"
+    "privacy": "Datenschutz",
+    "refund": "Rückerstattung"
   },
   "pages": {
     "dashboard": {
@@ -141,6 +142,10 @@
     "privacy": {
       "title": "Datenschutzrichtlinie",
       "description": "Umgang mit Plattform-Metadaten"
+    },
+    "refund": {
+      "title": "Rückgaberecht",
+      "description": "Erstattungsbedingungen für digitale MVP-Lieferungen"
     }
   },
   "dashboard": {

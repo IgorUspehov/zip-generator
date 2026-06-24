@@ -35,7 +35,8 @@
     "clientNotifications": "Client Notifications",
     "pricing": "Pricing",
     "terms": "Terms",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "refund": "Refund"
   },
   "pages": {
     "dashboard": {
@@ -141,6 +142,10 @@
     "privacy": {
       "title": "Privacy Policy",
       "description": "How platform metadata is handled"
+    },
+    "refund": {
+      "title": "Refund Policy",
+      "description": "Conditions for refunds on digital MVP deliveries"
     }
   },
   "dashboard": {

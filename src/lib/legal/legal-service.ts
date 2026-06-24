@@ -15,6 +15,7 @@ const ORDERS_PATH = path.join(process.cwd(), "artifacts/factory_output/client_or
 
 const TERMS_VERSION = "1.0";
 const PRIVACY_VERSION = "1.0";
+const REFUND_VERSION = "1.0";
 
 function readJson(pathValue: string): Record<string, unknown> | null {
   if (!fs.existsSync(pathValue)) {
@@ -46,6 +47,14 @@ export function loadPrivacyDocument(language?: string) {
   const fallbackPath = path.join(LEGAL_DIR, "privacy_en.json");
   const data = readJson(filePath) ?? readJson(fallbackPath);
   return data ?? { version: PRIVACY_VERSION, language: locale, title: "Privacy Policy", sections: [] };
+}
+
+export function loadRefundDocument(language?: string) {
+  const locale = normalizeLanguage(language);
+  const filePath = path.join(LEGAL_DIR, `refund_${locale}.json`);
+  const fallbackPath = path.join(LEGAL_DIR, "refund_en.json");
+  const data = readJson(filePath) ?? readJson(fallbackPath);
+  return data ?? { version: REFUND_VERSION, language: locale, title: "Refund Policy", sections: [] };
 }
 
 export function readAcceptanceFromQuestionnaire(): AcceptanceData {

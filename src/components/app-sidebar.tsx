@@ -71,6 +71,7 @@ const NAV_ITEMS = [
   { href: "/pricing", key: "pricing", icon: CreditCard },
   { href: "/terms", key: "terms", icon: FileText },
   { href: "/privacy", key: "privacy", icon: Shield },
+  { href: "/refund", key: "refund", icon: FileText },
   { href: "/client-cleanup", key: "clientCleanup", icon: Trash2 },
   { href: "/factory", key: "factory", icon: Factory },
   { href: "/settings", key: "settings", icon: Settings },
