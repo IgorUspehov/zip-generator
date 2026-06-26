@@ -8,7 +8,7 @@ type Lang = "ru" | "de" | "en";
 const translations = {
   en: {
     hero_title: "MVP in 3 Minutes",
-    hero_subtitle: "Ready MVP for your business. €99 one-time, no subscription.",
+    hero_subtitle: "Ready MVP for your business. €999 one-time, no subscription.",
     hero_button: "Get free demo →",
     process_label: "PROCESS",
     process_title: "How it works",
@@ -38,7 +38,7 @@ const translations = {
   },
   de: {
     hero_title: "MVP in 3 Minuten",
-    hero_subtitle: "Fertiges MVP für Ihr Unternehmen. €99 einmalig, kein Abo.",
+    hero_subtitle: "Fertiges MVP für Ihr Unternehmen. €999 einmalig, kein Abo.",
     hero_button: "Kostenlose Demo →",
     process_label: "PROZESS",
     process_title: "So funktioniert es",
@@ -68,7 +68,7 @@ const translations = {
   },
   ru: {
     hero_title: "MVP за 3 минуты",
-    hero_subtitle: "Готовый MVP для вашего бизнеса. €99 разово, без подписки.",
+    hero_subtitle: "Готовый MVP для вашего бизнеса. €999 разово, без подписки.",
     hero_button: "Попробовать бесплатно →",
     process_label: "ПРОЦЕСС",
     process_title: "Как работает",
@@ -351,7 +351,7 @@ export default function Page() {
           <div className="rounded-2xl border-2 border-slate-200 bg-white p-10 text-center shadow-xl shadow-slate-200/80">
             <SectionTitle eyebrow={t.price_label}>{t.price_title}</SectionTitle>
             <p className="mt-8 text-6xl font-extrabold tracking-tight text-slate-900">
-              €99
+              €999
             </p>
             <p className="mt-2 text-lg font-medium text-slate-500">{t.price_period}</p>
             <p className="mt-6 rounded-lg bg-amber-50 px-4 py-3 text-base font-semibold text-amber-900">
