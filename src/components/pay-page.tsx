@@ -1,7 +1,13 @@
 "use client";
 
+declare global {
+  interface Window {
+    Paddle: any;
+  }
+}
+
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const PROMO_CODE = "serafim01";
 
@@ -95,6 +101,15 @@ export function PayPageContent() {
   const email = searchParams?.get("email")?.trim() ?? "";
   const name = searchParams?.get("name")?.trim() ?? "";
 
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://cdn.paddle.com/paddle/v2/paddle.js";
+    script.onload = () => {
+      window.Paddle.Initialize({ token: "live_965d7c0daf7a77d23056007057b" });
+    };
+    document.head.appendChild(script);
+  }, []);
+
   const [lang, setLang] = useState<PayLang>("de");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -119,9 +134,12 @@ export function PayPageContent() {
       return;
     }
 
-    const paddleUrl = new URL("https://buy.paddle.com/product/pri_01kvwhkc64zgmfmedgdgvdpz2g");
-    if (email) paddleUrl.searchParams.set("prefilled_email", email);
-    window.location.href = paddleUrl.toString();
+    window.Paddle.Checkout.open({
+      items: [{ priceId: "pri_01kvwyk2kmmfagkfp4am68zner", quantity: 1 }],
+      customer: { email: email },
+      customData: { demo_url: demoUrl, name: name },
+    });
+    setLoading(false);
   }
 
   return (
