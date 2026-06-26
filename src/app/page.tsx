@@ -8,7 +8,7 @@ type Lang = "ru" | "de" | "en";
 const translations = {
   en: {
     hero_title: "MVP in 3 Minutes",
-    hero_subtitle: "Ready MVP for your business. €999 one-time, no subscription.",
+    hero_subtitle: "Ready MVP for your business. €99 one-time, no subscription.",
     hero_button: "Get free demo →",
     process_label: "PROCESS",
     process_title: "How it works",
@@ -28,17 +28,17 @@ const translations = {
     niches_label: "NICHES",
     niches_title: "Industries",
     price_label: "PRICE",
-    price_title: "Price",
+    price_title: "CRM Full",
     price_period: "one-time",
     price_demo: "Free demo 48 hours",
-    price_button: "Try for free →",
+    price_button: "€999 — forever",
     footer_location: "München, Germany",
     footer_agb: "Terms",
     footer_privacy: "Privacy",
   },
   de: {
     hero_title: "MVP in 3 Minuten",
-    hero_subtitle: "Fertiges MVP für Ihr Unternehmen. €999 einmalig, kein Abo.",
+    hero_subtitle: "Fertiges MVP für Ihr Unternehmen. €99 einmalig, kein Abo.",
     hero_button: "Kostenlose Demo →",
     process_label: "PROZESS",
     process_title: "So funktioniert es",
@@ -58,17 +58,17 @@ const translations = {
     niches_label: "BRANCHEN",
     niches_title: "Branchen",
     price_label: "PREIS",
-    price_title: "Preis",
+    price_title: "CRM Full",
     price_period: "einmalig",
     price_demo: "Demo kostenlos 48 Stunden",
-    price_button: "Kostenlos testen →",
+    price_button: "€999 — für immer",
     footer_location: "München, Deutschland",
     footer_agb: "AGB",
     footer_privacy: "Datenschutz",
   },
   ru: {
     hero_title: "MVP за 3 минуты",
-    hero_subtitle: "Готовый MVP для вашего бизнеса. €999 разово, без подписки.",
+    hero_subtitle: "Готовый MVP для вашего бизнеса. €99 разово, без подписки.",
     hero_button: "Попробовать бесплатно →",
     process_label: "ПРОЦЕСС",
     process_title: "Как работает",
@@ -88,10 +88,10 @@ const translations = {
     niches_label: "НИШИ",
     niches_title: "Ниши",
     price_label: "ЦЕНА",
-    price_title: "Цена",
+    price_title: "CRM Full",
     price_period: "разово",
     price_demo: "Демо бесплатно 48 часов",
-    price_button: "Попробовать бесплатно →",
+    price_button: "€999 — навсегда",
     footer_location: "Мюнхен, Германия",
     footer_agb: "Условия",
     footer_privacy: "Конфиденциальность",
@@ -358,7 +358,7 @@ export default function Page() {
               {t.price_demo}
             </p>
             <div className="mt-10">
-              <CtaButton href="https://buy.paddle.com/product/pri_01kvwhkc64zgmfmedgdgvdpz2g">{t.price_button}</CtaButton>
+              <CtaButton href="https://buy.polar.sh/polar_cl_qVHaJpa4Zon7ZJjZNAI6UNDt7vkLdV0enAUZc085fTu">{t.price_button}</CtaButton>
             </div>
           </div>
         </div>
