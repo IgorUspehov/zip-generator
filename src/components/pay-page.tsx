@@ -101,14 +101,7 @@ export function PayPageContent() {
   const email = searchParams?.get("email")?.trim() ?? "";
   const name = searchParams?.get("name")?.trim() ?? "";
 
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://cdn.paddle.com/paddle/v2/paddle.js";
-    script.onload = () => {
-      window.Paddle.Initialize({ token: "live_965d7c0daf7a77d23056007057b" });
-    };
-    document.head.appendChild(script);
-  }, []);
+
 
   const [lang, setLang] = useState<PayLang>("de");
   const [loading, setLoading] = useState(false);
