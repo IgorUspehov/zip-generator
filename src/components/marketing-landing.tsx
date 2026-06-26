@@ -30,7 +30,7 @@ const COPY: Record<
 > = {
   de: {
     heroTitle: "MVP in 3 Minuten",
-    heroSubtitle: "Fertiges MVP für Ihr Business. €99 einmalig, kein Abo.",
+    heroSubtitle: "Fertiges MVP für Ihr Business. €999 einmalig, kein Abo.",
     heroCta: "Jetzt testen →",
     processEyebrow: "Prozess",
     processTitle: "So funktioniert's",
@@ -77,14 +77,14 @@ const COPY: Record<
     ],
     priceEyebrow: "Preis",
     priceTitle: "Preis",
-    priceAmount: "€99",
+    priceAmount: "€999",
     priceNote: "einmalig",
     demoNote: "Demo 48 Stunden kostenlos",
     priceCta: "Jetzt testen →",
   },
   en: {
     heroTitle: "MVP in 3 minutes",
-    heroSubtitle: "Ready-made MVP for your business. €99 one-time, no subscription.",
+    heroSubtitle: "Ready-made MVP for your business. €999 one-time, no subscription.",
     heroCta: "Try now →",
     processEyebrow: "Process",
     processTitle: "How it works",
@@ -131,14 +131,14 @@ const COPY: Record<
     ],
     priceEyebrow: "Pricing",
     priceTitle: "Pricing",
-    priceAmount: "€99",
+    priceAmount: "€999",
     priceNote: "one-time",
     demoNote: "Free demo for 48 hours",
     priceCta: "Try now →",
   },
   ru: {
     heroTitle: "MVP за 3 минуты",
-    heroSubtitle: "Готовый MVP для вашего бизнеса. €99 разово, без подписки.",
+    heroSubtitle: "Готовый MVP для вашего бизнеса. €999 разово, без подписки.",
     heroCta: "Попробовать →",
     processEyebrow: "Процесс",
     processTitle: "Как работает",
@@ -185,7 +185,7 @@ const COPY: Record<
     ],
     priceEyebrow: "Цена",
     priceTitle: "Цена",
-    priceAmount: "€99",
+    priceAmount: "€999",
     priceNote: "разово",
     demoNote: "Демо бесплатно 48 часов",
     priceCta: "Попробовать →",
@@ -289,7 +289,7 @@ export function MarketingLanding() {
             {t.heroSubtitle}
           </p>
           <div className="mt-10">
-            <CtaButton href="/client">{t.heroCta}</CtaButton>
+            <CtaButton href="https://buy.polar.sh/polar_cl_qVHaJpa4Zon7ZJjZNAI6UNDt7vkLdV0enAUZc085fTu">{t.heroCta}</CtaButton>
           </div>
         </div>
       </section>
@@ -376,7 +376,7 @@ export function MarketingLanding() {
               {t.demoNote}
             </p>
             <div className="mt-10">
-              <CtaButton href="/client">{t.priceCta}</CtaButton>
+              <CtaButton href="https://buy.polar.sh/polar_cl_qVHaJpa4Zon7ZJjZNAI6UNDt7vkLdV0enAUZc085fTu">{t.priceCta}</CtaButton>
             </div>
           </div>
         </div>
