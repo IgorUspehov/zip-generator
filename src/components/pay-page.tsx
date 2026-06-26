@@ -127,12 +127,9 @@ export function PayPageContent() {
       return;
     }
 
-    window.Paddle.Checkout.open({
-      items: [{ priceId: "pri_01kvwyk2kmmfagkfp4am68zner", quantity: 1 }],
-      customer: { email: email },
-      customData: { demo_url: demoUrl, name: name },
-    });
-    setLoading(false);
+    const polarUrl = new URL("https://buy.polar.sh/polar_cl_uUpNQRXBAVubDpDO3zwLa5SAswkU0Jkr2835A04UF1F");
+    if (email) polarUrl.searchParams.set("prefilled_email", email);
+    window.location.href = polarUrl.toString();
   }
 
   return (
