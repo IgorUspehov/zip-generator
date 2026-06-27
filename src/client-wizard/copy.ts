@@ -42,10 +42,10 @@ export type CopyBundle = {
 const T: Record<UiLang, CopyBundle> = {
   en: {
     s1_label: "Step 1 of 3",
-    s1_h: "Fill out the questionnaire.",
-    s1_sub: "Free demo",
+    s1_h: "Let's build your MVP together.",
+    s1_sub: "No code. No developers. No AI.",
     no1: "Without code",
-    no2: "Without a programmer",
+    no2: "Without developers",
     no3: "Without AI",
     lbl_name: "Your name",
     ph_name: "Anna Müller",
@@ -99,8 +99,8 @@ const T: Record<UiLang, CopyBundle> = {
   },
   de: {
     s1_label: "Schritt 1 von 3",
-    s1_h: "Füllen Sie den Fragebogen aus.",
-    s1_sub: "Kostenloses Demo",
+    s1_h: "Wir bauen Ihr MVP gemeinsam.",
+    s1_sub: "Kein Code. Kein Entwickler. Keine KI.",
     no1: "Ohne Code",
     no2: "Ohne Entwickler",
     no3: "Ohne KI",
@@ -156,8 +156,8 @@ const T: Record<UiLang, CopyBundle> = {
   },
   ru: {
     s1_label: "Шаг 1 из 3",
-    s1_h: "Заполните опросник.",
-    s1_sub: "Бесплатное демо",
+    s1_h: "Делаем вместе ваш MVP.",
+    s1_sub: "Без кода. Без программиста. Без ИИ.",
     no1: "Без кода",
     no2: "Без программиста",
     no3: "Без ИИ",
