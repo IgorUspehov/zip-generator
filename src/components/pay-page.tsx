@@ -125,7 +125,7 @@ export function PayPageContent() {
       return;
     }
 
-    const polarUrl = new URL("https://buy.polar.sh/polar_cl_uUpNQRXBAVubDpDO3zwLa5SAswkU0Jkr2835A04UF1F");
+    const polarUrl = new URL("https://buy.polar.sh/polar_cl_qVHaJpa4Zon7ZJjZNAI6UNDt7vkLdV0enAUZc085fTu");
     if (email) polarUrl.searchParams.set("prefilled_email", email);
     window.location.href = polarUrl.toString();
   }
