@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import {
@@ -11,7 +10,6 @@ import {
   SECTOR_TO_BUSINESS_TYPE,
 } from "@/client-wizard/api";
 import { getCopy, type UiLang } from "@/client-wizard/copy";
-import { getPayTranslations } from "@/client-wizard/pay-translations";
 import { getTierTranslations } from "@/client-wizard/tier-translations";
 import { DEFAULT_BUSINESS_TYPE } from "@/lib/sector-mapping";
 import { executeRecaptcha } from "@/lib/recaptcha/client";
@@ -19,13 +17,7 @@ import type { PreviewApiResponse, ResultApiResponse, StepId } from "@/client-wiz
 
 import "@/client-wizard/styles.css";
 
-const LEMONSQUEEZY_STORE_HOST = "https://mvpfactory.lemonsqueezy.com";
-const LEMONSQUEEZY_VARIANT_MVP_DEMO = "1801729";
-const LEMONSQUEEZY_VARIANT_MVP_PRO = "1807661";
-const LEMONSQUEEZY_VARIANT_CRM_FULL = "1807671";
-
-const PADDLE_PRODUCT_MVP_PRO = "pri_01kvwyb0r4rpvv3xrfbyths7tw";
-const PADDLE_PRODUCT_CRM_FULL = "pri_01kvwyk2kmmfagkfp4am68zner";
+const POLAR_CHECKOUT_URL = "https://buy.polar.sh/polar_cl_uUpNQRXBAVubDpDO3zwLa5SAswkU0Jkr2835A04UF1F";
 
 function LogoIcon() {
   return (
@@ -142,185 +134,26 @@ function DeliveryLink({
   );
 }
 
-function buildPayHref(input: {
-  demoUrl: string;
-  siteId?: string;
-  clientId?: string;
-  email: string;
-  name: string;
-  variantId?: string;
-}) {
-  const variantId = input.variantId ?? LEMONSQUEEZY_VARIANT_MVP_DEMO;
-
-  if (variantId === LEMONSQUEEZY_VARIANT_MVP_DEMO) {
-    const params = new URLSearchParams();
-    params.set("demo_url", input.demoUrl);
-    if (input.siteId) {
-      params.set("site_id", input.siteId);
-    }
-    if (input.clientId) {
-      params.set("client_id", input.clientId);
-    }
-    params.set("email", input.email);
-    params.set("name", input.name);
-    return `/pay?${params.toString()}`;
-  }
-
-  if (variantId === LEMONSQUEEZY_VARIANT_MVP_PRO) {
-    const paddleUrl = new URL(`https://buy.paddle.com/product/${PADDLE_PRODUCT_MVP_PRO}`);
-    if (input.email) paddleUrl.searchParams.set("prefilled_email", input.email);
-    return paddleUrl.toString();
-  }
-
-  if (variantId === LEMONSQUEEZY_VARIANT_CRM_FULL) {
-    const paddleUrl = new URL(`https://buy.paddle.com/product/${PADDLE_PRODUCT_CRM_FULL}`);
-    if (input.email) paddleUrl.searchParams.set("prefilled_email", input.email);
-    return paddleUrl.toString();
-  }
-
-  const params = new URLSearchParams();
-  params.set("checkout[email]", input.email);
-  params.set("checkout[name]", input.name);
-  params.set("checkout[custom][demo_url]", input.demoUrl);
-  if (input.siteId) {
-    params.set("checkout[custom][site_id]", input.siteId);
-  }
-  if (input.clientId) {
-    params.set("checkout[custom][client_id]", input.clientId);
-  }
-  if (input.clientId && typeof window !== "undefined") {
-    params.set(
-      "checkout[product_options][redirect_url]",
-      `${window.location.origin}/success?clientId=${encodeURIComponent(input.clientId)}&tier=mvp_pro&email=${encodeURIComponent(input.email)}`,
-    );
-  }
-  return `${LEMONSQUEEZY_STORE_HOST}/buy/${variantId}?${params.toString()}`;
-}
-
-function resolveDemoUrl(
-  deployMeta: { demoUrl: string } | null,
-  pendingRedirectUrl: string | null,
-  result: ResultApiResponse | null,
-): string | null {
-  if (deployMeta?.demoUrl) {
-    return deployMeta.demoUrl;
-  }
-  if (pendingRedirectUrl) {
-    return pendingRedirectUrl;
-  }
-  const netlify = resolveDeliveryOption(result, "netlify");
-  return netlify.href ?? null;
+function buildCrmFullCheckoutHref(input: { email: string }) {
+  const polarUrl = new URL(POLAR_CHECKOUT_URL);
+  if (input.email) polarUrl.searchParams.set("prefilled_email", input.email);
+  return polarUrl.toString();
 }
 
 function PricingTiersBlock({
-  payHref,
-  payHrefPro,
   payHrefFull,
   lang,
-  clientId,
-  email,
 }: {
-  payHref: string;
-  payHrefPro: string;
   payHrefFull: string;
   lang: UiLang;
-  clientId?: string;
-  email?: string;
 }) {
-  const payCopy = getPayTranslations(lang);
   const tierCopy = getTierTranslations(lang);
-  const [proDownloadToken, setProDownloadToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!clientId || !email?.trim()) {
-      setProDownloadToken(null);
-      return;
-    }
-
-    let cancelled = false;
-
-    const pollStatus = async () => {
-      try {
-        const params = new URLSearchParams({
-          clientId,
-          email: email.trim(),
-        });
-        const response = await fetch(`/api/mvp-pro/status?${params.toString()}`);
-        if (!response.ok) {
-          return;
-        }
-        const data = (await response.json()) as { ready?: boolean; downloadToken?: string };
-        if (!cancelled && data.ready && data.downloadToken) {
-          setProDownloadToken(data.downloadToken);
-        }
-      } catch {
-        /* ignore polling errors */
-      }
-    };
-
-    void pollStatus();
-    const timer = window.setInterval(() => {
-      void pollStatus();
-    }, 5000);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(timer);
-    };
-  }, [clientId, email]);
-
-  const handleDownloadProZip = () => {
-    if (!clientId || !proDownloadToken) {
-      return;
-    }
-    const params = new URLSearchParams({
-      clientId,
-      token: proDownloadToken,
-    });
-    window.open(`/api/download-zip?${params.toString()}`, "_blank", "noopener,noreferrer");
-  };
 
   return (
     <div className="pricing-tiers-section">
       <hr className="pricing-tiers-divider" />
       <h3 className="pricing-tiers-title">{tierCopy.choosePlan}</h3>
       <div className="pricing-tiers-grid">
-        <article className="pricing-tier-card">
-          <div className="pricing-tier-icon" aria-hidden>
-            ⚡
-          </div>
-          <h4 className="pricing-tier-name">{tierCopy.mvpDemo.name}</h4>
-          <div className="pricing-tier-price">€99</div>
-          <p className="pricing-tier-desc">{tierCopy.mvpDemo.description}</p>
-          <Link href={payHref} className="pricing-tier-btn pricing-tier-btn--primary">
-            {payCopy.keepForever}
-          </Link>
-        </article>
-
-        <article className="pricing-tier-card pricing-tier-card--popular">
-          <span className="pricing-tier-badge">{tierCopy.popular}</span>
-          <div className="pricing-tier-icon" aria-hidden>
-            🚀
-          </div>
-          <h4 className="pricing-tier-name">{tierCopy.mvpPro.name}</h4>
-          <div className="pricing-tier-price">€499</div>
-          <p className="pricing-tier-desc">{tierCopy.mvpPro.description}</p>
-          {proDownloadToken && clientId ? (
-            <button type="button" className="pricing-tier-btn pricing-tier-btn--primary" onClick={handleDownloadProZip}>
-              {tierCopy.downloadZip}
-            </button>
-          ) : (
-            <a
-              href={payHrefPro}
-              className="pricing-tier-btn"
-              target="_blank"
-              rel="noreferrer"
-            >
-              €499
-            </a>
-          )}
-        </article>
-
         <article className="pricing-tier-card">
           <div className="pricing-tier-icon" aria-hidden>
             💎
@@ -330,7 +163,7 @@ function PricingTiersBlock({
           <p className="pricing-tier-desc">{tierCopy.crmFull.description}</p>
           <a
             href={payHrefFull}
-            className="pricing-tier-btn"
+            className="pricing-tier-btn pricing-tier-btn--primary"
             target="_blank"
             rel="noreferrer"
           >
@@ -380,6 +213,11 @@ export function ClientWizardPage() {
   const [previewBodyHtml, setPreviewBodyHtml] = useState("");
   const [s6Sub, setS6Sub] = useState("—");
   const [publishCountdown, setPublishCountdown] = useState<number | null>(null);
+  const [paid, setPaid] = useState(false);
+
+  useEffect(() => {
+    setPaid(new URLSearchParams(window.location.search).get("paid") === "true");
+  }, []);
 
   useEffect(() => {
     if (!pendingRedirectUrl) {
@@ -540,24 +378,7 @@ export function ClientWizardPage() {
 
   const stepClass = (id: StepId) => (step === id ? "step active" : "step");
 
-  const demoUrl = resolveDemoUrl(deployMeta, pendingRedirectUrl, resultData);
-  const payInput =
-    demoUrl && email.trim() && name.trim()
-      ? {
-          demoUrl,
-          siteId: deployMeta?.siteId,
-          clientId: deployMeta?.clientId,
-          email: email.trim(),
-          name: name.trim(),
-        }
-      : null;
-  const payHref = payInput ? buildPayHref(payInput) : null;
-  const payHrefPro = payInput
-    ? buildPayHref({ ...payInput, variantId: LEMONSQUEEZY_VARIANT_MVP_PRO })
-    : null;
-  const payHrefFull = payInput
-    ? buildPayHref({ ...payInput, variantId: LEMONSQUEEZY_VARIANT_CRM_FULL })
-    : null;
+  const payHrefFull = email.trim() ? buildCrmFullCheckoutHref({ email: email.trim() }) : null;
 
   return (
     <div className="mf-root">
@@ -765,75 +586,72 @@ export function ClientWizardPage() {
                         ? "Ihr persönliches MVP ist bereit"
                         : "Your personal MVP is ready"}
                   </p>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: 8,
-                      marginBottom: 12,
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <input
-                      type="text"
-                      readOnly
-                      value={pendingRedirectUrl}
-                      style={{
-                        flex: 1,
-                        minWidth: 0,
-                        padding: "10px 12px",
-                        borderRadius: 10,
-                        border: "1px solid #cbd5e1",
-                        background: "#f8fafc",
-                        color: "#0f172a",
-                        fontSize: 13,
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className="btn-primary"
-                      style={{
-                        flexShrink: 0,
-                        marginBottom: 0,
-                        padding: "10px 16px",
-                        fontSize: 14,
-                      }}
-                      onClick={() => void navigator.clipboard.writeText(pendingRedirectUrl)}
-                    >
-                      {copyLinkLabel}
-                    </button>
-                  </div>
-                  {publishCountdownText ? (
-                    <p
-                      className="step-sub"
-                      style={{ textAlign: "center", marginBottom: 12, fontWeight: 600 }}
-                    >
-                      {publishCountdownText}
-                    </p>
-                  ) : (
-                    <a
-                      href={pendingRedirectUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="btn-primary"
-                      style={{
-                        display: "flex",
-                        width: "100%",
-                        justifyContent: "center",
-                        marginBottom: 0,
-                      }}
-                    >
-                      {openMvpLabel}
-                    </a>
-                  )}
-                  {payHref && payHrefPro && payHrefFull ? (
-                    <PricingTiersBlock
-                      payHref={payHref}
-                      payHrefPro={payHrefPro}
-                      payHrefFull={payHrefFull}
-                      lang={lang}
-                      clientId={deployMeta?.clientId}
-                      email={email.trim()}
-                    />
+                  {paid ? (
+                    <>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 8,
+                          marginBottom: 12,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <input
+                          type="text"
+                          readOnly
+                          value={pendingRedirectUrl}
+                          style={{
+                            flex: 1,
+                            minWidth: 0,
+                            padding: "10px 12px",
+                            borderRadius: 10,
+                            border: "1px solid #cbd5e1",
+                            background: "#f8fafc",
+                            color: "#0f172a",
+                            fontSize: 13,
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="btn-primary"
+                          style={{
+                            flexShrink: 0,
+                            marginBottom: 0,
+                            padding: "10px 16px",
+                            fontSize: 14,
+                          }}
+                          onClick={() => void navigator.clipboard.writeText(pendingRedirectUrl)}
+                        >
+                          {copyLinkLabel}
+                        </button>
+                      </div>
+                      {publishCountdownText ? (
+                        <p
+                          className="step-sub"
+                          style={{ textAlign: "center", marginBottom: 12, fontWeight: 600 }}
+                        >
+                          {publishCountdownText}
+                        </p>
+                      ) : (
+                        <a
+                          href={pendingRedirectUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn-primary"
+                          style={{
+                            display: "flex",
+                            width: "100%",
+                            justifyContent: "center",
+                            marginBottom: 0,
+                          }}
+                        >
+                          {openMvpLabel}
+                        </a>
+                      )}
+                    </>
+                  ) : null}
+                  {payHrefFull ? (
+                    <PricingTiersBlock payHrefFull={payHrefFull} lang={lang} />
                   ) : null}
                 </div>
               ) : null}
@@ -1015,15 +833,8 @@ export function ClientWizardPage() {
                 demo.mp4
               </DeliveryLink>
             </div>
-            {payHref && payHrefPro && payHrefFull ? (
-              <PricingTiersBlock
-                payHref={payHref}
-                payHrefPro={payHrefPro}
-                payHrefFull={payHrefFull}
-                lang={lang}
-                clientId={deployMeta?.clientId}
-                email={email.trim()}
-              />
+            {payHrefFull ? (
+              <PricingTiersBlock payHrefFull={payHrefFull} lang={lang} />
             ) : null}
             <button
               type="button"
