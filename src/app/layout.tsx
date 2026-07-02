@@ -17,12 +17,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MVP Factory — MVP для вашего бизнеса за 3 минуты",
-  description: "Получите готовый MVP для бизнеса. €99 разово, без подписки.",
+  title: "Factory Website CRM — Website + CRM для вашего бизнеса",
+  description: "Сайт с CRM под ключ. €999 разово.",
   metadataBase: new URL("https://saas-mvp-funnel-production.up.railway.app"),
   openGraph: {
-    title: "MVP Factory — MVP для вашего бизнеса за 3 минуты",
-    description: "Получите готовый MVP для бизнеса. €99 разово, без подписки.",
+    title: "Factory Website CRM — Website + CRM для вашего бизнеса",
+    description: "Сайт с CRM под ключ. €999 разово.",
     url: "/",
     type: "website",
     images: [
@@ -30,14 +30,14 @@ export const metadata: Metadata = {
         url: "https://saas-mvp-funnel-production.up.railway.app/og-image.png",
         width: 1200,
         height: 630,
-        alt: "MVP Factory — воронка создания CRM-сайта",
+        alt: "Factory Website CRM — воронка создания CRM-сайта",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "MVP Factory — MVP для вашего бизнеса за 3 минуты",
-    description: "Получите готовый MVP для бизнеса. €99 разово, без подписки.",
+    title: "Factory Website CRM — Website + CRM для вашего бизнеса",
+    description: "Сайт с CRM под ключ. €999 разово.",
     images: ["https://saas-mvp-funnel-production.up.railway.app/og-image.png"],
   },
 };
@@ -50,10 +50,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="light" suppressHydrationWarning>
       <head>
-        <meta property="og:title" content="MVP Factory — MVP для вашего бизнеса за 3 минуты" />
+        <meta property="og:title" content="Factory Website CRM — Website + CRM для вашего бизнеса" />
         <meta
           property="og:description"
-          content="Получите готовый MVP для бизнеса. €99 разово, без подписки."
+          content="Сайт с CRM под ключ. €999 разово."
         />
         <meta
           property="og:image"
