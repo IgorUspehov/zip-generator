@@ -17,7 +17,8 @@ import type { PreviewApiResponse, ResultApiResponse, StepId } from "@/client-wiz
 
 import "@/client-wizard/styles.css";
 
-const POLAR_CHECKOUT_URL = "https://buy.polar.sh/polar_cl_uUpNQRXBAVubDpDO3zwLa5SAswkU0Jkr2835A04UF1F";
+const POLAR_CHECKOUT_URL = "https://buy.polar.sh/polar_cl_qVHaJpa4Zon7ZJjZNAI6UNDt7vkLdV0enAUZc085fTu";
+const CRM_PROMO_CODE = "serafim01";
 
 function LogoIcon() {
   return (
@@ -143,11 +144,24 @@ function buildCrmFullCheckoutHref(input: { email: string }) {
 function PricingTiersBlock({
   payHrefFull,
   lang,
+  promoInput,
+  onPromoInputChange,
+  promoApplied,
 }: {
   payHrefFull: string;
   lang: UiLang;
+  promoInput: string;
+  onPromoInputChange: (value: string) => void;
+  promoApplied: boolean;
 }) {
   const tierCopy = getTierTranslations(lang);
+
+  const promoLabel =
+    lang === "ru" ? "Введите промокод" : lang === "de" ? "Promo-Code eingeben" : "Enter promo code";
+  const promoPlaceholder =
+    lang === "ru" ? "Промо-код (необязательно)" : lang === "de" ? "Promo-Code (optional)" : "Promo code (optional)";
+  const promoInvalid =
+    lang === "ru" ? "Неверный промо-код" : lang === "de" ? "Ungültiger Promo-Code" : "Invalid promo code";
 
   return (
     <div className="pricing-tiers-section">
@@ -170,6 +184,24 @@ function PricingTiersBlock({
             {tierCopy.crmFull.contact}
           </a>
         </article>
+      </div>
+      <div style={{ marginTop: 16 }}>
+        <p className="step-sub" style={{ marginBottom: 8, textAlign: "center" }}>
+          {promoLabel}
+        </p>
+        <input
+          type="text"
+          className="inp"
+          value={promoInput}
+          onChange={(e) => onPromoInputChange(e.target.value)}
+          placeholder={promoPlaceholder}
+          style={{
+            borderColor: promoInput && !promoApplied ? "#EF4444" : promoApplied ? "#10B981" : undefined,
+          }}
+        />
+        {promoInput && !promoApplied ? (
+          <p style={{ marginTop: 4, fontSize: 12, color: "#EF4444", textAlign: "center" }}>{promoInvalid}</p>
+        ) : null}
       </div>
     </div>
   );
@@ -214,6 +246,8 @@ export function ClientWizardPage() {
   const [s6Sub, setS6Sub] = useState("—");
   const [publishCountdown, setPublishCountdown] = useState<number | null>(null);
   const [paid, setPaid] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+  const promoApplied = promoInput.trim().toLowerCase() === CRM_PROMO_CODE;
 
   useEffect(() => {
     setPaid(new URLSearchParams(window.location.search).get("paid") === "true");
@@ -586,7 +620,7 @@ export function ClientWizardPage() {
                         ? "Ihr persönliches MVP ist bereit"
                         : "Your personal MVP is ready"}
                   </p>
-                  {paid ? (
+                  {paid || promoApplied ? (
                     <>
                       <div
                         style={{
@@ -651,7 +685,13 @@ export function ClientWizardPage() {
                     </>
                   ) : null}
                   {payHrefFull ? (
-                    <PricingTiersBlock payHrefFull={payHrefFull} lang={lang} />
+                    <PricingTiersBlock
+                      payHrefFull={payHrefFull}
+                      lang={lang}
+                      promoInput={promoInput}
+                      onPromoInputChange={setPromoInput}
+                      promoApplied={promoApplied}
+                    />
                   ) : null}
                 </div>
               ) : null}
@@ -834,7 +874,13 @@ export function ClientWizardPage() {
               </DeliveryLink>
             </div>
             {payHrefFull ? (
-              <PricingTiersBlock payHrefFull={payHrefFull} lang={lang} />
+              <PricingTiersBlock
+                payHrefFull={payHrefFull}
+                lang={lang}
+                promoInput={promoInput}
+                onPromoInputChange={setPromoInput}
+                promoApplied={promoApplied}
+              />
             ) : null}
             <button
               type="button"
