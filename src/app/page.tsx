@@ -5,11 +5,13 @@ import { useState } from "react";
 
 type Lang = "ru" | "de" | "en";
 
+const POLAR_CHECKOUT_CRM_DEMO =
+  "https://buy.polar.sh/polar_cl_uUpNQRXBAVubDpDO3zwLa5SAswkU0Jkr2835A04UF1F";
+
 const translations = {
   en: {
-    hero_title: "MVP in 3 Minutes",
-    hero_subtitle: "Ready MVP for your business. €99 one-time, no subscription.",
-    hero_button: "Get free demo →",
+    hero_title: "Website + CRM in 3 Minutes",
+    hero_button: "€99 once, forever, no subscription",
     process_label: "PROCESS",
     process_title: "How it works",
     step1_title: "Fill out the form",
@@ -28,18 +30,16 @@ const translations = {
     niches_label: "NICHES",
     niches_title: "Industries",
     price_label: "PRICE",
-    price_title: "CRM Full",
+    price_title: "CRM",
     price_period: "one-time",
-    price_demo: "",
-    price_button: "€999 — forever",
+    price_button: "€99 once, forever, no subscription",
     footer_location: "München, Germany",
     footer_agb: "Terms",
     footer_privacy: "Privacy",
   },
   de: {
-    hero_title: "MVP in 3 Minuten",
-    hero_subtitle: "Fertiges MVP für Ihr Unternehmen. €99 einmalig, kein Abo.",
-    hero_button: "Kostenlose Demo →",
+    hero_title: "Website + CRM in 3 Minuten",
+    hero_button: "€99 einmalig, für immer, kein Abo",
     process_label: "PROZESS",
     process_title: "So funktioniert es",
     step1_title: "Fragebogen ausfüllen",
@@ -58,18 +58,16 @@ const translations = {
     niches_label: "BRANCHEN",
     niches_title: "Branchen",
     price_label: "PREIS",
-    price_title: "CRM Full",
+    price_title: "CRM",
     price_period: "einmalig",
-    price_demo: "",
-    price_button: "€999 — für immer",
+    price_button: "€99 einmalig, für immer, kein Abo",
     footer_location: "München, Deutschland",
     footer_agb: "AGB",
     footer_privacy: "Datenschutz",
   },
   ru: {
-    hero_title: "MVP за 3 минуты",
-    hero_subtitle: "Готовый MVP для вашего бизнеса. €99 разово, без подписки.",
-    hero_button: "Попробовать бесплатно →",
+    hero_title: "Website + CRM за 3 минуты",
+    hero_button: "€99 разово, навсегда, без подписки",
     process_label: "ПРОЦЕСС",
     process_title: "Как работает",
     step1_title: "Заполните анкету",
@@ -88,10 +86,9 @@ const translations = {
     niches_label: "НИШИ",
     niches_title: "Ниши",
     price_label: "ЦЕНА",
-    price_title: "CRM Full",
+    price_title: "CRM",
     price_period: "разово",
-    price_demo: "",
-    price_button: "€999 — навсегда",
+    price_button: "€99 разово, навсегда, без подписки",
     footer_location: "Мюнхен, Германия",
     footer_agb: "Условия",
     footer_privacy: "Конфиденциальность",
@@ -263,9 +260,6 @@ export default function Page() {
           <h1 className="text-5xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl">
             {t.hero_title}
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/90 sm:text-xl">
-            {t.hero_subtitle}
-          </p>
           <div className="mt-10">
             <CtaButton href="/client">{t.hero_button}</CtaButton>
           </div>
@@ -351,14 +345,11 @@ export default function Page() {
           <div className="rounded-2xl border-2 border-slate-200 bg-white p-10 text-center shadow-xl shadow-slate-200/80">
             <SectionTitle eyebrow={t.price_label}>{t.price_title}</SectionTitle>
             <p className="mt-8 text-6xl font-extrabold tracking-tight text-slate-900">
-              €999
+              €99
             </p>
             <p className="mt-2 text-lg font-medium text-slate-500">{t.price_period}</p>
-            <p className="mt-6 rounded-lg bg-amber-50 px-4 py-3 text-base font-semibold text-amber-900">
-              {t.price_demo}
-            </p>
             <div className="mt-10">
-              <CtaButton href="https://buy.polar.sh/polar_cl_qVHaJpa4Zon7ZJjZNAI6UNDt7vkLdV0enAUZc085fTu">{t.price_button}</CtaButton>
+              <CtaButton href={POLAR_CHECKOUT_CRM_DEMO}>{t.price_button}</CtaButton>
             </div>
           </div>
         </div>
