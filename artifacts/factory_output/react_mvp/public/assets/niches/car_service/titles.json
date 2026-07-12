@@ -1,0 +1,39 @@
+{
+  "panel_title": {
+    "ru": "Панель автосервиса",
+    "de": "Autowerkstatt-Panel",
+    "en": "Auto Service Panel"
+  },
+  "panel_tagline": {
+    "ru": "Заказы, автомобили и механики",
+    "de": "Aufträge, Fahrzeuge und Mechaniker",
+    "en": "Orders, vehicles and mechanics"
+  },
+  "tabs": {
+    "dashboard": {
+      "ru": "Дашборд",
+      "de": "Dashboard",
+      "en": "Dashboard"
+    },
+    "clients": {
+      "ru": "Клиенты",
+      "de": "Kunden",
+      "en": "Clients"
+    },
+    "orders": {
+      "ru": "Заказы",
+      "de": "Aufträge",
+      "en": "Orders"
+    },
+    "services": {
+      "ru": "Услуги",
+      "de": "Dienstleistungen",
+      "en": "Services"
+    },
+    "mechanics": {
+      "ru": "Механики",
+      "de": "Mechaniker",
+      "en": "Mechanics"
+    }
+  }
+}

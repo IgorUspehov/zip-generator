@@ -1,0 +1,44 @@
+{
+  "panel_title": {
+    "ru": "Панель ресторана",
+    "de": "Restaurant-Panel",
+    "en": "Restaurant Panel"
+  },
+  "panel_tagline": {
+    "ru": "Бронирования, меню и персонал",
+    "de": "Reservierungen, Menü und Personal",
+    "en": "Reservations, menu and staff"
+  },
+  "tabs": {
+    "dashboard": {
+      "ru": "Дашборд",
+      "de": "Dashboard",
+      "en": "Dashboard"
+    },
+    "reservations": {
+      "ru": "Бронирования",
+      "de": "Reservierungen",
+      "en": "Reservations"
+    },
+    "tables": {
+      "ru": "Столы",
+      "de": "Tische",
+      "en": "Tables"
+    },
+    "menu": {
+      "ru": "Меню",
+      "de": "Speisekarte",
+      "en": "Menu"
+    },
+    "staff": {
+      "ru": "Персонал",
+      "de": "Personal",
+      "en": "Staff"
+    },
+    "settings": {
+      "ru": "Настройки",
+      "de": "Einstellungen",
+      "en": "Settings"
+    }
+  }
+}

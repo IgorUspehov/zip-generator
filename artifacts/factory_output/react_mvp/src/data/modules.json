@@ -1,0 +1,8 @@
+{
+  "modules": [
+    "appointments",
+    "crm",
+    "notifications"
+  ],
+  "llm_used": false
+}

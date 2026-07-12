@@ -8,7 +8,12 @@ out/
 # build outputs
 dist/
 output/
-artifacts/
+artifacts/**
+!artifacts/factory_output/
+!artifacts/factory_output/react_mvp/
+!artifacts/factory_output/react_mvp/**
+artifacts/factory_output/react_mvp/node_modules/**
+artifacts/factory_output/react_mvp/dist/**
 
 # netlify / vercel
 .netlify/

@@ -1,6 +1,6 @@
 [build]
-# mvp-template/dist is built locally and uploaded; Railway only needs Next.js server build.
-buildCommand = "npm run build:railway"
+# Build react_mvp dist in-container so Netlify deploy can resolve artifacts/factory_output/react_mvp/dist.
+buildCommand = "npm run build:railway:deploy"
 
 [deploy]
 startCommand = "npm run start"

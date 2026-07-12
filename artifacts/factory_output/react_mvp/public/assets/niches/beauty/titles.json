@@ -1,0 +1,39 @@
+{
+  "panel_title": {
+    "ru": "Панель салона",
+    "de": "Salon-Panel",
+    "en": "Salon Panel"
+  },
+  "panel_tagline": {
+    "ru": "Клиенты, мастера и услуги",
+    "de": "Kunden, Meister und Dienstleistungen",
+    "en": "Clients, stylists and services"
+  },
+  "tabs": {
+    "dashboard": {
+      "ru": "Дашборд",
+      "de": "Dashboard",
+      "en": "Dashboard"
+    },
+    "clients": {
+      "ru": "Клиенты",
+      "de": "Kunden",
+      "en": "Clients"
+    },
+    "appointments": {
+      "ru": "Приёмы",
+      "de": "Termine",
+      "en": "Appointments"
+    },
+    "services": {
+      "ru": "Услуги",
+      "de": "Dienstleistungen",
+      "en": "Services"
+    },
+    "masters": {
+      "ru": "Мастера",
+      "de": "Meister",
+      "en": "Stylists"
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "version": "2.0.0",
+  "phase": "CLIENT_DELIVERY_V2_PHASE2",
+  "llm_used": false,
+  "domain_key": "generic",
+  "business_type": "generic",
+  "normalized_category": "generic",
+  "language": "ru",
+  "dashboard_title": "MVP Dashboard",
+  "business_type_label": "Business / Generic",
+  "sector_display_name": "Business",
+  "accent_tagline": "Your personal MVP dashboard",
+  "hero_images": [],
+  "gallery_images": [],
+  "template": "generic_crm",
+  "modules": [
+    "dashboard",
+    "clients",
+    "settings"
+  ],
+  "module_flags": {
+    "appointments": false,
+    "crm": true,
+    "notifications": false,
+    "menu": false,
+    "staff": false
+  },
+  "theme": {
+    "accent": "#0E7C6B",
+    "accent_soft": "#d1fae5",
+    "header_bg": "linear-gradient(135deg, #0f766e 0%, #0E7C6B 100%)",
+    "icon": "📊"
+  },
+  "labels": {
+    "contact": "Contact",
+    "phone": "Phone",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "email": "Email",
+    "language": "Language",
+    "template": "Template",
+    "modules": "Modules",
+    "business_type": "Sector",
+    "technical_details": "Technical details",
+    "reminders": "Reminders",
+    "active_modules": "Active modules",
+    "dashboard_title": "MVP Dashboard",
+    "business_type_label": "Business",
+    "staff_section": "Team",
+    "services_section": "Services",
+    "appointments_section": "Appointments",
+    "clients_section": "Clients",
+    "accent_tagline": "Your personal MVP dashboard"
+  },
+  "sections": {
+    "staff": "Team",
+    "services": "Services",
+    "appointments": "Appointments",
+    "clients": "Clients"
+  },
+  "demo": {
+    "staff": [],
+    "services": [],
+    "appointments": [],
+    "clients": [],
+    "notifications": []
+  },
+  "gif_assets": []
+}

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "image-library:bootstrap": "node scripts/bootstrap-image-library.mjs",
+    "react-mvp:install": "npm ci --prefix artifacts/factory_output/react_mvp || npm install --prefix artifacts/factory_output/react_mvp",
     "react-mvp:build": "npm run build --prefix artifacts/factory_output/react_mvp",
     "dev:client-funnel": "next dev -p 3001",
     "generate:presentation": "node scripts/generate-presentation.mjs",
@@ -169,6 +170,7 @@
     "verify:production-assets": "node scripts/verify-production-assets.mjs",
     "build": "npm run image-library:bootstrap && npm run react-mvp:build && next build && npm run verify:production-assets",
     "build:railway": "next build",
+    "build:railway:deploy": "npm run react-mvp:install && npm run react-mvp:build && next build",
     "start": "next start",
     "lint": "eslint",
     "knowledge-library-audit:generate": "python3 -m factory.knowledge_library_audit_factory.knowledge_library_audit_factory"

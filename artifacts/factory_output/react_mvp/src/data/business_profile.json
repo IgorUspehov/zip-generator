@@ -1,0 +1,12 @@
+{
+  "business_name": "Test Klinik München",
+  "business_type": "health_clinic",
+  "language": "ru",
+  "template": "medical_crm",
+  "ui": "dashboard_modern",
+  "delivery_mode": "client_package",
+  "build_target": "react_mvp",
+  "package_target": "client_package",
+  "zip_target": "mvp_package.zip",
+  "llm_used": false
+}

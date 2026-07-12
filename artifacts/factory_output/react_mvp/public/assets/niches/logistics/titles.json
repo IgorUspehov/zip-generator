@@ -1,0 +1,39 @@
+{
+  "panel_title": {
+    "ru": "Панель логистики",
+    "de": "Logistik-Panel",
+    "en": "Logistics Panel"
+  },
+  "panel_tagline": {
+    "ru": "Маршруты, водители и доставки",
+    "de": "Routen, Fahrer und Lieferungen",
+    "en": "Routes, drivers and deliveries"
+  },
+  "tabs": {
+    "dashboard": {
+      "ru": "Дашборд",
+      "de": "Dashboard",
+      "en": "Dashboard"
+    },
+    "routes": {
+      "ru": "Маршруты",
+      "de": "Routen",
+      "en": "Routes"
+    },
+    "drivers": {
+      "ru": "Водители",
+      "de": "Fahrer",
+      "en": "Drivers"
+    },
+    "deliveries": {
+      "ru": "Доставки",
+      "de": "Lieferungen",
+      "en": "Deliveries"
+    },
+    "vehicles": {
+      "ru": "Транспорт",
+      "de": "Fahrzeuge",
+      "en": "Vehicles"
+    }
+  }
+}

@@ -1,0 +1,1075 @@
+{
+  "module": "BUSINESS_CONTENT_FACTORY_V1",
+  "status": "PASS",
+  "llm_used": false,
+  "business_type": "beauty_salon",
+  "pages": {
+    "dashboard": {
+      "type": "dashboard"
+    },
+    "clients": [
+      {
+        "id": 1,
+        "name": "John Smith",
+        "email": "client1@example.com",
+        "status": "active"
+      },
+      {
+        "id": 2,
+        "name": "Anna White",
+        "email": "client2@example.com",
+        "status": "active"
+      },
+      {
+        "id": 3,
+        "name": "Michael Brown",
+        "email": "client3@example.com",
+        "status": "active"
+      },
+      {
+        "id": 4,
+        "name": "Sarah Johnson",
+        "email": "client4@example.com",
+        "status": "active"
+      },
+      {
+        "id": 5,
+        "name": "David Lee",
+        "email": "client5@example.com",
+        "status": "active"
+      },
+      {
+        "id": 6,
+        "name": "Emma Wilson",
+        "email": "client6@example.com",
+        "status": "active"
+      },
+      {
+        "id": 7,
+        "name": "James Miller",
+        "email": "client7@example.com",
+        "status": "active"
+      },
+      {
+        "id": 8,
+        "name": "Olivia Davis",
+        "email": "client8@example.com",
+        "status": "active"
+      },
+      {
+        "id": 9,
+        "name": "Daniel Garcia",
+        "email": "client9@example.com",
+        "status": "active"
+      },
+      {
+        "id": 10,
+        "name": "Sophia Martinez",
+        "email": "client10@example.com",
+        "status": "active"
+      },
+      {
+        "id": 11,
+        "name": "John Smith",
+        "email": "client11@example.com",
+        "status": "active"
+      },
+      {
+        "id": 12,
+        "name": "Anna White",
+        "email": "client12@example.com",
+        "status": "active"
+      },
+      {
+        "id": 13,
+        "name": "Michael Brown",
+        "email": "client13@example.com",
+        "status": "active"
+      },
+      {
+        "id": 14,
+        "name": "Sarah Johnson",
+        "email": "client14@example.com",
+        "status": "active"
+      },
+      {
+        "id": 15,
+        "name": "David Lee",
+        "email": "client15@example.com",
+        "status": "active"
+      },
+      {
+        "id": 16,
+        "name": "Emma Wilson",
+        "email": "client16@example.com",
+        "status": "active"
+      },
+      {
+        "id": 17,
+        "name": "James Miller",
+        "email": "client17@example.com",
+        "status": "active"
+      },
+      {
+        "id": 18,
+        "name": "Olivia Davis",
+        "email": "client18@example.com",
+        "status": "active"
+      },
+      {
+        "id": 19,
+        "name": "Daniel Garcia",
+        "email": "client19@example.com",
+        "status": "active"
+      },
+      {
+        "id": 20,
+        "name": "Sophia Martinez",
+        "email": "client20@example.com",
+        "status": "active"
+      },
+      {
+        "id": 21,
+        "name": "John Smith",
+        "email": "client21@example.com",
+        "status": "active"
+      },
+      {
+        "id": 22,
+        "name": "Anna White",
+        "email": "client22@example.com",
+        "status": "active"
+      },
+      {
+        "id": 23,
+        "name": "Michael Brown",
+        "email": "client23@example.com",
+        "status": "active"
+      },
+      {
+        "id": 24,
+        "name": "Sarah Johnson",
+        "email": "client24@example.com",
+        "status": "active"
+      },
+      {
+        "id": 25,
+        "name": "David Lee",
+        "email": "client25@example.com",
+        "status": "active"
+      },
+      {
+        "id": 26,
+        "name": "Emma Wilson",
+        "email": "client26@example.com",
+        "status": "active"
+      },
+      {
+        "id": 27,
+        "name": "James Miller",
+        "email": "client27@example.com",
+        "status": "active"
+      },
+      {
+        "id": 28,
+        "name": "Olivia Davis",
+        "email": "client28@example.com",
+        "status": "active"
+      },
+      {
+        "id": 29,
+        "name": "Daniel Garcia",
+        "email": "client29@example.com",
+        "status": "active"
+      },
+      {
+        "id": 30,
+        "name": "Sophia Martinez",
+        "email": "client30@example.com",
+        "status": "active"
+      },
+      {
+        "id": 31,
+        "name": "John Smith",
+        "email": "client31@example.com",
+        "status": "active"
+      },
+      {
+        "id": 32,
+        "name": "Anna White",
+        "email": "client32@example.com",
+        "status": "active"
+      },
+      {
+        "id": 33,
+        "name": "Michael Brown",
+        "email": "client33@example.com",
+        "status": "active"
+      },
+      {
+        "id": 34,
+        "name": "Sarah Johnson",
+        "email": "client34@example.com",
+        "status": "active"
+      },
+      {
+        "id": 35,
+        "name": "David Lee",
+        "email": "client35@example.com",
+        "status": "active"
+      },
+      {
+        "id": 36,
+        "name": "Emma Wilson",
+        "email": "client36@example.com",
+        "status": "active"
+      },
+      {
+        "id": 37,
+        "name": "James Miller",
+        "email": "client37@example.com",
+        "status": "active"
+      },
+      {
+        "id": 38,
+        "name": "Olivia Davis",
+        "email": "client38@example.com",
+        "status": "active"
+      }
+    ],
+    "services": [
+      {
+        "id": 1,
+        "name": "Haircut",
+        "duration_minutes": 30,
+        "price": 25
+      },
+      {
+        "id": 2,
+        "name": "Coloring",
+        "duration_minutes": 45,
+        "price": 30
+      },
+      {
+        "id": 3,
+        "name": "Manicure",
+        "duration_minutes": 60,
+        "price": 35
+      },
+      {
+        "id": 4,
+        "name": "Facial",
+        "duration_minutes": 75,
+        "price": 40
+      },
+      {
+        "id": 5,
+        "name": "Massage",
+        "duration_minutes": 90,
+        "price": 45
+      },
+      {
+        "id": 6,
+        "name": "Styling",
+        "duration_minutes": 105,
+        "price": 50
+      },
+      {
+        "id": 7,
+        "name": "Waxing",
+        "duration_minutes": 30,
+        "price": 55
+      },
+      {
+        "id": 8,
+        "name": "Makeup",
+        "duration_minutes": 45,
+        "price": 60
+      },
+      {
+        "id": 9,
+        "name": "Haircut",
+        "duration_minutes": 60,
+        "price": 65
+      },
+      {
+        "id": 10,
+        "name": "Coloring",
+        "duration_minutes": 75,
+        "price": 70
+      },
+      {
+        "id": 11,
+        "name": "Manicure",
+        "duration_minutes": 90,
+        "price": 75
+      },
+      {
+        "id": 12,
+        "name": "Facial",
+        "duration_minutes": 105,
+        "price": 80
+      },
+      {
+        "id": 13,
+        "name": "Massage",
+        "duration_minutes": 30,
+        "price": 85
+      },
+      {
+        "id": 14,
+        "name": "Styling",
+        "duration_minutes": 45,
+        "price": 90
+      },
+      {
+        "id": 15,
+        "name": "Waxing",
+        "duration_minutes": 60,
+        "price": 95
+      }
+    ],
+    "stylists": [
+      {
+        "id": 1,
+        "name": "Stylist John Smith",
+        "specialty": "Haircut"
+      },
+      {
+        "id": 2,
+        "name": "Stylist Anna White",
+        "specialty": "Coloring"
+      },
+      {
+        "id": 3,
+        "name": "Stylist Michael Brown",
+        "specialty": "Manicure"
+      },
+      {
+        "id": 4,
+        "name": "Stylist Sarah Johnson",
+        "specialty": "Facial"
+      },
+      {
+        "id": 5,
+        "name": "Stylist David Lee",
+        "specialty": "Massage"
+      },
+      {
+        "id": 6,
+        "name": "Stylist Emma Wilson",
+        "specialty": "Styling"
+      }
+    ],
+    "bookings": [
+      {
+        "id": 1,
+        "client": "John Smith",
+        "service": "Haircut",
+        "date": "2026-06-12"
+      },
+      {
+        "id": 2,
+        "client": "Anna White",
+        "service": "Coloring",
+        "date": "2026-06-13"
+      },
+      {
+        "id": 3,
+        "client": "Michael Brown",
+        "service": "Manicure",
+        "date": "2026-06-14"
+      },
+      {
+        "id": 4,
+        "client": "Sarah Johnson",
+        "service": "Facial",
+        "date": "2026-06-15"
+      },
+      {
+        "id": 5,
+        "client": "David Lee",
+        "service": "Massage",
+        "date": "2026-06-16"
+      },
+      {
+        "id": 6,
+        "client": "Emma Wilson",
+        "service": "Styling",
+        "date": "2026-06-17"
+      },
+      {
+        "id": 7,
+        "client": "James Miller",
+        "service": "Waxing",
+        "date": "2026-06-18"
+      },
+      {
+        "id": 8,
+        "client": "Olivia Davis",
+        "service": "Makeup",
+        "date": "2026-06-19"
+      },
+      {
+        "id": 9,
+        "client": "Daniel Garcia",
+        "service": "Haircut",
+        "date": "2026-06-20"
+      },
+      {
+        "id": 10,
+        "client": "Sophia Martinez",
+        "service": "Coloring",
+        "date": "2026-06-21"
+      },
+      {
+        "id": 11,
+        "client": "John Smith",
+        "service": "Manicure",
+        "date": "2026-06-22"
+      },
+      {
+        "id": 12,
+        "client": "Anna White",
+        "service": "Facial",
+        "date": "2026-06-23"
+      },
+      {
+        "id": 13,
+        "client": "Michael Brown",
+        "service": "Massage",
+        "date": "2026-06-24"
+      },
+      {
+        "id": 14,
+        "client": "Sarah Johnson",
+        "service": "Styling",
+        "date": "2026-06-25"
+      },
+      {
+        "id": 15,
+        "client": "David Lee",
+        "service": "Waxing",
+        "date": "2026-06-26"
+      },
+      {
+        "id": 16,
+        "client": "Emma Wilson",
+        "service": "Makeup",
+        "date": "2026-06-27"
+      },
+      {
+        "id": 17,
+        "client": "James Miller",
+        "service": "Haircut",
+        "date": "2026-06-12"
+      },
+      {
+        "id": 18,
+        "client": "Olivia Davis",
+        "service": "Coloring",
+        "date": "2026-06-13"
+      },
+      {
+        "id": 19,
+        "client": "Daniel Garcia",
+        "service": "Manicure",
+        "date": "2026-06-14"
+      },
+      {
+        "id": 20,
+        "client": "Sophia Martinez",
+        "service": "Facial",
+        "date": "2026-06-15"
+      },
+      {
+        "id": 21,
+        "client": "John Smith",
+        "service": "Massage",
+        "date": "2026-06-16"
+      },
+      {
+        "id": 22,
+        "client": "Anna White",
+        "service": "Styling",
+        "date": "2026-06-17"
+      },
+      {
+        "id": 23,
+        "client": "Michael Brown",
+        "service": "Waxing",
+        "date": "2026-06-18"
+      },
+      {
+        "id": 24,
+        "client": "Sarah Johnson",
+        "service": "Makeup",
+        "date": "2026-06-19"
+      },
+      {
+        "id": 25,
+        "client": "David Lee",
+        "service": "Haircut",
+        "date": "2026-06-20"
+      },
+      {
+        "id": 26,
+        "client": "Emma Wilson",
+        "service": "Coloring",
+        "date": "2026-06-21"
+      },
+      {
+        "id": 27,
+        "client": "James Miller",
+        "service": "Manicure",
+        "date": "2026-06-22"
+      }
+    ],
+    "settings": {
+      "type": "settings",
+      "sections": [
+        "profile",
+        "notifications",
+        "billing"
+      ]
+    }
+  },
+  "dashboard": {
+    "widgets": [
+      "today_bookings",
+      "active_clients",
+      "service_catalog"
+    ],
+    "metrics": {
+      "today_bookings": 27,
+      "active_clients": 38,
+      "service_catalog": 38
+    },
+    "summary": {
+      "clients": 38,
+      "stylists": 6,
+      "bookings": 27,
+      "services": 15
+    }
+  },
+  "datasets": {
+    "clients": [
+      {
+        "id": 1,
+        "name": "John Smith",
+        "email": "client1@example.com",
+        "status": "active"
+      },
+      {
+        "id": 2,
+        "name": "Anna White",
+        "email": "client2@example.com",
+        "status": "active"
+      },
+      {
+        "id": 3,
+        "name": "Michael Brown",
+        "email": "client3@example.com",
+        "status": "active"
+      },
+      {
+        "id": 4,
+        "name": "Sarah Johnson",
+        "email": "client4@example.com",
+        "status": "active"
+      },
+      {
+        "id": 5,
+        "name": "David Lee",
+        "email": "client5@example.com",
+        "status": "active"
+      },
+      {
+        "id": 6,
+        "name": "Emma Wilson",
+        "email": "client6@example.com",
+        "status": "active"
+      },
+      {
+        "id": 7,
+        "name": "James Miller",
+        "email": "client7@example.com",
+        "status": "active"
+      },
+      {
+        "id": 8,
+        "name": "Olivia Davis",
+        "email": "client8@example.com",
+        "status": "active"
+      },
+      {
+        "id": 9,
+        "name": "Daniel Garcia",
+        "email": "client9@example.com",
+        "status": "active"
+      },
+      {
+        "id": 10,
+        "name": "Sophia Martinez",
+        "email": "client10@example.com",
+        "status": "active"
+      },
+      {
+        "id": 11,
+        "name": "John Smith",
+        "email": "client11@example.com",
+        "status": "active"
+      },
+      {
+        "id": 12,
+        "name": "Anna White",
+        "email": "client12@example.com",
+        "status": "active"
+      },
+      {
+        "id": 13,
+        "name": "Michael Brown",
+        "email": "client13@example.com",
+        "status": "active"
+      },
+      {
+        "id": 14,
+        "name": "Sarah Johnson",
+        "email": "client14@example.com",
+        "status": "active"
+      },
+      {
+        "id": 15,
+        "name": "David Lee",
+        "email": "client15@example.com",
+        "status": "active"
+      },
+      {
+        "id": 16,
+        "name": "Emma Wilson",
+        "email": "client16@example.com",
+        "status": "active"
+      },
+      {
+        "id": 17,
+        "name": "James Miller",
+        "email": "client17@example.com",
+        "status": "active"
+      },
+      {
+        "id": 18,
+        "name": "Olivia Davis",
+        "email": "client18@example.com",
+        "status": "active"
+      },
+      {
+        "id": 19,
+        "name": "Daniel Garcia",
+        "email": "client19@example.com",
+        "status": "active"
+      },
+      {
+        "id": 20,
+        "name": "Sophia Martinez",
+        "email": "client20@example.com",
+        "status": "active"
+      },
+      {
+        "id": 21,
+        "name": "John Smith",
+        "email": "client21@example.com",
+        "status": "active"
+      },
+      {
+        "id": 22,
+        "name": "Anna White",
+        "email": "client22@example.com",
+        "status": "active"
+      },
+      {
+        "id": 23,
+        "name": "Michael Brown",
+        "email": "client23@example.com",
+        "status": "active"
+      },
+      {
+        "id": 24,
+        "name": "Sarah Johnson",
+        "email": "client24@example.com",
+        "status": "active"
+      },
+      {
+        "id": 25,
+        "name": "David Lee",
+        "email": "client25@example.com",
+        "status": "active"
+      },
+      {
+        "id": 26,
+        "name": "Emma Wilson",
+        "email": "client26@example.com",
+        "status": "active"
+      },
+      {
+        "id": 27,
+        "name": "James Miller",
+        "email": "client27@example.com",
+        "status": "active"
+      },
+      {
+        "id": 28,
+        "name": "Olivia Davis",
+        "email": "client28@example.com",
+        "status": "active"
+      },
+      {
+        "id": 29,
+        "name": "Daniel Garcia",
+        "email": "client29@example.com",
+        "status": "active"
+      },
+      {
+        "id": 30,
+        "name": "Sophia Martinez",
+        "email": "client30@example.com",
+        "status": "active"
+      },
+      {
+        "id": 31,
+        "name": "John Smith",
+        "email": "client31@example.com",
+        "status": "active"
+      },
+      {
+        "id": 32,
+        "name": "Anna White",
+        "email": "client32@example.com",
+        "status": "active"
+      },
+      {
+        "id": 33,
+        "name": "Michael Brown",
+        "email": "client33@example.com",
+        "status": "active"
+      },
+      {
+        "id": 34,
+        "name": "Sarah Johnson",
+        "email": "client34@example.com",
+        "status": "active"
+      },
+      {
+        "id": 35,
+        "name": "David Lee",
+        "email": "client35@example.com",
+        "status": "active"
+      },
+      {
+        "id": 36,
+        "name": "Emma Wilson",
+        "email": "client36@example.com",
+        "status": "active"
+      },
+      {
+        "id": 37,
+        "name": "James Miller",
+        "email": "client37@example.com",
+        "status": "active"
+      },
+      {
+        "id": 38,
+        "name": "Olivia Davis",
+        "email": "client38@example.com",
+        "status": "active"
+      }
+    ],
+    "stylists": [
+      {
+        "id": 1,
+        "name": "Stylist John Smith",
+        "specialty": "Haircut"
+      },
+      {
+        "id": 2,
+        "name": "Stylist Anna White",
+        "specialty": "Coloring"
+      },
+      {
+        "id": 3,
+        "name": "Stylist Michael Brown",
+        "specialty": "Manicure"
+      },
+      {
+        "id": 4,
+        "name": "Stylist Sarah Johnson",
+        "specialty": "Facial"
+      },
+      {
+        "id": 5,
+        "name": "Stylist David Lee",
+        "specialty": "Massage"
+      },
+      {
+        "id": 6,
+        "name": "Stylist Emma Wilson",
+        "specialty": "Styling"
+      }
+    ],
+    "bookings": [
+      {
+        "id": 1,
+        "client": "John Smith",
+        "service": "Haircut",
+        "date": "2026-06-12"
+      },
+      {
+        "id": 2,
+        "client": "Anna White",
+        "service": "Coloring",
+        "date": "2026-06-13"
+      },
+      {
+        "id": 3,
+        "client": "Michael Brown",
+        "service": "Manicure",
+        "date": "2026-06-14"
+      },
+      {
+        "id": 4,
+        "client": "Sarah Johnson",
+        "service": "Facial",
+        "date": "2026-06-15"
+      },
+      {
+        "id": 5,
+        "client": "David Lee",
+        "service": "Massage",
+        "date": "2026-06-16"
+      },
+      {
+        "id": 6,
+        "client": "Emma Wilson",
+        "service": "Styling",
+        "date": "2026-06-17"
+      },
+      {
+        "id": 7,
+        "client": "James Miller",
+        "service": "Waxing",
+        "date": "2026-06-18"
+      },
+      {
+        "id": 8,
+        "client": "Olivia Davis",
+        "service": "Makeup",
+        "date": "2026-06-19"
+      },
+      {
+        "id": 9,
+        "client": "Daniel Garcia",
+        "service": "Haircut",
+        "date": "2026-06-20"
+      },
+      {
+        "id": 10,
+        "client": "Sophia Martinez",
+        "service": "Coloring",
+        "date": "2026-06-21"
+      },
+      {
+        "id": 11,
+        "client": "John Smith",
+        "service": "Manicure",
+        "date": "2026-06-22"
+      },
+      {
+        "id": 12,
+        "client": "Anna White",
+        "service": "Facial",
+        "date": "2026-06-23"
+      },
+      {
+        "id": 13,
+        "client": "Michael Brown",
+        "service": "Massage",
+        "date": "2026-06-24"
+      },
+      {
+        "id": 14,
+        "client": "Sarah Johnson",
+        "service": "Styling",
+        "date": "2026-06-25"
+      },
+      {
+        "id": 15,
+        "client": "David Lee",
+        "service": "Waxing",
+        "date": "2026-06-26"
+      },
+      {
+        "id": 16,
+        "client": "Emma Wilson",
+        "service": "Makeup",
+        "date": "2026-06-27"
+      },
+      {
+        "id": 17,
+        "client": "James Miller",
+        "service": "Haircut",
+        "date": "2026-06-12"
+      },
+      {
+        "id": 18,
+        "client": "Olivia Davis",
+        "service": "Coloring",
+        "date": "2026-06-13"
+      },
+      {
+        "id": 19,
+        "client": "Daniel Garcia",
+        "service": "Manicure",
+        "date": "2026-06-14"
+      },
+      {
+        "id": 20,
+        "client": "Sophia Martinez",
+        "service": "Facial",
+        "date": "2026-06-15"
+      },
+      {
+        "id": 21,
+        "client": "John Smith",
+        "service": "Massage",
+        "date": "2026-06-16"
+      },
+      {
+        "id": 22,
+        "client": "Anna White",
+        "service": "Styling",
+        "date": "2026-06-17"
+      },
+      {
+        "id": 23,
+        "client": "Michael Brown",
+        "service": "Waxing",
+        "date": "2026-06-18"
+      },
+      {
+        "id": 24,
+        "client": "Sarah Johnson",
+        "service": "Makeup",
+        "date": "2026-06-19"
+      },
+      {
+        "id": 25,
+        "client": "David Lee",
+        "service": "Haircut",
+        "date": "2026-06-20"
+      },
+      {
+        "id": 26,
+        "client": "Emma Wilson",
+        "service": "Coloring",
+        "date": "2026-06-21"
+      },
+      {
+        "id": 27,
+        "client": "James Miller",
+        "service": "Manicure",
+        "date": "2026-06-22"
+      }
+    ],
+    "services": [
+      {
+        "id": 1,
+        "name": "Haircut",
+        "duration_minutes": 30,
+        "price": 25
+      },
+      {
+        "id": 2,
+        "name": "Coloring",
+        "duration_minutes": 45,
+        "price": 30
+      },
+      {
+        "id": 3,
+        "name": "Manicure",
+        "duration_minutes": 60,
+        "price": 35
+      },
+      {
+        "id": 4,
+        "name": "Facial",
+        "duration_minutes": 75,
+        "price": 40
+      },
+      {
+        "id": 5,
+        "name": "Massage",
+        "duration_minutes": 90,
+        "price": 45
+      },
+      {
+        "id": 6,
+        "name": "Styling",
+        "duration_minutes": 105,
+        "price": 50
+      },
+      {
+        "id": 7,
+        "name": "Waxing",
+        "duration_minutes": 30,
+        "price": 55
+      },
+      {
+        "id": 8,
+        "name": "Makeup",
+        "duration_minutes": 45,
+        "price": 60
+      },
+      {
+        "id": 9,
+        "name": "Haircut",
+        "duration_minutes": 60,
+        "price": 65
+      },
+      {
+        "id": 10,
+        "name": "Coloring",
+        "duration_minutes": 75,
+        "price": 70
+      },
+      {
+        "id": 11,
+        "name": "Manicure",
+        "duration_minutes": 90,
+        "price": 75
+      },
+      {
+        "id": 12,
+        "name": "Facial",
+        "duration_minutes": 105,
+        "price": 80
+      },
+      {
+        "id": 13,
+        "name": "Massage",
+        "duration_minutes": 30,
+        "price": 85
+      },
+      {
+        "id": 14,
+        "name": "Styling",
+        "duration_minutes": 45,
+        "price": 90
+      },
+      {
+        "id": 15,
+        "name": "Waxing",
+        "duration_minutes": 60,
+        "price": 95
+      }
+    ]
+  }
+}

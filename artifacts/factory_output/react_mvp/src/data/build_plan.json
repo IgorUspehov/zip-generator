@@ -1,0 +1,25 @@
+{
+  "version": "1.0.0",
+  "status": "BUILD_PLAN_CREATED",
+  "llm_used": false,
+  "source": [
+    "assembly_decision.json",
+    "selected_template.json",
+    "selected_modules.json",
+    "selected_ui.json"
+  ],
+  "business_type": "health_clinic",
+  "language": "ru",
+  "template": "medical_crm",
+  "ui": "dashboard_modern",
+  "modules": [
+    "appointments",
+    "crm",
+    "notifications"
+  ],
+  "delivery_mode": "client_package",
+  "build_target": "react_mvp",
+  "package_target": "client_package",
+  "zip_target": "mvp_package.zip",
+  "business_name": "Test Klinik München"
+}

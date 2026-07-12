@@ -1,0 +1,44 @@
+{
+  "panel_title": {
+    "ru": "Панель клиники",
+    "de": "Klinik-Panel",
+    "en": "Clinic Panel"
+  },
+  "panel_tagline": {
+    "ru": "Пациенты, приёмы и врачи",
+    "de": "Patienten, Termine und Ärzte",
+    "en": "Patients, appointments and doctors"
+  },
+  "tabs": {
+    "dashboard": {
+      "ru": "Дашборд",
+      "de": "Dashboard",
+      "en": "Dashboard"
+    },
+    "patients": {
+      "ru": "Пациенты",
+      "de": "Patienten",
+      "en": "Patients"
+    },
+    "doctors": {
+      "ru": "Врачи",
+      "de": "Ärzte",
+      "en": "Doctors"
+    },
+    "appointments": {
+      "ru": "Приёмы",
+      "de": "Termine",
+      "en": "Appointments"
+    },
+    "services": {
+      "ru": "Услуги",
+      "de": "Leistungen",
+      "en": "Services"
+    },
+    "payments": {
+      "ru": "Платежи",
+      "de": "Zahlungen",
+      "en": "Payments"
+    }
+  }
+}

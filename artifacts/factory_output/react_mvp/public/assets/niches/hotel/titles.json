@@ -1,0 +1,39 @@
+{
+  "panel_title": {
+    "ru": "Панель отеля",
+    "de": "Hotel-Panel",
+    "en": "Hotel Panel"
+  },
+  "panel_tagline": {
+    "ru": "Номера, гости и бронирования",
+    "de": "Zimmer, Gäste und Buchungen",
+    "en": "Rooms, guests and bookings"
+  },
+  "tabs": {
+    "dashboard": {
+      "ru": "Дашборд",
+      "de": "Dashboard",
+      "en": "Dashboard"
+    },
+    "bookings": {
+      "ru": "Бронирования",
+      "de": "Buchungen",
+      "en": "Bookings"
+    },
+    "rooms": {
+      "ru": "Номера",
+      "de": "Zimmer",
+      "en": "Rooms"
+    },
+    "guests": {
+      "ru": "Гости",
+      "de": "Gäste",
+      "en": "Guests"
+    },
+    "staff": {
+      "ru": "Персонал",
+      "de": "Personal",
+      "en": "Staff"
+    }
+  }
+}

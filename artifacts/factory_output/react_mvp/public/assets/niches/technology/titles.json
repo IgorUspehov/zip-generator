@@ -1,0 +1,39 @@
+{
+  "panel_title": {
+    "ru": "Панель технологий",
+    "de": "Technologie-Panel",
+    "en": "Technology Panel"
+  },
+  "panel_tagline": {
+    "ru": "Продукты, клиенты и задачи",
+    "de": "Produkte, Kunden und Aufgaben",
+    "en": "Products, clients and tasks"
+  },
+  "tabs": {
+    "dashboard": {
+      "ru": "Дашборд",
+      "de": "Dashboard",
+      "en": "Dashboard"
+    },
+    "products": {
+      "ru": "Товары",
+      "de": "Produkte",
+      "en": "Products"
+    },
+    "clients": {
+      "ru": "Клиенты",
+      "de": "Kunden",
+      "en": "Clients"
+    },
+    "tasks": {
+      "ru": "Задачи",
+      "de": "Aufgaben",
+      "en": "Tasks"
+    },
+    "team": {
+      "ru": "Команда",
+      "de": "Team",
+      "en": "Team"
+    }
+  }
+}

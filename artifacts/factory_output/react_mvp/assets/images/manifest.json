@@ -1,0 +1,23 @@
+{
+  "hero": [
+    "/assets/images/health_clinic/hero_0.jpg",
+    "/assets/images/health_clinic/hero_1.jpg",
+    "https://images.unsplash.com/photo-1586773860418-d47dd0faa34f?w=800&h=400&fit=crop"
+  ],
+  "gallery": [
+    "/assets/images/health_clinic/gallery_0.jpg",
+    "/assets/images/health_clinic/gallery_1.jpg",
+    "https://images.unsplash.com/photo-1631217868264-e5b1ffae57d1?w=800&h=400&fit=crop"
+  ],
+  "hero_sources": [
+    "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1586773860418-d47dd0faa34f?w=800&h=400&fit=crop"
+  ],
+  "gallery_sources": [
+    "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1584982751601-97dcc096659c?w=800&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1631217868264-e5b1ffae57d1?w=800&h=400&fit=crop"
+  ],
+  "llm_used": false
+}
