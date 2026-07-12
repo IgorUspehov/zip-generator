@@ -16,7 +16,7 @@ import { getPayTranslations } from "@/client-wizard/pay-translations";
 import { getTierTranslations } from "@/client-wizard/tier-translations";
 import { DEFAULT_BUSINESS_TYPE } from "@/lib/sector-mapping";
 import { executeRecaptcha } from "@/lib/recaptcha/client";
-import type { PreviewApiResponse, ResultApiResponse, StepId } from "@/client-wizard/types";
+import type { ResultApiResponse, StepId } from "@/client-wizard/types";
 
 import "@/client-wizard/styles.css";
 
@@ -377,7 +377,6 @@ export function ClientWizardPage() {
   const [previewTitle, setPreviewTitle] = useState("—");
   const [previewSub, setPreviewSub] = useState("—");
   const [previewBodyHtml, setPreviewBodyHtml] = useState("");
-  const [previewData, setPreviewData] = useState<PreviewApiResponse | null>(null);
   const [s6Sub, setS6Sub] = useState("—");
   const [publishCountdown, setPublishCountdown] = useState<number | null>(null);
 
@@ -400,26 +399,6 @@ export function ClientWizardPage() {
       ? copy.s4_publishing.replace("{n}", String(publishCountdown))
       : null;
 
-  const screenshotsLabel =
-    lang === "ru" ? "Скриншоты" : lang === "de" ? "Screenshots" : "Screenshots";
-
-  const demoVideoLabel =
-    lang === "ru" ? "Демо-видео" : lang === "de" ? "Demo-Video" : "Demo video";
-
-  const screenshotsPendingLabel =
-    lang === "ru"
-      ? "Скриншоты генерируются..."
-      : lang === "de"
-        ? "Screenshots werden erstellt..."
-        : "Screenshots are being generated...";
-
-  const demoVideoPendingLabel =
-    lang === "ru"
-      ? "Демо-видео генерируется..."
-      : lang === "de"
-        ? "Demo-Video wird erstellt..."
-        : "Demo video is being generated...";
-
   useEffect(() => {
     if (step !== "s5") {
       return;
@@ -441,7 +420,6 @@ export function ClientWizardPage() {
         if (!active) {
           return;
         }
-        setPreviewData(preview);
         if (!preview.ok) {
           return;
         }
@@ -462,9 +440,7 @@ export function ClientWizardPage() {
           );
         }
       } catch {
-        if (active) {
-          setPreviewData(null);
-        }
+        /* keep fallback preview from wizard state */
       }
     })();
 
@@ -602,8 +578,6 @@ export function ClientWizardPage() {
   }
 
   const stepClass = (id: StepId) => (step === id ? "step active" : "step");
-  const previewScreenshots = previewData?.screenshots ?? [];
-  const demoVideoUrl = previewData?.demo_video_available ? previewData.demo_video_url : undefined;
 
   const demoUrl = resolveDemoUrl(deployMeta, pendingRedirectUrl, resultData);
   const payInput =
@@ -918,37 +892,6 @@ export function ClientWizardPage() {
                 </div>
               </div>
               <div className="preview-body" id="preview-body" dangerouslySetInnerHTML={{ __html: previewBodyHtml }} />
-            </div>
-
-            <div className="wizard-media-block">
-              <div className="wizard-media-title">{screenshotsLabel}</div>
-              {previewScreenshots.length > 0 ? (
-                <div className="wizard-screenshots-grid">
-                  {previewScreenshots.map((shot) => (
-                    <figure key={shot.name} className="wizard-screenshot-card">
-                      <img src={shot.url} alt={shot.label} loading="lazy" />
-                      <figcaption>{shot.label}</figcaption>
-                    </figure>
-                  ))}
-                </div>
-              ) : (
-                <p className="wizard-media-pending">{screenshotsPendingLabel}</p>
-              )}
-            </div>
-
-            <div className="wizard-media-block">
-              <div className="wizard-media-title">{demoVideoLabel}</div>
-              {demoVideoUrl ? (
-                <video
-                  className="wizard-demo-video"
-                  src={demoVideoUrl}
-                  controls
-                  playsInline
-                  preload="metadata"
-                />
-              ) : (
-                <p className="wizard-media-pending">{demoVideoPendingLabel}</p>
-              )}
             </div>
 
             <div className="step-sub" style={{ marginBottom: 16 }}>
