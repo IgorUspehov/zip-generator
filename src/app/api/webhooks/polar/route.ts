@@ -4,10 +4,29 @@ import { fulfillCrmFullOrder } from "@/lib/crm-full/fulfillment";
 import { fulfillMvpProOrder } from "@/lib/mvp-pro/fulfillment";
 import { cancelDeletion, findPendingByClientId } from "@/lib/netlify/scheduler";
 
-function extractClientId(data: Record<string, unknown>): string | null {
+function pickReferenceId(data: Record<string, unknown>): string | null {
   const metadata = data.metadata as Record<string, unknown> | undefined;
-  const refId = metadata?.reference_id ?? data.referenceId ?? data.reference_id;
-  return refId ? String(refId) : null;
+  const checkout = data.checkout as Record<string, unknown> | undefined;
+  const checkoutMetadata = checkout?.metadata as Record<string, unknown> | undefined;
+
+  const candidates = [
+    metadata?.reference_id,
+    metadata?.referenceId,
+    data.referenceId,
+    data.reference_id,
+    checkout?.referenceId,
+    checkout?.reference_id,
+    checkoutMetadata?.reference_id,
+    checkoutMetadata?.referenceId,
+  ];
+
+  for (const value of candidates) {
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return null;
 }
 
 function extractSiteId(clientId: string | null): string | null {
@@ -19,10 +38,9 @@ export const POST = Webhooks({
   webhookSecret: process.env.POLAR_WEBHOOK_SECRET!,
   onOrderPaid: async (payload) => {
     const order = payload.data as Record<string, unknown>;
-    console.log("[polar-webhook] FULL ORDER PAYLOAD", JSON.stringify(order, null, 2));
     const product = order.product as { name?: string } | undefined;
     const productName = String(product?.name ?? "").trim();
-    const clientId = extractClientId(order);
+    const clientId = pickReferenceId(order);
     const customer = order.customer as { email?: string } | undefined;
     const email = customer?.email;
     const orderId = order.id as string | undefined;
