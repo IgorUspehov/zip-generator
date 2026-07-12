@@ -1,5 +1,11 @@
 export type StepId = "s1" | "s2" | "s3" | "s4" | "s5" | "s6";
 
+export type ClientScreenshotItem = {
+  name: string;
+  label: string;
+  url: string;
+};
+
 export type PreviewApiResponse = {
   ok: boolean;
   preview_id: string;
@@ -9,6 +15,9 @@ export type PreviewApiResponse = {
   selected_template: string;
   preview_url: string;
   dist_available: boolean;
+  screenshots?: ClientScreenshotItem[];
+  demo_video_available?: boolean;
+  demo_video_url?: string;
   demo_flow?: {
     questionnaire: {
       business_name: string;

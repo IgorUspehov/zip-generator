@@ -7,8 +7,8 @@ type Lang = "ru" | "de" | "en";
 
 const translations = {
   en: {
-    hero_title: "Website + CRM for your business",
-    hero_subtitle: "Turnkey website with CRM. €999 one-time",
+    hero_title: "MVP in 3 Minutes",
+    hero_subtitle: "Ready MVP for your business. €99 one-time, no subscription.",
     hero_button: "Get free demo →",
     process_label: "PROCESS",
     process_title: "How it works",
@@ -37,8 +37,8 @@ const translations = {
     footer_privacy: "Privacy",
   },
   de: {
-    hero_title: "Website + CRM für Ihr Unternehmen",
-    hero_subtitle: "Website mit CRM schlüsselfertig. €999 einmalig",
+    hero_title: "MVP in 3 Minuten",
+    hero_subtitle: "Fertiges MVP für Ihr Unternehmen. €99 einmalig, kein Abo.",
     hero_button: "Kostenlose Demo →",
     process_label: "PROZESS",
     process_title: "So funktioniert es",
@@ -67,8 +67,8 @@ const translations = {
     footer_privacy: "Datenschutz",
   },
   ru: {
-    hero_title: "Website + CRM для вашего бизнеса",
-    hero_subtitle: "Сайт с CRM под ключ. €999 разово",
+    hero_title: "MVP за 3 минуты",
+    hero_subtitle: "Готовый MVP для вашего бизнеса. €99 разово, без подписки.",
     hero_button: "Попробовать бесплатно →",
     process_label: "ПРОЦЕСС",
     process_title: "Как работает",
@@ -79,7 +79,7 @@ const translations = {
     step3_title: "Получаете ссылку",
     step3_desc: "Уникальный URL на Netlify",
     features_label: "ВОЗМОЖНОСТИ",
-    features_title: "Что входит в продукт",
+    features_title: "Что входит в MVP",
     feature1: "Панель управления бизнесом",
     feature2: "Клиенты, записи, услуги",
     feature3: "Галерея с фото вашей ниши",
@@ -258,7 +258,7 @@ export default function Page() {
         <div className="absolute inset-0 bg-black/50" aria-hidden />
         <div className="relative z-10 mx-auto max-w-4xl px-6 py-24 text-center">
           <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-            Factory Website CRM
+            MVP Factory
           </p>
           <h1 className="text-5xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl">
             {t.hero_title}
@@ -368,7 +368,7 @@ export default function Page() {
       <footer className="border-t border-slate-200 bg-slate-900 py-12 text-slate-300">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-6 text-center text-sm sm:flex-row sm:justify-between sm:text-left">
           <p>
-            <span className="font-semibold text-white">Factory Website CRM</span>
+            <span className="font-semibold text-white">MVP Factory</span>
             {" | "}
             {t.footer_location}
             {" | "}

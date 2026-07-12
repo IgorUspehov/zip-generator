@@ -16,7 +16,7 @@ type PayLang = "en" | "de" | "ru";
 const translations = {
   de: {
     demoReady: "Ihre Demo ist fertig!",
-    buyButton: "€999 zahlen",
+    buyButton: "€99 kaufen — für immer behalten",
     freeButton: "Kostenlos erhalten →",
     redirecting: "Weiterleitung…",
     missingParams: "Geben Sie demo_url, email und name in der URL an.",
@@ -25,10 +25,11 @@ const translations = {
     promoLabel: "Promo-Code eingeben",
     promoPlaceholder: "Promo-Code (optional)",
     promoInvalid: "Ungültiger Promo-Code",
+    locked: "🔒 Bezahlen Sie, um zu entsperren",
   },
   en: {
     demoReady: "Your demo is ready!",
-    buyButton: "Pay €999",
+    buyButton: "Buy for €99 — keep forever",
     freeButton: "Get for free →",
     redirecting: "Redirecting…",
     missingParams: "Add demo_url, email and name to the URL.",
@@ -37,10 +38,11 @@ const translations = {
     promoLabel: "Enter promo code",
     promoPlaceholder: "Promo code (optional)",
     promoInvalid: "Invalid promo code",
+    locked: "🔒 Pay to unlock",
   },
   ru: {
     demoReady: "Ваш демо-сайт готов!",
-    buyButton: "Оплатить €999",
+    buyButton: "Купить за €99 — сохранить навсегда",
     freeButton: "Получить бесплатно →",
     redirecting: "Перенаправляем…",
     missingParams: "Укажите demo_url, email и name в ссылке.",
@@ -49,6 +51,7 @@ const translations = {
     promoLabel: "Введите промокод",
     promoPlaceholder: "Промо-код (необязательно)",
     promoInvalid: "Неверный промо-код",
+    locked: "🔒 Оплатите чтобы открыть",
   },
 } as const;
 
@@ -97,7 +100,6 @@ export function PayPageContent() {
   const demoUrl = searchParams?.get("demo_url")?.trim() ?? "";
   const email = searchParams?.get("email")?.trim() ?? "";
   const name = searchParams?.get("name")?.trim() ?? "";
-  const paid = searchParams?.get("paid")?.trim() === "true";
 
 
 
@@ -151,78 +153,68 @@ export function PayPageContent() {
           ) : null}
         </div>
 
-        {paid ? (
-          <>
-            {/* Unlocked preview */}
-            <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm">
-              {hasValidDemoUrl ? (
-                <iframe
-                  title="Demo preview"
-                  src={demoUrl}
-                  className="h-[420px] w-full border-0 bg-white sm:h-[520px]"
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                />
-              ) : (
-                <div className="px-6 py-16 text-center text-slate-600">{t.missingDemoUrl}</div>
-              )}
-            </div>
-
-            {hasValidDemoUrl ? (
-              <div className="mt-6 text-center">
-                <a
-                  href={demoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="break-all text-sm font-medium text-violet-600 underline underline-offset-2 hover:text-violet-700"
-                >
-                  {demoUrl}
-                </a>
-              </div>
-            ) : null}
-          </>
-        ) : (
-          /* Paywall */
-          <div className="mt-10 text-center">
-            <button
-              type="button"
-              onClick={() => handleCheckout()}
-              disabled={!canCheckout || loading}
-              className={`inline-flex w-full max-w-xl items-center justify-center rounded-2xl px-8 py-5 text-xl font-bold text-white shadow-lg transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                promoApplied
-                  ? "bg-green-600 shadow-green-200 hover:bg-green-700"
-                  : "bg-violet-600 shadow-violet-200 hover:bg-violet-700"
-              }`}
-            >
-              {loading ? t.redirecting : promoApplied ? t.freeButton : t.buyButton}
-            </button>
-
-            <div className="mx-auto mt-6 max-w-xl">
-              <p className="mb-2 text-sm font-medium text-slate-600">{t.promoLabel}</p>
-              <input
-                type="text"
-                value={promoInput}
-                onChange={(e) => setPromoInput(e.target.value)}
-                placeholder={t.promoPlaceholder}
-                className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:ring-2 ${
-                  promoInput && !promoApplied
-                    ? "border-red-300 focus:ring-red-200"
-                    : promoApplied
-                      ? "border-green-400 bg-green-50 text-green-800 focus:ring-green-200"
-                      : "border-slate-200 focus:ring-violet-200"
-                }`}
+        {/* Blurred preview */}
+        <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm">
+          {hasValidDemoUrl ? (
+            <div className="relative">
+              <iframe
+                title="Demo preview"
+                src={demoUrl}
+                className="h-[420px] w-full border-0 bg-white blur-sm sm:h-[520px]"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
               />
-              {promoInput && !promoApplied ? (
-                <p className="mt-1 text-xs text-red-500">{t.promoInvalid}</p>
-              ) : null}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                <div className="rounded-2xl bg-white/90 px-8 py-5 text-center shadow-xl backdrop-blur-md">
+                  <p className="text-xl font-bold text-slate-800">{t.locked}</p>
+                </div>
+              </div>
             </div>
+          ) : (
+            <div className="px-6 py-16 text-center text-slate-600">{t.missingDemoUrl}</div>
+          )}
+        </div>
 
-            {error ? <p className="mt-4 text-sm font-medium text-red-600">{error}</p> : null}
-
-            {!canCheckout && !error ? (
-              <p className="mt-4 text-sm text-slate-500">{t.example}</p>
+        {/* Promo code + button */}
+        <div className="mt-8 text-center">
+          <p className="mb-2 text-sm font-medium text-slate-600">{t.promoLabel}</p>
+          <div className="mx-auto mb-4 max-w-xl">
+            <input
+              type="text"
+              value={promoInput}
+              onChange={(e) => setPromoInput(e.target.value)}
+              placeholder={t.promoPlaceholder}
+              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:ring-2 ${
+                promoInput && !promoApplied
+                  ? "border-red-300 focus:ring-red-200"
+                  : promoApplied
+                    ? "border-green-400 bg-green-50 text-green-800 focus:ring-green-200"
+                    : "border-slate-200 focus:ring-violet-200"
+              }`}
+            />
+            {promoInput && !promoApplied ? (
+              <p className="mt-1 text-xs text-red-500">{t.promoInvalid}</p>
             ) : null}
           </div>
-        )}
+
+          <button
+            type="button"
+            onClick={() => handleCheckout()}
+            disabled={!canCheckout || loading}
+            className={`inline-flex w-full max-w-xl items-center justify-center rounded-2xl px-8 py-5 text-xl font-bold text-white shadow-lg transition disabled:cursor-not-allowed disabled:opacity-60 ${
+              promoApplied
+                ? "bg-green-600 shadow-green-200 hover:bg-green-700"
+                : "bg-violet-600 shadow-violet-200 hover:bg-violet-700"
+            }`}
+          >
+            {loading ? t.redirecting : promoApplied ? t.freeButton : t.buyButton}
+          </button>
+
+          {error ? <p className="mt-4 text-sm font-medium text-red-600">{error}</p> : null}
+
+          {!canCheckout && !error ? (
+            <p className="mt-4 text-sm text-slate-500">{t.example}</p>
+          ) : null}
+        </div>
       </div>
     </main>
   );

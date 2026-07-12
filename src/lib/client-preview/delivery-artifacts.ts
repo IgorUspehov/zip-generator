@@ -71,6 +71,75 @@ export function resolveDemoPath(routeId = "latest"): string | null {
   return getLiveDemoPath();
 }
 
+const CLIENT_SCREENSHOT_DIRS = [
+  path.join(process.cwd(), "output", "client_delivery", "screenshots"),
+  path.join(process.cwd(), "artifacts", "factory_output", "client_delivery", "screenshots"),
+];
+
+export type ClientScreenshotItem = {
+  name: string;
+  label: string;
+  url: string;
+};
+
+function formatScreenshotLabel(filename: string): string {
+  return filename
+    .replace(/^\d+_/, "")
+    .replace(/\.[^.]+$/, "")
+    .replace(/_/g, " ");
+}
+
+export function resolveScreenshotsDir(): string | null {
+  for (const dir of CLIENT_SCREENSHOT_DIRS) {
+    if (!fs.existsSync(dir)) {
+      continue;
+    }
+    const hasImage = fs
+      .readdirSync(dir)
+      .some((entry) => /\.(png|jpe?g|webp)$/i.test(entry));
+    if (hasImage) {
+      return dir;
+    }
+  }
+  return null;
+}
+
+export function listClientScreenshots(): ClientScreenshotItem[] {
+  const dir = resolveScreenshotsDir();
+  if (!dir) {
+    return [];
+  }
+
+  return fs
+    .readdirSync(dir)
+    .filter((entry) => /\.(png|jpe?g|webp)$/i.test(entry))
+    .sort()
+    .map((name) => ({
+      name,
+      label: formatScreenshotLabel(name),
+      url: `/api/client-result/screenshot/${encodeURIComponent(name)}`,
+    }));
+}
+
+export function resolveScreenshotPath(name: string): string | null {
+  const dir = resolveScreenshotsDir();
+  if (!dir) {
+    return null;
+  }
+
+  const safeName = path.basename(name);
+  if (!/\.(png|jpe?g|webp)$/i.test(safeName)) {
+    return null;
+  }
+
+  const fullPath = path.join(dir, safeName);
+  if (!fs.existsSync(fullPath)) {
+    return null;
+  }
+
+  return fullPath;
+}
+
 export function readNetlifyDeployUrl(): string | null {
   const candidate = path.join(process.cwd(), "artifacts/factory_output/netlify_deploy/deployment_url.txt");
   if (!fs.existsSync(candidate)) {

@@ -50,6 +50,12 @@ export type ClientPreviewDemoFlow = {
   };
 };
 
+export type ClientScreenshotItem = {
+  name: string;
+  label: string;
+  url: string;
+};
+
 export type ClientPreviewPayload = {
   ok: boolean;
   preview_id: string;
@@ -62,6 +68,9 @@ export type ClientPreviewPayload = {
   manifest_status: string;
   delivery_ready: boolean;
   dist_available: boolean;
+  screenshots?: ClientScreenshotItem[];
+  demo_video_available?: boolean;
+  demo_video_url?: string;
   demo_flow?: ClientPreviewDemoFlow | null;
   error?: string;
 };

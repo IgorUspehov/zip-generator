@@ -8,6 +8,7 @@ import {
   CUSTOM_DOMAIN_GUIDE_PATH,
   getActiveArtifactAssessment,
   readNetlifyDeployUrl,
+  listClientScreenshots,
   resolveDeliveryZipDownloadHref,
   resolveDemoPath,
 } from "@/lib/client-preview/delivery-artifacts";
@@ -327,6 +328,10 @@ export function buildPreviewPayload(routeId: string): ClientPreviewPayload {
   const questionnaire = readRuntimeQuestionnaire();
   const qIdentity = questionnaire ? resolveQuestionnaireIdentity(questionnaire) : null;
 
+  const screenshots = listClientScreenshots();
+  const demoSync = assessDemoVideoSync(assessment.canonical);
+  const demoVideoAvailable = demoSync.synced && Boolean(resolveDemoPath(routeId));
+
   const payload: ClientPreviewPayload = {
     ok: true,
     preview_id: resolvedId,
@@ -343,6 +348,9 @@ export function buildPreviewPayload(routeId: string): ClientPreviewPayload {
     manifest_status: manifest.status ?? "",
     delivery_ready: isDeliveryReady(manifest),
     dist_available: useLegacyNetlifyPreview || distAvailable,
+    screenshots,
+    demo_video_available: demoVideoAvailable,
+    demo_video_url: demoVideoAvailable ? "/api/client-result/demo" : undefined,
     demo_flow: qIdentity
       ? buildDemoFlowFromQuestionnaire(qIdentity, assessment, manifest)
       : buildDemoFlowData(routeId),

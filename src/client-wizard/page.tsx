@@ -1,15 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import {
   buildQuestionnairePayload,
+  fetchPreviewLatest,
   fetchResultLatest,
   LANG_LABEL_TO_CODE,
   saveQuestionnaire,
   SECTOR_TO_BUSINESS_TYPE,
 } from "@/client-wizard/api";
 import { getCopy, type UiLang } from "@/client-wizard/copy";
+import { getPayTranslations } from "@/client-wizard/pay-translations";
 import { getTierTranslations } from "@/client-wizard/tier-translations";
 import { DEFAULT_BUSINESS_TYPE } from "@/lib/sector-mapping";
 import { executeRecaptcha } from "@/lib/recaptcha/client";
@@ -17,8 +20,13 @@ import type { PreviewApiResponse, ResultApiResponse, StepId } from "@/client-wiz
 
 import "@/client-wizard/styles.css";
 
-const POLAR_CHECKOUT_URL = "https://buy.polar.sh/polar_cl_qVHaJpa4Zon7ZJjZNAI6UNDt7vkLdV0enAUZc085fTu";
-const CRM_PROMO_CODE = "serafim01";
+const LEMONSQUEEZY_STORE_HOST = "https://mvpfactory.lemonsqueezy.com";
+const LEMONSQUEEZY_VARIANT_MVP_DEMO = "1801729";
+const LEMONSQUEEZY_VARIANT_MVP_PRO = "1807661";
+const LEMONSQUEEZY_VARIANT_CRM_FULL = "1807671";
+
+const PADDLE_PRODUCT_MVP_PRO = "pri_01kvwyb0r4rpvv3xrfbyths7tw";
+const PADDLE_PRODUCT_CRM_FULL = "pri_01kvwyk2kmmfagkfp4am68zner";
 
 function LogoIcon() {
   return (
@@ -135,39 +143,185 @@ function DeliveryLink({
   );
 }
 
-function buildCrmFullCheckoutHref(input: { email: string }) {
-  const polarUrl = new URL(POLAR_CHECKOUT_URL);
-  if (input.email) polarUrl.searchParams.set("prefilled_email", input.email);
-  return polarUrl.toString();
+function buildPayHref(input: {
+  demoUrl: string;
+  siteId?: string;
+  clientId?: string;
+  email: string;
+  name: string;
+  variantId?: string;
+}) {
+  const variantId = input.variantId ?? LEMONSQUEEZY_VARIANT_MVP_DEMO;
+
+  if (variantId === LEMONSQUEEZY_VARIANT_MVP_DEMO) {
+    const params = new URLSearchParams();
+    params.set("demo_url", input.demoUrl);
+    if (input.siteId) {
+      params.set("site_id", input.siteId);
+    }
+    if (input.clientId) {
+      params.set("client_id", input.clientId);
+    }
+    params.set("email", input.email);
+    params.set("name", input.name);
+    return `/pay?${params.toString()}`;
+  }
+
+  if (variantId === LEMONSQUEEZY_VARIANT_MVP_PRO) {
+    const paddleUrl = new URL(`https://buy.paddle.com/product/${PADDLE_PRODUCT_MVP_PRO}`);
+    if (input.email) paddleUrl.searchParams.set("prefilled_email", input.email);
+    return paddleUrl.toString();
+  }
+
+  if (variantId === LEMONSQUEEZY_VARIANT_CRM_FULL) {
+    const polarUrl = new URL("https://buy.polar.sh/polar_cl_qVHaJpa4Zon7ZJjZNAI6UNDt7vkLdV0enAUZc085fTu");
+    if (input.email) polarUrl.searchParams.set("prefilled_email", input.email);
+    return polarUrl.toString();
+  }
+
+  const params = new URLSearchParams();
+  params.set("checkout[email]", input.email);
+  params.set("checkout[name]", input.name);
+  params.set("checkout[custom][demo_url]", input.demoUrl);
+  if (input.siteId) {
+    params.set("checkout[custom][site_id]", input.siteId);
+  }
+  if (input.clientId) {
+    params.set("checkout[custom][client_id]", input.clientId);
+  }
+  if (input.clientId && typeof window !== "undefined") {
+    params.set(
+      "checkout[product_options][redirect_url]",
+      `${window.location.origin}/success?clientId=${encodeURIComponent(input.clientId)}&tier=mvp_pro&email=${encodeURIComponent(input.email)}`,
+    );
+  }
+  return `${LEMONSQUEEZY_STORE_HOST}/buy/${variantId}?${params.toString()}`;
+}
+
+function resolveDemoUrl(
+  deployMeta: { demoUrl: string } | null,
+  pendingRedirectUrl: string | null,
+  result: ResultApiResponse | null,
+): string | null {
+  if (deployMeta?.demoUrl) {
+    return deployMeta.demoUrl;
+  }
+  if (pendingRedirectUrl) {
+    return pendingRedirectUrl;
+  }
+  const netlify = resolveDeliveryOption(result, "netlify");
+  return netlify.href ?? null;
 }
 
 function PricingTiersBlock({
+  payHref,
+  payHrefPro,
   payHrefFull,
   lang,
-  promoInput,
-  onPromoInputChange,
-  promoApplied,
+  clientId,
+  email,
 }: {
+  payHref: string;
+  payHrefPro: string;
   payHrefFull: string;
   lang: UiLang;
-  promoInput: string;
-  onPromoInputChange: (value: string) => void;
-  promoApplied: boolean;
+  clientId?: string;
+  email?: string;
 }) {
+  const payCopy = getPayTranslations(lang);
   const tierCopy = getTierTranslations(lang);
+  const [proDownloadToken, setProDownloadToken] = useState<string | null>(null);
 
-  const promoLabel =
-    lang === "ru" ? "Введите промокод" : lang === "de" ? "Promo-Code eingeben" : "Enter promo code";
-  const promoPlaceholder =
-    lang === "ru" ? "Промо-код (необязательно)" : lang === "de" ? "Promo-Code (optional)" : "Promo code (optional)";
-  const promoInvalid =
-    lang === "ru" ? "Неверный промо-код" : lang === "de" ? "Ungültiger Promo-Code" : "Invalid promo code";
+  useEffect(() => {
+    if (!clientId || !email?.trim()) {
+      setProDownloadToken(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    const pollStatus = async () => {
+      try {
+        const params = new URLSearchParams({
+          clientId,
+          email: email.trim(),
+        });
+        const response = await fetch(`/api/mvp-pro/status?${params.toString()}`);
+        if (!response.ok) {
+          return;
+        }
+        const data = (await response.json()) as { ready?: boolean; downloadToken?: string };
+        if (!cancelled && data.ready && data.downloadToken) {
+          setProDownloadToken(data.downloadToken);
+        }
+      } catch {
+        /* ignore polling errors */
+      }
+    };
+
+    void pollStatus();
+    const timer = window.setInterval(() => {
+      void pollStatus();
+    }, 5000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [clientId, email]);
+
+  const handleDownloadProZip = () => {
+    if (!clientId || !proDownloadToken) {
+      return;
+    }
+    const params = new URLSearchParams({
+      clientId,
+      token: proDownloadToken,
+    });
+    window.open(`/api/download-zip?${params.toString()}`, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <div className="pricing-tiers-section">
       <hr className="pricing-tiers-divider" />
       <h3 className="pricing-tiers-title">{tierCopy.choosePlan}</h3>
       <div className="pricing-tiers-grid">
+        <article className="pricing-tier-card">
+          <div className="pricing-tier-icon" aria-hidden>
+            ⚡
+          </div>
+          <h4 className="pricing-tier-name">{tierCopy.mvpDemo.name}</h4>
+          <div className="pricing-tier-price">€99</div>
+          <p className="pricing-tier-desc">{tierCopy.mvpDemo.description}</p>
+          <Link href={payHref} className="pricing-tier-btn pricing-tier-btn--primary">
+            {payCopy.keepForever}
+          </Link>
+        </article>
+
+        <article className="pricing-tier-card pricing-tier-card--popular">
+          <span className="pricing-tier-badge">{tierCopy.popular}</span>
+          <div className="pricing-tier-icon" aria-hidden>
+            🚀
+          </div>
+          <h4 className="pricing-tier-name">{tierCopy.mvpPro.name}</h4>
+          <div className="pricing-tier-price">€499</div>
+          <p className="pricing-tier-desc">{tierCopy.mvpPro.description}</p>
+          {proDownloadToken && clientId ? (
+            <button type="button" className="pricing-tier-btn pricing-tier-btn--primary" onClick={handleDownloadProZip}>
+              {tierCopy.downloadZip}
+            </button>
+          ) : (
+            <a
+              href={payHrefPro}
+              className="pricing-tier-btn"
+              target="_blank"
+              rel="noreferrer"
+            >
+              €499
+            </a>
+          )}
+        </article>
+
         <article className="pricing-tier-card">
           <div className="pricing-tier-icon" aria-hidden>
             💎
@@ -177,31 +331,13 @@ function PricingTiersBlock({
           <p className="pricing-tier-desc">{tierCopy.crmFull.description}</p>
           <a
             href={payHrefFull}
-            className="pricing-tier-btn pricing-tier-btn--primary"
+            className="pricing-tier-btn"
             target="_blank"
             rel="noreferrer"
           >
             {tierCopy.crmFull.contact}
           </a>
         </article>
-      </div>
-      <div style={{ marginTop: 16 }}>
-        <p className="step-sub" style={{ marginBottom: 8, textAlign: "center" }}>
-          {promoLabel}
-        </p>
-        <input
-          type="text"
-          className="inp"
-          value={promoInput}
-          onChange={(e) => onPromoInputChange(e.target.value)}
-          placeholder={promoPlaceholder}
-          style={{
-            borderColor: promoInput && !promoApplied ? "#EF4444" : promoApplied ? "#10B981" : undefined,
-          }}
-        />
-        {promoInput && !promoApplied ? (
-          <p style={{ marginTop: 4, fontSize: 12, color: "#EF4444", textAlign: "center" }}>{promoInvalid}</p>
-        ) : null}
       </div>
     </div>
   );
@@ -243,15 +379,9 @@ export function ClientWizardPage() {
   const [previewTitle, setPreviewTitle] = useState("—");
   const [previewSub, setPreviewSub] = useState("—");
   const [previewBodyHtml, setPreviewBodyHtml] = useState("");
+  const [previewData, setPreviewData] = useState<PreviewApiResponse | null>(null);
   const [s6Sub, setS6Sub] = useState("—");
   const [publishCountdown, setPublishCountdown] = useState<number | null>(null);
-  const [paid, setPaid] = useState(false);
-  const [promoInput, setPromoInput] = useState("");
-  const promoApplied = promoInput.trim().toLowerCase() === CRM_PROMO_CODE;
-
-  useEffect(() => {
-    setPaid(new URLSearchParams(window.location.search).get("paid") === "true");
-  }, []);
 
   useEffect(() => {
     if (!pendingRedirectUrl) {
@@ -281,6 +411,86 @@ export function ClientWizardPage() {
 
   const openMvpLabel =
     lang === "ru" ? "Открыть MVP" : lang === "de" ? "MVP öffnen" : "Open MVP";
+
+  const reviewPreviewLabel =
+    lang === "ru"
+      ? "Смотреть превью и одобрить"
+      : lang === "de"
+        ? "Vorschau ansehen und freigeben"
+        : "Review preview & approve";
+
+  const screenshotsLabel =
+    lang === "ru" ? "Скриншоты" : lang === "de" ? "Screenshots" : "Screenshots";
+
+  const demoVideoLabel =
+    lang === "ru" ? "Демо-видео" : lang === "de" ? "Demo-Video" : "Demo video";
+
+  const screenshotsPendingLabel =
+    lang === "ru"
+      ? "Скриншоты генерируются..."
+      : lang === "de"
+        ? "Screenshots werden erstellt..."
+        : "Screenshots are being generated...";
+
+  const demoVideoPendingLabel =
+    lang === "ru"
+      ? "Демо-видео генерируется..."
+      : lang === "de"
+        ? "Demo-Video wird erstellt..."
+        : "Demo video is being generated...";
+
+  useEffect(() => {
+    if (step !== "s5") {
+      return;
+    }
+
+    let active = true;
+    const sector = copy.sectors.find((item) => item.id === selSector);
+    const langCode = LANG_LABEL_TO_CODE[selLang ?? ""] ?? "en";
+    const fallbackSector = sector ?? { icon: "", label: "—" };
+
+    setPreviewTitle(name.trim() || "—");
+    setPreviewSub(sector ? `${sector.icon} ${sector.label}` : "—");
+    setPreviewUrl(pendingRedirectUrl ?? deployMeta?.demoUrl ?? "https://—.netlify.app");
+    setPreviewBodyHtml(buildPreviewBodyHtml(name.trim() || "—", fallbackSector, langCode));
+
+    void (async () => {
+      try {
+        const preview = await fetchPreviewLatest();
+        if (!active) {
+          return;
+        }
+        setPreviewData(preview);
+        if (!preview.ok) {
+          return;
+        }
+        if (preview.preview_url) {
+          setPreviewUrl(preview.preview_url);
+        }
+        if (preview.business_name) {
+          setPreviewTitle(preview.business_name);
+        }
+        if (preview.business_type) {
+          const matchedSector = copy.sectors.find(
+            (item) => SECTOR_TO_BUSINESS_TYPE[item.id] === preview.business_type,
+          );
+          setPreviewSub(
+            matchedSector
+              ? `${matchedSector.icon} ${matchedSector.label}`
+              : preview.business_type,
+          );
+        }
+      } catch {
+        if (active) {
+          setPreviewData(null);
+        }
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [copy.sectors, deployMeta, name, pendingRedirectUrl, selLang, selSector, step]);
 
   const goTo = useCallback((id: StepId) => {
     setStep(id);
@@ -411,8 +621,27 @@ export function ClientWizardPage() {
   }
 
   const stepClass = (id: StepId) => (step === id ? "step active" : "step");
+  const previewScreenshots = previewData?.screenshots ?? [];
+  const demoVideoUrl = previewData?.demo_video_available ? previewData.demo_video_url : undefined;
 
-  const payHrefFull = email.trim() ? buildCrmFullCheckoutHref({ email: email.trim() }) : null;
+  const demoUrl = resolveDemoUrl(deployMeta, pendingRedirectUrl, resultData);
+  const payInput =
+    demoUrl && email.trim() && name.trim()
+      ? {
+          demoUrl,
+          siteId: deployMeta?.siteId,
+          clientId: deployMeta?.clientId,
+          email: email.trim(),
+          name: name.trim(),
+        }
+      : null;
+  const payHref = payInput ? buildPayHref(payInput) : null;
+  const payHrefPro = payInput
+    ? buildPayHref({ ...payInput, variantId: LEMONSQUEEZY_VARIANT_MVP_PRO })
+    : null;
+  const payHrefFull = payInput
+    ? buildPayHref({ ...payInput, variantId: LEMONSQUEEZY_VARIANT_CRM_FULL })
+    : null;
 
   return (
     <div className="mf-root">
@@ -620,77 +849,88 @@ export function ClientWizardPage() {
                         ? "Ihr persönliches MVP ist bereit"
                         : "Your personal MVP is ready"}
                   </p>
-                  {paid || promoApplied ? (
-                    <>
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: 8,
-                          marginBottom: 12,
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <input
-                          type="text"
-                          readOnly
-                          value={pendingRedirectUrl}
-                          style={{
-                            flex: 1,
-                            minWidth: 0,
-                            padding: "10px 12px",
-                            borderRadius: 10,
-                            border: "1px solid #cbd5e1",
-                            background: "#f8fafc",
-                            color: "#0f172a",
-                            fontSize: 13,
-                          }}
-                        />
-                        <button
-                          type="button"
-                          className="btn-primary"
-                          style={{
-                            flexShrink: 0,
-                            marginBottom: 0,
-                            padding: "10px 16px",
-                            fontSize: 14,
-                          }}
-                          onClick={() => void navigator.clipboard.writeText(pendingRedirectUrl)}
-                        >
-                          {copyLinkLabel}
-                        </button>
-                      </div>
-                      {publishCountdownText ? (
-                        <p
-                          className="step-sub"
-                          style={{ textAlign: "center", marginBottom: 12, fontWeight: 600 }}
-                        >
-                          {publishCountdownText}
-                        </p>
-                      ) : (
-                        <a
-                          href={pendingRedirectUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="btn-primary"
-                          style={{
-                            display: "flex",
-                            width: "100%",
-                            justifyContent: "center",
-                            marginBottom: 0,
-                          }}
-                        >
-                          {openMvpLabel}
-                        </a>
-                      )}
-                    </>
-                  ) : null}
-                  {payHrefFull ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 8,
+                      marginBottom: 12,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <input
+                      type="text"
+                      readOnly
+                      value={pendingRedirectUrl}
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        padding: "10px 12px",
+                        borderRadius: 10,
+                        border: "1px solid #cbd5e1",
+                        background: "#f8fafc",
+                        color: "#0f172a",
+                        fontSize: 13,
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      style={{
+                        flexShrink: 0,
+                        marginBottom: 0,
+                        padding: "10px 16px",
+                        fontSize: 14,
+                      }}
+                      onClick={() => void navigator.clipboard.writeText(pendingRedirectUrl)}
+                    >
+                      {copyLinkLabel}
+                    </button>
+                  </div>
+                  {publishCountdownText ? (
+                    <p
+                      className="step-sub"
+                      style={{ textAlign: "center", marginBottom: 12, fontWeight: 600 }}
+                    >
+                      {publishCountdownText}
+                    </p>
+                  ) : (
+                    <a
+                      href={pendingRedirectUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-primary"
+                      style={{
+                        display: "flex",
+                        width: "100%",
+                        justifyContent: "center",
+                        marginBottom: 0,
+                      }}
+                    >
+                      {openMvpLabel}
+                    </a>
+                  )}
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    style={{
+                      display: "flex",
+                      width: "100%",
+                      justifyContent: "center",
+                      marginTop: 12,
+                      marginBottom: 0,
+                    }}
+                    onClick={() => goTo("s5")}
+                  >
+                    {reviewPreviewLabel}
+                  </button>
+                  {payHref && payHrefPro && payHrefFull ? (
                     <PricingTiersBlock
+                      payHref={payHref}
+                      payHrefPro={payHrefPro}
                       payHrefFull={payHrefFull}
                       lang={lang}
-                      promoInput={promoInput}
-                      onPromoInputChange={setPromoInput}
-                      promoApplied={promoApplied}
+                      clientId={deployMeta?.clientId}
+                      email={email.trim()}
                     />
                   ) : null}
                 </div>
@@ -731,6 +971,38 @@ export function ClientWizardPage() {
               </div>
               <div className="preview-body" id="preview-body" dangerouslySetInnerHTML={{ __html: previewBodyHtml }} />
             </div>
+
+            <div className="wizard-media-block">
+              <div className="wizard-media-title">{screenshotsLabel}</div>
+              {previewScreenshots.length > 0 ? (
+                <div className="wizard-screenshots-grid">
+                  {previewScreenshots.map((shot) => (
+                    <figure key={shot.name} className="wizard-screenshot-card">
+                      <img src={shot.url} alt={shot.label} loading="lazy" />
+                      <figcaption>{shot.label}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              ) : (
+                <p className="wizard-media-pending">{screenshotsPendingLabel}</p>
+              )}
+            </div>
+
+            <div className="wizard-media-block">
+              <div className="wizard-media-title">{demoVideoLabel}</div>
+              {demoVideoUrl ? (
+                <video
+                  className="wizard-demo-video"
+                  src={demoVideoUrl}
+                  controls
+                  playsInline
+                  preload="metadata"
+                />
+              ) : (
+                <p className="wizard-media-pending">{demoVideoPendingLabel}</p>
+              )}
+            </div>
+
             <div className="step-sub" style={{ marginBottom: 16 }}>
               {copy.s5_q}
             </div>
@@ -873,13 +1145,14 @@ export function ClientWizardPage() {
                 demo.mp4
               </DeliveryLink>
             </div>
-            {payHrefFull ? (
+            {payHref && payHrefPro && payHrefFull ? (
               <PricingTiersBlock
+                payHref={payHref}
+                payHrefPro={payHrefPro}
                 payHrefFull={payHrefFull}
                 lang={lang}
-                promoInput={promoInput}
-                onPromoInputChange={setPromoInput}
-                promoApplied={promoApplied}
+                clientId={deployMeta?.clientId}
+                email={email.trim()}
               />
             ) : null}
             <button
