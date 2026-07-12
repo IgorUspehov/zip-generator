@@ -876,6 +876,24 @@
   text-align: center;
 }
 
+.pricing-tier-cta {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.pricing-tier-cta .pricing-tier-btn {
+  margin-top: 0;
+}
+
+.pricing-tier-pay-subline {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #64748b;
+}
+
 .pricing-tier-btn {
   display: flex;
   width: 100%;

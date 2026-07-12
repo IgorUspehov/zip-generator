@@ -450,9 +450,12 @@ function PricingTiersBlock({
           <h4 className="pricing-tier-name">{tierCopy.mvpDemo.name}</h4>
           <div className="pricing-tier-price">€99</div>
           <p className="pricing-tier-desc">{tierCopy.mvpDemo.description}</p>
-          <Link href={payHref} className="pricing-tier-btn pricing-tier-btn--primary">
-            {payCopy.keepForever}
-          </Link>
+          <div className="pricing-tier-cta">
+            <Link href={payHref} className="pricing-tier-btn pricing-tier-btn--primary">
+              {payCopy.payButton}
+            </Link>
+            <p className="pricing-tier-pay-subline">{payCopy.paySubline}</p>
+          </div>
         </article>
 
         <article className="pricing-tier-card pricing-tier-card--popular">
@@ -1219,6 +1222,11 @@ function ClientWizardFlow() {
                     {promoApplied ? copy.s6_promo_unlock : copy.s6_pay_button}
                   </button>
                 </div>
+                {!promoApplied ? (
+                  <p className="step-sub" style={{ marginTop: 8, textAlign: "center" }}>
+                    {copy.s6_pay_subline}
+                  </p>
+                ) : null}
                 {showPromo ? (
                   <div style={{ marginTop: 12 }}>
                     <input

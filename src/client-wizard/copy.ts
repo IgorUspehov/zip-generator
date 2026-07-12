@@ -42,6 +42,7 @@ export type CopyBundle = {
   s5_q: string;
   s6_pay_h: string;
   s6_pay_button: string;
+  s6_pay_subline: string;
   s6_promo_button: string;
   s6_promo_placeholder: string;
   s6_promo_invalid: string;
@@ -108,7 +109,8 @@ const T: Record<UiLang, CopyBundle> = {
     s5_preview_warming: "Preparing preview…",
     s5_q: "Do you like the result?",
     s6_pay_h: "Unlock your Website+CRM",
-    s6_pay_button: "Pay €99 — once, forever, no subscription",
+    s6_pay_button: "€99 — one-time payment",
+    s6_pay_subline: "No subscription. No monthly fees.",
     s6_promo_button: "Promo code",
     s6_promo_placeholder: "Promo code (optional)",
     s6_promo_invalid: "Invalid promo code",
@@ -187,7 +189,8 @@ const T: Record<UiLang, CopyBundle> = {
     s5_preview_warming: "Vorschau wird vorbereitet…",
     s5_q: "Gefällt dir das Ergebnis?",
     s6_pay_h: "Website+CRM freischalten",
-    s6_pay_button: "€99 zahlen — einmalig, für immer, kein Abo",
+    s6_pay_button: "€99 — Einmalzahlung",
+    s6_pay_subline: "Kein Abo. Keine monatlichen Gebühren.",
     s6_promo_button: "Promo-Code",
     s6_promo_placeholder: "Promo-Code (optional)",
     s6_promo_invalid: "Ungültiger Promo-Code",
@@ -266,7 +269,8 @@ const T: Record<UiLang, CopyBundle> = {
     s5_preview_warming: "Готовим превью…",
     s5_q: "Нравится результат?",
     s6_pay_h: "Откройте доступ к Website+CRM",
-    s6_pay_button: "Оплатить €99 — разово, навсегда, без подписки",
+    s6_pay_button: "€99 — разовый платёж",
+    s6_pay_subline: "Без подписки. Без ежемесячных платежей.",
     s6_promo_button: "Промокод",
     s6_promo_placeholder: "Промо-код (необязательно)",
     s6_promo_invalid: "Неверный промо-код",

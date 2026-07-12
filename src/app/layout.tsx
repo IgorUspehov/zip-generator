@@ -18,11 +18,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "MVP Factory — Website + CRM за 3 минуты",
-  description: "Website + CRM для вашего бизнеса. €99 разово, навсегда, без подписки.",
+  description: "Website + CRM для вашего бизнеса. €99 — разовый платёж, без подписки.",
   metadataBase: new URL("https://saas-mvp-funnel-production.up.railway.app"),
   openGraph: {
     title: "MVP Factory — Website + CRM за 3 минуты",
-    description: "Website + CRM для вашего бизнеса. €99 разово, навсегда, без подписки.",
+    description: "Website + CRM для вашего бизнеса. €99 — разовый платёж, без подписки.",
     url: "/",
     type: "website",
     images: [
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "MVP Factory — Website + CRM за 3 минуты",
-    description: "Website + CRM для вашего бизнеса. €99 разово, навсегда, без подписки.",
+    description: "Website + CRM для вашего бизнеса. €99 — разовый платёж, без подписки.",
     images: ["https://saas-mvp-funnel-production.up.railway.app/og-image.png"],
   },
 };
@@ -53,7 +53,7 @@ export default function RootLayout({
         <meta property="og:title" content="MVP Factory — Website + CRM за 3 минуты" />
         <meta
           property="og:description"
-          content="Website + CRM для вашего бизнеса. €99 разово, навсегда, без подписки."
+          content="Website + CRM для вашего бизнеса. €99 — разовый платёж, без подписки."
         />
         <meta
           property="og:image"

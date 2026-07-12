@@ -8,7 +8,7 @@ export const tierTranslations = {
     downloadZip: "Скачать ZIP",
     mvpDemo: {
       name: "MVP Demo",
-      description: "Netlify ссылка навсегда",
+      description: "Разовый платёж · без подписки",
     },
     mvpPro: {
       name: "MVP Pro",
@@ -27,7 +27,7 @@ export const tierTranslations = {
     downloadZip: "ZIP herunterladen",
     mvpDemo: {
       name: "MVP Demo",
-      description: "Netlify-Link für immer",
+      description: "Einmalzahlung · kein Abo",
     },
     mvpPro: {
       name: "MVP Pro",
@@ -46,7 +46,7 @@ export const tierTranslations = {
     downloadZip: "Download ZIP",
     mvpDemo: {
       name: "MVP Demo",
-      description: "Netlify link forever",
+      description: "One-time payment · no subscription",
     },
     mvpPro: {
       name: "MVP Pro",

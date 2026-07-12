@@ -19,7 +19,8 @@ const translations = {
   de: {
     demoReady: "Ihr Website+CRM ist fertig!",
     promoButton: "Promo-Code",
-    payButton: "€99 zahlen — einmalig, für immer, kein Abo",
+    payButton: "€99 — Einmalzahlung",
+    paySubline: "Kein Abo. Keine monatlichen Gebühren.",
     freeButton: "Kostenlos erhalten →",
     redirecting: "Weiterleitung…",
     missingParams: "Geben Sie demo_url, email und name in der URL an.",
@@ -31,7 +32,8 @@ const translations = {
   en: {
     demoReady: "Your Website+CRM is ready!",
     promoButton: "Promo code",
-    payButton: "Pay €99 — once, forever, no subscription",
+    payButton: "€99 — one-time payment",
+    paySubline: "No subscription. No monthly fees.",
     freeButton: "Get for free →",
     redirecting: "Redirecting…",
     missingParams: "Add demo_url, email and name to the URL.",
@@ -43,7 +45,8 @@ const translations = {
   ru: {
     demoReady: "Ваш сайт с CRM готов!",
     promoButton: "Промокод",
-    payButton: "Оплатить €99 — разово, навсегда, без подписки",
+    payButton: "€99 — разовый платёж",
+    paySubline: "Без подписки. Без ежемесячных платежей.",
     freeButton: "Получить бесплатно →",
     redirecting: "Перенаправляем…",
     missingParams: "Укажите demo_url, email и name в ссылке.",
@@ -183,6 +186,9 @@ export function PayPageContent() {
               {loading ? t.redirecting : promoApplied ? t.freeButton : t.payButton}
             </button>
           </div>
+          {!promoApplied && !loading ? (
+            <p className="mt-2 text-center text-sm text-slate-500">{t.paySubline}</p>
+          ) : null}
 
           {showPromo ? (
             <div className="mt-3">

@@ -11,7 +11,8 @@ const POLAR_CHECKOUT_CRM_DEMO =
 const translations = {
   en: {
     hero_title: "Website + CRM in 3 Minutes",
-    hero_button: "€99 once, forever, no subscription",
+    hero_button: "€99 — one-time payment",
+    hero_subline: "No subscription. No monthly fees.",
     process_label: "PROCESS",
     process_title: "How it works",
     step1_title: "Fill out the form",
@@ -31,15 +32,19 @@ const translations = {
     niches_title: "Industries",
     price_label: "PRICE",
     price_title: "CRM",
-    price_period: "one-time",
-    price_button: "€99 once, forever, no subscription",
+    price_line1: "One-time payment.",
+    price_line2: "No subscription.",
+    price_line3: "No monthly fees.",
+    price_button: "€99 — one-time payment",
+    price_subline: "No subscription. No monthly fees.",
     footer_location: "München, Germany",
     footer_agb: "Terms",
     footer_privacy: "Privacy",
   },
   de: {
     hero_title: "Website + CRM in 3 Minuten",
-    hero_button: "€99 einmalig, für immer, kein Abo",
+    hero_button: "€99 — Einmalzahlung",
+    hero_subline: "Kein Abo. Keine monatlichen Gebühren.",
     process_label: "PROZESS",
     process_title: "So funktioniert es",
     step1_title: "Fragebogen ausfüllen",
@@ -59,15 +64,19 @@ const translations = {
     niches_title: "Branchen",
     price_label: "PREIS",
     price_title: "CRM",
-    price_period: "einmalig",
-    price_button: "€99 einmalig, für immer, kein Abo",
+    price_line1: "Einmalzahlung.",
+    price_line2: "Kein Abo.",
+    price_line3: "Keine monatlichen Gebühren.",
+    price_button: "€99 — Einmalzahlung",
+    price_subline: "Kein Abo. Keine monatlichen Gebühren.",
     footer_location: "München, Deutschland",
     footer_agb: "AGB",
     footer_privacy: "Datenschutz",
   },
   ru: {
     hero_title: "Website + CRM за 3 минуты",
-    hero_button: "€99 разово, навсегда, без подписки",
+    hero_button: "€99 — разовый платёж",
+    hero_subline: "Без подписки. Без ежемесячных платежей.",
     process_label: "ПРОЦЕСС",
     process_title: "Как работает",
     step1_title: "Заполните анкету",
@@ -87,8 +96,11 @@ const translations = {
     niches_title: "Ниши",
     price_label: "ЦЕНА",
     price_title: "CRM",
-    price_period: "разово",
-    price_button: "€99 разово, навсегда, без подписки",
+    price_line1: "Разовый платёж.",
+    price_line2: "Без подписки.",
+    price_line3: "Без ежемесячных платежей.",
+    price_button: "€99 — разовый платёж",
+    price_subline: "Без подписки. Без ежемесячных платежей.",
     footer_location: "Мюнхен, Германия",
     footer_agb: "Условия",
     footer_privacy: "Конфиденциальность",
@@ -262,6 +274,7 @@ export default function Page() {
           </h1>
           <div className="mt-10">
             <CtaButton href="/client">{t.hero_button}</CtaButton>
+            <p className="mt-3 text-sm font-medium text-white/85">{t.hero_subline}</p>
           </div>
         </div>
       </section>
@@ -347,9 +360,14 @@ export default function Page() {
             <p className="mt-8 text-6xl font-extrabold tracking-tight text-slate-900">
               €99
             </p>
-            <p className="mt-2 text-lg font-medium text-slate-500">{t.price_period}</p>
+            <div className="mt-4 space-y-1">
+              <p className="text-lg font-medium text-slate-600">{t.price_line1}</p>
+              <p className="text-lg font-medium text-slate-600">{t.price_line2}</p>
+              <p className="text-lg font-medium text-slate-600">{t.price_line3}</p>
+            </div>
             <div className="mt-10">
               <CtaButton href={POLAR_CHECKOUT_CRM_DEMO}>{t.price_button}</CtaButton>
+              <p className="mt-3 text-sm text-slate-500">{t.price_subline}</p>
             </div>
           </div>
         </div>
