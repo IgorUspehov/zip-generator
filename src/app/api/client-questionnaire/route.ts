@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 
 import { DEFAULT_BUSINESS_TYPE, SECTOR_ID_TO_BUSINESS_TYPE } from "@/lib/sector-mapping";
 import { buildCommercialData } from "@/lib/payment/payment-service";
+import { notifyNewLead } from "@/lib/leads/notify-lead";
 import { cleanupClientDist, prepareClientDistWithOgImage } from "@/lib/og-image/prepare-client-dist";
 import { createNetlifySite, uploadAndDeploy, deleteNetlifySite, resolveMvpDistPath } from "@/lib/netlify/deploy";
 import { scheduleDeletion, startDeletionScheduler } from "@/lib/netlify/scheduler";
@@ -19,6 +20,7 @@ import palettesData from "@/lib/palettes.json";
 import promotionsData from "@/lib/niche-promotions.json";
 import { pickRandomGalleryPhotos, pickRandomHeroPhoto } from "@/lib/manifest/niche-media";
 import { pickNicheScenario } from "@/lib/manifest/niche-scenario";
+import { persistClientDistSnapshot } from "@/lib/site-delivery/dist-store";
 
 const sectorMapping = { sector_id_to_business_type: SECTOR_ID_TO_BUSINESS_TYPE };
 
@@ -518,6 +520,18 @@ export async function POST(request: Request) {
     saveClientManifest(clientId, manifest);
     console.log("[client-questionnaire] manifest saved, clientId:", clientId);
 
+    void notifyNewLead({
+      businessName: payload.business_name,
+      businessType: payload.business_type,
+      email: payload.email,
+      phone: payload.phone,
+      whatsapp: payload.whatsapp,
+      telegram: payload.telegram,
+      clientId,
+    }).catch((error) => {
+      console.error("[client-questionnaire] lead notification failed:", error);
+    });
+
     let siteId: string | undefined;
     let siteUrl: string | undefined;
     let deployId: string | undefined;
@@ -540,6 +554,7 @@ export async function POST(request: Request) {
         let deployResult: { deployId: string };
         try {
           deployResult = await uploadAndDeploy(netlifySite.siteId, clientDistPath);
+          persistClientDistSnapshot(clientId, clientDistPath);
         } catch (uploadError) {
           await deleteNetlifySite(netlifySite.siteId).catch((deleteError) => {
             console.error("[client-questionnaire] failed to delete orphaned site:", deleteError);

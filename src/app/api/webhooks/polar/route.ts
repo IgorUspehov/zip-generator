@@ -3,6 +3,7 @@ import { Webhooks } from "@polar-sh/nextjs";
 import { fulfillCrmFullOrder } from "@/lib/crm-full/fulfillment";
 import { fulfillMvpProOrder } from "@/lib/mvp-pro/fulfillment";
 import { cancelDeletion, findPendingByClientId } from "@/lib/netlify/scheduler";
+import { fulfillPaidSiteDelivery } from "@/lib/site-delivery/post-payment-email";
 import {
   pickReferenceId,
   saveCheckoutReference,
@@ -52,10 +53,13 @@ export const POST = Webhooks({
       await fulfillMvpProOrder({ clientId, email: email ?? "", orderId, variantId: "polar_recurring" });
     } else if (productName === "CRM Full") {
       await fulfillCrmFullOrder({ clientId, email, orderId, variantId: "polar_crm_full" });
+      await fulfillPaidSiteDelivery({ clientId, email, orderId, productName });
     } else if (productName === "CRM Demo") {
       console.log("[polar-webhook] CRM Demo paid", { clientId, email, orderId });
+      await fulfillPaidSiteDelivery({ clientId, email, orderId, productName });
     } else {
       console.warn("[polar-webhook] unknown product on order.paid", { productName, clientId, orderId });
+      await fulfillPaidSiteDelivery({ clientId, email, orderId, productName });
     }
   },
 });
