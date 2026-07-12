@@ -12,6 +12,11 @@ import {
 import { getCopy, type UiLang } from "@/client-wizard/copy";
 import { getPayTranslations } from "@/client-wizard/pay-translations";
 import { getTierTranslations } from "@/client-wizard/tier-translations";
+import {
+  POLAR_CHECKOUT_99,
+  POLAR_CHECKOUT_CRM_FULL,
+  POLAR_CHECKOUT_RECURRING,
+} from "@/lib/polar/constants";
 import { DEFAULT_BUSINESS_TYPE } from "@/lib/sector-mapping";
 import { executeRecaptcha } from "@/lib/recaptcha/client";
 import type { ResultApiResponse, StepId } from "@/client-wizard/types";
@@ -23,12 +28,7 @@ const LEMONSQUEEZY_VARIANT_MVP_DEMO = "1801729";
 const LEMONSQUEEZY_VARIANT_MVP_PRO = "1807661";
 const LEMONSQUEEZY_VARIANT_CRM_FULL = "1807671";
 
-const PADDLE_PRODUCT_MVP_PRO = "pri_01kvwyb0r4rpvv3xrfbyths7tw";
-const PADDLE_PRODUCT_CRM_FULL = "pri_01kvwyk2kmmfagkfp4am68zner";
-
 const PROMO_CODE = "serafim01";
-const POLAR_CHECKOUT_99 =
-  "https://buy.polar.sh/polar_cl_uUpNQRXBAVubDpDO3zwLa5SAswkU0Jkr2835A04UF1F";
 
 function ProgressBar({ step }: { step: "s1" | "s2" }) {
   const dots = step === "s1" ? ["active", ""] : ["done", "active"];
@@ -163,14 +163,16 @@ function buildPayHref(input: {
   }
 
   if (variantId === LEMONSQUEEZY_VARIANT_MVP_PRO) {
-    const paddleUrl = new URL(`https://buy.paddle.com/product/${PADDLE_PRODUCT_MVP_PRO}`);
-    if (input.email) paddleUrl.searchParams.set("prefilled_email", input.email);
-    return paddleUrl.toString();
+    const polarUrl = new URL(POLAR_CHECKOUT_RECURRING);
+    if (input.email) polarUrl.searchParams.set("prefilled_email", input.email);
+    if (input.clientId) polarUrl.searchParams.set("reference_id", input.clientId);
+    return polarUrl.toString();
   }
 
   if (variantId === LEMONSQUEEZY_VARIANT_CRM_FULL) {
-    const polarUrl = new URL("https://buy.polar.sh/polar_cl_qVHaJpa4Zon7ZJjZNAI6UNDt7vkLdV0enAUZc085fTu");
+    const polarUrl = new URL(POLAR_CHECKOUT_CRM_FULL);
     if (input.email) polarUrl.searchParams.set("prefilled_email", input.email);
+    if (input.clientId) polarUrl.searchParams.set("reference_id", input.clientId);
     return polarUrl.toString();
   }
 
@@ -574,6 +576,9 @@ export function ClientWizardPage() {
     const polarUrl = new URL(POLAR_CHECKOUT_99);
     if (email.trim()) {
       polarUrl.searchParams.set("prefilled_email", email.trim());
+    }
+    if (deployMeta?.clientId) {
+      polarUrl.searchParams.set("reference_id", deployMeta.clientId);
     }
     window.location.href = polarUrl.toString();
   }

@@ -9,9 +9,9 @@ declare global {
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+import { POLAR_CHECKOUT_99 } from "@/lib/polar/constants";
+
 const PROMO_CODE = "serafim01";
-const POLAR_CHECKOUT_99 =
-  "https://buy.polar.sh/polar_cl_uUpNQRXBAVubDpDO3zwLa5SAswkU0Jkr2835A04UF1F";
 
 type PayLang = "en" | "de" | "ru";
 
@@ -102,6 +102,7 @@ export function PayPageContent() {
   const demoUrl = searchParams?.get("demo_url")?.trim() ?? "";
   const email = searchParams?.get("email")?.trim() ?? "";
   const name = searchParams?.get("name")?.trim() ?? "";
+  const clientId = searchParams?.get("client_id")?.trim() ?? "";
 
   const [lang, setLang] = useState<PayLang>("de");
   const [loading, setLoading] = useState(false);
@@ -130,6 +131,7 @@ export function PayPageContent() {
 
     const polarUrl = new URL(POLAR_CHECKOUT_99);
     if (email) polarUrl.searchParams.set("prefilled_email", email);
+    if (clientId) polarUrl.searchParams.set("reference_id", clientId);
     window.location.href = polarUrl.toString();
   }
 
