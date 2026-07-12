@@ -3,31 +3,10 @@ import { Webhooks } from "@polar-sh/nextjs";
 import { fulfillCrmFullOrder } from "@/lib/crm-full/fulfillment";
 import { fulfillMvpProOrder } from "@/lib/mvp-pro/fulfillment";
 import { cancelDeletion, findPendingByClientId } from "@/lib/netlify/scheduler";
-
-function pickReferenceId(data: Record<string, unknown>): string | null {
-  const metadata = data.metadata as Record<string, unknown> | undefined;
-  const checkout = data.checkout as Record<string, unknown> | undefined;
-  const checkoutMetadata = checkout?.metadata as Record<string, unknown> | undefined;
-
-  const candidates = [
-    metadata?.reference_id,
-    metadata?.referenceId,
-    data.referenceId,
-    data.reference_id,
-    checkout?.referenceId,
-    checkout?.reference_id,
-    checkoutMetadata?.reference_id,
-    checkoutMetadata?.referenceId,
-  ];
-
-  for (const value of candidates) {
-    if (typeof value === "string" && value.trim()) {
-      return value.trim();
-    }
-  }
-
-  return null;
-}
+import {
+  pickReferenceId,
+  saveCheckoutReference,
+} from "@/lib/polar/checkout-reference-store";
 
 function extractSiteId(clientId: string | null): string | null {
   if (!clientId) return null;
@@ -36,6 +15,15 @@ function extractSiteId(clientId: string | null): string | null {
 
 export const POST = Webhooks({
   webhookSecret: process.env.POLAR_WEBHOOK_SECRET!,
+  onCheckoutUpdated: async (payload) => {
+    const checkout = payload.data as Record<string, unknown>;
+    const checkoutId = typeof checkout.id === "string" ? checkout.id : null;
+    const clientId = pickReferenceId(checkout);
+
+    if (checkoutId && clientId) {
+      saveCheckoutReference(checkoutId, clientId);
+    }
+  },
   onOrderPaid: async (payload) => {
     const order = payload.data as Record<string, unknown>;
     const product = order.product as { name?: string } | undefined;
@@ -44,6 +32,11 @@ export const POST = Webhooks({
     const customer = order.customer as { email?: string } | undefined;
     const email = customer?.email;
     const orderId = order.id as string | undefined;
+    const checkoutId = typeof order.checkoutId === "string" ? order.checkoutId : null;
+
+    if (checkoutId && clientId) {
+      saveCheckoutReference(checkoutId, clientId);
+    }
 
     const siteId = extractSiteId(clientId);
     if (siteId) {
