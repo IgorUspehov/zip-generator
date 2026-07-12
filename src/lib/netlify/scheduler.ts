@@ -13,6 +13,7 @@ export type PendingDeletion = {
   siteUrl: string;
   deployedAt: string;
   deleteAt: string;
+  paid?: boolean;
 };
 
 function readPendingDeletions(): PendingDeletion[] {
@@ -62,9 +63,18 @@ export function scheduleDeletion(entry: {
 
 export function cancelDeletion(siteId: string): boolean {
   const entries = readPendingDeletions();
-  const next = entries.filter((item) => item.siteId !== siteId);
+  let updated = false;
 
-  if (next.length === entries.length) {
+  const next = entries.map((item) => {
+    if (item.siteId !== siteId) {
+      return item;
+    }
+
+    updated = true;
+    return { ...item, paid: true };
+  });
+
+  if (!updated) {
     return false;
   }
 
@@ -95,6 +105,11 @@ export async function processExpiredDeletions(): Promise<void> {
   const remaining: PendingDeletion[] = [];
 
   for (const entry of entries) {
+    if (entry.paid) {
+      remaining.push(entry);
+      continue;
+    }
+
     if (new Date(entry.deleteAt).getTime() <= now) {
       try {
         await deleteNetlifySite(entry.siteId);
