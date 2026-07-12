@@ -52,7 +52,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(finalUrl.toString());
   }
 
-  return NextResponse.redirect(
-    new URL(`/client?payment=processing&clientId=${encodeURIComponent(clientId)}`, SITE_URL),
-  );
+  const processingUrl = new URL("/client", SITE_URL);
+  processingUrl.searchParams.set("payment", "processing");
+  processingUrl.searchParams.set("clientId", clientId);
+  processingUrl.searchParams.set("checkout_id", checkoutId);
+  return NextResponse.redirect(processingUrl);
 }

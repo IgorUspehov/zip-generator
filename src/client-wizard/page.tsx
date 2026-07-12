@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import {
@@ -29,6 +30,158 @@ const LEMONSQUEEZY_VARIANT_MVP_PRO = "1807661";
 const LEMONSQUEEZY_VARIANT_CRM_FULL = "1807671";
 
 const PROMO_CODE = "serafim01";
+const SUPPORT_EMAIL = "support@mvpfactory.de";
+const PAYMENT_POLL_INTERVAL_MS = 3000;
+const PAYMENT_POLL_MAX_ATTEMPTS = 20;
+
+function PaymentReturnScreen({
+  mode,
+  clientId,
+  checkoutId,
+}: {
+  mode: "processing" | "error";
+  clientId: string;
+  checkoutId: string;
+}) {
+  const [lang, setLang] = useState<UiLang>("en");
+  const [timedOut, setTimedOut] = useState(false);
+  const copy = getCopy(lang);
+
+  const pollSiteReady = useCallback(async (): Promise<boolean> => {
+    if (clientId) {
+      try {
+        const params = new URLSearchParams({ clientId });
+        const response = await fetch(`/api/client-site-status?${params.toString()}`);
+        if (response.ok) {
+          const data = (await response.json()) as { ready?: boolean; siteUrl?: string };
+          if (data.ready && data.siteUrl) {
+            window.location.href = data.siteUrl;
+            return true;
+          }
+        }
+      } catch {
+        /* retry on next interval */
+      }
+    }
+
+    if (checkoutId) {
+      try {
+        const params = new URLSearchParams({ checkout_id: checkoutId });
+        const response = await fetch(`/api/checkout-lookup?${params.toString()}`, {
+          redirect: "manual",
+        });
+        if (response.status >= 300 && response.status < 400) {
+          const location = response.headers.get("Location");
+          if (location && !location.includes("payment=processing") && !location.includes("payment=error")) {
+            window.location.href = location;
+            return true;
+          }
+        }
+      } catch {
+        /* retry on next interval */
+      }
+    }
+
+    return false;
+  }, [checkoutId, clientId]);
+
+  useEffect(() => {
+    if (mode !== "processing" || timedOut) {
+      return;
+    }
+
+    let attempts = 0;
+    let cancelled = false;
+
+    const runPoll = async () => {
+      if (cancelled || timedOut) {
+        return;
+      }
+
+      const redirected = await pollSiteReady();
+      if (redirected || cancelled) {
+        return;
+      }
+
+      attempts += 1;
+      if (attempts >= PAYMENT_POLL_MAX_ATTEMPTS) {
+        setTimedOut(true);
+      }
+    };
+
+    void runPoll();
+    const timer = window.setInterval(() => {
+      void runPoll();
+    }, PAYMENT_POLL_INTERVAL_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [mode, pollSiteReady, timedOut]);
+
+  const title =
+    mode === "error"
+      ? copy.s_payment_error_title
+      : timedOut
+        ? copy.s_processing_timeout_title
+        : copy.s_processing_title;
+
+  const subtitle =
+    mode === "error"
+      ? copy.s_payment_error_sub
+      : timedOut
+        ? copy.s_processing_timeout_sub
+        : copy.s_processing_sub;
+
+  return (
+    <div className="mf-root">
+      <div className="shell">
+        <div className="glow" />
+
+        <div className="ui-lang">
+          {(["en", "de", "ru"] as UiLang[]).map((code) => (
+            <button
+              key={code}
+              type="button"
+              className={`ui-lang-btn ${lang === code ? "active" : ""}`}
+              onClick={() => setLang(code)}
+            >
+              {code.toUpperCase()}
+            </button>
+          ))}
+        </div>
+
+        <div className="card">
+          <div className="step active">
+            <div className="step-h" style={{ marginBottom: 12 }}>
+              {title}
+            </div>
+            <p className="step-sub" style={{ marginBottom: 24 }}>
+              {subtitle}
+            </p>
+
+            {mode === "processing" && !timedOut ? (
+              <p className="step-sub" style={{ fontWeight: 600 }}>
+                …
+              </p>
+            ) : null}
+
+            {mode === "error" || timedOut ? (
+              <a
+                href={`mailto:${SUPPORT_EMAIL}`}
+                className="btn-primary"
+                style={{ display: "inline-flex", justifyContent: "center", marginTop: 8 }}
+              >
+                {copy.s_processing_contact}
+              </a>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function ProgressBar({ step }: { step: "s1" | "s2" }) {
   const dots = step === "s1" ? ["active", ""] : ["done", "active"];
@@ -356,6 +509,25 @@ function buildQuestionnairePayloadFromWizard(input: {
 }
 
 export function ClientWizardPage() {
+  const searchParams = useSearchParams();
+  const payment = searchParams?.get("payment");
+  const paymentClientId = searchParams?.get("clientId")?.trim() ?? "";
+  const paymentCheckoutId = searchParams?.get("checkout_id")?.trim() ?? "";
+
+  if (payment === "processing" || payment === "error") {
+    return (
+      <PaymentReturnScreen
+        mode={payment}
+        clientId={paymentClientId}
+        checkoutId={paymentCheckoutId}
+      />
+    );
+  }
+
+  return <ClientWizardFlow />;
+}
+
+function ClientWizardFlow() {
   const [lang, setLang] = useState<UiLang>("en");
   const copy = getCopy(lang);
 

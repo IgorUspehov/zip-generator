@@ -45,6 +45,13 @@ export type CopyBundle = {
   s6_h: string;
   s6_dl: string;
   dl_domain: string;
+  s_processing_title: string;
+  s_processing_sub: string;
+  s_processing_timeout_title: string;
+  s_processing_timeout_sub: string;
+  s_processing_contact: string;
+  s_payment_error_title: string;
+  s_payment_error_sub: string;
   sectors: Sector[];
 };
 
@@ -99,6 +106,13 @@ const T: Record<UiLang, CopyBundle> = {
     s6_h: "Your MVP is ready",
     s6_dl: "Download your result",
     dl_domain: "Domain",
+    s_processing_title: "Payment received — preparing your site",
+    s_processing_sub: "Your payment was successful. We are publishing your Website+CRM. This usually takes under a minute.",
+    s_processing_timeout_title: "Still preparing your site",
+    s_processing_timeout_sub: "This is taking longer than usual. Please contact us and we will help you right away.",
+    s_processing_contact: "Contact support",
+    s_payment_error_title: "Something went wrong with payment",
+    s_payment_error_sub: "We could not confirm your payment. Please contact us and we will sort it out.",
     sectors: [
       { id: "health", icon: "🏥", label: "Healthcare / Clinic" },
       { id: "dental", icon: "🦷", label: "Dental / Dentistry" },
@@ -165,6 +179,13 @@ const T: Record<UiLang, CopyBundle> = {
     s6_h: "Ihr MVP ist fertig",
     s6_dl: "Ergebnis herunterladen",
     dl_domain: "Domain",
+    s_processing_title: "Zahlung erhalten — wir bereiten Ihre Seite vor",
+    s_processing_sub: "Ihre Zahlung war erfolgreich. Wir veröffentlichen Ihr Website+CRM. Das dauert meist unter einer Minute.",
+    s_processing_timeout_title: "Ihre Seite wird noch vorbereitet",
+    s_processing_timeout_sub: "Das dauert länger als üblich. Schreiben Sie uns — wir helfen sofort.",
+    s_processing_contact: "Support kontaktieren",
+    s_payment_error_title: "Bei der Zahlung ist etwas schiefgelaufen",
+    s_payment_error_sub: "Wir konnten Ihre Zahlung nicht bestätigen. Schreiben Sie uns — wir klären das.",
     sectors: [
       { id: "health", icon: "🏥", label: "Gesundheit / Klinik" },
       { id: "dental", icon: "🦷", label: "Zahnmedizin / Zahnarzt" },
@@ -231,6 +252,13 @@ const T: Record<UiLang, CopyBundle> = {
     s6_h: "Ваш MVP готов",
     s6_dl: "Скачать результат",
     dl_domain: "Домен",
+    s_processing_title: "Оплата прошла — готовим ваш сайт",
+    s_processing_sub: "Оплата успешна. Мы публикуем ваш Website+CRM. Обычно это занимает меньше минуты.",
+    s_processing_timeout_title: "Сайт всё ещё готовится",
+    s_processing_timeout_sub: "Это занимает дольше обычного. Напишите нам — мы поможем сразу.",
+    s_processing_contact: "Написать в поддержку",
+    s_payment_error_title: "Что-то пошло не так с оплатой",
+    s_payment_error_sub: "Не удалось подтвердить оплату. Напишите нам — мы разберёмся.",
     sectors: [
       { id: "health", icon: "🏥", label: "Клиника / Врач" },
       { id: "dental", icon: "🦷", label: "Стоматология" },

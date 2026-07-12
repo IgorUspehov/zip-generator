@@ -37,6 +37,7 @@ mvp-template/
 *.log
 logs/
 data/pending-deletions.json
+data/checkout-references.json
 
 # typescript
 *.tsbuildinfo
