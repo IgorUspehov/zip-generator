@@ -19,6 +19,7 @@ export const POST = Webhooks({
   webhookSecret: process.env.POLAR_WEBHOOK_SECRET!,
   onOrderPaid: async (payload) => {
     const order = payload.data as Record<string, unknown>;
+    console.log("[polar-webhook] FULL ORDER PAYLOAD", JSON.stringify(order, null, 2));
     const product = order.product as { name?: string } | undefined;
     const productName = String(product?.name ?? "").trim();
     const clientId = extractClientId(order);
