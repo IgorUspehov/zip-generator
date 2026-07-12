@@ -6,8 +6,6 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import {
   buildQuestionnairePayload,
   fetchPreviewLatest,
-  fetchResultLatest,
-  LANG_LABEL_TO_CODE,
   saveQuestionnaire,
   SECTOR_TO_BUSINESS_TYPE,
 } from "@/client-wizard/api";
@@ -28,13 +26,12 @@ const LEMONSQUEEZY_VARIANT_CRM_FULL = "1807671";
 const PADDLE_PRODUCT_MVP_PRO = "pri_01kvwyb0r4rpvv3xrfbyths7tw";
 const PADDLE_PRODUCT_CRM_FULL = "pri_01kvwyk2kmmfagkfp4am68zner";
 
-function ProgressBar({ step }: { step: "s1" | "s2" | "s3" }) {
-  const dots =
-    step === "s1"
-      ? ["active", "", ""]
-      : step === "s2"
-        ? ["done", "active", ""]
-        : ["done", "done", "active"];
+const PROMO_CODE = "serafim01";
+const POLAR_CHECKOUT_99 =
+  "https://buy.polar.sh/polar_cl_uUpNQRXBAVubDpDO3zwLa5SAswkU0Jkr2835A04UF1F";
+
+function ProgressBar({ step }: { step: "s1" | "s2" }) {
+  const dots = step === "s1" ? ["active", ""] : ["done", "active"];
 
   return (
     <div className="progress">
@@ -364,7 +361,6 @@ export function ClientWizardPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [selSector, setSelSector] = useState<string | null>(null);
-  const [selLang, setSelLang] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [pendingRedirectUrl, setPendingRedirectUrl] = useState<string | null>(null);
   const [deployMeta, setDeployMeta] = useState<{
@@ -372,16 +368,20 @@ export function ClientWizardPage() {
     siteId?: string;
     clientId?: string;
   } | null>(null);
-  const [resultData, setResultData] = useState<ResultApiResponse | null>(null);
   const [previewUrl, setPreviewUrl] = useState("https://—.netlify.app");
   const [previewTitle, setPreviewTitle] = useState("—");
   const [previewSub, setPreviewSub] = useState("—");
-  const [previewBodyHtml, setPreviewBodyHtml] = useState("");
-  const [s6Sub, setS6Sub] = useState("—");
   const [publishCountdown, setPublishCountdown] = useState<number | null>(null);
+  const [autoAdvancedToPreview, setAutoAdvancedToPreview] = useState(false);
+  const [siteAccessGranted, setSiteAccessGranted] = useState(false);
+  const [showPromo, setShowPromo] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+
+  const livePreviewUrl = pendingRedirectUrl ?? deployMeta?.demoUrl ?? previewUrl;
+  const promoApplied = promoInput.trim().toLowerCase() === PROMO_CODE;
 
   useEffect(() => {
-    if (!pendingRedirectUrl) {
+    if (!siteAccessGranted || !pendingRedirectUrl) {
       setPublishCountdown(null);
       return;
     }
@@ -392,7 +392,7 @@ export function ClientWizardPage() {
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [pendingRedirectUrl]);
+  }, [siteAccessGranted, pendingRedirectUrl]);
 
   const publishCountdownText =
     publishCountdown !== null && publishCountdown > 0
@@ -406,13 +406,10 @@ export function ClientWizardPage() {
 
     let active = true;
     const sector = copy.sectors.find((item) => item.id === selSector);
-    const langCode = LANG_LABEL_TO_CODE[selLang ?? ""] ?? "en";
-    const fallbackSector = sector ?? { icon: "", label: "—" };
 
     setPreviewTitle(name.trim() || "—");
     setPreviewSub(sector ? `${sector.icon} ${sector.label}` : "—");
     setPreviewUrl(pendingRedirectUrl ?? deployMeta?.demoUrl ?? "https://—.netlify.app");
-    setPreviewBodyHtml(buildPreviewBodyHtml(name.trim() || "—", fallbackSector, langCode));
 
     void (async () => {
       try {
@@ -447,11 +444,19 @@ export function ClientWizardPage() {
     return () => {
       active = false;
     };
-  }, [copy.sectors, deployMeta, name, pendingRedirectUrl, selLang, selSector, step]);
+  }, [copy.sectors, deployMeta, name, pendingRedirectUrl, selSector, step]);
 
   const goTo = useCallback((id: StepId) => {
     setStep(id);
   }, []);
+
+  useEffect(() => {
+    if (step !== "s4" || isGenerating || !pendingRedirectUrl || autoAdvancedToPreview) {
+      return;
+    }
+    setAutoAdvancedToPreview(true);
+    goTo("s5");
+  }, [autoAdvancedToPreview, goTo, isGenerating, pendingRedirectUrl, step]);
 
   const shakeInput = useCallback((setter: (v: boolean) => void) => {
     setter(true);
@@ -468,7 +473,7 @@ export function ClientWizardPage() {
       setIsGenerating(true);
 
       const businessType = SECTOR_TO_BUSINESS_TYPE[selSector ?? ""] ?? DEFAULT_BUSINESS_TYPE;
-      const languageCode = LANG_LABEL_TO_CODE[selLang ?? ""] ?? "en";
+      const languageCode = lang;
       const payload = {
         ...buildQuestionnairePayloadFromWizard({
           name: contactName,
@@ -498,10 +503,10 @@ export function ClientWizardPage() {
       } catch (error) {
         console.error("POST /api/client-questionnaire failed:", error);
         setIsGenerating(false);
-        goTo("s3");
+        goTo("s2");
       }
     },
-    [agbAccepted, email, goTo, selLang, selSector],
+    [agbAccepted, email, goTo, lang, selSector],
   );
 
   function goRestart() {
@@ -509,16 +514,18 @@ export function ClientWizardPage() {
     setPendingRedirectUrl(null);
     setDeployMeta(null);
     setSelSector(null);
-    setSelLang(null);
     setName("");
     setEmail("");
     for (const id of ["f-phone", "f-whatsapp", "f-telegram"]) {
       const el = document.getElementById(id) as HTMLInputElement | null;
       if (el) el.value = "";
     }
-    setResultData(null);
     setAgbAccepted(false);
     setPublishCountdown(null);
+    setAutoAdvancedToPreview(false);
+    setSiteAccessGranted(false);
+    setShowPromo(false);
+    setPromoInput("");
     goTo("s1");
   }
 
@@ -543,60 +550,35 @@ export function ClientWizardPage() {
       setTimeout(() => setSectorErr(false), 800);
       return;
     }
-    void executeRecaptcha("wizard_step_2");
-    goTo("s3");
-  }
-
-  function go3() {
-    console.log("GO3 triggered");
-    if (!selLang) {
-      console.log("GO3 blocked: no language selected");
-      document.querySelectorAll(".lang-pill").forEach((pill) => {
-        const el = pill as HTMLElement;
-        el.style.borderColor = "#EF4444";
-        setTimeout(() => {
-          el.style.borderColor = "";
-        }, 800);
-      });
+    if (!agbAccepted) {
       return;
     }
+    void executeRecaptcha("wizard_step_2");
     goTo("s4");
-    console.log("GO3 -> runBuild", { name: name.trim(), selSector, selLang });
     void runBuild(name.trim());
   }
 
   async function handleYes() {
-    try {
-      const result = await fetchResultLatest();
-      if (!result.ok) return;
-      setResultData(result);
-      setS6Sub(result.business_name || previewTitle);
-      goTo("s6");
-    } catch {
-      /* keep on s5 */
+    setSiteAccessGranted(false);
+    setShowPromo(false);
+    setPromoInput("");
+    goTo("s6");
+  }
+
+  function handlePayOrUnlock() {
+    if (promoApplied) {
+      setSiteAccessGranted(true);
+      return;
     }
+
+    const polarUrl = new URL(POLAR_CHECKOUT_99);
+    if (email.trim()) {
+      polarUrl.searchParams.set("prefilled_email", email.trim());
+    }
+    window.location.href = polarUrl.toString();
   }
 
   const stepClass = (id: StepId) => (step === id ? "step active" : "step");
-
-  const demoUrl = resolveDemoUrl(deployMeta, pendingRedirectUrl, resultData);
-  const payInput =
-    demoUrl && email.trim() && name.trim()
-      ? {
-          demoUrl,
-          siteId: deployMeta?.siteId,
-          clientId: deployMeta?.clientId,
-          email: email.trim(),
-          name: name.trim(),
-        }
-      : null;
-  const payHref = payInput ? buildPayHref(payInput) : null;
-  const payHrefPro = payInput
-    ? buildPayHref({ ...payInput, variantId: LEMONSQUEEZY_VARIANT_MVP_PRO })
-    : null;
-  const payHrefFull = payInput
-    ? buildPayHref({ ...payInput, variantId: LEMONSQUEEZY_VARIANT_CRM_FULL })
-    : null;
 
   return (
     <div className="mf-root">
@@ -696,34 +678,6 @@ export function ClientWizardPage() {
                 </option>
               ))}
             </select>
-            <WizardStepNav>
-              <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s1")}>
-                <span>{copy.btn_back}</span>
-              </button>
-              <button type="button" className="btn-primary btn-nav-primary" style={{ marginTop: 0 }} onClick={go2}>
-                <span>{copy.btn_next}</span>
-              </button>
-            </WizardStepNav>
-          </div>
-
-          {/* STEP 3 */}
-          <div className={stepClass("s3")} id="s3">
-            <ProgressBar step="s3" />
-            <div className="step-label">{copy.s3_label}</div>
-            <div className="step-h">{copy.s3_h}</div>
-            <div className="step-sub">{copy.s3_sub}</div>
-            <div className="lang-grid" id="lang-grid">
-              {copy.langs.map((label) => (
-                <button
-                  key={label}
-                  type="button"
-                  className={`lang-pill${selLang === label ? " sel" : ""}`}
-                  onClick={() => setSelLang(label)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
             <label className="flex items-center gap-2 text-sm text-gray-600 mt-4">
               <input
                 type="checkbox"
@@ -731,28 +685,28 @@ export function ClientWizardPage() {
                 checked={agbAccepted}
                 onChange={(e) => setAgbAccepted(e.target.checked)}
               />
-              Ich akzeptiere die{" "}
+              {copy.agb_accept}{" "}
               <a href="/agb" target="_blank" rel="noreferrer" className="text-blue-600 underline">
-                AGB
+                {copy.agb_terms}
               </a>{" "}
-              und die{" "}
+              {copy.agb_and}{" "}
               <a
                 href="/datenschutz"
                 target="_blank"
                 rel="noreferrer"
                 className="text-blue-600 underline"
               >
-                Datenschutzerklärung
+                {copy.agb_privacy}
               </a>
             </label>
             <WizardStepNav>
-              <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s2")}>
+              <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s1")}>
                 <span>{copy.btn_back}</span>
               </button>
               <button
                 type="button"
                 className="btn-primary btn-nav-primary"
-                onClick={go3}
+                onClick={go2}
                 disabled={!agbAccepted}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -777,84 +731,26 @@ export function ClientWizardPage() {
                 <p className="step-sub" style={{ textAlign: "center", marginTop: 12 }}>
                   {copy.s4_generating}
                 </p>
-              ) : null}
-              {pendingRedirectUrl ? (
-                <div style={{ marginTop: 28, textAlign: "left" }}>
-                  <p className="step-sub" style={{ marginBottom: 12, fontWeight: 600, textAlign: "center" }}>
-                    {copy.s4_ready}
-                  </p>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: 8,
-                      marginBottom: 12,
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <input
-                      type="text"
-                      readOnly
-                      value={pendingRedirectUrl}
-                      style={{
-                        flex: 1,
-                        minWidth: 0,
-                        padding: "10px 12px",
-                        borderRadius: 10,
-                        border: "1px solid #cbd5e1",
-                        background: "#f8fafc",
-                        color: "#0f172a",
-                        fontSize: 13,
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className="btn-primary"
-                      style={{
-                        flexShrink: 0,
-                        marginBottom: 0,
-                        padding: "10px 16px",
-                        fontSize: 14,
-                      }}
-                      onClick={() => void navigator.clipboard.writeText(pendingRedirectUrl)}
-                    >
-                      {copy.s4_copy_link}
-                    </button>
-                  </div>
-                  {publishCountdownText ? (
-                    <p
-                      className="step-sub"
-                      style={{ textAlign: "center", marginBottom: 12, fontWeight: 600 }}
-                    >
-                      {publishCountdownText}
-                    </p>
-                  ) : (
-                    <a
-                      href={pendingRedirectUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="btn-primary"
-                      style={{
-                        display: "flex",
-                        width: "100%",
-                        justifyContent: "center",
-                        marginBottom: 0,
-                      }}
-                    >
-                      {copy.s4_open}
-                    </a>
-                  )}
-                </div>
+              ) : pendingRedirectUrl ? (
+                <p className="step-sub" style={{ textAlign: "center", marginTop: 12, fontWeight: 600 }}>
+                  {copy.s4_build_done}
+                </p>
               ) : null}
             </div>
             <WizardStepNav>
-              <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s3")}>
+              <button
+                type="button"
+                className="btn-back btn-nav-secondary"
+                onClick={() => goTo("s2")}
+                disabled={isGenerating}
+              >
                 <span>{copy.btn_back}</span>
               </button>
               <button
                 type="button"
                 className="btn-primary btn-nav-primary"
                 onClick={() => goTo("s5")}
-                disabled={!pendingRedirectUrl}
+                disabled={!pendingRedirectUrl || isGenerating}
               >
                 <span>{copy.btn_review}</span>
               </button>
@@ -882,16 +778,13 @@ export function ClientWizardPage() {
             <div className="step-sub" id="s5-sub">
               {previewSub}
             </div>
-            <div className="preview-frame">
-              <div className="preview-bar">
-                <span style={{ background: "#EF4444" }} />
-                <span style={{ background: "#F59E0B" }} />
-                <span style={{ background: "#10B981" }} />
-                <div className="preview-url" id="preview-url">
-                  {previewUrl}
-                </div>
-              </div>
-              <div className="preview-body" id="preview-body" dangerouslySetInnerHTML={{ __html: previewBodyHtml }} />
+            <div className="preview-frame" style={{ padding: 0, overflow: "hidden" }}>
+              <iframe
+                title="Live Website+CRM preview"
+                src={livePreviewUrl}
+                className="wizard-live-preview"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              />
             </div>
 
             <div className="step-sub" style={{ marginBottom: 16 }}>
@@ -919,144 +812,152 @@ export function ClientWizardPage() {
 
           {/* STEP 6 */}
           <div className={stepClass("s6")} id="s6">
-            <div style={{ marginBottom: 28 }}>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "8px 18px",
-                  borderRadius: 100,
-                  background: "rgba(16,185,129,.12)",
-                  border: "1px solid rgba(16,185,129,.3)",
-                  marginBottom: 20,
-                }}
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5">
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "#10B981" }}>{copy.s6_badge}</span>
-              </div>
-              <div className="step-h grad-em">{copy.s6_h}</div>
-              <div className="step-sub" style={{ marginBottom: 0 }} id="s6-sub">
-                {s6Sub}
-              </div>
-            </div>
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                letterSpacing: ".1em",
-                textTransform: "uppercase",
-                color: "#71717A",
-                marginBottom: 12,
-              }}
-            >
-              {copy.s6_dl}
-            </div>
-            <div className="dl-grid">
-              <DeliveryLink result={resultData} optionKey="zip">
-                <div className="dl-icon" style={{ background: "rgba(99,102,241,.15)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818CF8" strokeWidth="2">
-                    <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
+            {siteAccessGranted && pendingRedirectUrl ? (
+              <>
+                <div className="build-wrap">
+                  <div className="step-h" style={{ textAlign: "center" }}>
+                    {copy.s4_ready}
+                  </div>
+                  <div className="step-sub" style={{ textAlign: "center", marginBottom: 0 }}>
+                    {name.trim()}
+                  </div>
+                  <div style={{ marginTop: 28, textAlign: "left" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 8,
+                        marginBottom: 12,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <input
+                        type="text"
+                        readOnly
+                        value={pendingRedirectUrl}
+                        style={{
+                          flex: 1,
+                          minWidth: 0,
+                          padding: "10px 12px",
+                          borderRadius: 10,
+                          border: "1px solid #cbd5e1",
+                          background: "#f8fafc",
+                          color: "#0f172a",
+                          fontSize: 13,
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="btn-primary"
+                        style={{
+                          flexShrink: 0,
+                          marginBottom: 0,
+                          padding: "10px 16px",
+                          fontSize: 14,
+                        }}
+                        onClick={() => void navigator.clipboard.writeText(pendingRedirectUrl)}
+                      >
+                        {copy.s4_copy_link}
+                      </button>
+                    </div>
+                    {publishCountdownText ? (
+                      <p
+                        className="step-sub"
+                        style={{ textAlign: "center", marginBottom: 12, fontWeight: 600 }}
+                      >
+                        {publishCountdownText}
+                      </p>
+                    ) : (
+                      <a
+                        href={pendingRedirectUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn-primary"
+                        style={{
+                          display: "flex",
+                          width: "100%",
+                          justifyContent: "center",
+                          marginBottom: 0,
+                        }}
+                      >
+                        {copy.s4_open}
+                      </a>
+                    )}
+                  </div>
                 </div>
-                ZIP
-              </DeliveryLink>
-              <DeliveryLink result={resultData} optionKey="netlify" id="dl-netlify">
-                <div className="dl-icon" style={{ background: "rgba(16,185,129,.15)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-                    <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                  </svg>
+                <button
+                  type="button"
+                  className="btn-primary"
+                  style={{
+                    background: "#ffffff",
+                    border: "1px solid #e2e8f0",
+                    color: "#64748b",
+                    fontWeight: 500,
+                    marginTop: 24,
+                  }}
+                  onClick={goRestart}
+                >
+                  <span>{copy.btn_restart}</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="step-h" style={{ marginBottom: 8 }}>
+                  {copy.s6_pay_h}
                 </div>
-                Netlify
-              </DeliveryLink>
-              <DeliveryLink result={resultData} optionKey="custom_domain">
-                <div className="dl-icon" style={{ background: "rgba(139,92,246,.15)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="2" y1="12" x2="22" y2="12" />
-                    <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-                  </svg>
+                <div className="step-sub" style={{ marginBottom: 20 }}>
+                  {previewTitle}
                 </div>
-                <span>{copy.dl_domain}</span>
-              </DeliveryLink>
-              <DeliveryLink result={resultData} optionKey="github">
-                <div className="dl-icon" style={{ background: "rgba(255,255,255,.08)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A1A1AA" strokeWidth="2">
-                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" />
-                  </svg>
+                <div className="wizard-pay-actions">
+                  <button
+                    type="button"
+                    className="wizard-pay-action-btn"
+                    onClick={() => setShowPromo((current) => !current)}
+                  >
+                    {copy.s6_promo_button}
+                  </button>
+                  <button
+                    type="button"
+                    className="wizard-pay-action-btn"
+                    onClick={() => handlePayOrUnlock()}
+                    disabled={promoApplied && !promoInput.trim()}
+                  >
+                    {promoApplied ? copy.s6_promo_unlock : copy.s6_pay_button}
+                  </button>
                 </div>
-                GitHub
-              </DeliveryLink>
-              <DeliveryLink result={resultData} optionKey="apk">
-                <div className="dl-icon" style={{ background: "rgba(16,185,129,.12)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34D399" strokeWidth="2">
-                    <rect x="5" y="2" width="14" height="20" rx="2" />
-                    <path d="M12 18h.01" />
-                  </svg>
-                </div>
-                APK
-              </DeliveryLink>
-              <DeliveryLink result={resultData} optionKey="pwa">
-                <div className="dl-icon" style={{ background: "rgba(99,102,241,.12)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818CF8" strokeWidth="2">
-                    <rect x="5" y="2" width="14" height="20" rx="2" />
-                    <path d="M12 18h.01" />
-                  </svg>
-                </div>
-                PWA
-              </DeliveryLink>
-              <DeliveryLink result={resultData} optionKey="readme">
-                <div className="dl-icon" style={{ background: "rgba(245,158,11,.12)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2">
-                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                README
-              </DeliveryLink>
-              <DeliveryLink result={resultData} optionKey="demo_mp4">
-                <div className="dl-icon" style={{ background: "rgba(239,68,68,.12)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FCA5A5" strokeWidth="2">
-                    <polygon points="23 7 16 12 23 17 23 7" />
-                    <rect x="1" y="5" width="15" height="14" rx="2" />
-                  </svg>
-                </div>
-                demo.mp4
-              </DeliveryLink>
-            </div>
-            {payHref && payHrefPro && payHrefFull ? (
-              <PricingTiersBlock
-                payHref={payHref}
-                payHrefPro={payHrefPro}
-                payHrefFull={payHrefFull}
-                lang={lang}
-                clientId={deployMeta?.clientId}
-                email={email.trim()}
-              />
-            ) : null}
-            <button
-              type="button"
-              className="btn-primary"
-              style={{
-                background: "#ffffff",
-                border: "1px solid #e2e8f0",
-                color: "#64748b",
-                fontWeight: 500,
-              }}
-              onClick={goRestart}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M1 4v6h6M23 20v-6h-6" />
-                <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" />
-              </svg>
-              <span>{copy.btn_restart}</span>
-            </button>
-            <WizardStepNav layout="single">
-              <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s5")}>
-                <span>{copy.btn_back}</span>
-              </button>
-            </WizardStepNav>
+                {showPromo ? (
+                  <div style={{ marginTop: 12 }}>
+                    <input
+                      type="text"
+                      value={promoInput}
+                      onChange={(e) => setPromoInput(e.target.value)}
+                      placeholder={copy.s6_promo_placeholder}
+                      className={`inp ${
+                        promoInput && !promoApplied
+                          ? "err"
+                          : promoApplied
+                            ? ""
+                            : ""
+                      }`}
+                      style={
+                        promoApplied
+                          ? { borderColor: "#22c55e", background: "#f0fdf4" }
+                          : undefined
+                      }
+                    />
+                    {promoInput && !promoApplied ? (
+                      <p className="step-sub" style={{ marginTop: 8, color: "#ef4444" }}>
+                        {copy.s6_promo_invalid}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+                <WizardStepNav layout="single">
+                  <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s5")}>
+                    <span>{copy.btn_back}</span>
+                  </button>
+                </WizardStepNav>
+              </>
+            )}
           </div>
         </div>
       </div>

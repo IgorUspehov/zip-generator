@@ -14,9 +14,10 @@ export type CopyBundle = {
   s2_placeholder: string;
   s2_h: string;
   s2_sub: string;
-  s3_label: string;
-  s3_h: string;
-  s3_sub: string;
+  agb_accept: string;
+  agb_terms: string;
+  agb_and: string;
+  agb_privacy: string;
   btn_next: string;
   btn_back: string;
   btn_generate: string;
@@ -33,30 +34,37 @@ export type CopyBundle = {
   build_steps: string[];
   s5_live: string;
   s5_q: string;
+  s6_pay_h: string;
+  s6_pay_button: string;
+  s6_promo_button: string;
+  s6_promo_placeholder: string;
+  s6_promo_invalid: string;
+  s6_promo_unlock: string;
+  s4_build_done: string;
   s6_badge: string;
   s6_h: string;
   s6_dl: string;
   dl_domain: string;
   sectors: Sector[];
-  langs: string[];
 };
 
 const T: Record<UiLang, CopyBundle> = {
   en: {
-    s1_label: "Step 1 of 3",
+    s1_label: "Step 1 of 2",
     s1_intro: "Fill out the questionnaire about yourself",
     lbl_name: "Your name",
     ph_name: "Anna Müller",
     lbl_biz: "Business name",
     ph_biz: "Munich Dental Clinic",
     lbl_email: "Email",
-    s2_label: "Step 2 of 3",
+    s2_label: "Step 2 of 2",
     s2_placeholder: "— Select sector —",
     s2_h: "Business sector",
     s2_sub: "Select the sector that best describes your business.",
-    s3_label: "Step 3 of 3",
-    s3_h: "Platform language?",
-    s3_sub: "The language your clients will use on the platform.",
+    agb_accept: "I accept the",
+    agb_terms: "Terms",
+    agb_and: "and",
+    agb_privacy: "Privacy Policy",
     btn_next: "Continue →",
     btn_back: "← Back",
     btn_generate: "Generate Website+CRM →",
@@ -80,6 +88,13 @@ const T: Record<UiLang, CopyBundle> = {
     ],
     s5_live: "Live Preview",
     s5_q: "Do you like the result?",
+    s6_pay_h: "Unlock your Website+CRM",
+    s6_pay_button: "Pay €99 — once, forever, no subscription",
+    s6_promo_button: "Promo code",
+    s6_promo_placeholder: "Promo code (optional)",
+    s6_promo_invalid: "Invalid promo code",
+    s6_promo_unlock: "Get for free →",
+    s4_build_done: "Your site is ready — review the preview",
     s6_badge: "Platform Ready",
     s6_h: "Your MVP is ready",
     s6_dl: "Download your result",
@@ -99,23 +114,23 @@ const T: Record<UiLang, CopyBundle> = {
       { id: "realestate", icon: "🏠", label: "Real Estate" },
       { id: "hotel", icon: "🏨", label: "Hotel / Hospitality" },
     ],
-    langs: ["English", "Deutsch", "Русский"],
   },
   de: {
-    s1_label: "Schritt 1 von 3",
+    s1_label: "Schritt 1 von 2",
     s1_intro: "Fülle den Fragebogen über dich aus",
     lbl_name: "Ihr Name",
     ph_name: "Anna Müller",
     lbl_biz: "Unternehmensname",
     ph_biz: "Münchner Zahnklinik",
     lbl_email: "E-Mail",
-    s2_label: "Schritt 2 von 3",
+    s2_label: "Schritt 2 von 2",
     s2_placeholder: "— Branche auswählen —",
     s2_h: "Branche",
     s2_sub: "Wählen Sie die Branche, die Ihr Unternehmen am besten beschreibt.",
-    s3_label: "Schritt 3 von 3",
-    s3_h: "Plattformsprache?",
-    s3_sub: "Die Sprache, die Ihre Kunden auf der Plattform verwenden.",
+    agb_accept: "Ich akzeptiere die",
+    agb_terms: "AGB",
+    agb_and: "und die",
+    agb_privacy: "Datenschutzerklärung",
     btn_next: "Weiter →",
     btn_back: "← Zurück",
     btn_generate: "Website+CRM erstellen →",
@@ -138,7 +153,14 @@ const T: Record<UiLang, CopyBundle> = {
       "Assets werden verpackt",
     ],
     s5_live: "Live-Vorschau",
-    s5_q: "Gefällt Ihnen das Ergebnis?",
+    s5_q: "Gefällt dir das Ergebnis?",
+    s6_pay_h: "Website+CRM freischalten",
+    s6_pay_button: "€99 zahlen — einmalig, für immer, kein Abo",
+    s6_promo_button: "Promo-Code",
+    s6_promo_placeholder: "Promo-Code (optional)",
+    s6_promo_invalid: "Ungültiger Promo-Code",
+    s6_promo_unlock: "Kostenlos erhalten →",
+    s4_build_done: "Deine Seite ist fertig — sieh dir die Vorschau an",
     s6_badge: "Plattform bereit",
     s6_h: "Ihr MVP ist fertig",
     s6_dl: "Ergebnis herunterladen",
@@ -158,23 +180,23 @@ const T: Record<UiLang, CopyBundle> = {
       { id: "realestate", icon: "🏠", label: "Immobilien" },
       { id: "hotel", icon: "🏨", label: "Hotel / Unterkunft" },
     ],
-    langs: ["English", "Deutsch", "Русский"],
   },
   ru: {
-    s1_label: "Шаг 1 из 3",
+    s1_label: "Шаг 1 из 2",
     s1_intro: "Заполни опросник о себе",
     lbl_name: "Ваше имя",
     ph_name: "Анна Мюллер",
     lbl_biz: "Название бизнеса",
     ph_biz: "Стоматология Мюнхен",
     lbl_email: "Email",
-    s2_label: "Шаг 2 из 3",
+    s2_label: "Шаг 2 из 2",
     s2_placeholder: "— Выберите сферу —",
     s2_h: "Сфера бизнеса",
     s2_sub: "Выберите сферу, которая лучше всего описывает ваш бизнес.",
-    s3_label: "Шаг 3 из 3",
-    s3_h: "Язык платформы?",
-    s3_sub: "Язык, который ваши клиенты будут использовать на платформе.",
+    agb_accept: "Я принимаю",
+    agb_terms: "условия",
+    agb_and: "и",
+    agb_privacy: "политику конфиденциальности",
     btn_next: "Продолжить →",
     btn_back: "← Назад",
     btn_generate: "Создать Website+CRM →",
@@ -198,6 +220,13 @@ const T: Record<UiLang, CopyBundle> = {
     ],
     s5_live: "Live Preview",
     s5_q: "Нравится результат?",
+    s6_pay_h: "Откройте доступ к Website+CRM",
+    s6_pay_button: "Оплатить €99 — разово, навсегда, без подписки",
+    s6_promo_button: "Промокод",
+    s6_promo_placeholder: "Промо-код (необязательно)",
+    s6_promo_invalid: "Неверный промо-код",
+    s6_promo_unlock: "Получить бесплатно →",
+    s4_build_done: "Сайт готов — смотрите превью",
     s6_badge: "Платформа готова",
     s6_h: "Ваш MVP готов",
     s6_dl: "Скачать результат",
@@ -217,7 +246,6 @@ const T: Record<UiLang, CopyBundle> = {
       { id: "realestate", icon: "🏠", label: "Недвижимость" },
       { id: "hotel", icon: "🏨", label: "Отель / Гостиница" },
     ],
-    langs: ["English", "Deutsch", "Русский"],
   },
 };
 
