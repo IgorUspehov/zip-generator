@@ -45,6 +45,23 @@ function ProgressBar({ step }: { step: "s1" | "s2" | "s3" }) {
   );
 }
 
+function WizardStepNav({
+  children,
+  layout = "split",
+}: {
+  children: ReactNode;
+  layout?: "split" | "triple" | "single";
+}) {
+  const layoutClass =
+    layout === "triple"
+      ? "wizard-step-nav wizard-step-nav--triple"
+      : layout === "single"
+        ? "wizard-step-nav wizard-step-nav--single"
+        : "wizard-step-nav";
+
+  return <div className={layoutClass}>{children}</div>;
+}
+
 function buildPreviewBodyHtml(
   name: string,
   sector: { icon: string; label: string },
@@ -380,25 +397,8 @@ export function ClientWizardPage() {
 
   const publishCountdownText =
     publishCountdown !== null && publishCountdown > 0
-      ? lang === "ru"
-        ? `⏳ MVP публикуется... осталось ${publishCountdown} сек`
-        : lang === "de"
-          ? `⏳ MVP wird veröffentlicht... noch ${publishCountdown} Sek`
-          : `⏳ MVP is publishing... ${publishCountdown} sec left`
+      ? copy.s4_publishing.replace("{n}", String(publishCountdown))
       : null;
-
-  const copyLinkLabel =
-    lang === "ru" ? "Копировать ссылку" : lang === "de" ? "Link kopieren" : "Copy link";
-
-  const openMvpLabel =
-    lang === "ru" ? "Открыть MVP" : lang === "de" ? "MVP öffnen" : "Open MVP";
-
-  const reviewPreviewLabel =
-    lang === "ru"
-      ? "Смотреть превью и одобрить"
-      : lang === "de"
-        ? "Vorschau ansehen und freigeben"
-        : "Review preview & approve";
 
   const screenshotsLabel =
     lang === "ru" ? "Скриншоты" : lang === "de" ? "Screenshots" : "Screenshots";
@@ -692,12 +692,14 @@ export function ClientWizardPage() {
               </label>
               <input id="f-telegram" className="inp" type="text" placeholder="@username" />
             </div>
-            <button type="button" className="btn-primary" onClick={go1}>
-              <span>{copy.btn_next}</span>
-            </button>
-            <Link href="/" className="btn-back">
-              <span>{copy.btn_back}</span>
-            </Link>
+            <WizardStepNav>
+              <Link href="/" className="btn-back btn-nav-secondary">
+                <span>{copy.btn_back}</span>
+              </Link>
+              <button type="button" className="btn-primary btn-nav-primary" onClick={go1}>
+                <span>{copy.btn_next}</span>
+              </button>
+            </WizardStepNav>
           </div>
 
           {/* STEP 2 */}
@@ -720,12 +722,14 @@ export function ClientWizardPage() {
                 </option>
               ))}
             </select>
-            <button type="button" className="btn-primary" style={{ marginTop: 20 }} onClick={go2}>
-              <span>{copy.btn_next}</span>
-            </button>
-            <button type="button" className="btn-back" onClick={() => goTo("s1")}>
-              <span>{copy.btn_back}</span>
-            </button>
+            <WizardStepNav>
+              <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s1")}>
+                <span>{copy.btn_back}</span>
+              </button>
+              <button type="button" className="btn-primary btn-nav-primary" style={{ marginTop: 0 }} onClick={go2}>
+                <span>{copy.btn_next}</span>
+              </button>
+            </WizardStepNav>
           </div>
 
           {/* STEP 3 */}
@@ -767,21 +771,22 @@ export function ClientWizardPage() {
                 Datenschutzerklärung
               </a>
             </label>
-            <button
-              type="button"
-              className="btn-primary"
-              style={{ marginTop: 24 }}
-              onClick={go3}
-              disabled={!agbAccepted}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <span>{copy.btn_generate}</span>
-            </button>
-            <button type="button" className="btn-back" onClick={() => goTo("s2")}>
-              <span>{copy.btn_back}</span>
-            </button>
+            <WizardStepNav>
+              <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s2")}>
+                <span>{copy.btn_back}</span>
+              </button>
+              <button
+                type="button"
+                className="btn-primary btn-nav-primary"
+                onClick={go3}
+                disabled={!agbAccepted}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>{copy.btn_generate}</span>
+              </button>
+            </WizardStepNav>
           </div>
 
           {/* STEP 4 */}
@@ -796,21 +801,13 @@ export function ClientWizardPage() {
               </div>
               {isGenerating ? (
                 <p className="step-sub" style={{ textAlign: "center", marginTop: 12 }}>
-                  {lang === "ru"
-                    ? "Генерируем ваш MVP..."
-                    : lang === "de"
-                      ? "Wir erstellen Ihr MVP..."
-                      : "Generating your MVP..."}
+                  {copy.s4_generating}
                 </p>
               ) : null}
               {pendingRedirectUrl ? (
                 <div style={{ marginTop: 28, textAlign: "left" }}>
                   <p className="step-sub" style={{ marginBottom: 12, fontWeight: 600, textAlign: "center" }}>
-                    {lang === "ru"
-                      ? "Ваш персональный MVP готов"
-                      : lang === "de"
-                        ? "Ihr persönliches MVP ist bereit"
-                        : "Your personal MVP is ready"}
+                    {copy.s4_ready}
                   </p>
                   <div
                     style={{
@@ -846,7 +843,7 @@ export function ClientWizardPage() {
                       }}
                       onClick={() => void navigator.clipboard.writeText(pendingRedirectUrl)}
                     >
-                      {copyLinkLabel}
+                      {copy.s4_copy_link}
                     </button>
                   </div>
                   {publishCountdownText ? (
@@ -869,23 +866,9 @@ export function ClientWizardPage() {
                         marginBottom: 0,
                       }}
                     >
-                      {openMvpLabel}
+                      {copy.s4_open}
                     </a>
                   )}
-                  <button
-                    type="button"
-                    className="btn-primary"
-                    style={{
-                      display: "flex",
-                      width: "100%",
-                      justifyContent: "center",
-                      marginTop: 12,
-                      marginBottom: 0,
-                    }}
-                    onClick={() => goTo("s5")}
-                  >
-                    {reviewPreviewLabel}
-                  </button>
                   {payHref && payHrefPro && payHrefFull ? (
                     <PricingTiersBlock
                       payHref={payHref}
@@ -899,9 +882,19 @@ export function ClientWizardPage() {
                 </div>
               ) : null}
             </div>
-            <button type="button" className="btn-back" onClick={() => goTo("s3")}>
-              <span>{copy.btn_back}</span>
-            </button>
+            <WizardStepNav>
+              <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s3")}>
+                <span>{copy.btn_back}</span>
+              </button>
+              <button
+                type="button"
+                className="btn-primary btn-nav-primary"
+                onClick={() => goTo("s5")}
+                disabled={!pendingRedirectUrl}
+              >
+                <span>{copy.btn_review}</span>
+              </button>
+            </WizardStepNav>
           </div>
 
           {/* STEP 5 */}
@@ -971,24 +964,24 @@ export function ClientWizardPage() {
             <div className="step-sub" style={{ marginBottom: 16 }}>
               {copy.s5_q}
             </div>
-            <div className="decision">
-              <button type="button" className="btn-yes" onClick={() => void handleYes()}>
+            <WizardStepNav layout="triple">
+              <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s4")}>
+                <span>{copy.btn_back}</span>
+              </button>
+              <button type="button" className="btn-yes btn-nav-choice" onClick={() => void handleYes()}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M5 13l4 4L19 7" />
                 </svg>
                 <span>{copy.btn_yes}</span>
               </button>
-              <button type="button" className="btn-no" onClick={goRestart}>
+              <button type="button" className="btn-no btn-nav-choice" onClick={goRestart}>
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M1 4v6h6M23 20v-6h-6" />
                   <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" />
                 </svg>
                 <span>{copy.btn_no}</span>
               </button>
-            </div>
-            <button type="button" className="btn-back" onClick={() => goTo("s4")}>
-              <span>{copy.btn_back}</span>
-            </button>
+            </WizardStepNav>
           </div>
 
           {/* STEP 6 */}
@@ -1126,9 +1119,11 @@ export function ClientWizardPage() {
               </svg>
               <span>{copy.btn_restart}</span>
             </button>
-            <button type="button" className="btn-back" onClick={() => goTo("s5")}>
-              <span>{copy.btn_back}</span>
-            </button>
+            <WizardStepNav layout="single">
+              <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s5")}>
+                <span>{copy.btn_back}</span>
+              </button>
+            </WizardStepNav>
           </div>
         </div>
       </div>

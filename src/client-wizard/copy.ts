@@ -20,10 +20,16 @@ export type CopyBundle = {
   btn_next: string;
   btn_back: string;
   btn_generate: string;
+  btn_review: string;
   btn_yes: string;
   btn_no: string;
   btn_restart: string;
   s4_h: string;
+  s4_generating: string;
+  s4_ready: string;
+  s4_publishing: string;
+  s4_copy_link: string;
+  s4_open: string;
   build_steps: string[];
   s5_live: string;
   s5_q: string;
@@ -53,14 +59,20 @@ const T: Record<UiLang, CopyBundle> = {
     s3_sub: "The language your clients will use on the platform.",
     btn_next: "Continue →",
     btn_back: "← Back",
-    btn_generate: "Generate MVP",
+    btn_generate: "Generate Website+CRM →",
+    btn_review: "Review preview & approve →",
     btn_yes: "Yes, looks great",
     btn_no: "Regenerate",
     btn_restart: "Start over",
-    s4_h: "Building your platform…",
+    s4_h: "Assembling your Website+CRM…",
+    s4_generating: "Generating your Website+CRM...",
+    s4_ready: "Your Website+CRM is ready",
+    s4_publishing: "⏳ Website+CRM is publishing... {n} sec left",
+    s4_copy_link: "Copy link",
+    s4_open: "Open Website+CRM",
     build_steps: [
       "Analysing your business",
-      "Selecting platform modules",
+      "Selecting Website+CRM modules",
       "Building interface",
       "Connecting services",
       "Preparing deployment",
@@ -106,14 +118,20 @@ const T: Record<UiLang, CopyBundle> = {
     s3_sub: "Die Sprache, die Ihre Kunden auf der Plattform verwenden.",
     btn_next: "Weiter →",
     btn_back: "← Zurück",
-    btn_generate: "MVP generieren",
+    btn_generate: "Website+CRM erstellen →",
+    btn_review: "Vorschau ansehen und freigeben →",
     btn_yes: "Ja, sieht gut aus",
     btn_no: "Neu generieren",
     btn_restart: "Von vorne",
-    s4_h: "Ihre Plattform wird gebaut…",
+    s4_h: "Wir erstellen Ihr Website+CRM…",
+    s4_generating: "Wir erstellen Ihr Website+CRM...",
+    s4_ready: "Ihr Website+CRM ist bereit",
+    s4_publishing: "⏳ Website+CRM wird veröffentlicht... noch {n} Sek",
+    s4_copy_link: "Link kopieren",
+    s4_open: "Website+CRM öffnen",
     build_steps: [
       "Analyse Ihres Unternehmens",
-      "Auswahl der Plattformmodule",
+      "Auswahl der Website+CRM-Module",
       "Oberfläche wird gebaut",
       "Dienste werden verbunden",
       "Deployment wird vorbereitet",
@@ -159,14 +177,20 @@ const T: Record<UiLang, CopyBundle> = {
     s3_sub: "Язык, который ваши клиенты будут использовать на платформе.",
     btn_next: "Продолжить →",
     btn_back: "← Назад",
-    btn_generate: "Создать MVP",
+    btn_generate: "Создать Website+CRM →",
+    btn_review: "Смотреть превью и одобрить →",
     btn_yes: "Да, отлично",
     btn_no: "Пересобрать",
     btn_restart: "Начать заново",
-    s4_h: "Строим вашу платформу…",
+    s4_h: "Собираем ваш сайт с CRM…",
+    s4_generating: "Генерируем ваш Website+CRM...",
+    s4_ready: "Ваш Website+CRM готов",
+    s4_publishing: "⏳ Website+CRM публикуется... осталось {n} сек",
+    s4_copy_link: "Копировать ссылку",
+    s4_open: "Открыть Website+CRM",
     build_steps: [
       "Анализ бизнеса",
-      "Выбор модулей платформы",
+      "Выбор модулей Website+CRM",
       "Сборка интерфейса",
       "Подключение сервисов",
       "Подготовка деплоя",
