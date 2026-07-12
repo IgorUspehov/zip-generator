@@ -1059,6 +1059,9 @@ const PAGE_NAV = {
 
 export default function App() {
   const bootClientId = readClientIdFromLocation();
+  const crmStorageId = bootClientId || "local-demo";
+  const CONTACT_EMAIL = "contact@mvpfactory.de";
+  const CONTACT_TELEGRAM = "@mvpfactory";
   const { theme, labels, demo, module_flags: flags, sections, dashboard_title, business_type_label, accent_tagline, hero_images: heroImages = [], gallery_images: galleryImages = [], gif_assets: gifAssets = [] } = domainUi;
   const [activeTab, setActiveTab] = useState("dashboard");
   const [language, setLanguage] = useState(
@@ -1226,36 +1229,158 @@ export default function App() {
     }, language) || base;
   }, [demoData, demo, scenario, effectiveBusinessType, language, manifestLoaded]);
   const clients = demoSource.clients || [];
-  const { records: crmClientRecords, addRecord: addCrmClient } = useCrmRecords(bootClientId, "clients");
+  const appointments = demoSource.appointments || [];
+  const services = demoSource.services || [];
+
+  const {
+    records: crmClientRecords,
+    addRecord: addCrmClient,
+    updateRecord: updateCrmClient,
+    deleteRecord: deleteCrmClient,
+  } = useCrmRecords(crmStorageId, "clients", clients);
   const [crmShowAddClient, setCrmShowAddClient] = useState(false);
   const [crmClientForm, setCrmClientForm] = useState({ name: "", note: "", phone: "" });
-  const displayClients = crmClientRecords.length > 0 ? crmClientRecords : clients;
-  async function handleAddCrmClient() {
+  const [editingClientId, setEditingClientId] = useState(null);
+  const [editClientForm, setEditClientForm] = useState({ name: "", note: "", phone: "", visits: 0 });
+  const displayClients = crmClientRecords;
+
+  function handleAddCrmClient() {
     if (!crmClientForm.name.trim()) return;
-    await addCrmClient({ name: crmClientForm.name.trim(), note: crmClientForm.note.trim(), phone: crmClientForm.phone.trim(), visits: 0 });
+    addCrmClient({
+      name: crmClientForm.name.trim(),
+      note: crmClientForm.note.trim(),
+      phone: crmClientForm.phone.trim(),
+      visits: 0,
+    });
     setCrmClientForm({ name: "", note: "", phone: "" });
     setCrmShowAddClient(false);
   }
-  const appointments = demoSource.appointments || [];
-  const services = demoSource.services || [];
-  const { records: crmServiceRecords, addRecord: addCrmService } = useCrmRecords(bootClientId, "services");
+
+  function startEditClient(item) {
+    setEditingClientId(item.id);
+    setEditClientForm({
+      name: item.name || "",
+      note: item.note || "",
+      phone: item.phone || "",
+      visits: item.visits ?? 0,
+    });
+  }
+
+  function saveEditClient() {
+    if (!editingClientId || !editClientForm.name.trim()) return;
+    updateCrmClient(editingClientId, {
+      name: editClientForm.name.trim(),
+      note: editClientForm.note.trim(),
+      phone: editClientForm.phone.trim(),
+      visits: Number(editClientForm.visits) || 0,
+    });
+    setEditingClientId(null);
+  }
+
+  const {
+    records: crmAppointmentRecords,
+    addRecord: addCrmAppointment,
+    updateRecord: updateCrmAppointment,
+    deleteRecord: deleteCrmAppointment,
+  } = useCrmRecords(crmStorageId, "appointments", appointments);
+  const [crmShowAddAppointment, setCrmShowAddAppointment] = useState(false);
+  const [crmAppointmentForm, setCrmAppointmentForm] = useState({ client: "", service: "", time: "", status: "Pending" });
+  const [editingAppointmentId, setEditingAppointmentId] = useState(null);
+  const [editAppointmentForm, setEditAppointmentForm] = useState({ client: "", service: "", time: "", status: "" });
+  const displayAppointments = crmAppointmentRecords;
+
+  function handleAddCrmAppointment() {
+    if (!crmAppointmentForm.client.trim() || !crmAppointmentForm.time.trim()) return;
+    addCrmAppointment({
+      client: crmAppointmentForm.client.trim(),
+      service: crmAppointmentForm.service.trim() || "—",
+      time: crmAppointmentForm.time.trim(),
+      status: crmAppointmentForm.status.trim() || "Pending",
+    });
+    setCrmAppointmentForm({ client: "", service: "", time: "", status: "Pending" });
+    setCrmShowAddAppointment(false);
+  }
+
+  function startEditAppointment(item) {
+    setEditingAppointmentId(item.id);
+    setEditAppointmentForm({
+      client: item.client || "",
+      service: item.service || "",
+      time: item.time || "",
+      status: item.status || "Pending",
+    });
+  }
+
+  function saveEditAppointment() {
+    if (!editingAppointmentId || !editAppointmentForm.client.trim()) return;
+    updateCrmAppointment(editingAppointmentId, {
+      client: editAppointmentForm.client.trim(),
+      service: editAppointmentForm.service.trim(),
+      time: editAppointmentForm.time.trim(),
+      status: editAppointmentForm.status.trim() || "Pending",
+    });
+    setEditingAppointmentId(null);
+  }
+
+  const {
+    records: crmServiceRecords,
+    addRecord: addCrmService,
+    updateRecord: updateCrmService,
+    deleteRecord: deleteCrmService,
+  } = useCrmRecords(crmStorageId, "services", services);
   const [crmShowAddService, setCrmShowAddService] = useState(false);
   const [crmServiceForm, setCrmServiceForm] = useState({ name: "", price: "", duration: "" });
-  const displayServices = crmServiceRecords.length > 0 ? crmServiceRecords : services;
-  async function handleAddCrmService() {
+  const [editingServiceId, setEditingServiceId] = useState(null);
+  const [editServiceForm, setEditServiceForm] = useState({ name: "", price: "", duration: "" });
+  const displayServices = crmServiceRecords;
+
+  function handleAddCrmService() {
     if (!crmServiceForm.name.trim()) return;
-    await addCrmService({ name: crmServiceForm.name.trim(), price: crmServiceForm.price.trim(), duration: crmServiceForm.duration.trim() });
+    addCrmService({
+      name: crmServiceForm.name.trim(),
+      price: crmServiceForm.price.trim(),
+      duration: crmServiceForm.duration.trim(),
+    });
     setCrmServiceForm({ name: "", price: "", duration: "" });
     setCrmShowAddService(false);
   }
+
+  function startEditService(item) {
+    setEditingServiceId(item.id);
+    setEditServiceForm({
+      name: item.name || "",
+      price: item.price || "",
+      duration: item.duration || "",
+    });
+  }
+
+  function saveEditService() {
+    if (!editingServiceId || !editServiceForm.name.trim()) return;
+    updateCrmService(editingServiceId, {
+      name: editServiceForm.name.trim(),
+      price: editServiceForm.price.trim(),
+      duration: editServiceForm.duration.trim(),
+    });
+    setEditingServiceId(null);
+  }
+
   const staff = demoSource.staff || [];
-  const { records: crmStaffRecords, addRecord: addCrmStaff } = useCrmRecords(bootClientId, "staff");
+  const {
+    records: crmStaffRecords,
+    addRecord: addCrmStaff,
+  } = useCrmRecords(crmStorageId, "staff", staff);
   const [crmShowAddStaff, setCrmShowAddStaff] = useState(false);
   const [crmStaffForm, setCrmStaffForm] = useState({ name: "", role: "", status: "" });
-  const displayStaff = crmStaffRecords.length > 0 ? crmStaffRecords : staff;
-  async function handleAddCrmStaff() {
+  const displayStaff = crmStaffRecords;
+  const [showFirebaseCta, setShowFirebaseCta] = useState(false);
+
+  function handleAddCrmStaff() {
     if (!crmStaffForm.name.trim()) return;
-    await addCrmStaff({ name: crmStaffForm.name.trim(), role: crmStaffForm.role.trim(), status: crmStaffForm.status.trim() || "available" });
+    addCrmStaff({
+      name: crmStaffForm.name.trim(),
+      role: crmStaffForm.role.trim(),
+      status: crmStaffForm.status.trim() || "available",
+    });
     setCrmStaffForm({ name: "", role: "", status: "" });
     setCrmShowAddStaff(false);
   }
@@ -1293,9 +1418,9 @@ export default function App() {
   const businessIcon = NICHE_ICONS[effectiveBusinessType] ?? theme.icon;
 
   const i18n = {
-    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", confirmed: "Confirmed", pending: "Pending", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", mvpReadyTitle: "Your personal MVP is ready", mvpReadySubtitle: "Save the link — this is your working MVP", copyLink: "Copy link", openMvpTab: "Open MVP in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch" },
-    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", confirmed: "Bestätigt", pending: "Ausstehend", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", mvpReadyTitle: "Ihr persönliches MVP ist fertig", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihr MVP", copyLink: "Link kopieren", openMvpTab: "MVP in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch" },
-    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", confirmed: "Подтверждён", pending: "Ожидает", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", mvpReadyTitle: "Ваш персональный MVP готов", mvpReadySubtitle: "Сохраните ссылку — это ваш рабочий MVP", copyLink: "Копировать ссылку", openMvpTab: "Открыть MVP в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох" },
+    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", mvpReadyTitle: "Your personal MVP is ready", mvpReadySubtitle: "Save the link — this is your working MVP", copyLink: "Copy link", openMvpTab: "Open MVP in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", firebaseCtaButton: "Connect Firebase cloud storage", firebaseCtaHint: "Demo data is saved in this browser only.", firebaseModalTitle: "Cloud storage for your CRM", firebaseModalBody: "Want your data saved in the cloud and available from any device? Contact us — we'll connect Firebase for your business.", firebaseContactEmail: "Email", firebaseContactTelegram: "Telegram", deleteConfirm: "Delete this record?" },
+    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", mvpReadyTitle: "Ihr persönliches MVP ist fertig", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihr MVP", copyLink: "Link kopieren", openMvpTab: "MVP in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", firebaseCtaButton: "Firebase-Cloudspeicher verbinden", firebaseCtaHint: "Demo-Daten werden nur in diesem Browser gespeichert.", firebaseModalTitle: "Cloud-Speicher für Ihr CRM", firebaseModalBody: "Möchten Sie, dass Ihre Daten in der Cloud gespeichert werden und von jedem Gerät verfügbar sind? Kontaktieren Sie uns — wir richten Firebase für Ihr Unternehmen ein.", firebaseContactEmail: "E-Mail", firebaseContactTelegram: "Telegram", deleteConfirm: "Diesen Eintrag löschen?" },
+    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", mvpReadyTitle: "Ваш персональный MVP готов", mvpReadySubtitle: "Сохраните ссылку — это ваш рабочий MVP", copyLink: "Копировать ссылку", openMvpTab: "Открыть MVP в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", firebaseCtaButton: "Подключить облачное хранение Firebase", firebaseCtaHint: "Демо-данные сохраняются только в этом браузере.", firebaseModalTitle: "Облачное хранение для CRM", firebaseModalBody: "Хотите, чтобы данные сохранялись в облаке и были доступны с любого устройства? Свяжитесь с нами — подключим Firebase для вашего бизнеса.", firebaseContactEmail: "Email", firebaseContactTelegram: "Telegram", deleteConfirm: "Удалить эту запись?" },
   };
   const sectionLabels = uiSections ?? {};
   const baseT = i18n[language] || i18n.ru;
@@ -1375,20 +1500,53 @@ export default function App() {
     !clientTabs.has(activeTab) &&
     !serviceTabs.has(activeTab) &&
     !staffTabs.has(activeTab);
-  const reservationRows = getPageRecords(demoData, "reservations").map((item) => ({
-    client: pickLocalized(item.guest || item.client || item.name, language) || "—",
-    service: pickLocalized(item.table || item.service || item.property, language) || "—",
-    time: item.time || item.date || "—",
-    status: pickLocalized(item.status, language) || "Pending",
-  }));
-  const appointmentRows =
-    activeTab === "reservations" && reservationRows.length > 0 ? reservationRows : appointments;
-  const menuRows = getPageRecords(demoData, "menu").map((item) => ({
-    name: pickLocalized(item.name || item.title, language) || "—",
-    price: item.price || item.value || "—",
-    duration: pickLocalized(item.category || item.duration, language) || "",
-  }));
-  const serviceRows = activeTab === "menu" && menuRows.length > 0 ? menuRows : services;
+  const appointmentRows = displayAppointments;
+  const serviceRows = displayServices;
+  const crmActionBtnStyle = {
+    background: "transparent",
+    color: "var(--color-accent, #1d4ed8)",
+    border: "1px solid #cbd5e1",
+    borderRadius: "8px",
+    padding: "0.35rem 0.65rem",
+    fontSize: "0.78rem",
+    fontWeight: 600,
+    cursor: "pointer",
+    marginRight: "0.35rem",
+  };
+  const crmDangerBtnStyle = {
+    ...crmActionBtnStyle,
+    color: "#b91c1c",
+    borderColor: "#fecaca",
+  };
+  const firebaseCtaPanel = (
+    <section
+      className="panel domain-section"
+      style={{
+        marginTop: "1rem",
+        background: "linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%)",
+        border: "1px solid #bfdbfe",
+      }}
+    >
+      <p style={{ margin: "0 0 0.75rem", color: "#475569", fontSize: "0.92rem" }}>{t.firebaseCtaHint}</p>
+      <button
+        type="button"
+        onClick={() => setShowFirebaseCta(true)}
+        style={{
+          background: "var(--color-accent, #1d4ed8)",
+          color: "#ffffff",
+          border: "none",
+          borderRadius: "10px",
+          padding: "0.65rem 1.15rem",
+          fontWeight: 700,
+          fontSize: "0.9rem",
+          cursor: "pointer",
+          boxShadow: "0 4px 14px rgba(29, 78, 216, 0.25)",
+        }}
+      >
+        ☁️ {t.firebaseCtaButton}
+      </button>
+    </section>
+  );
   const tableRows = getPageRecords(demoData, "tables").map((item) => localizeRecord(item, language));
 
   const tableHeaders = getTableHeaders(language);
@@ -1726,12 +1884,31 @@ export default function App() {
                 {t.openMvpTab}
               </a>
             </div>
+
+            {firebaseCtaPanel}
           </>
         )}
 
         {appointmentTabs.has(activeTab) && (pages ? pages.includes(activeTab) || pages.includes("appointments") || pages.includes("viewings") : flags.appointments) && (
           <section className="panel domain-section">
-            <h3>{getPageLabel(activeTab, language, effectiveBusinessType)}</h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
+              <h3 style={{ margin: 0 }}>{getPageLabel(activeTab, language, effectiveBusinessType)}</h3>
+              <button type="button" onClick={() => setCrmShowAddAppointment(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "#ffffff", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.12)" }}>
+                {t.addAppointment}
+              </button>
+            </div>
+            {crmShowAddAppointment && (
+              <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#f8fafc" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                  <input placeholder={t.client} value={crmAppointmentForm.client} onChange={(e) => setCrmAppointmentForm((f) => ({ ...f, client: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                  <input placeholder={t.service} value={crmAppointmentForm.service} onChange={(e) => setCrmAppointmentForm((f) => ({ ...f, service: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                  <input placeholder={t.time} value={crmAppointmentForm.time} onChange={(e) => setCrmAppointmentForm((f) => ({ ...f, time: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                  <input placeholder={t.status} value={crmAppointmentForm.status} onChange={(e) => setCrmAppointmentForm((f) => ({ ...f, status: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                </div>
+                <button type="button" onClick={handleAddCrmAppointment} style={{ background: "var(--color-accent, #1d4ed8)", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>{t.save}</button>
+                <button type="button" onClick={() => setCrmShowAddAppointment(false)} style={{ background: "transparent", color: "#64748b", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", cursor: "pointer" }}>{t.cancel}</button>
+              </div>
+            )}
             <div style={{ overflowX: "auto" }}>
               <table style={tableStyle}>
                 <thead>
@@ -1740,17 +1917,41 @@ export default function App() {
                     <th style={thStyle}>{tableHeaders.service.toUpperCase()}</th>
                     <th style={thStyle}>{tableHeaders.time.toUpperCase()}</th>
                     <th style={thStyle}>{tableHeaders.status.toUpperCase()}</th>
+                    <th style={thStyle}>{t.actions.toUpperCase()}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {appointmentRows.map((item) => (
-                    <tr key={`${item.client}-${item.time}`}>
-                      <td style={{ ...tdStyle, fontWeight: 600, color: "#0f172a" }}>{item.client}</td>
-                      <td style={tdStyle}>{item.service}</td>
-                      <td style={tdStyle}>{item.time}</td>
-                      <td style={tdStyle}>
-                        <span style={{ ...statusBadgeBase, ...getStatusBadgeStyle(item.status) }}>{item.status}</span>
-                      </td>
+                    <tr key={item.id || `${item.client}-${item.time}`}>
+                      {editingAppointmentId === item.id ? (
+                        <>
+                          <td style={tdStyle}><input value={editAppointmentForm.client} onChange={(e) => setEditAppointmentForm((f) => ({ ...f, client: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "6px", padding: "0.35rem" }} /></td>
+                          <td style={tdStyle}><input value={editAppointmentForm.service} onChange={(e) => setEditAppointmentForm((f) => ({ ...f, service: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "6px", padding: "0.35rem" }} /></td>
+                          <td style={tdStyle}><input value={editAppointmentForm.time} onChange={(e) => setEditAppointmentForm((f) => ({ ...f, time: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "6px", padding: "0.35rem" }} /></td>
+                          <td style={tdStyle}><input value={editAppointmentForm.status} onChange={(e) => setEditAppointmentForm((f) => ({ ...f, status: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "6px", padding: "0.35rem" }} /></td>
+                          <td style={tdStyle}>
+                            <button type="button" style={crmActionBtnStyle} onClick={saveEditAppointment}>{t.save}</button>
+                            <button type="button" style={crmActionBtnStyle} onClick={() => setEditingAppointmentId(null)}>{t.cancel}</button>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td style={{ ...tdStyle, fontWeight: 600, color: "#0f172a" }}>{item.client}</td>
+                          <td style={tdStyle}>{item.service}</td>
+                          <td style={tdStyle}>{item.time}</td>
+                          <td style={tdStyle}>
+                            <span style={{ ...statusBadgeBase, ...getStatusBadgeStyle(item.status) }}>{item.status}</span>
+                          </td>
+                          <td style={tdStyle}>
+                            {item.id && (
+                              <>
+                                <button type="button" style={crmActionBtnStyle} onClick={() => startEditAppointment(item)}>{t.edit}</button>
+                                <button type="button" style={crmDangerBtnStyle} onClick={() => { if (window.confirm(t.deleteConfirm)) deleteCrmAppointment(item.id); }}>{t.delete}</button>
+                              </>
+                            )}
+                          </td>
+                        </>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -1804,10 +2005,10 @@ export default function App() {
                   />
                 </div>
                 <button type="button" onClick={handleAddCrmClient} style={{ background: "var(--color-accent, #1d4ed8)", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>
-                  {language === "de" ? "Speichern" : language === "en" ? "Save" : "Сохранить"}
+                  {t.save}
                 </button>
                 <button type="button" onClick={() => setCrmShowAddClient(false)} style={{ background: "transparent", color: "#64748b", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", cursor: "pointer" }}>
-                  {language === "de" ? "Abbrechen" : language === "en" ? "Cancel" : "Отмена"}
+                  {t.cancel}
                 </button>
               </div>
             )}
@@ -1818,18 +2019,41 @@ export default function App() {
                     <th style={thStyle}>{t.name.toUpperCase()}</th>
                     <th style={thStyle}>{t.note.toUpperCase()}</th>
                     <th style={thStyle}>{t.visits.toUpperCase()}</th>
+                    <th style={thStyle}>{t.actions.toUpperCase()}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {displayClients.map((item) => (
-                    <tr key={item.name}>
-                      <td style={{ ...tdStyle, fontWeight: 600, color: "#0f172a" }}>{item.name}</td>
-                      <td style={tdStyle}>{translateNote(item.note)}</td>
-                      <td style={tdStyle}>
-                        <span style={{ ...statusBadgeBase, background: "var(--color-secondary, #dbeafe)", color: "var(--color-accent, #1d4ed8)", border: "1px solid transparent" }}>
-                          {item.visits} {t.visitsBadge ?? t.visits}
-                        </span>
-                      </td>
+                    <tr key={item.id || item.name}>
+                      {editingClientId === item.id ? (
+                        <>
+                          <td style={tdStyle}><input value={editClientForm.name} onChange={(e) => setEditClientForm((f) => ({ ...f, name: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "6px", padding: "0.35rem" }} /></td>
+                          <td style={tdStyle}><input value={editClientForm.note} onChange={(e) => setEditClientForm((f) => ({ ...f, note: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "6px", padding: "0.35rem" }} /></td>
+                          <td style={tdStyle}><input type="number" value={editClientForm.visits} onChange={(e) => setEditClientForm((f) => ({ ...f, visits: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "6px", padding: "0.35rem" }} /></td>
+                          <td style={tdStyle}>
+                            <button type="button" style={crmActionBtnStyle} onClick={saveEditClient}>{t.save}</button>
+                            <button type="button" style={crmActionBtnStyle} onClick={() => setEditingClientId(null)}>{t.cancel}</button>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td style={{ ...tdStyle, fontWeight: 600, color: "#0f172a" }}>{item.name}</td>
+                          <td style={tdStyle}>{translateNote(item.note)}</td>
+                          <td style={tdStyle}>
+                            <span style={{ ...statusBadgeBase, background: "var(--color-secondary, #dbeafe)", color: "var(--color-accent, #1d4ed8)", border: "1px solid transparent" }}>
+                              {item.visits} {t.visitsBadge ?? t.visits}
+                            </span>
+                          </td>
+                          <td style={tdStyle}>
+                            {item.id && (
+                              <>
+                                <button type="button" style={crmActionBtnStyle} onClick={() => startEditClient(item)}>{t.edit}</button>
+                                <button type="button" style={crmDangerBtnStyle} onClick={() => { if (window.confirm(t.deleteConfirm)) deleteCrmClient(item.id); }}>{t.delete}</button>
+                              </>
+                            )}
+                          </td>
+                        </>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -1854,19 +2078,37 @@ export default function App() {
                   <input placeholder="30 min" value={crmServiceForm.duration} onChange={(e) => setCrmServiceForm((f) => ({ ...f, duration: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
                 </div>
                 <button type="button" onClick={handleAddCrmService} style={{ background: "var(--color-accent, #1d4ed8)", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>
-                  {language === "de" ? "Speichern" : language === "en" ? "Save" : "Сохранить"}
+                  {t.save}
                 </button>
                 <button type="button" onClick={() => setCrmShowAddService(false)} style={{ background: "transparent", color: "#64748b", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", cursor: "pointer" }}>
-                  {language === "de" ? "Abbrechen" : language === "en" ? "Cancel" : "Отмена"}
+                  {t.cancel}
                 </button>
               </div>
             )}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem" }}>
-              {displayServices.map((item) => (
-                <article key={item.name} style={serviceCardStyle}>
-                  <strong style={{ fontSize: "1rem", color: "#0f172a" }}>{item.name}</strong>
-                  <span style={{ display: "block", marginTop: "0.35rem", color: "var(--color-accent, #1d4ed8)", fontWeight: 700 }}>{item.price}</span>
-                  <em style={{ display: "block", marginTop: "0.25rem", color: "#64748b", fontStyle: "normal", fontSize: "0.88rem" }}>{activeTab === "menu" ? translateMenuCategory(item.duration, language) : item.duration}</em>
+              {serviceRows.map((item) => (
+                <article key={item.id || item.name} style={serviceCardStyle}>
+                  {editingServiceId === item.id ? (
+                    <>
+                      <input value={editServiceForm.name} onChange={(e) => setEditServiceForm((f) => ({ ...f, name: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.4rem", marginBottom: "0.35rem" }} />
+                      <input value={editServiceForm.price} onChange={(e) => setEditServiceForm((f) => ({ ...f, price: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.4rem", marginBottom: "0.35rem" }} />
+                      <input value={editServiceForm.duration} onChange={(e) => setEditServiceForm((f) => ({ ...f, duration: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.4rem", marginBottom: "0.5rem" }} />
+                      <button type="button" style={crmActionBtnStyle} onClick={saveEditService}>{t.save}</button>
+                      <button type="button" style={crmActionBtnStyle} onClick={() => setEditingServiceId(null)}>{t.cancel}</button>
+                    </>
+                  ) : (
+                    <>
+                      <strong style={{ fontSize: "1rem", color: "#0f172a" }}>{item.name}</strong>
+                      <span style={{ display: "block", marginTop: "0.35rem", color: "var(--color-accent, #1d4ed8)", fontWeight: 700 }}>{item.price}</span>
+                      <em style={{ display: "block", marginTop: "0.25rem", color: "#64748b", fontStyle: "normal", fontSize: "0.88rem" }}>{activeTab === "menu" ? translateMenuCategory(item.duration, language) : item.duration}</em>
+                      {item.id && (
+                        <div style={{ marginTop: "0.75rem" }}>
+                          <button type="button" style={crmActionBtnStyle} onClick={() => startEditService(item)}>{t.edit}</button>
+                          <button type="button" style={crmDangerBtnStyle} onClick={() => { if (window.confirm(t.deleteConfirm)) deleteCrmService(item.id); }}>{t.delete}</button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </article>
               ))}
             </div>
@@ -1898,7 +2140,7 @@ export default function App() {
             )}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem" }}>
               {displayStaff.map((person) => (
-                <article key={person.name} style={staffCardStyle}>
+                <article key={person.id || person.name} style={staffCardStyle}>
                   <strong style={{ fontSize: "1rem", color: "#0f172a" }}>{person.name}</strong>
                   <span style={{ color: "#475569", fontSize: "0.92rem" }}>{person.role}</span>
                   <span style={{ ...statusBadgeBase, ...getStatusBadgeStyle(person.status), width: "fit-content" }}>{person.status}</span>
@@ -1944,13 +2186,14 @@ export default function App() {
         {activeTab === "settings" && (
           <section className="panel domain-section">
             <h3>{t.settings}</h3>
-            <p style={{ color: "#64748b", margin: 0 }}>
+            <p style={{ color: "#64748b", margin: "0 0 1rem" }}>
               {language === "de"
                 ? "Grundeinstellungen für Ihr CRM."
                 : language === "en"
                   ? "Basic settings for your CRM."
                   : "Базовые настройки вашей CRM."}
             </p>
+            {firebaseCtaPanel}
           </section>
         )}
 
@@ -2013,6 +2256,66 @@ export default function App() {
           {city && <span>{city}</span>}
           <span>{email || labels.email}</span>
         </footer>
+
+        {showFirebaseCta && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="firebase-cta-title"
+            onClick={() => setShowFirebaseCta(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(15, 23, 42, 0.55)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "1.25rem",
+              zIndex: 9999,
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: "#ffffff",
+                borderRadius: "16px",
+                padding: "1.5rem",
+                maxWidth: "440px",
+                width: "100%",
+                boxShadow: "0 20px 50px rgba(15, 23, 42, 0.25)",
+              }}
+            >
+              <h3 id="firebase-cta-title" style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", color: "#0f172a" }}>
+                {t.firebaseModalTitle}
+              </h3>
+              <p style={{ margin: "0 0 1rem", color: "#475569", lineHeight: 1.55 }}>{t.firebaseModalBody}</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "1.25rem" }}>
+                <a href={`mailto:${CONTACT_EMAIL}`} style={{ color: "var(--color-accent, #1d4ed8)", fontWeight: 600, textDecoration: "none" }}>
+                  {t.firebaseContactEmail}: {CONTACT_EMAIL}
+                </a>
+                <a href={`https://t.me/${CONTACT_TELEGRAM.replace("@", "")}`} target="_blank" rel="noreferrer" style={{ color: "var(--color-accent, #1d4ed8)", fontWeight: 600, textDecoration: "none" }}>
+                  {t.firebaseContactTelegram}: {CONTACT_TELEGRAM}
+                </a>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFirebaseCta(false)}
+                style={{
+                  background: "var(--color-accent, #1d4ed8)",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: "10px",
+                  padding: "0.6rem 1.1rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  width: "100%",
+                }}
+              >
+                {t.cancel}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

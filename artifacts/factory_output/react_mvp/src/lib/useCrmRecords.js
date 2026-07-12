@@ -1,72 +1,113 @@
-// Универсальный CRUD-хук на Firestore. Работает для ЛЮБОЙ ниши и ЛЮБОГО
-// раздела (clients/patients/appointments/services/staff/doctors и т.д.) —
-// не нужно писать отдельный код под каждую нишу.
-//
-// Данные хранятся по пути: mvp_clients/{clientId}/{section}/{recordId}
-// где clientId — это тот же clientId, что уже используется в URL
-// (?clientId=...), section — название раздела (например "clients").
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useState, useEffect, useCallback } from "react";
-import {
-  db,
-  collection,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-  getDocs,
-  query,
-  orderBy,
-} from "./firebaseClient.js";
+function normalizeDefaults(defaultRecords = []) {
+  return defaultRecords.map((item, index) => ({
+    ...item,
+    id: item.id || `seed-${index}`,
+  }));
+}
 
-export function useCrmRecords(clientId, section) {
+function readStorage(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw === null) {
+      return null;
+    }
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStorage(key, records) {
+  localStorage.setItem(key, JSON.stringify(records));
+}
+
+export function useCrmRecords(clientId, section, defaultRecords = []) {
+  const storageKey = clientId && section ? `mvp_crm:${clientId}:${section}` : null;
+  const defaultsKey = useMemo(() => JSON.stringify(defaultRecords), [defaultRecords]);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const load = useCallback(async () => {
-    if (!clientId || !section) {
+  useEffect(() => {
+    const parsedDefaults = JSON.parse(defaultsKey);
+
+    if (!storageKey) {
+      setRecords(normalizeDefaults(parsedDefaults));
       setLoading(false);
       return;
     }
-    setLoading(true);
-    try {
-      const q = query(
-        collection(db, "mvp_clients", clientId, section),
-        orderBy("createdAt", "desc")
-      );
-      const snap = await getDocs(q);
-      setRecords(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-    } catch (e) {
-      console.error("[useCrmRecords] failed to load", section, e);
-      setRecords([]);
+
+    const stored = readStorage(storageKey);
+    if (stored !== null) {
+      setRecords(stored);
+      setLoading(false);
+      return;
+    }
+
+    const seeded = normalizeDefaults(parsedDefaults);
+    setRecords(seeded);
+    if (seeded.length > 0) {
+      writeStorage(storageKey, seeded);
     }
     setLoading(false);
-  }, [clientId, section]);
+  }, [storageKey, defaultsKey]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  const persist = useCallback(
+    (next) => {
+      setRecords(next);
+      if (storageKey) {
+        writeStorage(storageKey, next);
+      }
+    },
+    [storageKey],
+  );
 
-  async function addRecord(data) {
-    if (!clientId) return null;
-    const payload = { ...data, createdAt: Date.now() };
-    const ref = await addDoc(collection(db, "mvp_clients", clientId, section), payload);
-    const newRecord = { id: ref.id, ...payload };
-    setRecords((prev) => [newRecord, ...prev]);
-    return newRecord;
-  }
+  const addRecord = useCallback(
+    (data) => {
+      const payload = {
+        ...data,
+        id: `rec-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        createdAt: Date.now(),
+      };
+      setRecords((prev) => {
+        const next = [payload, ...prev];
+        if (storageKey) {
+          writeStorage(storageKey, next);
+        }
+        return next;
+      });
+      return payload;
+    },
+    [storageKey],
+  );
 
-  async function updateRecord(id, data) {
-    if (!clientId) return;
-    await updateDoc(doc(db, "mvp_clients", clientId, section, id), data);
-    setRecords((prev) => prev.map((r) => (r.id === id ? { ...r, ...data } : r)));
-  }
+  const updateRecord = useCallback(
+    (id, data) => {
+      setRecords((prev) => {
+        const next = prev.map((record) => (record.id === id ? { ...record, ...data } : record));
+        if (storageKey) {
+          writeStorage(storageKey, next);
+        }
+        return next;
+      });
+    },
+    [storageKey],
+  );
 
-  async function deleteRecord(id) {
-    if (!clientId) return;
-    await deleteDoc(doc(db, "mvp_clients", clientId, section, id));
-    setRecords((prev) => prev.filter((r) => r.id !== id));
-  }
+  const deleteRecord = useCallback(
+    (id) => {
+      setRecords((prev) => {
+        const next = prev.filter((record) => record.id !== id);
+        if (storageKey) {
+          writeStorage(storageKey, next);
+        }
+        return next;
+      });
+    },
+    [storageKey],
+  );
 
-  return { records, loading, addRecord, updateRecord, deleteRecord, reload: load };
+  return { records, loading, addRecord, updateRecord, deleteRecord, reload: () => {} };
 }
