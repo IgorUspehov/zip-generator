@@ -642,7 +642,7 @@ export function ClientWizardPage() {
           ))}
         </div>
 
-        <div className={`card${step === "s4" && pendingRedirectUrl ? " card--wide" : ""}`}>
+        <div className="card">
           {/* STEP 1 */}
           <div className={stepClass("s1")} id="s1">
             <ProgressBar step="s1" />
@@ -869,16 +869,6 @@ export function ClientWizardPage() {
                       {copy.s4_open}
                     </a>
                   )}
-                  {payHref && payHrefPro && payHrefFull ? (
-                    <PricingTiersBlock
-                      payHref={payHref}
-                      payHrefPro={payHrefPro}
-                      payHrefFull={payHrefFull}
-                      lang={lang}
-                      clientId={deployMeta?.clientId}
-                      email={email.trim()}
-                    />
-                  ) : null}
                 </div>
               ) : null}
             </div>

@@ -7,53 +7,55 @@ declare global {
 }
 
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const PROMO_CODE = "serafim01";
+const POLAR_CHECKOUT_99 =
+  "https://buy.polar.sh/polar_cl_uUpNQRXBAVubDpDO3zwLa5SAswkU0Jkr2835A04UF1F";
 
 type PayLang = "en" | "de" | "ru";
 
 const translations = {
   de: {
-    demoReady: "Ihre Demo ist fertig!",
-    buyButton: "€99 kaufen — für immer behalten",
+    demoReady: "Ihr Website+CRM ist fertig!",
+    promoButton: "Promo-Code",
+    payButton: "€99 zahlen — einmalig, für immer, kein Abo",
     freeButton: "Kostenlos erhalten →",
     redirecting: "Weiterleitung…",
     missingParams: "Geben Sie demo_url, email und name in der URL an.",
     missingDemoUrl: "Fügen Sie den Parameter demo_url zur URL hinzu, um die Vorschau zu sehen.",
     example: "Beispiel: /pay?demo_url=https://example.com&email=anna@example.com&name=Anna",
-    promoLabel: "Promo-Code eingeben",
     promoPlaceholder: "Promo-Code (optional)",
     promoInvalid: "Ungültiger Promo-Code",
-    locked: "🔒 Bezahlen Sie, um zu entsperren",
   },
   en: {
-    demoReady: "Your demo is ready!",
-    buyButton: "Buy for €99 — keep forever",
+    demoReady: "Your Website+CRM is ready!",
+    promoButton: "Promo code",
+    payButton: "Pay €99 — once, forever, no subscription",
     freeButton: "Get for free →",
     redirecting: "Redirecting…",
     missingParams: "Add demo_url, email and name to the URL.",
     missingDemoUrl: "Add the demo_url parameter to the link to see the preview.",
     example: "Example: /pay?demo_url=https://example.com&email=anna@example.com&name=Anna",
-    promoLabel: "Enter promo code",
     promoPlaceholder: "Promo code (optional)",
     promoInvalid: "Invalid promo code",
-    locked: "🔒 Pay to unlock",
   },
   ru: {
-    demoReady: "Ваш демо-сайт готов!",
-    buyButton: "Купить за €99 — сохранить навсегда",
+    demoReady: "Ваш сайт с CRM готов!",
+    promoButton: "Промокод",
+    payButton: "Оплатить €99 — разово, навсегда, без подписки",
     freeButton: "Получить бесплатно →",
     redirecting: "Перенаправляем…",
     missingParams: "Укажите demo_url, email и name в ссылке.",
     missingDemoUrl: "Добавьте параметр demo_url в ссылку, чтобы увидеть превью.",
     example: "Пример: /pay?demo_url=https://example.com&email=anna@example.com&name=Anna",
-    promoLabel: "Введите промокод",
     promoPlaceholder: "Промо-код (необязательно)",
     promoInvalid: "Неверный промо-код",
-    locked: "🔒 Оплатите чтобы открыть",
   },
 } as const;
+
+const actionButtonClass =
+  "inline-flex min-h-[52px] flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base";
 
 function isValidHttpUrl(value: string): boolean {
   try {
@@ -101,19 +103,18 @@ export function PayPageContent() {
   const email = searchParams?.get("email")?.trim() ?? "";
   const name = searchParams?.get("name")?.trim() ?? "";
 
-
-
   const [lang, setLang] = useState<PayLang>("de");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [promoInput, setPromoInput] = useState("");
+  const [showPromo, setShowPromo] = useState(false);
 
   const t = translations[lang];
   const hasValidDemoUrl = isValidHttpUrl(demoUrl);
   const canCheckout = hasValidDemoUrl && email && name;
   const promoApplied = promoInput.trim().toLowerCase() === PROMO_CODE;
 
-  function handleCheckout() {
+  function handlePay() {
     if (!canCheckout) {
       setError(t.missingParams);
       return;
@@ -127,7 +128,7 @@ export function PayPageContent() {
       return;
     }
 
-    const polarUrl = new URL("https://buy.polar.sh/polar_cl_qVHaJpa4Zon7ZJjZNAI6UNDt7vkLdV0enAUZc085fTu");
+    const polarUrl = new URL(POLAR_CHECKOUT_99);
     if (email) polarUrl.searchParams.set("prefilled_email", email);
     window.location.href = polarUrl.toString();
   }
@@ -137,12 +138,8 @@ export function PayPageContent() {
       <LanguageSwitcher lang={lang} onChange={setLang} />
 
       <div className="mx-auto flex min-h-svh max-w-3xl flex-col px-6 py-12">
-        {/* Header */}
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-violet-600">
-            MVP Factory
-          </p>
-          <h1 className="mt-3 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
+          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
             {t.demoReady}
           </h1>
           {name ? (
@@ -153,66 +150,63 @@ export function PayPageContent() {
           ) : null}
         </div>
 
-        {/* Blurred preview */}
         <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm">
           {hasValidDemoUrl ? (
-            <div className="relative">
-              <iframe
-                title="Demo preview"
-                src={demoUrl}
-                className="h-[420px] w-full border-0 bg-white blur-sm sm:h-[520px]"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-                <div className="rounded-2xl bg-white/90 px-8 py-5 text-center shadow-xl backdrop-blur-md">
-                  <p className="text-xl font-bold text-slate-800">{t.locked}</p>
-                </div>
-              </div>
-            </div>
+            <iframe
+              title="Demo preview"
+              src={demoUrl}
+              className="h-[420px] w-full border-0 bg-white sm:h-[520px]"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            />
           ) : (
             <div className="px-6 py-16 text-center text-slate-600">{t.missingDemoUrl}</div>
           )}
         </div>
 
-        {/* Promo code + button */}
-        <div className="mt-8 text-center">
-          <p className="mb-2 text-sm font-medium text-slate-600">{t.promoLabel}</p>
-          <div className="mx-auto mb-4 max-w-xl">
-            <input
-              type="text"
-              value={promoInput}
-              onChange={(e) => setPromoInput(e.target.value)}
-              placeholder={t.promoPlaceholder}
-              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:ring-2 ${
-                promoInput && !promoApplied
-                  ? "border-red-300 focus:ring-red-200"
-                  : promoApplied
-                    ? "border-green-400 bg-green-50 text-green-800 focus:ring-green-200"
-                    : "border-slate-200 focus:ring-violet-200"
-              }`}
-            />
-            {promoInput && !promoApplied ? (
-              <p className="mt-1 text-xs text-red-500">{t.promoInvalid}</p>
-            ) : null}
+        <div className="mt-8">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => setShowPromo((current) => !current)}
+              className={actionButtonClass}
+            >
+              {t.promoButton}
+            </button>
+            <button
+              type="button"
+              onClick={() => handlePay()}
+              disabled={!canCheckout || loading}
+              className={actionButtonClass}
+            >
+              {loading ? t.redirecting : promoApplied ? t.freeButton : t.payButton}
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={() => handleCheckout()}
-            disabled={!canCheckout || loading}
-            className={`inline-flex w-full max-w-xl items-center justify-center rounded-2xl px-8 py-5 text-xl font-bold text-white shadow-lg transition disabled:cursor-not-allowed disabled:opacity-60 ${
-              promoApplied
-                ? "bg-green-600 shadow-green-200 hover:bg-green-700"
-                : "bg-violet-600 shadow-violet-200 hover:bg-violet-700"
-            }`}
-          >
-            {loading ? t.redirecting : promoApplied ? t.freeButton : t.buyButton}
-          </button>
+          {showPromo ? (
+            <div className="mt-3">
+              <input
+                type="text"
+                value={promoInput}
+                onChange={(e) => setPromoInput(e.target.value)}
+                placeholder={t.promoPlaceholder}
+                className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:ring-2 ${
+                  promoInput && !promoApplied
+                    ? "border-red-300 focus:ring-red-200"
+                    : promoApplied
+                      ? "border-green-400 bg-green-50 text-green-800 focus:ring-green-200"
+                      : "border-slate-200 focus:ring-violet-200"
+                }`}
+              />
+              {promoInput && !promoApplied ? (
+                <p className="mt-1 text-xs text-red-500">{t.promoInvalid}</p>
+              ) : null}
+            </div>
+          ) : null}
 
-          {error ? <p className="mt-4 text-sm font-medium text-red-600">{error}</p> : null}
+          {error ? <p className="mt-4 text-center text-sm font-medium text-red-600">{error}</p> : null}
 
           {!canCheckout && !error ? (
-            <p className="mt-4 text-sm text-slate-500">{t.example}</p>
+            <p className="mt-4 text-center text-sm text-slate-500">{t.example}</p>
           ) : null}
         </div>
       </div>
