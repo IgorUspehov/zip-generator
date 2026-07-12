@@ -118,6 +118,13 @@
   margin-bottom: 16px;
 }
 
+.step-h-intro {
+  font-size: clamp(1.05rem, 2.8vw, 1.125rem);
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
 .step-slogan {
   font-size: clamp(1rem, 3vw, 1.15rem);
   font-weight: 600;

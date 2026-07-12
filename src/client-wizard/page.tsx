@@ -28,25 +28,6 @@ const LEMONSQUEEZY_VARIANT_CRM_FULL = "1807671";
 const PADDLE_PRODUCT_MVP_PRO = "pri_01kvwyb0r4rpvv3xrfbyths7tw";
 const PADDLE_PRODUCT_CRM_FULL = "pri_01kvwyk2kmmfagkfp4am68zner";
 
-function LogoIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-    </svg>
-  );
-}
-
-function LogoBlock() {
-  return (
-    <div className="logo">
-      <div className="logo-icon">
-        <LogoIcon />
-      </div>
-      <span className="logo-name">MVP Factory</span>
-    </div>
-  );
-}
-
 function ProgressBar({ step }: { step: "s1" | "s2" | "s3" }) {
   const dots =
     step === "s1"
@@ -666,7 +647,7 @@ export function ClientWizardPage() {
           <div className={stepClass("s1")} id="s1">
             <ProgressBar step="s1" />
             <div className="step-label">{copy.s1_label}</div>
-            <div className="step-h">{copy.s1_intro}</div>
+            <div className="step-h step-h-intro">{copy.s1_intro}</div>
             <div className="field">
               <label className="inp-label" htmlFor="f-name">
                 {copy.lbl_name}
@@ -713,21 +694,14 @@ export function ClientWizardPage() {
             </div>
             <button type="button" className="btn-primary" onClick={go1}>
               <span>{copy.btn_next}</span>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
             </button>
             <Link href="/" className="btn-back">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M19 12H5M12 5l-7 7 7 7" />
-              </svg>
               <span>{copy.btn_back}</span>
             </Link>
           </div>
 
           {/* STEP 2 */}
           <div className={stepClass("s2")} id="s2">
-            <LogoBlock />
             <ProgressBar step="s2" />
             <div className="step-label">{copy.s2_label}</div>
             <div className="step-h">{copy.s2_h}</div>
@@ -748,21 +722,14 @@ export function ClientWizardPage() {
             </select>
             <button type="button" className="btn-primary" style={{ marginTop: 20 }} onClick={go2}>
               <span>{copy.btn_next}</span>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
             </button>
             <button type="button" className="btn-back" onClick={() => goTo("s1")}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M19 12H5M12 5l-7 7 7 7" />
-              </svg>
               <span>{copy.btn_back}</span>
             </button>
           </div>
 
           {/* STEP 3 */}
           <div className={stepClass("s3")} id="s3">
-            <LogoBlock />
             <ProgressBar step="s3" />
             <div className="step-label">{copy.s3_label}</div>
             <div className="step-h">{copy.s3_h}</div>
@@ -813,16 +780,12 @@ export function ClientWizardPage() {
               <span>{copy.btn_generate}</span>
             </button>
             <button type="button" className="btn-back" onClick={() => goTo("s2")}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M19 12H5M12 5l-7 7 7 7" />
-              </svg>
               <span>{copy.btn_back}</span>
             </button>
           </div>
 
           {/* STEP 4 */}
           <div className={stepClass("s4")} id="s4">
-            <LogoBlock />
             <div className="build-wrap">
               {isGenerating ? <div className="build-spinner" id="build-spinner" /> : null}
               <div className="step-h" style={{ textAlign: "center" }}>
@@ -936,11 +899,13 @@ export function ClientWizardPage() {
                 </div>
               ) : null}
             </div>
+            <button type="button" className="btn-back" onClick={() => goTo("s3")}>
+              <span>{copy.btn_back}</span>
+            </button>
           </div>
 
           {/* STEP 5 */}
           <div className={stepClass("s5")} id="s5">
-            <LogoBlock />
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
               <span
                 className="pd"
@@ -1021,24 +986,13 @@ export function ClientWizardPage() {
                 <span>{copy.btn_no}</span>
               </button>
             </div>
-            <button type="button" className="btn-back" onClick={() => goTo("s3")}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M19 12H5M12 5l-7 7 7 7" />
-              </svg>
+            <button type="button" className="btn-back" onClick={() => goTo("s4")}>
               <span>{copy.btn_back}</span>
             </button>
           </div>
 
           {/* STEP 6 */}
           <div className={stepClass("s6")} id="s6">
-            <div className="logo">
-              <div className="logo-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="logo-name">MVP Factory</span>
-            </div>
             <div style={{ marginBottom: 28 }}>
               <div
                 style={{
@@ -1173,9 +1127,6 @@ export function ClientWizardPage() {
               <span>{copy.btn_restart}</span>
             </button>
             <button type="button" className="btn-back" onClick={() => goTo("s5")}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M19 12H5M12 5l-7 7 7 7" />
-              </svg>
               <span>{copy.btn_back}</span>
             </button>
           </div>
