@@ -1,7 +1,8 @@
 node_modules
 .next
 .netlify
-artifacts
+artifacts/**
+!artifacts/factory_output/react_mvp/**
 output
 .vercel
 mvp-funnel-template/node_modules
