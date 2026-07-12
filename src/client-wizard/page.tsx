@@ -35,6 +35,7 @@ const PAYMENT_POLL_INTERVAL_MS = 3000;
 const PAYMENT_POLL_MAX_ATTEMPTS = 20;
 const LIVE_PREVIEW_PROBE_INTERVAL_MS = 500;
 const LIVE_PREVIEW_PROBE_MAX_ATTEMPTS = 10;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function isProbeablePreviewUrl(url: string): boolean {
   return url.startsWith("https://") && url.includes(".netlify.app");
@@ -695,13 +696,11 @@ function ClientWizardFlow() {
     goTo("s5");
   }, [autoAdvancedToPreview, goTo, isGenerating, pendingRedirectUrl, step]);
 
-  const shakeInput = useCallback((setter: (v: boolean) => void) => {
-    setter(true);
-    setTimeout(() => setter(false), 500);
-  }, []);
-
   const [nameErr, setNameErr] = useState(false);
   const [emailErr, setEmailErr] = useState(false);
+  const [phoneErr, setPhoneErr] = useState(false);
+  const [whatsappErr, setWhatsappErr] = useState(false);
+  const [telegramErr, setTelegramErr] = useState(false);
   const [sectorErr, setSectorErr] = useState(false);
   const [agbAccepted, setAgbAccepted] = useState(false);
 
@@ -758,6 +757,11 @@ function ClientWizardFlow() {
       if (el) el.value = "";
     }
     setAgbAccepted(false);
+    setNameErr(false);
+    setEmailErr(false);
+    setPhoneErr(false);
+    setWhatsappErr(false);
+    setTelegramErr(false);
     setPublishCountdown(null);
     setAutoAdvancedToPreview(false);
     setSiteAccessGranted(false);
@@ -771,14 +775,26 @@ function ClientWizardFlow() {
   function go1() {
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
-    if (!trimmedName) {
-      shakeInput(setNameErr);
+    const phone = (document.getElementById("f-phone") as HTMLInputElement | null)?.value.trim() ?? "";
+    const whatsapp = (document.getElementById("f-whatsapp") as HTMLInputElement | null)?.value.trim() ?? "";
+    const telegram = (document.getElementById("f-telegram") as HTMLInputElement | null)?.value.trim() ?? "";
+
+    const nameInvalid = !trimmedName;
+    const emailInvalid = !trimmedEmail || !EMAIL_RE.test(trimmedEmail);
+    const phoneInvalid = !phone;
+    const whatsappInvalid = !whatsapp;
+    const telegramInvalid = !telegram;
+
+    setNameErr(nameInvalid);
+    setEmailErr(emailInvalid);
+    setPhoneErr(phoneInvalid);
+    setWhatsappErr(whatsappInvalid);
+    setTelegramErr(telegramInvalid);
+
+    if (nameInvalid || emailInvalid || phoneInvalid || whatsappInvalid || telegramInvalid) {
       return;
     }
-    if (!trimmedEmail || !trimmedEmail.includes("@")) {
-      shakeInput(setEmailErr);
-      return;
-    }
+
     void executeRecaptcha("wizard_step_1");
     goTo("s2");
   }
@@ -855,9 +871,13 @@ function ClientWizardFlow() {
                 className={`inp ${nameErr ? "err shake" : ""}`}
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setNameErr(false);
+                }}
                 placeholder={copy.ph_name}
               />
+              {nameErr ? <p className="field-err">{copy.err_name}</p> : null}
             </div>
             <div className="field">
               <label className="inp-label" htmlFor="f-email">
@@ -868,27 +888,52 @@ function ClientWizardFlow() {
                 className={`inp ${emailErr ? "err shake" : ""}`}
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailErr(false);
+                }}
                 placeholder="anna@example.com"
               />
+              {emailErr ? <p className="field-err">{copy.err_email}</p> : null}
             </div>
             <div className="field">
               <label className="inp-label" htmlFor="f-phone">
                 Phone
               </label>
-              <input id="f-phone" className="inp" type="tel" placeholder="+49 152..." />
+              <input
+                id="f-phone"
+                className={`inp ${phoneErr ? "err shake" : ""}`}
+                type="tel"
+                placeholder="+49 152..."
+                onInput={() => setPhoneErr(false)}
+              />
+              {phoneErr ? <p className="field-err">{copy.err_phone}</p> : null}
             </div>
             <div className="field">
               <label className="inp-label" htmlFor="f-whatsapp">
                 WhatsApp
               </label>
-              <input id="f-whatsapp" className="inp" type="tel" placeholder="+49 152..." />
+              <input
+                id="f-whatsapp"
+                className={`inp ${whatsappErr ? "err shake" : ""}`}
+                type="tel"
+                placeholder="+49 152..."
+                onInput={() => setWhatsappErr(false)}
+              />
+              {whatsappErr ? <p className="field-err">{copy.err_whatsapp}</p> : null}
             </div>
             <div className="field">
               <label className="inp-label" htmlFor="f-telegram">
                 Telegram
               </label>
-              <input id="f-telegram" className="inp" type="text" placeholder="@username" />
+              <input
+                id="f-telegram"
+                className={`inp ${telegramErr ? "err shake" : ""}`}
+                type="text"
+                placeholder="@username"
+                onInput={() => setTelegramErr(false)}
+              />
+              {telegramErr ? <p className="field-err">{copy.err_telegram}</p> : null}
             </div>
             <WizardStepNav>
               <Link href="/" className="btn-back btn-nav-secondary">

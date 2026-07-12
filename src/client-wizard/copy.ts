@@ -10,6 +10,11 @@ export type CopyBundle = {
   lbl_biz: string;
   ph_biz: string;
   lbl_email: string;
+  err_name: string;
+  err_email: string;
+  err_phone: string;
+  err_whatsapp: string;
+  err_telegram: string;
   s2_label: string;
   s2_placeholder: string;
   s2_h: string;
@@ -65,6 +70,11 @@ const T: Record<UiLang, CopyBundle> = {
     lbl_biz: "Business name",
     ph_biz: "Munich Dental Clinic",
     lbl_email: "Email",
+    err_name: "Enter your name",
+    err_email: "Enter a valid email",
+    err_phone: "Enter your phone",
+    err_whatsapp: "Enter your WhatsApp",
+    err_telegram: "Enter your Telegram",
     s2_label: "Step 2 of 2",
     s2_placeholder: "— Select sector —",
     s2_h: "Business sector",
@@ -139,6 +149,11 @@ const T: Record<UiLang, CopyBundle> = {
     lbl_biz: "Unternehmensname",
     ph_biz: "Münchner Zahnklinik",
     lbl_email: "E-Mail",
+    err_name: "Namen eingeben",
+    err_email: "Gültige E-Mail eingeben",
+    err_phone: "Telefonnummer eingeben",
+    err_whatsapp: "WhatsApp eingeben",
+    err_telegram: "Telegram eingeben",
     s2_label: "Schritt 2 von 2",
     s2_placeholder: "— Branche auswählen —",
     s2_h: "Branche",
@@ -213,6 +228,11 @@ const T: Record<UiLang, CopyBundle> = {
     lbl_biz: "Название бизнеса",
     ph_biz: "Стоматология Мюнхен",
     lbl_email: "Email",
+    err_name: "Введите имя",
+    err_email: "Введите корректный email",
+    err_phone: "Введите телефон",
+    err_whatsapp: "Введите WhatsApp",
+    err_telegram: "Введите Telegram",
     s2_label: "Шаг 2 из 2",
     s2_placeholder: "— Выберите сферу —",
     s2_h: "Сфера бизнеса",
