@@ -33,6 +33,7 @@ export type CopyBundle = {
   s4_open: string;
   build_steps: string[];
   s5_live: string;
+  s5_preview_warming: string;
   s5_q: string;
   s6_pay_h: string;
   s6_pay_button: string;
@@ -94,6 +95,7 @@ const T: Record<UiLang, CopyBundle> = {
       "Packaging assets",
     ],
     s5_live: "Live Preview",
+    s5_preview_warming: "Preparing preview…",
     s5_q: "Do you like the result?",
     s6_pay_h: "Unlock your Website+CRM",
     s6_pay_button: "Pay €99 — once, forever, no subscription",
@@ -167,6 +169,7 @@ const T: Record<UiLang, CopyBundle> = {
       "Assets werden verpackt",
     ],
     s5_live: "Live-Vorschau",
+    s5_preview_warming: "Vorschau wird vorbereitet…",
     s5_q: "Gefällt dir das Ergebnis?",
     s6_pay_h: "Website+CRM freischalten",
     s6_pay_button: "€99 zahlen — einmalig, für immer, kein Abo",
@@ -240,6 +243,7 @@ const T: Record<UiLang, CopyBundle> = {
       "Упаковка активов",
     ],
     s5_live: "Live Preview",
+    s5_preview_warming: "Готовим превью…",
     s5_q: "Нравится результат?",
     s6_pay_h: "Откройте доступ к Website+CRM",
     s6_pay_button: "Оплатить €99 — разово, навсегда, без подписки",

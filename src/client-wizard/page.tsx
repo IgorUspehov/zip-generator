@@ -33,6 +33,12 @@ const PROMO_CODE = "serafim01";
 const SUPPORT_EMAIL = "support@mvpfactory.de";
 const PAYMENT_POLL_INTERVAL_MS = 3000;
 const PAYMENT_POLL_MAX_ATTEMPTS = 20;
+const LIVE_PREVIEW_PROBE_INTERVAL_MS = 500;
+const LIVE_PREVIEW_PROBE_MAX_ATTEMPTS = 10;
+
+function isProbeablePreviewUrl(url: string): boolean {
+  return url.startsWith("https://") && url.includes(".netlify.app");
+}
 
 function PaymentReturnScreen({
   mode,
@@ -550,6 +556,8 @@ function ClientWizardFlow() {
   const [siteAccessGranted, setSiteAccessGranted] = useState(false);
   const [showPromo, setShowPromo] = useState(false);
   const [promoInput, setPromoInput] = useState("");
+  const [livePreviewIframeSrc, setLivePreviewIframeSrc] = useState<string | null>(null);
+  const [livePreviewWarming, setLivePreviewWarming] = useState(false);
 
   const livePreviewUrl = pendingRedirectUrl ?? deployMeta?.demoUrl ?? previewUrl;
   const promoApplied = promoInput.trim().toLowerCase() === PROMO_CODE;
@@ -619,6 +627,61 @@ function ClientWizardFlow() {
       active = false;
     };
   }, [copy.sectors, deployMeta, name, pendingRedirectUrl, selSector, step]);
+
+  useEffect(() => {
+    if (step !== "s5" || !isProbeablePreviewUrl(livePreviewUrl)) {
+      setLivePreviewIframeSrc(null);
+      setLivePreviewWarming(false);
+      return;
+    }
+
+    let cancelled = false;
+    setLivePreviewIframeSrc(null);
+    setLivePreviewWarming(true);
+
+    const clientId = deployMeta?.clientId;
+
+    void (async () => {
+      for (let attempt = 0; attempt < LIVE_PREVIEW_PROBE_MAX_ATTEMPTS; attempt++) {
+        if (cancelled) {
+          return;
+        }
+
+        try {
+          const params = new URLSearchParams({ url: livePreviewUrl });
+          if (clientId) {
+            params.set("clientId", clientId);
+          }
+          const response = await fetch(`/api/preview-site-ready?${params.toString()}`);
+          if (response.ok) {
+            const data = (await response.json()) as { ready?: boolean };
+            if (data.ready) {
+              if (!cancelled) {
+                setLivePreviewIframeSrc(livePreviewUrl);
+                setLivePreviewWarming(false);
+              }
+              return;
+            }
+          }
+        } catch {
+          /* retry on next interval */
+        }
+
+        if (attempt < LIVE_PREVIEW_PROBE_MAX_ATTEMPTS - 1) {
+          await new Promise((resolve) => window.setTimeout(resolve, LIVE_PREVIEW_PROBE_INTERVAL_MS));
+        }
+      }
+
+      if (!cancelled) {
+        setLivePreviewIframeSrc(livePreviewUrl);
+        setLivePreviewWarming(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [deployMeta?.clientId, livePreviewUrl, step]);
 
   const goTo = useCallback((id: StepId) => {
     setStep(id);
@@ -700,6 +763,8 @@ function ClientWizardFlow() {
     setSiteAccessGranted(false);
     setShowPromo(false);
     setPromoInput("");
+    setLivePreviewIframeSrc(null);
+    setLivePreviewWarming(false);
     goTo("s1");
   }
 
@@ -955,13 +1020,21 @@ function ClientWizardFlow() {
             <div className="step-sub" id="s5-sub">
               {previewSub}
             </div>
-            <div className="preview-frame" style={{ padding: 0, overflow: "hidden" }}>
-              <iframe
-                title="Live Website+CRM preview"
-                src={livePreviewUrl}
-                className="wizard-live-preview"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-              />
+            <div className="preview-frame wizard-live-preview-frame" style={{ padding: 0, overflow: "hidden" }}>
+              {livePreviewWarming ? (
+                <div className="wizard-live-preview-loading" aria-live="polite">
+                  <div className="build-spinner" />
+                  <p>{copy.s5_preview_warming}</p>
+                </div>
+              ) : null}
+              {livePreviewIframeSrc ? (
+                <iframe
+                  title="Live Website+CRM preview"
+                  src={livePreviewIframeSrc}
+                  className="wizard-live-preview"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                />
+              ) : null}
             </div>
 
             <div className="step-sub" style={{ marginBottom: 16 }}>

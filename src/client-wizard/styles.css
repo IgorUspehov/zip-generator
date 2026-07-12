@@ -510,6 +510,30 @@
   background: #ffffff;
 }
 
+.wizard-live-preview-frame {
+  position: relative;
+  min-height: 420px;
+}
+
+.wizard-live-preview-loading {
+  display: flex;
+  min-height: 420px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #475569;
+  text-align: center;
+}
+
+.wizard-live-preview-loading p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .wizard-pay-actions {
   display: flex;
   flex-direction: column;
