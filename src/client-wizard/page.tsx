@@ -664,15 +664,9 @@ export function ClientWizardPage() {
         <div className={`card${step === "s4" && pendingRedirectUrl ? " card--wide" : ""}`}>
           {/* STEP 1 */}
           <div className={stepClass("s1")} id="s1">
-            <LogoBlock />
             <ProgressBar step="s1" />
             <div className="step-label">{copy.s1_label}</div>
-            <div className="step-h">{copy.s1_h}</div>
-            <div className="step-slogan" id="s1-slogan">
-              <span>{copy.no1}</span>
-              <span>{copy.no2}</span>
-              <span>{copy.no3}</span>
-            </div>
+            <div className="step-h">{copy.s1_intro}</div>
             <div className="field">
               <label className="inp-label" htmlFor="f-name">
                 {copy.lbl_name}
@@ -723,6 +717,12 @@ export function ClientWizardPage() {
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </button>
+            <Link href="/" className="btn-back">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 12H5M12 5l-7 7 7 7" />
+              </svg>
+              <span>{copy.btn_back}</span>
+            </Link>
           </div>
 
           {/* STEP 2 */}

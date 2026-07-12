@@ -4,11 +4,7 @@ export type Sector = { id: string; icon: string; label: string };
 
 export type CopyBundle = {
   s1_label: string;
-  s1_h: string;
-  s1_sub: string;
-  no1: string;
-  no2: string;
-  no3: string;
+  s1_intro: string;
   lbl_name: string;
   ph_name: string;
   lbl_biz: string;
@@ -42,11 +38,7 @@ export type CopyBundle = {
 const T: Record<UiLang, CopyBundle> = {
   en: {
     s1_label: "Step 1 of 3",
-    s1_h: "Let's build your MVP together.",
-    s1_sub: "No code. No developers. No AI.",
-    no1: "Without code",
-    no2: "Without developers",
-    no3: "Without AI",
+    s1_intro: "Fill out the questionnaire about yourself",
     lbl_name: "Your name",
     ph_name: "Anna Müller",
     lbl_biz: "Business name",
@@ -99,11 +91,7 @@ const T: Record<UiLang, CopyBundle> = {
   },
   de: {
     s1_label: "Schritt 1 von 3",
-    s1_h: "Wir bauen Ihr MVP gemeinsam.",
-    s1_sub: "Kein Code. Kein Entwickler. Keine KI.",
-    no1: "Ohne Code",
-    no2: "Ohne Entwickler",
-    no3: "Ohne KI",
+    s1_intro: "Fülle den Fragebogen über dich aus",
     lbl_name: "Ihr Name",
     ph_name: "Anna Müller",
     lbl_biz: "Unternehmensname",
@@ -156,11 +144,7 @@ const T: Record<UiLang, CopyBundle> = {
   },
   ru: {
     s1_label: "Шаг 1 из 3",
-    s1_h: "Делаем вместе ваш MVP.",
-    s1_sub: "Без кода. Без программиста. Без ИИ.",
-    no1: "Без кода",
-    no2: "Без программиста",
-    no3: "Без ИИ",
+    s1_intro: "Заполни опросник о себе",
     lbl_name: "Ваше имя",
     ph_name: "Анна Мюллер",
     lbl_biz: "Название бизнеса",
