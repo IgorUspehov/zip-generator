@@ -1057,11 +1057,50 @@ const PAGE_NAV = {
   settings: { icon: "⚙️", label: "Settings" },
 };
 
+const FIREBASE_WHATSAPP_NUMBER = "4915258400610";
+
+function pickTrimmed(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function resolveSiteUrlForWhatsApp(mvpUrl) {
+  const raw = pickTrimmed(mvpUrl);
+  if (!raw) {
+    return "";
+  }
+  try {
+    const url = new URL(raw);
+    url.searchParams.delete("clientId");
+    const pathname = url.pathname.replace(/\/$/, "");
+    return `${url.origin}${pathname}` || url.origin;
+  } catch {
+    return raw.split("?")[0] || raw;
+  }
+}
+
+function buildFirebaseWhatsAppUrl(language, { clientId, businessName, clientEmail, siteUrl }) {
+  const intros = {
+    ru: "Здравствуйте.\nХочу подключить облачное хранение для моей CRM Demo.",
+    en: "Hello.\nI'd like to connect cloud storage for my CRM Demo.",
+    de: "Hallo.\nIch möchte Cloud-Speicher für meine CRM Demo anschließen.",
+  };
+  const intro = intros[language] || intros.ru;
+  const details = [];
+  const id = pickTrimmed(clientId);
+  const business = pickTrimmed(businessName);
+  const mail = pickTrimmed(clientEmail);
+  const site = pickTrimmed(siteUrl);
+  if (id) details.push(`Client ID: ${id}`);
+  if (business) details.push(`Business: ${business}`);
+  if (mail) details.push(`Email: ${mail}`);
+  if (site) details.push(`Site: ${site}`);
+  const text = details.length > 0 ? `${intro}\n\n${details.join("\n")}` : intro;
+  return `https://wa.me/${FIREBASE_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+}
+
 export default function App() {
   const bootClientId = readClientIdFromLocation();
   const crmStorageId = bootClientId || "local-demo";
-  const CONTACT_EMAIL = "contact@mvpfactory.de";
-  const CONTACT_TELEGRAM = "@mvpfactory";
   const { theme, labels, demo, module_flags: flags, sections, dashboard_title, business_type_label, accent_tagline, hero_images: heroImages = [], gallery_images: galleryImages = [], gif_assets: gifAssets = [] } = domainUi;
   const [activeTab, setActiveTab] = useState("dashboard");
   const [language, setLanguage] = useState(
@@ -1372,7 +1411,6 @@ export default function App() {
   const [crmShowAddStaff, setCrmShowAddStaff] = useState(false);
   const [crmStaffForm, setCrmStaffForm] = useState({ name: "", role: "", status: "" });
   const displayStaff = crmStaffRecords;
-  const [showFirebaseCta, setShowFirebaseCta] = useState(false);
 
   function handleAddCrmStaff() {
     if (!crmStaffForm.name.trim()) return;
@@ -1518,6 +1556,15 @@ export default function App() {
     color: "#b91c1c",
     borderColor: "#fecaca",
   };
+  const openFirebaseWhatsAppChat = () => {
+    const whatsappUrl = buildFirebaseWhatsAppUrl(language, {
+      clientId: bootClientId,
+      businessName,
+      clientEmail: email,
+      siteUrl: resolveSiteUrlForWhatsApp(mvpUrl),
+    });
+    window.open(whatsappUrl, "_blank");
+  };
   const firebaseCtaPanel = (
     <section
       className="panel domain-section"
@@ -1530,7 +1577,7 @@ export default function App() {
       <p style={{ margin: "0 0 0.75rem", color: "#475569", fontSize: "0.92rem" }}>{t.firebaseCtaHint}</p>
       <button
         type="button"
-        onClick={() => setShowFirebaseCta(true)}
+        onClick={openFirebaseWhatsAppChat}
         style={{
           background: "var(--color-accent, #1d4ed8)",
           color: "#ffffff",
@@ -2256,66 +2303,6 @@ export default function App() {
           {city && <span>{city}</span>}
           <span>{email || labels.email}</span>
         </footer>
-
-        {showFirebaseCta && (
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="firebase-cta-title"
-            onClick={() => setShowFirebaseCta(false)}
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(15, 23, 42, 0.55)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "1.25rem",
-              zIndex: 9999,
-            }}
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                background: "#ffffff",
-                borderRadius: "16px",
-                padding: "1.5rem",
-                maxWidth: "440px",
-                width: "100%",
-                boxShadow: "0 20px 50px rgba(15, 23, 42, 0.25)",
-              }}
-            >
-              <h3 id="firebase-cta-title" style={{ margin: "0 0 0.75rem", fontSize: "1.15rem", color: "#0f172a" }}>
-                {t.firebaseModalTitle}
-              </h3>
-              <p style={{ margin: "0 0 1rem", color: "#475569", lineHeight: 1.55 }}>{t.firebaseModalBody}</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "1.25rem" }}>
-                <a href={`mailto:${CONTACT_EMAIL}`} style={{ color: "var(--color-accent, #1d4ed8)", fontWeight: 600, textDecoration: "none" }}>
-                  {t.firebaseContactEmail}: {CONTACT_EMAIL}
-                </a>
-                <a href={`https://t.me/${CONTACT_TELEGRAM.replace("@", "")}`} target="_blank" rel="noreferrer" style={{ color: "var(--color-accent, #1d4ed8)", fontWeight: 600, textDecoration: "none" }}>
-                  {t.firebaseContactTelegram}: {CONTACT_TELEGRAM}
-                </a>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowFirebaseCta(false)}
-                style={{
-                  background: "var(--color-accent, #1d4ed8)",
-                  color: "#ffffff",
-                  border: "none",
-                  borderRadius: "10px",
-                  padding: "0.6rem 1.1rem",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  width: "100%",
-                }}
-              >
-                {t.cancel}
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

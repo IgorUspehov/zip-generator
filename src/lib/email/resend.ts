@@ -8,15 +8,26 @@ export function resolveClientLanguage(value: unknown): ClientLanguage {
   return "en";
 }
 
+export type ResendAttachment = {
+  filename: string;
+  content: Buffer;
+};
+
 export async function sendResendEmail(input: {
   to: string;
   subject: string;
   text: string;
+  from?: string;
+  attachments?: ResendAttachment[];
 }): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM_EMAIL;
-  if (!apiKey || !from) {
-    console.warn("[email/resend] RESEND_API_KEY or RESEND_FROM_EMAIL is not configured");
+  const from = input.from ?? process.env.RESEND_FROM_EMAIL;
+  if (!apiKey) {
+    console.warn("[email/resend] RESEND_API_KEY is not configured");
+    return false;
+  }
+  if (!from) {
+    console.warn("[email/resend] from address is not configured");
     return false;
   }
 
@@ -31,6 +42,14 @@ export async function sendResendEmail(input: {
       to: [input.to],
       subject: input.subject,
       text: input.text,
+      ...(input.attachments?.length
+        ? {
+            attachments: input.attachments.map((attachment) => ({
+              filename: attachment.filename,
+              content: attachment.content.toString("base64"),
+            })),
+          }
+        : {}),
     }),
   });
 
