@@ -15,6 +15,7 @@ const CLIENT_DIST_MAX_AGE_MS = 7 * DAY_MS;
 const PENDING_DELETION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const TEMP_ZIP_MAX_AGE_MS = 60 * 60 * 1000;
 const MIN_FREE_SPACE_BYTES = 100 * 1024 * 1024;
+const CLIENT_DISTS_SIZE_LIMIT_BYTES = 200 * 1024 * 1024;
 const STORAGE_CHECK_INTERVAL_MS = 30 * 60 * 1000;
 
 export type PendingDeletionRecord = {
@@ -355,6 +356,8 @@ export function isEnospcError(error: unknown): boolean {
 function logStorageCleanup(
   result: StorageCleanupResult,
   diskBefore: { freeBytes: number; totalBytes: number },
+  aggressiveBySize = false,
+  clientDistsBytes = 0,
 ): void {
   const occupiedBeforeMb =
     diskBefore.totalBytes > 0
@@ -376,6 +379,12 @@ function logStorageCleanup(
   if (result.aggressive) {
     console.log("[storage] aggressive cleanup: enabled");
   }
+  if (aggressiveBySize) {
+    console.log(
+      "[storage] aggressive cleanup: client-dists exceeded limit",
+      formatMb(clientDistsBytes),
+    );
+  }
 }
 
 export function runStorageCleanup(options?: {
@@ -387,18 +396,21 @@ export function runStorageCleanup(options?: {
   maxClientDists?: number;
 }): StorageCleanupResult {
   const diskBefore = getDiskSpaceStats();
-  const aggressive = options?.aggressive ?? diskBefore.freeBytes < MIN_FREE_SPACE_BYTES;
+  const clientDistsDir = resolveClientDistsRoot();
+  const clientDistsBytes = getDirectorySizeBytes(clientDistsDir);
+  const aggressiveBySize = clientDistsBytes > CLIENT_DISTS_SIZE_LIMIT_BYTES;
+  const aggressive =
+    options?.aggressive ?? diskBefore.freeBytes < MIN_FREE_SPACE_BYTES || aggressiveBySize;
 
   const manifestMaxAgeMs = options?.manifestMaxAgeMs ?? (aggressive ? DAY_MS : MANIFEST_MAX_AGE_MS);
   const clientDistMaxAgeMs = options?.clientDistMaxAgeMs ?? (aggressive ? DAY_MS : CLIENT_DIST_MAX_AGE_MS);
   const pendingDeletionMaxAgeMs =
     options?.pendingDeletionMaxAgeMs ?? PENDING_DELETION_MAX_AGE_MS;
-  const maxManifests = options?.maxManifests ?? (aggressive ? 30 : 120);
-  const maxClientDists = options?.maxClientDists ?? (aggressive ? 8 : 25);
+  const maxManifests = options?.maxManifests ?? (aggressive ? 40 : 120);
+  const maxClientDists = options?.maxClientDists ?? (aggressive ? 4 : 25);
 
   const folderSizesBefore = getFolderSizes();
   const manifestsDir = resolveManifestsDir();
-  const clientDistsDir = resolveClientDistsRoot();
 
   const deletedManifests =
     pruneFilesByAge(manifestsDir, manifestMaxAgeMs, ".json") +
@@ -432,9 +444,10 @@ export function runStorageCleanup(options?: {
     deletedZipFiles > 0 ||
     deletedPendingDeletions > 0 ||
     aggressive ||
-    diskBefore.freeBytes < MIN_FREE_SPACE_BYTES
+    diskBefore.freeBytes < MIN_FREE_SPACE_BYTES ||
+    aggressiveBySize
   ) {
-    logStorageCleanup(result, diskBefore);
+    logStorageCleanup(result, diskBefore, aggressiveBySize, clientDistsBytes);
   }
 
   return result;
