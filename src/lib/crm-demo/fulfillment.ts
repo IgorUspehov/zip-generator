@@ -6,11 +6,13 @@ import { sendResendEmail } from "@/lib/email/resend";
 import { buildMvpRedirectUrl, loadClientManifest } from "@/lib/manifest/storage";
 import { deleteTempZipForClient, runStorageCleanup } from "@/lib/manifest/storage-manager";
 import { resolveTempZipPath } from "@/lib/manifest/storage-paths";
-import { findPendingByClientId } from "@/lib/netlify/scheduler";
-import { clientDistExists, resolveClientDistPath } from "@/lib/site-delivery/dist-store";
 import { buildCrmDemoZipBuffer, buildCrmDemoZipFilename, readManifestJson } from "@/lib/mvp-pro/zip-stream";
+import { findPendingByClientId } from "@/lib/netlify/scheduler";
+import { grantSiteDownloadAccess } from "@/lib/site-delivery/download-access";
+import { clientDistExists, resolveClientDistPath } from "@/lib/site-delivery/dist-store";
 
 const CRM_DEMO_SUBJECT = "Your CRM Demo is ready";
+const RESEND_MAX_ATTACHMENT_BYTES = 35 * 1024 * 1024;
 
 function pickString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
@@ -34,7 +36,12 @@ function resolveQuestionnaireEmail(manifest: Record<string, unknown> | null): st
   return pickString(contacts?.email);
 }
 
-function buildCrmDemoEmailText(siteUrl: string): string {
+function buildCrmDemoEmailText(siteUrl: string, downloadUrl?: string): string {
+  const zipNote = downloadUrl
+    ? `The ZIP archive is too large for email attachment. Download it here:
+${downloadUrl}`
+    : "The ZIP archive of your project is attached to this email.";
+
   return `Hello.
 
 Your CRM Demo has been successfully created.
@@ -42,9 +49,17 @@ Your CRM Demo has been successfully created.
 Website:
 ${siteUrl}
 
-The ZIP archive of your project is attached to this email.
+${zipNote}
 
 Thank you.`;
+}
+
+function resolveSiteBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
+  const domain = process.env.RAILWAY_PUBLIC_DOMAIN ?? "saas-mvp-funnel-production.up.railway.app";
+  return domain.startsWith("http") ? domain : `https://${domain}`;
 }
 
 export async function fulfillCrmDemoOrder(input: {
@@ -124,6 +139,7 @@ export async function fulfillCrmDemoOrder(input: {
 
   let zipAttached = false;
   let zipBytes = 0;
+  let downloadUrl: string | undefined;
   const attachments: { filename: string; content: Buffer }[] = [];
 
   if (!distReady) {
@@ -147,6 +163,16 @@ export async function fulfillCrmDemoOrder(input: {
           clientId: input.clientId,
           orderId: input.orderId,
           distPath,
+        });
+      } else if (zipBytes > RESEND_MAX_ATTACHMENT_BYTES) {
+        const token = grantSiteDownloadAccess(input.clientId);
+        downloadUrl = `${resolveSiteBaseUrl()}/api/download-site?clientId=${encodeURIComponent(input.clientId)}&token=${encodeURIComponent(token)}`;
+        console.error("[crm-demo] ZIP_TOO_LARGE", {
+          clientId: input.clientId,
+          orderId: input.orderId,
+          zipBytes,
+          maxBytes: RESEND_MAX_ATTACHMENT_BYTES,
+          downloadUrl,
         });
       } else {
         const tempZipPath = resolveTempZipPath(input.clientId);
@@ -184,7 +210,7 @@ export async function fulfillCrmDemoOrder(input: {
       from: resolveFromAddress(),
       to: recipient,
       subject: CRM_DEMO_SUBJECT,
-      text: buildCrmDemoEmailText(siteUrl),
+      text: buildCrmDemoEmailText(siteUrl, downloadUrl),
       attachments: attachments.length > 0 ? attachments : undefined,
       logPrefix: "[crm-demo] resend",
     });
