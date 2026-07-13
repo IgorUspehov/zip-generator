@@ -5,7 +5,7 @@ import { PassThrough, type Readable } from "node:stream";
 import fs from "fs";
 import path from "path";
 
-import { resolveManifestsDir } from "@/lib/manifest/storage";
+import { resolveManifestsDir } from "@/lib/manifest/storage-paths";
 
 const require = createRequire(import.meta.url);
 const createArchiver = require("archiver") as (

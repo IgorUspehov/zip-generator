@@ -4,6 +4,8 @@ import path from "path";
 import { isEnospcError, runStorageCleanup } from "@/lib/manifest/storage-manager";
 import { resolveManifestsDir } from "@/lib/manifest/storage-paths";
 
+export { resolveManifestsDir };
+
 function writeClientManifestFile(clientId: string, manifest: Record<string, unknown>): void {
   const dir = resolveManifestsDir();
   fs.mkdirSync(dir, { recursive: true });
