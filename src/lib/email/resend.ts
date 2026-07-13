@@ -315,13 +315,11 @@ export async function waitForResendDeliveryStatus(
       emailId,
       lastEvent: lastEvent || null,
       recipient: latest.recipient ?? null,
+      lookupOk: latest.ok,
+      lookupError: latest.error ?? null,
     });
 
-    if (!latest.ok) {
-      break;
-    }
-
-    if (lastEvent && TERMINAL_RESEND_EVENTS.has(lastEvent)) {
+    if (latest.ok && lastEvent && TERMINAL_RESEND_EVENTS.has(lastEvent)) {
       return latest;
     }
 

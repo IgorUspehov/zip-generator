@@ -137,6 +137,8 @@ async function sendAndVerifyResendEmail(input: {
 
   const deliveryStatus = await waitForResendDeliveryStatus(resendResult.emailId, {
     logPrefix: "[crm-demo] resend",
+    attempts: 6,
+    delayMs: 3000,
   });
   console.log("[crm-demo] resend delivery status=", {
     clientId: input.clientId,
@@ -157,7 +159,7 @@ async function sendAndVerifyResendEmail(input: {
       recipient: input.recipient,
       resendEmailId: resendResult.emailId,
       resendStatus: deliveryStatus.lastEvent ?? null,
-      reason: "RESEND_STATUS_UNKNOWN",
+      reason: deliveryStatus.error ?? "RESEND_STATUS_UNKNOWN",
     });
     return {
       emailSent: false,
