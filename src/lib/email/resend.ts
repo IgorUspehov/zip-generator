@@ -280,3 +280,55 @@ export async function getResendEmailStatus(
     subject: pickString(record?.subject) || undefined,
   };
 }
+
+const TERMINAL_RESEND_EVENTS = new Set([
+  "delivered",
+  "bounced",
+  "failed",
+  "suppressed",
+  "complained",
+]);
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+export async function waitForResendDeliveryStatus(
+  emailId: string,
+  options?: { attempts?: number; delayMs?: number; logPrefix?: string },
+): Promise<ResendEmailStatus> {
+  const attempts = options?.attempts ?? 4;
+  const delayMs = options?.delayMs ?? 2000;
+  const logPrefix = options?.logPrefix ?? "[email/resend]";
+
+  let latest: ResendEmailStatus = { ok: false, error: "status lookup not started" };
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    latest = await getResendEmailStatus(emailId, logPrefix);
+    const lastEvent = pickString(latest.lastEvent).toLowerCase();
+
+    console.log(`${logPrefix} delivery poll`, {
+      attempt,
+      attempts,
+      emailId,
+      lastEvent: lastEvent || null,
+      recipient: latest.recipient ?? null,
+    });
+
+    if (!latest.ok) {
+      break;
+    }
+
+    if (lastEvent && TERMINAL_RESEND_EVENTS.has(lastEvent)) {
+      return latest;
+    }
+
+    if (attempt < attempts) {
+      await sleep(delayMs);
+    }
+  }
+
+  return latest;
+}
