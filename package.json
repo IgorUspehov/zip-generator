@@ -168,6 +168,7 @@
     "niche-pipeline:validate": "npx tsx scripts/niche-pipeline-validator.mts",
     "niche:validate": "npx tsx scripts/niche-validator.mts",
     "verify:production-assets": "node scripts/verify-production-assets.mjs",
+    "storage:cleanup": "npx tsx scripts/run-storage-cleanup.mts",
     "build": "npm run image-library:bootstrap && npm run react-mvp:build && next build && npm run verify:production-assets",
     "build:railway": "next build",
     "build:railway:deploy": "npm run react-mvp:install && npm run react-mvp:build && next build",

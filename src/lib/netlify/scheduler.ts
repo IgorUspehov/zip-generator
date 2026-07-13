@@ -2,27 +2,26 @@ import fs from "fs";
 import path from "path";
 
 import { deleteNetlifySite } from "@/lib/netlify/deploy";
+import type { PendingDeletionRecord } from "@/lib/manifest/storage-manager";
+import { resolvePendingDeletionsPath } from "@/lib/manifest/storage-paths";
 
-const PENDING_DELETIONS_PATH = path.join(process.cwd(), "data/pending-deletions.json");
 const FORTY_EIGHT_HOURS_MS = 48 * 60 * 60 * 1000;
 const CHECK_INTERVAL_MS = 30 * 60 * 1000;
 
-export type PendingDeletion = {
-  siteId: string;
-  clientId: string;
-  siteUrl: string;
-  deployedAt: string;
-  deleteAt: string;
-  paid?: boolean;
-};
+export type PendingDeletion = PendingDeletionRecord;
+
+function getPendingDeletionsPath(): string {
+  return resolvePendingDeletionsPath();
+}
 
 function readPendingDeletions(): PendingDeletion[] {
-  if (!fs.existsSync(PENDING_DELETIONS_PATH)) {
+  const pendingDeletionsPath = getPendingDeletionsPath();
+  if (!fs.existsSync(pendingDeletionsPath)) {
     return [];
   }
 
   try {
-    const raw = JSON.parse(fs.readFileSync(PENDING_DELETIONS_PATH, "utf8")) as PendingDeletion[];
+    const raw = JSON.parse(fs.readFileSync(pendingDeletionsPath, "utf8")) as PendingDeletion[];
     return Array.isArray(raw) ? raw : [];
   } catch {
     return [];
@@ -30,8 +29,9 @@ function readPendingDeletions(): PendingDeletion[] {
 }
 
 function writePendingDeletions(entries: PendingDeletion[]): void {
-  fs.mkdirSync(path.dirname(PENDING_DELETIONS_PATH), { recursive: true });
-  fs.writeFileSync(PENDING_DELETIONS_PATH, `${JSON.stringify(entries, null, 2)}\n`, "utf8");
+  const pendingDeletionsPath = getPendingDeletionsPath();
+  fs.mkdirSync(path.dirname(pendingDeletionsPath), { recursive: true });
+  fs.writeFileSync(pendingDeletionsPath, `${JSON.stringify(entries, null, 2)}\n`, "utf8");
 }
 
 export function scheduleDeletion(entry: {

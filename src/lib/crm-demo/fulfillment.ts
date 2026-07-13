@@ -1,6 +1,11 @@
+import fs from "fs";
+import path from "path";
+
 import { markCrmDemoEmailSent } from "@/lib/crm-demo/delivery-status";
 import { sendResendEmail } from "@/lib/email/resend";
 import { loadClientManifest } from "@/lib/manifest/storage";
+import { deleteTempZipForClient, runStorageCleanup } from "@/lib/manifest/storage-manager";
+import { resolveTempZipPath } from "@/lib/manifest/storage-paths";
 import { findPendingByClientId } from "@/lib/netlify/scheduler";
 import { clientDistExists, resolveClientDistPath } from "@/lib/site-delivery/dist-store";
 import { buildCrmDemoZipBuffer, buildCrmDemoZipFilename, readManifestJson } from "@/lib/mvp-pro/zip-stream";
@@ -83,6 +88,9 @@ export async function fulfillCrmDemoOrder(input: {
         distPath,
         manifestJson,
       });
+      const tempZipPath = resolveTempZipPath(input.clientId);
+      fs.mkdirSync(path.dirname(tempZipPath), { recursive: true });
+      fs.writeFileSync(tempZipPath, zipBuffer);
       attachments.push({
         filename: buildCrmDemoZipFilename(input.clientId),
         content: zipBuffer,
@@ -139,6 +147,11 @@ export async function fulfillCrmDemoOrder(input: {
     orderId: input.orderId,
     zipAttached,
   });
+
+  if (zipAttached) {
+    deleteTempZipForClient(input.clientId);
+  }
+  runStorageCleanup();
 
   console.log("[crm-demo] fulfillment complete", {
     clientId: input.clientId,
