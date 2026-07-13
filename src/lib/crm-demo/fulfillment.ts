@@ -154,6 +154,7 @@ export async function fulfillCrmDemoOrder(input: {
       const zipBuffer = await buildCrmDemoZipBuffer({
         distPath,
         manifestJson,
+        forEmail: true,
       });
       zipBytes = zipBuffer.length;
       console.log("[crm-demo] zipBytes=", zipBytes);

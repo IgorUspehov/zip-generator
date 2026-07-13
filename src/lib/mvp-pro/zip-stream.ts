@@ -84,6 +84,7 @@ export function createCrmDemoZipStream(input: {
   distPath: string;
   manifestJson?: string;
   readmeContent?: string;
+  forEmail?: boolean;
 }): Readable {
   const archive = createArchiver("zip", { zlib: { level: 9 } });
   const stream = new PassThrough();
@@ -95,7 +96,11 @@ export function createCrmDemoZipStream(input: {
   archive.pipe(stream);
 
   if (fs.existsSync(input.distPath)) {
-    archive.directory(input.distPath, false);
+    if (input.forEmail) {
+      appendDistFilesForEmailZip(archive, input.distPath);
+    } else {
+      archive.directory(input.distPath, false);
+    }
   }
 
   archive.append(input.readmeContent ?? CRM_DEMO_README, { name: "README.txt" });
@@ -109,10 +114,31 @@ export function createCrmDemoZipStream(input: {
   return stream;
 }
 
+function shouldExcludeFromEmailZip(relativePath: string): boolean {
+  const normalized = relativePath.replace(/\\/g, "/");
+  return /\/gif\//i.test(normalized) || /\.gif$/i.test(normalized);
+}
+
+function appendDistFilesForEmailZip(archive: Archiver, distPath: string, basePath = ""): void {
+  for (const entry of fs.readdirSync(distPath, { withFileTypes: true })) {
+    const fullPath = path.join(distPath, entry.name);
+    const relativePath = path.posix.join(basePath, entry.name);
+    if (shouldExcludeFromEmailZip(relativePath)) {
+      continue;
+    }
+    if (entry.isDirectory()) {
+      appendDistFilesForEmailZip(archive, fullPath, relativePath);
+      continue;
+    }
+    archive.file(fullPath, { name: relativePath });
+  }
+}
+
 export async function buildCrmDemoZipBuffer(input: {
   distPath: string;
   manifestJson?: string;
   readmeContent?: string;
+  forEmail?: boolean;
 }): Promise<Buffer> {
   const stream = createCrmDemoZipStream(input);
   const chunks: Buffer[] = [];
