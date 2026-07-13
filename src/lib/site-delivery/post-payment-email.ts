@@ -86,7 +86,7 @@ export async function fulfillPaidSiteDelivery(input: {
     text: emailCopy.text,
     logPrefix: "[site-delivery] resend",
   });
-  const emailed = emailResult.ok;
+  const emailed = Boolean(emailResult.ok && emailResult.emailId);
 
   console.log("[site-delivery] post-payment email", {
     clientId: input.clientId,
@@ -97,6 +97,7 @@ export async function fulfillPaidSiteDelivery(input: {
     downloadUrl,
     distReady,
     emailed,
+    resendEmailId: emailResult.emailId ?? null,
     resendStatus: emailResult.status ?? null,
     resendError: emailResult.error ?? null,
   });

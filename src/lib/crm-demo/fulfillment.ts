@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 
 import { markCrmDemoEmailSent } from "@/lib/crm-demo/delivery-status";
-import { sendResendEmail } from "@/lib/email/resend";
+import { getResendEmailStatus, sendResendEmail } from "@/lib/email/resend";
 import { buildMvpRedirectUrl, loadClientManifest } from "@/lib/manifest/storage";
 import { deleteTempZipForClient, runStorageCleanup } from "@/lib/manifest/storage-manager";
 import { resolveTempZipPath } from "@/lib/manifest/storage-paths";
@@ -12,6 +12,7 @@ import { grantSiteDownloadAccess } from "@/lib/site-delivery/download-access";
 import { clientDistExists, resolveClientDistPath } from "@/lib/site-delivery/dist-store";
 
 const CRM_DEMO_SUBJECT = "Your CRM Demo is ready";
+const CRM_DEMO_DELIVERY_TEST_SUBJECT = "CRM Demo delivery test";
 const RESEND_MAX_ATTACHMENT_BYTES = 35 * 1024 * 1024;
 
 function pickString(value: unknown): string {
@@ -54,12 +55,270 @@ ${zipNote}
 Thank you.`;
 }
 
+function buildCrmDemoDeliveryTestText(siteUrl: string, downloadUrl: string): string {
+  return `Site: ${siteUrl}
+Download ZIP: ${downloadUrl}`;
+}
+
 function resolveSiteBaseUrl(): string {
   if (process.env.NEXT_PUBLIC_SITE_URL) {
     return process.env.NEXT_PUBLIC_SITE_URL;
   }
   const domain = process.env.RAILWAY_PUBLIC_DOMAIN ?? "saas-mvp-funnel-production.up.railway.app";
   return domain.startsWith("http") ? domain : `https://${domain}`;
+}
+
+function resolveDownloadUrl(clientId: string): string {
+  const token = grantSiteDownloadAccess(clientId);
+  return `${resolveSiteBaseUrl()}/api/download-site?clientId=${encodeURIComponent(clientId)}&token=${encodeURIComponent(token)}`;
+}
+
+type FulfillmentContext = {
+  clientId: string;
+  orderId?: string;
+  recipient: string;
+  siteUrl: string;
+  distPath: string;
+  distReady: boolean;
+};
+
+async function sendAndVerifyResendEmail(input: {
+  clientId: string;
+  orderId?: string;
+  recipient: string;
+  subject: string;
+  text: string;
+  attachments?: { filename: string; content: Buffer }[];
+}): Promise<{
+  emailSent: boolean;
+  resendEmailId?: string;
+  resendStatus?: string;
+  resendResponse?: {
+    httpStatus?: number;
+    body?: string;
+    error?: string;
+    errorName?: string;
+    errorMessage?: string;
+  };
+  error?: string;
+}> {
+  const resendResult = await sendResendEmail({
+    from: resolveFromAddress(),
+    to: input.recipient,
+    subject: input.subject,
+    text: input.text,
+    attachments: input.attachments,
+    logPrefix: "[crm-demo] resend",
+  });
+
+  const resendResponse = {
+    httpStatus: resendResult.status,
+    body: resendResult.body,
+    error: resendResult.error,
+    errorName: resendResult.errorName,
+    errorMessage: resendResult.errorMessage,
+  };
+
+  console.log("[crm-demo] resend response=", {
+    ok: resendResult.ok,
+    emailId: resendResult.emailId ?? null,
+    ...resendResponse,
+    from: resendResult.from ?? null,
+    to: resendResult.to ?? null,
+  });
+
+  if (!resendResult.ok || !resendResult.emailId) {
+    console.error("[crm-demo] EMAIL_SENT=false", {
+      clientId: input.clientId,
+      orderId: input.orderId,
+      recipient: input.recipient,
+      ...resendResponse,
+    });
+    return {
+      emailSent: false,
+      resendResponse,
+      error: resendResult.error ?? "RESEND_FAILED",
+    };
+  }
+
+  const deliveryStatus = await getResendEmailStatus(resendResult.emailId, "[crm-demo] resend");
+  console.log("[crm-demo] resend delivery status=", {
+    clientId: input.clientId,
+    emailId: resendResult.emailId,
+    lastEvent: deliveryStatus.lastEvent ?? null,
+    recipient: deliveryStatus.recipient ?? input.recipient,
+    httpStatus: deliveryStatus.status ?? null,
+    body: deliveryStatus.body ?? null,
+    error: deliveryStatus.error ?? null,
+  });
+
+  const blockedEvents = new Set(["bounced", "failed", "suppressed", "complained"]);
+  const lastEvent = pickString(deliveryStatus.lastEvent).toLowerCase();
+  if (lastEvent && blockedEvents.has(lastEvent)) {
+    console.error("[crm-demo] EMAIL_SENT=false", {
+      clientId: input.clientId,
+      orderId: input.orderId,
+      recipient: input.recipient,
+      resendEmailId: resendResult.emailId,
+      resendStatus: deliveryStatus.lastEvent,
+      reason: "RESEND_DELIVERY_FAILED",
+    });
+    return {
+      emailSent: false,
+      resendEmailId: resendResult.emailId,
+      resendStatus: deliveryStatus.lastEvent,
+      resendResponse,
+      error: `RESEND_DELIVERY_${lastEvent.toUpperCase()}`,
+    };
+  }
+
+  console.log("[crm-demo] EMAIL_SENT=true", {
+    clientId: input.clientId,
+    orderId: input.orderId,
+    recipient: input.recipient,
+    resendEmailId: resendResult.emailId,
+    resendStatus: deliveryStatus.lastEvent ?? "queued",
+  });
+
+  return {
+    emailSent: true,
+    resendEmailId: resendResult.emailId,
+    resendStatus: deliveryStatus.lastEvent ?? "queued",
+    resendResponse,
+  };
+}
+
+function resolveFulfillmentContext(input: {
+  clientId: string;
+  email?: string;
+  orderId?: string;
+}): {
+  context?: FulfillmentContext;
+  error?: string;
+  siteUrl?: string;
+  distReady: boolean;
+  zipAttached: boolean;
+  recipient?: string;
+} {
+  const manifest = loadClientManifest(input.clientId);
+  const manifestEmail = resolveQuestionnaireEmail(manifest as Record<string, unknown> | null);
+  const polarEmail = pickString(input.email);
+  const recipient = manifestEmail || polarEmail;
+
+  const pending = findPendingByClientId(input.clientId);
+  const siteUrl = pending?.siteUrl
+    ? buildMvpRedirectUrl(pending.siteUrl, input.clientId)
+    : undefined;
+  const distPath = resolveClientDistPath(input.clientId);
+  const distReady = clientDistExists(input.clientId);
+
+  console.log("[crm-demo] clientId=", input.clientId);
+  console.log("[crm-demo] recipient=", recipient || "(empty)");
+  console.log("[crm-demo] recipientSource=", manifestEmail ? "manifest.email" : polarEmail ? "polar.checkout" : "none");
+  console.log("[crm-demo] siteUrl=", siteUrl ?? "(missing)");
+  console.log("[crm-demo] pendingSiteUrl=", pending?.siteUrl ?? "(missing)");
+  console.log("[crm-demo] distPath=", distPath);
+  console.log("[crm-demo] distExists=", distReady);
+
+  if (!recipient) {
+    console.error("[crm-demo] EMAIL_MISSING", {
+      clientId: input.clientId,
+      orderId: input.orderId,
+      manifestEmail: manifestEmail || null,
+      polarEmail: polarEmail || null,
+    });
+    return { error: "EMAIL_MISSING", siteUrl, distReady, zipAttached: false };
+  }
+
+  if (!siteUrl) {
+    console.error("[crm-demo] SITE_URL_MISSING", {
+      clientId: input.clientId,
+      orderId: input.orderId,
+      pendingFound: Boolean(pending),
+    });
+    return { error: "SITE_URL_MISSING", distReady, zipAttached: false, recipient };
+  }
+
+  return {
+    context: {
+      clientId: input.clientId,
+      orderId: input.orderId,
+      recipient,
+      siteUrl,
+      distPath,
+      distReady,
+    },
+    distReady,
+    zipAttached: false,
+    recipient,
+    siteUrl,
+  };
+}
+
+export async function fulfillCrmDemoDeliveryTest(input: {
+  clientId: string;
+  email?: string;
+  orderId?: string;
+}): Promise<{
+  emailed: boolean;
+  emailSent: boolean;
+  siteUrl?: string;
+  downloadUrl?: string;
+  distReady: boolean;
+  zipAttached: boolean;
+  recipient?: string;
+  resendEmailId?: string;
+  resendStatus?: string;
+  resendResponse?: {
+    httpStatus?: number;
+    body?: string;
+    error?: string;
+    errorName?: string;
+    errorMessage?: string;
+  };
+  error?: string;
+}> {
+  console.log("[crm-demo] delivery test start", {
+    clientId: input.clientId,
+    orderId: input.orderId ?? null,
+    polarEmail: pickString(input.email) || null,
+  });
+
+  const resolved = resolveFulfillmentContext(input);
+  if (!resolved.context) {
+    return {
+      emailed: false,
+      emailSent: false,
+      siteUrl: resolved.siteUrl,
+      distReady: resolved.distReady,
+      zipAttached: false,
+      recipient: resolved.recipient,
+      error: resolved.error,
+    };
+  }
+
+  const downloadUrl = resolveDownloadUrl(resolved.context.clientId);
+  const sendResult = await sendAndVerifyResendEmail({
+    clientId: resolved.context.clientId,
+    orderId: resolved.context.orderId,
+    recipient: resolved.context.recipient,
+    subject: CRM_DEMO_DELIVERY_TEST_SUBJECT,
+    text: buildCrmDemoDeliveryTestText(resolved.context.siteUrl, downloadUrl),
+  });
+
+  return {
+    emailed: sendResult.emailSent,
+    emailSent: sendResult.emailSent,
+    siteUrl: resolved.context.siteUrl,
+    downloadUrl,
+    distReady: resolved.context.distReady,
+    zipAttached: false,
+    recipient: resolved.context.recipient,
+    resendEmailId: sendResult.resendEmailId,
+    resendStatus: sendResult.resendStatus,
+    resendResponse: sendResult.resendResponse,
+    error: sendResult.error,
+  };
 }
 
 export async function fulfillCrmDemoOrder(input: {
@@ -73,6 +332,15 @@ export async function fulfillCrmDemoOrder(input: {
   distReady: boolean;
   zipAttached: boolean;
   recipient?: string;
+  resendEmailId?: string;
+  resendStatus?: string;
+  resendResponse?: {
+    httpStatus?: number;
+    body?: string;
+    error?: string;
+    errorName?: string;
+    errorMessage?: string;
+  };
   error?: string;
 }> {
   console.log("[crm-demo] fulfillment start", {
@@ -83,76 +351,36 @@ export async function fulfillCrmDemoOrder(input: {
     resendFromConfigured: Boolean(process.env.RESEND_FROM_EMAIL?.trim()),
   });
 
-  const manifest = loadClientManifest(input.clientId);
-  const manifestEmail = resolveQuestionnaireEmail(manifest as Record<string, unknown> | null);
-  const polarEmail = pickString(input.email);
-  const recipient = manifestEmail || polarEmail;
-
-  console.log("[crm-demo] clientId=", input.clientId);
-  console.log("[crm-demo] recipient=", recipient || "(empty)");
-  console.log("[crm-demo] recipientSource=", manifestEmail ? "manifest.email" : polarEmail ? "polar.checkout" : "none");
-
-  const pending = findPendingByClientId(input.clientId);
-  const siteUrl = pending?.siteUrl
-    ? buildMvpRedirectUrl(pending.siteUrl, input.clientId)
-    : undefined;
-  const distPath = resolveClientDistPath(input.clientId);
-  const distReady = clientDistExists(input.clientId);
-
-  console.log("[crm-demo] siteUrl=", siteUrl ?? "(missing)");
-  console.log("[crm-demo] pendingSiteUrl=", pending?.siteUrl ?? "(missing)");
-  console.log("[crm-demo] distPath=", distPath);
-  console.log("[crm-demo] distExists=", distReady);
-
-  if (!recipient) {
-    console.error("[crm-demo] EMAIL_MISSING", {
-      clientId: input.clientId,
-      orderId: input.orderId,
-      manifestEmail: manifestEmail || null,
-      polarEmail: polarEmail || null,
-    });
+  const resolved = resolveFulfillmentContext(input);
+  if (!resolved.context) {
     return {
       emailed: false,
       emailSent: false,
-      siteUrl,
-      distReady,
+      siteUrl: resolved.siteUrl,
+      distReady: resolved.distReady,
       zipAttached: false,
-      error: "EMAIL_MISSING",
+      recipient: resolved.recipient,
+      error: resolved.error,
     };
   }
 
-  if (!siteUrl) {
-    console.error("[crm-demo] SITE_URL_MISSING", {
-      clientId: input.clientId,
-      orderId: input.orderId,
-      pendingFound: Boolean(pending),
-    });
-    return {
-      emailed: false,
-      emailSent: false,
-      distReady,
-      zipAttached: false,
-      recipient,
-      error: "SITE_URL_MISSING",
-    };
-  }
-
+  const { context } = resolved;
   let zipAttached = false;
   let zipBytes = 0;
   let downloadUrl: string | undefined;
-  const attachments: { filename: string; content: Buffer }[] = [];
+  let zipBuffer: Buffer | undefined;
 
-  if (!distReady) {
+  if (!context.distReady) {
     console.error("[crm-demo] DIST_MISSING", {
-      clientId: input.clientId,
-      orderId: input.orderId,
-      distPath,
+      clientId: context.clientId,
+      orderId: context.orderId,
+      distPath: context.distPath,
     });
   } else {
     try {
-      const manifestJson = readManifestJson(input.clientId);
-      const zipBuffer = await buildCrmDemoZipBuffer({
-        distPath,
+      const manifestJson = readManifestJson(context.clientId);
+      zipBuffer = await buildCrmDemoZipBuffer({
+        distPath: context.distPath,
         manifestJson,
         forEmail: true,
       });
@@ -161,66 +389,71 @@ export async function fulfillCrmDemoOrder(input: {
 
       if (zipBytes === 0) {
         console.error("[crm-demo] ZIP_EMPTY", {
-          clientId: input.clientId,
-          orderId: input.orderId,
-          distPath,
+          clientId: context.clientId,
+          orderId: context.orderId,
+          distPath: context.distPath,
         });
       } else if (zipBytes > RESEND_MAX_ATTACHMENT_BYTES) {
-        const token = grantSiteDownloadAccess(input.clientId);
-        downloadUrl = `${resolveSiteBaseUrl()}/api/download-site?clientId=${encodeURIComponent(input.clientId)}&token=${encodeURIComponent(token)}`;
+        downloadUrl = resolveDownloadUrl(context.clientId);
         console.error("[crm-demo] ZIP_TOO_LARGE", {
-          clientId: input.clientId,
-          orderId: input.orderId,
+          clientId: context.clientId,
+          orderId: context.orderId,
           zipBytes,
           maxBytes: RESEND_MAX_ATTACHMENT_BYTES,
           downloadUrl,
         });
       } else {
-        const tempZipPath = resolveTempZipPath(input.clientId);
+        const tempZipPath = resolveTempZipPath(context.clientId);
         fs.mkdirSync(path.dirname(tempZipPath), { recursive: true });
         fs.writeFileSync(tempZipPath, zipBuffer);
-        attachments.push({
-          filename: buildCrmDemoZipFilename(input.clientId),
-          content: zipBuffer,
-        });
         zipAttached = true;
       }
     } catch (error) {
       console.error("[crm-demo] ZIP_BUILD_FAILED", {
-        clientId: input.clientId,
-        orderId: input.orderId,
-        distPath,
+        clientId: context.clientId,
+        orderId: context.orderId,
+        distPath: context.distPath,
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
       });
     }
   }
 
+  const attachments =
+    zipAttached && zipBuffer
+      ? [
+          {
+            filename: buildCrmDemoZipFilename(context.clientId),
+            content: zipBuffer,
+          },
+        ]
+      : undefined;
+
   console.log("[crm-demo] resend start", {
-    clientId: input.clientId,
-    recipient,
+    clientId: context.clientId,
+    recipient: context.recipient,
     from: resolveFromAddress(),
     zipAttached,
     zipBytes,
     resendApiKeyConfigured: Boolean(process.env.RESEND_API_KEY?.trim()),
   });
 
-  let resendResult;
+  let sendResult;
   try {
-    resendResult = await sendResendEmail({
-      from: resolveFromAddress(),
-      to: recipient,
+    sendResult = await sendAndVerifyResendEmail({
+      clientId: context.clientId,
+      orderId: context.orderId,
+      recipient: context.recipient,
       subject: CRM_DEMO_SUBJECT,
-      text: buildCrmDemoEmailText(siteUrl, downloadUrl),
-      attachments: attachments.length > 0 ? attachments : undefined,
-      logPrefix: "[crm-demo] resend",
+      text: buildCrmDemoEmailText(context.siteUrl, downloadUrl),
+      attachments,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("[crm-demo] resend threw", {
-      clientId: input.clientId,
-      orderId: input.orderId,
-      recipient,
+      clientId: context.clientId,
+      orderId: context.orderId,
+      recipient: context.recipient,
       error: message,
       stack: error instanceof Error ? error.stack : undefined,
     });
@@ -228,76 +461,51 @@ export async function fulfillCrmDemoOrder(input: {
     return {
       emailed: false,
       emailSent: false,
-      siteUrl,
-      distReady,
+      siteUrl: context.siteUrl,
+      distReady: context.distReady,
       zipAttached,
-      recipient,
+      recipient: context.recipient,
       error: message,
     };
   }
 
-  console.log("[crm-demo] resend response=", {
-    ok: resendResult.ok,
-    status: resendResult.status ?? null,
-    body: resendResult.body ?? null,
-    error: resendResult.error ?? null,
-    from: resendResult.from ?? null,
-    resendApiKeyConfigured: resendResult.resendApiKeyConfigured,
-  });
-
-  if (!resendResult.ok) {
-    console.error("[crm-demo] EMAIL_SENT=false", {
-      clientId: input.clientId,
-      orderId: input.orderId,
-      recipient,
-      siteUrl,
-      distReady,
-      zipAttached,
-      zipBytes,
-      resendStatus: resendResult.status ?? null,
-      resendBody: resendResult.body ?? null,
-      resendError: resendResult.error ?? null,
-    });
+  if (!sendResult.emailSent) {
     return {
       emailed: false,
       emailSent: false,
-      siteUrl,
-      distReady,
+      siteUrl: context.siteUrl,
+      distReady: context.distReady,
       zipAttached,
-      recipient,
-      error: resendResult.error ?? "RESEND_FAILED",
+      recipient: context.recipient,
+      resendEmailId: sendResult.resendEmailId,
+      resendStatus: sendResult.resendStatus,
+      resendResponse: sendResult.resendResponse,
+      error: sendResult.error ?? "RESEND_FAILED",
     };
   }
 
   markCrmDemoEmailSent({
-    clientId: input.clientId,
-    recipient,
-    siteUrl,
-    orderId: input.orderId,
+    clientId: context.clientId,
+    recipient: context.recipient,
+    siteUrl: context.siteUrl,
+    orderId: context.orderId,
     zipAttached,
   });
 
   if (zipAttached) {
-    deleteTempZipForClient(input.clientId);
+    deleteTempZipForClient(context.clientId);
   }
   runStorageCleanup();
-
-  console.log("[crm-demo] EMAIL_SENT=true", {
-    clientId: input.clientId,
-    orderId: input.orderId,
-    recipient,
-    siteUrl,
-    distReady,
-    zipAttached,
-    zipBytes,
-  });
 
   return {
     emailed: true,
     emailSent: true,
-    siteUrl,
-    distReady,
+    siteUrl: context.siteUrl,
+    distReady: context.distReady,
     zipAttached,
-    recipient,
+    recipient: context.recipient,
+    resendEmailId: sendResult.resendEmailId,
+    resendStatus: sendResult.resendStatus,
+    resendResponse: sendResult.resendResponse,
   };
 }

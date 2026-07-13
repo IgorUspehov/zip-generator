@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { fulfillCrmDemoOrder } from "@/lib/crm-demo/fulfillment";
+import { fulfillCrmDemoDeliveryTest, fulfillCrmDemoOrder } from "@/lib/crm-demo/fulfillment";
 
 export const runtime = "nodejs";
 
@@ -20,6 +20,7 @@ type FulfillBody = {
   clientId?: string;
   email?: string;
   orderId?: string;
+  deliveryTest?: boolean;
 };
 
 export async function POST(request: NextRequest) {
@@ -45,12 +46,20 @@ export async function POST(request: NextRequest) {
       ? body.orderId.trim()
       : `manual-test-${Date.now()}`;
 
-  console.log("[crm-demo] manual fulfill request", { clientId, email: email ?? null, orderId });
+  console.log("[crm-demo] manual fulfill request", {
+    clientId,
+    email: email ?? null,
+    orderId,
+    deliveryTest: Boolean(body.deliveryTest),
+  });
 
-  const result = await fulfillCrmDemoOrder({ clientId, email, orderId });
+  const result = body.deliveryTest
+    ? await fulfillCrmDemoDeliveryTest({ clientId, email, orderId })
+    : await fulfillCrmDemoOrder({ clientId, email, orderId });
 
   return NextResponse.json({
     ok: result.emailSent,
+    EMAIL_SENT: result.emailSent,
     ...result,
   });
 }
