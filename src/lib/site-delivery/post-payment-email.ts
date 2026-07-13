@@ -2,6 +2,7 @@ import { sendResendEmail, resolveClientLanguage, type ClientLanguage } from "@/l
 import { buildMvpRedirectUrl, loadClientManifest } from "@/lib/manifest/storage";
 import { findPendingByClientId } from "@/lib/netlify/scheduler";
 import { grantSiteDownloadAccess } from "@/lib/site-delivery/download-access";
+import { markClientDistEmailDelivered } from "@/lib/site-delivery/dist-protection";
 import { clientDistExists } from "@/lib/site-delivery/dist-store";
 
 function pickString(value: unknown): string {
@@ -16,7 +17,7 @@ function resolveSiteBaseUrl(): string {
   return domain.startsWith("http") ? domain : `https://${domain}`;
 }
 
-function buildEmailCopy(language: ClientLanguage, siteUrl: string, downloadUrl: string) {
+function buildEmailCopy(language: ClientLanguage, siteUrl: string, downloadUrl?: string) {
   const subjects = {
     ru: "Ваш сайт готов",
     de: "Ihre Website ist bereit",
@@ -29,6 +30,16 @@ function buildEmailCopy(language: ClientLanguage, siteUrl: string, downloadUrl: 
     en: "Just in case — your site files if you ever want to move to another host:",
   } as const;
 
+  const zipFallback = {
+    ru: "Файлы сайта временно недоступны для скачивания. Обратитесь в поддержку, если вам нужен архив.",
+    de: "Die Website-Dateien sind vorübergehend nicht zum Download verfügbar. Kontaktieren Sie den Support, falls Sie ein Archiv benötigen.",
+    en: "Site files are temporarily unavailable for download. Contact support if you need an archive.",
+  } as const;
+
+  const zipSection = downloadUrl
+    ? `${zipNotes[language]}\n${downloadUrl}`
+    : zipFallback[language];
+
   const intros = {
     ru: "Оплата подтверждена. Ваш CRM Demo уже опубликован.",
     de: "Zahlung bestätigt. Ihr CRM Demo ist live.",
@@ -36,9 +47,9 @@ function buildEmailCopy(language: ClientLanguage, siteUrl: string, downloadUrl: 
   } as const;
 
   const bodies = {
-    ru: `${intros.ru}\n\nСайт:\n${siteUrl}\n\n${zipNotes.ru}\n${downloadUrl}`,
-    de: `${intros.de}\n\nWebsite:\n${siteUrl}\n\n${zipNotes.de}\n${downloadUrl}`,
-    en: `${intros.en}\n\nSite:\n${siteUrl}\n\n${zipNotes.en}\n${downloadUrl}`,
+    ru: `${intros.ru}\n\nСайт:\n${siteUrl}\n\n${zipSection}`,
+    de: `${intros.de}\n\nWebsite:\n${siteUrl}\n\n${zipSection}`,
+    en: `${intros.en}\n\nSite:\n${siteUrl}\n\n${zipSection}`,
   } as const;
 
   return {
@@ -76,9 +87,20 @@ export async function fulfillPaidSiteDelivery(input: {
     return { emailed: false, distReady };
   }
 
-  const token = grantSiteDownloadAccess(input.clientId);
+  if (!distReady) {
+    console.error("[site-delivery] DIST_MISSING", {
+      clientId: input.clientId,
+      orderId: input.orderId,
+    });
+  }
+
   const siteBaseUrl = resolveSiteBaseUrl();
-  const downloadUrl = `${siteBaseUrl}/api/download-site?clientId=${encodeURIComponent(input.clientId)}&token=${encodeURIComponent(token)}`;
+  const downloadUrl = distReady
+    ? (() => {
+        const token = grantSiteDownloadAccess(input.clientId);
+        return `${siteBaseUrl}/api/download-site?clientId=${encodeURIComponent(input.clientId)}&token=${encodeURIComponent(token)}`;
+      })()
+    : undefined;
   const emailCopy = buildEmailCopy(language, siteUrl, downloadUrl);
   const emailResult = await sendResendEmail({
     to: recipient,
@@ -87,6 +109,10 @@ export async function fulfillPaidSiteDelivery(input: {
     logPrefix: "[site-delivery] resend",
   });
   const emailed = Boolean(emailResult.ok && emailResult.emailId);
+
+  if (emailed && distReady) {
+    markClientDistEmailDelivered(input.clientId);
+  }
 
   console.log("[site-delivery] post-payment email", {
     clientId: input.clientId,

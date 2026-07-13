@@ -4,6 +4,7 @@ import { buildMvpRedirectUrl, loadClientManifest } from "@/lib/manifest/storage"
 import { runStorageCleanup } from "@/lib/manifest/storage-manager";
 import { findPendingByClientId } from "@/lib/netlify/scheduler";
 import { grantSiteDownloadAccess } from "@/lib/site-delivery/download-access";
+import { markClientDistEmailDelivered } from "@/lib/site-delivery/dist-protection";
 import { clientDistExists, resolveClientDistPath } from "@/lib/site-delivery/dist-store";
 
 const CRM_DEMO_SUBJECT = "Your CRM Demo is ready";
@@ -331,14 +332,31 @@ export async function fulfillCrmDemoDeliveryTest(input: {
     };
   }
 
-  const downloadUrl = resolveDownloadUrl(resolved.context.clientId);
+  if (!resolved.context.distReady) {
+    console.error("[crm-demo] DIST_MISSING", {
+      clientId: resolved.context.clientId,
+      orderId: resolved.context.orderId,
+      distPath: resolved.context.distPath,
+    });
+  }
+
+  const downloadUrl = resolved.context.distReady
+    ? resolveDownloadUrl(resolved.context.clientId)
+    : undefined;
   const sendResult = await sendAndVerifyResendEmail({
     clientId: resolved.context.clientId,
     orderId: resolved.context.orderId,
     recipient: resolved.context.recipient,
     subject: CRM_DEMO_DELIVERY_TEST_SUBJECT,
-    text: buildCrmDemoDeliveryTestText(resolved.context.siteUrl, downloadUrl),
+    text: buildCrmDemoDeliveryTestText(
+      resolved.context.siteUrl,
+      downloadUrl ?? "(download unavailable — site files not ready)",
+    ),
   });
+
+  if (sendResult.emailSent && resolved.context.distReady) {
+    markClientDistEmailDelivered(resolved.context.clientId);
+  }
 
   return {
     emailed: sendResult.emailSent,
@@ -399,6 +417,14 @@ export async function fulfillCrmDemoOrder(input: {
   }
 
   const { context } = resolved;
+  if (!context.distReady) {
+    console.error("[crm-demo] DIST_MISSING", {
+      clientId: context.clientId,
+      orderId: context.orderId,
+      distPath: context.distPath,
+    });
+  }
+
   const downloadUrl = context.distReady ? resolveDownloadUrl(context.clientId) : undefined;
 
   console.log("[crm-demo] resend start", {
@@ -462,6 +488,10 @@ export async function fulfillCrmDemoOrder(input: {
     orderId: context.orderId,
     zipAttached: false,
   });
+
+  if (context.distReady) {
+    markClientDistEmailDelivered(context.clientId);
+  }
 
   runStorageCleanup();
 

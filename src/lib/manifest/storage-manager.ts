@@ -2,6 +2,8 @@ import fs from "fs";
 import path from "path";
 
 import { resolveClientDistsRoot } from "@/lib/site-delivery/dist-store";
+import { listActiveProtectedClientIds, pruneExpiredProtectionRecords } from "@/lib/site-delivery/dist-protection";
+import { pruneExpiredDownloadAccessRecords } from "@/lib/site-delivery/download-access";
 import { resolvePersistentDataDir } from "@/lib/site-delivery/data-dir";
 import {
   resolveManifestsDir,
@@ -180,7 +182,7 @@ function pruneFilesByAge(dir: string, maxAgeMs: number, extension?: string): num
   return removed;
 }
 
-function pruneDirectoriesByAge(dir: string, maxAgeMs: number): number {
+function pruneDirectoriesByAge(dir: string, maxAgeMs: number, protectedClientIds: Set<string>): number {
   if (!fs.existsSync(dir)) {
     return 0;
   }
@@ -189,6 +191,10 @@ function pruneDirectoriesByAge(dir: string, maxAgeMs: number): number {
   let removed = 0;
 
   for (const entry of fs.readdirSync(dir)) {
+    if (protectedClientIds.has(entry)) {
+      continue;
+    }
+
     const fullPath = path.join(dir, entry);
     const stat = safeStat(fullPath);
     if (!stat?.isDirectory()) {
@@ -243,7 +249,7 @@ function pruneNewestOverflow(dir: string, keepCount: number, extension?: string)
   return removed;
 }
 
-function pruneDirectoryOverflow(dir: string, keepCount: number): number {
+function pruneDirectoryOverflow(dir: string, keepCount: number, protectedClientIds: Set<string>): number {
   if (!fs.existsSync(dir)) {
     return 0;
   }
@@ -256,13 +262,17 @@ function pruneDirectoryOverflow(dir: string, keepCount: number): number {
       if (!stat?.isDirectory()) {
         return null;
       }
-      return { fullPath, mtimeMs: stat.mtimeMs };
+      return { name, fullPath, mtimeMs: stat.mtimeMs, protected: protectedClientIds.has(name) };
     })
-    .filter((item): item is { fullPath: string; mtimeMs: number } => item !== null)
+    .filter((item): item is { name: string; fullPath: string; mtimeMs: number; protected: boolean } => item !== null)
     .sort((a, b) => b.mtimeMs - a.mtimeMs);
 
+  const unprotected = directories.filter((directory) => !directory.protected);
+  const protectedCount = directories.length - unprotected.length;
+  const allowedUnprotected = Math.max(keepCount - protectedCount, 0);
+
   let removed = 0;
-  for (const directory of directories.slice(keepCount)) {
+  for (const directory of unprotected.slice(allowedUnprotected)) {
     try {
       fs.rmSync(directory.fullPath, { recursive: true, force: true });
       removed += 1;
@@ -411,13 +421,16 @@ export function runStorageCleanup(options?: {
 
   const folderSizesBefore = getFolderSizes();
   const manifestsDir = resolveManifestsDir();
+  const protectedClientIds = listActiveProtectedClientIds();
+  pruneExpiredProtectionRecords();
+  pruneExpiredDownloadAccessRecords();
 
   const deletedManifests =
     pruneFilesByAge(manifestsDir, manifestMaxAgeMs, ".json") +
     pruneNewestOverflow(manifestsDir, maxManifests, ".json");
   const deletedClientDists =
-    pruneDirectoriesByAge(clientDistsDir, clientDistMaxAgeMs) +
-    pruneDirectoryOverflow(clientDistsDir, maxClientDists);
+    pruneDirectoriesByAge(clientDistsDir, clientDistMaxAgeMs, protectedClientIds) +
+    pruneDirectoryOverflow(clientDistsDir, maxClientDists, protectedClientIds);
   const deletedZipFiles = aggressive
     ? pruneTempZipFiles(0)
     : pruneTempZipFiles(TEMP_ZIP_MAX_AGE_MS);

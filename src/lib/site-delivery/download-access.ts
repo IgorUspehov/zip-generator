@@ -4,10 +4,20 @@ import path from "path";
 
 import { resolvePersistentDataDir } from "@/lib/site-delivery/data-dir";
 
-type SiteDownloadAccess = {
+const DAY_MS = 24 * 60 * 60 * 1000;
+export const DOWNLOAD_TOKEN_TTL_MS = 7 * DAY_MS;
+
+export type SiteDownloadAccess = {
   clientId: string;
   token: string;
   grantedAt: string;
+  expiresAt: string;
+};
+
+export type DownloadAccessVerification = {
+  allowed: boolean;
+  tokenMatch: boolean;
+  tokenExpired: boolean;
 };
 
 const ACCESS_PATH = () => path.join(resolvePersistentDataDir(), "site-download-access.json");
@@ -32,19 +42,66 @@ function writeAccessRecords(records: SiteDownloadAccess[]): void {
   fs.writeFileSync(filePath, `${JSON.stringify(records, null, 2)}\n`, "utf8");
 }
 
+function pruneExpiredAccessRecords(records: SiteDownloadAccess[]): SiteDownloadAccess[] {
+  const now = Date.now();
+  return records.filter((record) => {
+    const expiresAtMs = new Date(record.expiresAt).getTime();
+    return Number.isFinite(expiresAtMs) && expiresAtMs > now;
+  });
+}
+
+function loadActiveAccessRecords(): SiteDownloadAccess[] {
+  const records = pruneExpiredAccessRecords(readAccessRecords());
+  if (records.length !== readAccessRecords().length) {
+    writeAccessRecords(records);
+  }
+  return records;
+}
+
+export function pruneExpiredDownloadAccessRecords(): number {
+  const before = readAccessRecords();
+  const after = pruneExpiredAccessRecords(before);
+  const removed = before.length - after.length;
+  if (removed > 0) {
+    writeAccessRecords(after);
+  }
+  return removed;
+}
+
 export function grantSiteDownloadAccess(clientId: string): string {
   const token = randomUUID();
-  const records = readAccessRecords().filter((item) => item.clientId !== clientId);
+  const grantedAt = new Date();
+  const expiresAt = new Date(grantedAt.getTime() + DOWNLOAD_TOKEN_TTL_MS);
+
+  const records = loadActiveAccessRecords();
   records.push({
     clientId,
     token,
-    grantedAt: new Date().toISOString(),
+    grantedAt: grantedAt.toISOString(),
+    expiresAt: expiresAt.toISOString(),
   });
   writeAccessRecords(records);
   return token;
 }
 
-export function verifySiteDownloadAccess(clientId: string, token: string): boolean {
-  const record = readAccessRecords().find((item) => item.clientId === clientId);
-  return Boolean(record && record.token === token);
+export function verifySiteDownloadAccess(clientId: string, token: string): DownloadAccessVerification {
+  const records = loadActiveAccessRecords();
+  const match = records.find((record) => record.clientId === clientId && record.token === token);
+
+  if (!match) {
+    return {
+      allowed: false,
+      tokenMatch: false,
+      tokenExpired: false,
+    };
+  }
+
+  const expiresAtMs = new Date(match.expiresAt).getTime();
+  const tokenExpired = !Number.isFinite(expiresAtMs) || expiresAtMs <= Date.now();
+
+  return {
+    allowed: !tokenExpired,
+    tokenMatch: true,
+    tokenExpired,
+  };
 }

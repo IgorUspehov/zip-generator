@@ -10,6 +10,7 @@ import {
 } from "@/lib/polar/order-context";
 import { resolvePolarProductKind } from "@/lib/polar/product-match";
 import { cancelDeletion, findPendingByClientId } from "@/lib/netlify/scheduler";
+import { markClientDistPaid } from "@/lib/site-delivery/dist-protection";
 import { fulfillPaidSiteDelivery } from "@/lib/site-delivery/post-payment-email";
 import { saveCheckoutReference } from "@/lib/polar/checkout-reference-store";
 
@@ -92,6 +93,7 @@ export const POST = Webhooks({
 
       if (kind === "crm_demo") {
         console.log("[polar] routing to fulfillCrmDemoOrder", { clientId, email, orderId });
+        markClientDistPaid(clientId);
         const delivery = await fulfillCrmDemoOrder({ clientId, email, orderId });
         console.log("[polar] fulfillCrmDemoOrder result", { clientId, orderId, ...delivery });
         return;
