@@ -13,22 +13,37 @@ export type ResendAttachment = {
   content: Buffer;
 };
 
+export type ResendSendResult = {
+  ok: boolean;
+  status?: number;
+  body?: string;
+  error?: string;
+  from?: string;
+  resendApiKeyConfigured: boolean;
+};
+
 export async function sendResendEmail(input: {
   to: string;
   subject: string;
   text: string;
   from?: string;
   attachments?: ResendAttachment[];
-}): Promise<boolean> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = input.from ?? process.env.RESEND_FROM_EMAIL;
+  logPrefix?: string;
+}): Promise<ResendSendResult> {
+  const logPrefix = input.logPrefix ?? "[email/resend]";
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const from = input.from ?? process.env.RESEND_FROM_EMAIL?.trim();
+  const resendApiKeyConfigured = Boolean(apiKey);
+
   if (!apiKey) {
-    console.warn("[email/resend] RESEND_API_KEY is not configured");
-    return false;
+    const error = "RESEND_API_KEY is not configured";
+    console.error(`${logPrefix} ${error}`);
+    return { ok: false, error, resendApiKeyConfigured };
   }
   if (!from) {
-    console.warn("[email/resend] from address is not configured");
-    return false;
+    const error = "from address is not configured";
+    console.error(`${logPrefix} ${error}`);
+    return { ok: false, error, from, resendApiKeyConfigured };
   }
 
   const response = await fetch("https://api.resend.com/emails", {
@@ -53,11 +68,31 @@ export async function sendResendEmail(input: {
     }),
   });
 
+  const body = await response.text();
+
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error("[email/resend] send failed", { status: response.status, errorText });
-    return false;
+    const error = `Resend API error (${response.status}): ${body}`;
+    console.error(`${logPrefix} send failed`, {
+      status: response.status,
+      body,
+      to: input.to,
+      from,
+    });
+    return {
+      ok: false,
+      status: response.status,
+      body,
+      error,
+      from,
+      resendApiKeyConfigured,
+    };
   }
 
-  return true;
+  return {
+    ok: true,
+    status: response.status,
+    body,
+    from,
+    resendApiKeyConfigured,
+  };
 }

@@ -3,12 +3,15 @@ import { Webhooks } from "@polar-sh/nextjs";
 import { fulfillCrmDemoOrder } from "@/lib/crm-demo/fulfillment";
 import { fulfillCrmFullOrder } from "@/lib/crm-full/fulfillment";
 import { fulfillMvpProOrder } from "@/lib/mvp-pro/fulfillment";
+import {
+  resolveOrderClientId,
+  resolveOrderEmail,
+  resolveOrderId,
+} from "@/lib/polar/order-context";
+import { resolvePolarProductKind } from "@/lib/polar/product-match";
 import { cancelDeletion, findPendingByClientId } from "@/lib/netlify/scheduler";
 import { fulfillPaidSiteDelivery } from "@/lib/site-delivery/post-payment-email";
-import {
-  pickReferenceId,
-  saveCheckoutReference,
-} from "@/lib/polar/checkout-reference-store";
+import { saveCheckoutReference } from "@/lib/polar/checkout-reference-store";
 
 function extractSiteId(clientId: string | null): string | null {
   if (!clientId) return null;
@@ -20,21 +23,35 @@ export const POST = Webhooks({
   onCheckoutUpdated: async (payload) => {
     const checkout = payload.data as Record<string, unknown>;
     const checkoutId = typeof checkout.id === "string" ? checkout.id : null;
-    const clientId = pickReferenceId(checkout);
+    const clientId = resolveOrderClientId(checkout);
 
     if (checkoutId && clientId) {
       saveCheckoutReference(checkoutId, clientId);
+      console.log("[polar] checkout.updated reference saved", { checkoutId, clientId });
     }
   },
   onOrderPaid: async (payload) => {
     const order = payload.data as Record<string, unknown>;
-    const product = order.product as { name?: string } | undefined;
-    const productName = String(product?.name ?? "").trim();
-    const clientId = pickReferenceId(order);
-    const customer = order.customer as { email?: string } | undefined;
-    const email = customer?.email;
-    const orderId = order.id as string | undefined;
-    const checkoutId = typeof order.checkoutId === "string" ? order.checkoutId : null;
+    const { kind, productId, productName } = resolvePolarProductKind(order);
+    const clientId = resolveOrderClientId(order);
+    const email = resolveOrderEmail(order);
+    const orderId = resolveOrderId(order);
+    const checkoutId =
+      typeof order.checkoutId === "string"
+        ? order.checkoutId
+        : typeof order.checkout_id === "string"
+          ? order.checkout_id
+          : null;
+
+    console.log("[polar] order.paid received", {
+      orderId,
+      checkoutId,
+      clientId,
+      email: email || null,
+      productId: productId || null,
+      productName: productName || null,
+      productKind: kind,
+    });
 
     if (checkoutId && clientId) {
       saveCheckoutReference(checkoutId, clientId);
@@ -46,22 +63,57 @@ export const POST = Webhooks({
     }
 
     if (!clientId) {
-      console.warn("[polar-webhook] order.paid without clientId/reference_id", { orderId, productName });
+      console.error("[polar] order.paid missing clientId/reference_id", {
+        orderId,
+        checkoutId,
+        productId,
+        productName,
+        productKind: kind,
+      });
       return;
     }
 
-    if (productName === "Recurring") {
-      await fulfillMvpProOrder({ clientId, email: email ?? "", orderId, variantId: "polar_recurring" });
-    } else if (productName === "CRM Full") {
-      await fulfillCrmFullOrder({ clientId, email, orderId, variantId: "polar_crm_full" });
+    try {
+      if (kind === "recurring") {
+        await fulfillMvpProOrder({
+          clientId,
+          email: email || "",
+          orderId,
+          variantId: "polar_recurring",
+        });
+        return;
+      }
+
+      if (kind === "crm_full") {
+        await fulfillCrmFullOrder({ clientId, email, orderId, variantId: "polar_crm_full" });
+        await fulfillPaidSiteDelivery({ clientId, email, orderId, productName });
+        return;
+      }
+
+      if (kind === "crm_demo") {
+        console.log("[polar] routing to fulfillCrmDemoOrder", { clientId, email, orderId });
+        const delivery = await fulfillCrmDemoOrder({ clientId, email, orderId });
+        console.log("[polar] fulfillCrmDemoOrder result", { clientId, orderId, ...delivery });
+        return;
+      }
+
+      console.error("[polar] unknown product on order.paid", {
+        productName,
+        productId,
+        clientId,
+        orderId,
+      });
       await fulfillPaidSiteDelivery({ clientId, email, orderId, productName });
-    } else if (productName === "CRM Demo") {
-      console.log("[polar-webhook] CRM Demo paid", { clientId, email, orderId });
-      const delivery = await fulfillCrmDemoOrder({ clientId, email, orderId });
-      console.log("[polar-webhook] CRM Demo fulfillment", { clientId, orderId, ...delivery });
-    } else {
-      console.warn("[polar-webhook] unknown product on order.paid", { productName, clientId, orderId });
-      await fulfillPaidSiteDelivery({ clientId, email, orderId, productName });
+    } catch (error) {
+      console.error("[polar] order.paid handler failed", {
+        clientId,
+        orderId,
+        productName,
+        productId,
+        productKind: kind,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
     }
   },
 });

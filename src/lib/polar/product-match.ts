@@ -1,0 +1,44 @@
+import {
+  POLAR_PRODUCT_CRM_DEMO,
+  POLAR_PRODUCT_CRM_FULL,
+  POLAR_PRODUCT_RECURRING,
+} from "@/lib/polar/constants";
+
+export type PolarProductKind = "crm_demo" | "crm_full" | "recurring" | "unknown";
+
+function pickString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export function resolvePolarProductKind(order: Record<string, unknown>): {
+  kind: PolarProductKind;
+  productId: string;
+  productName: string;
+} {
+  const product = order.product as { id?: string; name?: string } | undefined;
+  const productId = pickString(order.productId ?? order.product_id ?? product?.id);
+  const productName = pickString(product?.name);
+
+  if (productId === POLAR_PRODUCT_CRM_DEMO) {
+    return { kind: "crm_demo", productId, productName };
+  }
+  if (productId === POLAR_PRODUCT_CRM_FULL) {
+    return { kind: "crm_full", productId, productName };
+  }
+  if (productId === POLAR_PRODUCT_RECURRING) {
+    return { kind: "recurring", productId, productName };
+  }
+
+  const nameLower = productName.toLowerCase();
+  if (nameLower.includes("crm demo")) {
+    return { kind: "crm_demo", productId, productName };
+  }
+  if (nameLower.includes("crm full")) {
+    return { kind: "crm_full", productId, productName };
+  }
+  if (productName === "Recurring" || nameLower.includes("recurring")) {
+    return { kind: "recurring", productId, productName };
+  }
+
+  return { kind: "unknown", productId, productName };
+}

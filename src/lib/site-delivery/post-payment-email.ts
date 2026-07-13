@@ -1,5 +1,5 @@
 import { sendResendEmail, resolveClientLanguage, type ClientLanguage } from "@/lib/email/resend";
-import { loadClientManifest } from "@/lib/manifest/storage";
+import { buildMvpRedirectUrl, loadClientManifest } from "@/lib/manifest/storage";
 import { findPendingByClientId } from "@/lib/netlify/scheduler";
 import { grantSiteDownloadAccess } from "@/lib/site-delivery/download-access";
 import { clientDistExists } from "@/lib/site-delivery/dist-store";
@@ -61,7 +61,9 @@ export async function fulfillPaidSiteDelivery(input: {
     pickString((manifest?.client_contacts as Record<string, unknown> | undefined)?.email);
 
   const pending = findPendingByClientId(input.clientId);
-  const siteUrl = pending?.siteUrl;
+  const siteUrl = pending?.siteUrl
+    ? buildMvpRedirectUrl(pending.siteUrl, input.clientId)
+    : undefined;
   const distReady = clientDistExists(input.clientId);
 
   if (!recipient) {
@@ -78,11 +80,13 @@ export async function fulfillPaidSiteDelivery(input: {
   const siteBaseUrl = resolveSiteBaseUrl();
   const downloadUrl = `${siteBaseUrl}/api/download-site?clientId=${encodeURIComponent(input.clientId)}&token=${encodeURIComponent(token)}`;
   const emailCopy = buildEmailCopy(language, siteUrl, downloadUrl);
-  const emailed = await sendResendEmail({
+  const emailResult = await sendResendEmail({
     to: recipient,
     subject: emailCopy.subject,
     text: emailCopy.text,
+    logPrefix: "[site-delivery] resend",
   });
+  const emailed = emailResult.ok;
 
   console.log("[site-delivery] post-payment email", {
     clientId: input.clientId,
@@ -93,6 +97,8 @@ export async function fulfillPaidSiteDelivery(input: {
     downloadUrl,
     distReady,
     emailed,
+    resendStatus: emailResult.status ?? null,
+    resendError: emailResult.error ?? null,
   });
 
   return { emailed, siteUrl, downloadUrl, distReady };

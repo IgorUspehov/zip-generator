@@ -744,7 +744,7 @@ function ClientWizardFlow() {
         if (data.redirectUrl) {
           setPendingRedirectUrl(data.redirectUrl);
           setDeployMeta({
-            demoUrl: data.siteUrl || data.redirectUrl,
+            demoUrl: data.redirectUrl,
             siteId: data.siteId,
             clientId: data.clientId,
           });

@@ -400,7 +400,7 @@ export function runStorageCleanup(options?: {
   const clientDistsBytes = getDirectorySizeBytes(clientDistsDir);
   const aggressiveBySize = clientDistsBytes > CLIENT_DISTS_SIZE_LIMIT_BYTES;
   const aggressive =
-    options?.aggressive ?? diskBefore.freeBytes < MIN_FREE_SPACE_BYTES || aggressiveBySize;
+    options?.aggressive ?? (diskBefore.freeBytes < MIN_FREE_SPACE_BYTES || aggressiveBySize);
 
   const manifestMaxAgeMs = options?.manifestMaxAgeMs ?? (aggressive ? DAY_MS : MANIFEST_MAX_AGE_MS);
   const clientDistMaxAgeMs = options?.clientDistMaxAgeMs ?? (aggressive ? DAY_MS : CLIENT_DIST_MAX_AGE_MS);

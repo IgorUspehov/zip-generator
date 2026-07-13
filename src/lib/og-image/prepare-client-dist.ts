@@ -28,19 +28,24 @@ function formatBusinessTypeLabel(businessType: string): string {
     .join(" ");
 }
 
-function patchClientIndexHtml(stagingDir: string, manifest: ManifestLike, siteUrl?: string): void {
+function patchClientIndexHtml(
+  stagingDir: string,
+  manifest: ManifestLike,
+  siteUrl?: string,
+  clientId?: string,
+): void {
   const indexPath = path.join(stagingDir, "index.html");
   if (!fs.existsSync(indexPath)) {
     console.warn("[og-image] index.html not found in staging dist:", indexPath);
     return;
   }
 
-  const businessName = String(manifest.businessName ?? "MVP Factory");
+  const businessName = String(manifest.businessName ?? "CRM Demo");
   const businessType = String(manifest.businessType ?? "generic");
   const typeLabel = formatBusinessTypeLabel(businessType);
   const title = `${businessName} — ${typeLabel}`;
   const ogTitle = businessName;
-  const ogDescription = `Your personal MVP for ${businessName} — ready in minutes`;
+  const ogDescription = `CRM Demo for ${businessName} — ready in minutes`;
   const ogImageRelative = getOgImagePath(businessType);
   const ogImageUrl = siteUrl ? `${siteUrl}${ogImageRelative}` : ogImageRelative;
 
@@ -74,6 +79,14 @@ function patchClientIndexHtml(stagingDir: string, manifest: ManifestLike, siteUr
   upsertMeta("twitter:card", "summary_large_image", "name");
   upsertMeta("twitter:image", ogImageUrl, "name");
 
+  if (clientId) {
+    const bootstrapScript = `<script>window.__CRM_DEMO_CLIENT_ID__=${JSON.stringify(clientId)};</script>`;
+    const rootDiv = html.indexOf('<div id="root">');
+    if (rootDiv !== -1) {
+      html = `${html.slice(0, rootDiv)}${bootstrapScript}\n    ${html.slice(rootDiv)}`;
+    }
+  }
+
   fs.writeFileSync(indexPath, html, "utf8");
 }
 
@@ -89,7 +102,7 @@ export async function prepareClientDistWithOgImage(
   fs.cpSync(sourceDistPath, stagingDir, { recursive: true });
 
   const businessType = String(manifest.businessType ?? "generic");
-  const businessName = String(manifest.businessName ?? "MVP Factory");
+  const businessName = String(manifest.businessName ?? "CRM Demo");
 
   ensureImageLibraryInDist(stagingDir);
 
@@ -108,7 +121,7 @@ export async function prepareClientDistWithOgImage(
     bytes: ogBytes,
   });
 
-  patchClientIndexHtml(stagingDir, manifest, siteUrl);
+  patchClientIndexHtml(stagingDir, manifest, siteUrl, clientId);
   return stagingDir;
 }
 

@@ -6,10 +6,10 @@
   "business_type": "generic",
   "normalized_category": "generic",
   "language": "ru",
-  "dashboard_title": "MVP Dashboard",
+  "dashboard_title": "CRM Demo",
   "business_type_label": "Business / Generic",
   "sector_display_name": "Business",
-  "accent_tagline": "Your personal MVP dashboard",
+  "accent_tagline": "Your CRM Demo dashboard",
   "hero_images": [],
   "gallery_images": [],
   "template": "generic_crm",
@@ -44,13 +44,13 @@
     "technical_details": "Technical details",
     "reminders": "Reminders",
     "active_modules": "Active modules",
-    "dashboard_title": "MVP Dashboard",
+    "dashboard_title": "CRM Demo",
     "business_type_label": "Business",
     "staff_section": "Team",
     "services_section": "Services",
     "appointments_section": "Appointments",
     "clients_section": "Clients",
-    "accent_tagline": "Your personal MVP dashboard"
+    "accent_tagline": "Your CRM Demo dashboard"
   },
   "sections": {
     "staff": "Team",

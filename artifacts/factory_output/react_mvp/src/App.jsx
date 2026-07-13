@@ -38,6 +38,14 @@ function formatPageLabel(pageKey) {
     .join(" ");
 }
 
+function readDeployedClientId() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  const baked = window.__CRM_DEMO_CLIENT_ID__;
+  return typeof baked === "string" && baked.trim() ? baked.trim() : null;
+}
+
 function readClientIdFromLocation() {
   if (typeof window === "undefined") {
     return null;
@@ -46,6 +54,10 @@ function readClientIdFromLocation() {
   const fromQuery = searchParams.get("clientId") || searchParams.get("client_id");
   if (fromQuery) {
     return fromQuery;
+  }
+  const fromDeploy = readDeployedClientId();
+  if (fromDeploy) {
+    return fromDeploy;
   }
   const hash = window.location.hash.replace(/^#/, "");
   if (!hash) {
@@ -419,7 +431,7 @@ function getPageRecords(data, pageKey) {
 }
 
 const DEFAULT_BUSINESS_TYPE = "beauty_salon";
-const NEUTRAL_DOCUMENT_TITLE = "MVP Factory — Loading…";
+const LOADING_DOCUMENT_TITLE = "CRM Demo — Loading…";
 
 const NICHE_FOLDER_MAP = {
   beauty_salon: "beauty",
@@ -1456,9 +1468,9 @@ export default function App() {
   const businessIcon = NICHE_ICONS[effectiveBusinessType] ?? theme.icon;
 
   const i18n = {
-    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", mvpReadyTitle: "Your personal MVP is ready", mvpReadySubtitle: "Save the link — this is your working MVP", copyLink: "Copy link", openMvpTab: "Open MVP in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", firebaseCtaButton: "Connect Firebase cloud storage", firebaseCtaHint: "Demo data is saved in this browser only.", firebaseModalTitle: "Cloud storage for your CRM", firebaseModalBody: "Want your data saved in the cloud and available from any device? Contact us — we'll connect Firebase for your business.", firebaseContactEmail: "Email", firebaseContactTelegram: "Telegram", deleteConfirm: "Delete this record?" },
-    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", mvpReadyTitle: "Ihr persönliches MVP ist fertig", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihr MVP", copyLink: "Link kopieren", openMvpTab: "MVP in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", firebaseCtaButton: "Firebase-Cloudspeicher verbinden", firebaseCtaHint: "Demo-Daten werden nur in diesem Browser gespeichert.", firebaseModalTitle: "Cloud-Speicher für Ihr CRM", firebaseModalBody: "Möchten Sie, dass Ihre Daten in der Cloud gespeichert werden und von jedem Gerät verfügbar sind? Kontaktieren Sie uns — wir richten Firebase für Ihr Unternehmen ein.", firebaseContactEmail: "E-Mail", firebaseContactTelegram: "Telegram", deleteConfirm: "Diesen Eintrag löschen?" },
-    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", mvpReadyTitle: "Ваш персональный MVP готов", mvpReadySubtitle: "Сохраните ссылку — это ваш рабочий MVP", copyLink: "Копировать ссылку", openMvpTab: "Открыть MVP в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", firebaseCtaButton: "Подключить облачное хранение Firebase", firebaseCtaHint: "Демо-данные сохраняются только в этом браузере.", firebaseModalTitle: "Облачное хранение для CRM", firebaseModalBody: "Хотите, чтобы данные сохранялись в облаке и были доступны с любого устройства? Свяжитесь с нами — подключим Firebase для вашего бизнеса.", firebaseContactEmail: "Email", firebaseContactTelegram: "Telegram", deleteConfirm: "Удалить эту запись?" },
+    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", mvpReadyTitle: "Your CRM Demo is ready", mvpReadySubtitle: "Save the link — this is your working CRM Demo", copyLink: "Copy link", openMvpTab: "Open CRM Demo in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", firebaseCtaButton: "Connect Firebase cloud storage", firebaseCtaHint: "Demo data is saved in this browser only.", firebaseModalTitle: "Cloud storage for your CRM", firebaseModalBody: "Want your data saved in the cloud and available from any device? Contact us — we'll connect Firebase for your business.", firebaseContactEmail: "Email", firebaseContactTelegram: "Telegram", deleteConfirm: "Delete this record?" },
+    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", mvpReadyTitle: "Ihre CRM Demo ist bereit", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihre CRM Demo", copyLink: "Link kopieren", openMvpTab: "CRM Demo in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", firebaseCtaButton: "Firebase-Cloudspeicher verbinden", firebaseCtaHint: "Demo-Daten werden nur in diesem Browser gespeichert.", firebaseModalTitle: "Cloud-Speicher für Ihr CRM", firebaseModalBody: "Möchten Sie, dass Ihre Daten in der Cloud gespeichert werden und von jedem Gerät verfügbar sind? Kontaktieren Sie uns — wir richten Firebase für Ihr Unternehmen ein.", firebaseContactEmail: "E-Mail", firebaseContactTelegram: "Telegram", deleteConfirm: "Diesen Eintrag löschen?" },
+    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", mvpReadyTitle: "Ваша CRM Demo готова", mvpReadySubtitle: "Сохраните ссылку — это ваша рабочая CRM Demo", copyLink: "Копировать ссылку", openMvpTab: "Открыть CRM Demo в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", firebaseCtaButton: "Подключить облачное хранение Firebase", firebaseCtaHint: "Демо-данные сохраняются только в этом браузере.", firebaseModalTitle: "Облачное хранение для CRM", firebaseModalBody: "Хотите, чтобы данные сохранялись в облаке и были доступны с любого устройства? Свяжитесь с нами — подключим Firebase для вашего бизнеса.", firebaseContactEmail: "Email", firebaseContactTelegram: "Telegram", deleteConfirm: "Удалить эту запись?" },
   };
   const sectionLabels = uiSections ?? {};
   const baseT = i18n[language] || i18n.ru;
@@ -1481,7 +1493,7 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = language;
     if (manifestPending && !manifestLoaded) {
-      document.title = NEUTRAL_DOCUMENT_TITLE;
+      document.title = LOADING_DOCUMENT_TITLE;
       return;
     }
     document.title = businessName ? `${businessName} — ${displayPanelTitle}` : displayPanelTitle;
@@ -1722,7 +1734,7 @@ export default function App() {
   if (manifestPending && !manifestLoaded) {
     return (
       <div className="app-shell app-loading" style={{ minHeight: "100vh", display: "grid", placeItems: "center" }}>
-        <p style={{ fontSize: "1.1rem", color: "#475569" }}>Loading MVP…</p>
+        <p style={{ fontSize: "1.1rem", color: "#475569" }}>Loading CRM Demo…</p>
       </div>
     );
   }
@@ -1733,19 +1745,6 @@ export default function App() {
         <div style={{ textAlign: "center", maxWidth: "420px" }}>
           <h1 style={{ marginBottom: "0.75rem" }}>Manifest unavailable</h1>
           <p style={{ color: "#64748b" }}>{manifestError}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!bootClientId && !manifestLoaded) {
-    return (
-      <div className="app-shell app-loading" style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "2rem" }}>
-        <div style={{ textAlign: "center", maxWidth: "420px" }}>
-          <p style={{ fontSize: "1.1rem", color: "#475569", fontWeight: 600 }}>{NEUTRAL_DOCUMENT_TITLE}</p>
-          <p style={{ fontSize: "0.95rem", color: "#64748b", marginTop: "0.75rem" }}>
-            Open your personal MVP link to view your dashboard.
-          </p>
         </div>
       </div>
     );

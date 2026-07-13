@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
 
-const CHECKOUT_REFERENCES_PATH = path.join(process.cwd(), "data/checkout-references.json");
+import { resolvePersistentDataDir } from "@/lib/site-delivery/data-dir";
+
+const CHECKOUT_REFERENCES_PATH = path.join(resolvePersistentDataDir(), "checkout-references.json");
 
 export type CheckoutReference = {
   checkoutId: string;
@@ -48,6 +50,8 @@ export function pickReferenceId(data: Record<string, unknown>): string | null {
   const metadata = data.metadata as Record<string, unknown> | undefined;
   const checkout = data.checkout as Record<string, unknown> | undefined;
   const checkoutMetadata = checkout?.metadata as Record<string, unknown> | undefined;
+  const customer = data.customer as Record<string, unknown> | undefined;
+  const customerMetadata = customer?.metadata as Record<string, unknown> | undefined;
 
   const candidates = [
     metadata?.reference_id,
@@ -58,6 +62,8 @@ export function pickReferenceId(data: Record<string, unknown>): string | null {
     checkout?.reference_id,
     checkoutMetadata?.reference_id,
     checkoutMetadata?.referenceId,
+    customerMetadata?.reference_id,
+    customerMetadata?.referenceId,
   ];
 
   for (const value of candidates) {

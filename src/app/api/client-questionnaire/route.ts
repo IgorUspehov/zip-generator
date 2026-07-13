@@ -592,13 +592,15 @@ export async function POST(request: Request) {
 
     console.log("[client-questionnaire] POST success:", { redirectUrl, siteId, siteUrl, deployId, clientId });
 
+    const publicSiteUrl = siteUrl ? buildMvpRedirectUrl(siteUrl, clientId) : undefined;
+
     return NextResponse.json({
       ok: true,
       success: true,
       redirectUrl,
       clientId,
       siteId,
-      siteUrl,
+      siteUrl: publicSiteUrl,
       deployId,
       path: "input/client_onboarding_questionnaire.json",
     });
