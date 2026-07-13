@@ -26,7 +26,7 @@ export default function DatenschutzPage() {
         <section className="mt-8 space-y-3">
           <h2 className="text-xl font-semibold">3. Zweck der Verarbeitung</h2>
           <p className="leading-relaxed text-slate-700">
-            Erstellung des Demo-MVPs und Kommunikation mit dem Kunden.
+            Erstellung des CRM Demo und Kommunikation mit dem Kunden.
           </p>
         </section>
 

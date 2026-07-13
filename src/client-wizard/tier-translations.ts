@@ -7,11 +7,11 @@ export const tierTranslations = {
     comingSoon: "Скоро доступно",
     downloadZip: "Скачать ZIP",
     mvpDemo: {
-      name: "MVP Demo",
+      name: "CRM Demo",
       description: "Разовый платёж · без подписки",
     },
     mvpPro: {
-      name: "MVP Pro",
+      name: "CRM Pro",
       description: "ZIP + README + i18n + ваш домен",
     },
     crmFull: {
@@ -26,11 +26,11 @@ export const tierTranslations = {
     comingSoon: "Bald verfügbar",
     downloadZip: "ZIP herunterladen",
     mvpDemo: {
-      name: "MVP Demo",
+      name: "CRM Demo",
       description: "Einmalzahlung · kein Abo",
     },
     mvpPro: {
-      name: "MVP Pro",
+      name: "CRM Pro",
       description: "ZIP + README + i18n + Ihre Domain",
     },
     crmFull: {
@@ -45,11 +45,11 @@ export const tierTranslations = {
     comingSoon: "Coming soon",
     downloadZip: "Download ZIP",
     mvpDemo: {
-      name: "MVP Demo",
+      name: "CRM Demo",
       description: "One-time payment · no subscription",
     },
     mvpPro: {
-      name: "MVP Pro",
+      name: "CRM Pro",
       description: "ZIP + README + i18n + your domain",
     },
     crmFull: {

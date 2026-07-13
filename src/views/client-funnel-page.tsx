@@ -79,7 +79,7 @@ function LogoIcon() {
       <div className="client-funnel-logo-icon">
         <Layers className="size-4 text-white" strokeWidth={2.5} />
       </div>
-      <span className="client-funnel-logo-name">MVP Factory</span>
+      <span className="client-funnel-logo-name">CRM Demo</span>
     </div>
   );
 }

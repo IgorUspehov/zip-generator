@@ -17,7 +17,7 @@ type PayLang = "en" | "de" | "ru";
 
 const translations = {
   de: {
-    demoReady: "Ihr Website+CRM ist fertig!",
+    demoReady: "Ihr CRM Demo ist fertig!",
     promoButton: "Promo-Code",
     payButton: "€99 — Einmalzahlung",
     paySubline: "Kein Abo. Keine monatlichen Gebühren.",
@@ -30,7 +30,7 @@ const translations = {
     promoInvalid: "Ungültiger Promo-Code",
   },
   en: {
-    demoReady: "Your Website+CRM is ready!",
+    demoReady: "Your CRM Demo is ready!",
     promoButton: "Promo code",
     payButton: "€99 — one-time payment",
     paySubline: "No subscription. No monthly fees.",
@@ -43,7 +43,7 @@ const translations = {
     promoInvalid: "Invalid promo code",
   },
   ru: {
-    demoReady: "Ваш сайт с CRM готов!",
+    demoReady: "Ваш CRM Demo готов!",
     promoButton: "Промокод",
     payButton: "€99 — разовый платёж",
     paySubline: "Без подписки. Без ежемесячных платежей.",

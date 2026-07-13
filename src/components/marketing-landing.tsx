@@ -29,8 +29,8 @@ const COPY: Record<
   }
 > = {
   de: {
-    heroTitle: "MVP in 3 Minuten",
-    heroSubtitle: "Fertiges MVP für Ihr Business. €999 einmalig, kein Abo.",
+    heroTitle: "CRM Demo in 3 Minuten",
+    heroSubtitle: "Fertiges CRM Demo für Ihr Business. €99 einmalig, kein Abo.",
     heroCta: "Jetzt testen →",
     processEyebrow: "Prozess",
     processTitle: "So funktioniert's",
@@ -42,17 +42,17 @@ const COPY: Record<
       },
       {
         icon: "⚙️",
-        title: "System erstellt Ihr persönliches MVP",
+        title: "System erstellt Ihr CRM Demo",
         description: "Automatisch für Ihre Branche",
       },
       {
         icon: "🚀",
-        title: "Link erhalten — Ihr MVP ist online",
+        title: "Link erhalten — Ihr CRM Demo ist online",
         description: "Einzigartige Netlify-URL",
       },
     ],
     featuresEyebrow: "Leistungen",
-    featuresTitle: "Was im MVP enthalten ist",
+    featuresTitle: "Was ist in CRM Demo enthalten",
     features: [
       "Business-Verwaltungspanel",
       "Kunden, Termine, Leistungen",
@@ -83,8 +83,8 @@ const COPY: Record<
     priceCta: "Jetzt testen →",
   },
   en: {
-    heroTitle: "MVP in 3 minutes",
-    heroSubtitle: "Ready-made MVP for your business. €999 one-time, no subscription.",
+    heroTitle: "CRM Demo in 3 minutes",
+    heroSubtitle: "Ready-made CRM Demo for your business. €99 one-time, no subscription.",
     heroCta: "Try now →",
     processEyebrow: "Process",
     processTitle: "How it works",
@@ -96,17 +96,17 @@ const COPY: Record<
       },
       {
         icon: "⚙️",
-        title: "The system builds your personal MVP",
+        title: "The system builds your CRM Demo",
         description: "Automatically tailored to your niche",
       },
       {
         icon: "🚀",
-        title: "Get a link — your MVP is live",
+        title: "Get a link — your CRM Demo is live",
         description: "Unique Netlify URL",
       },
     ],
     featuresEyebrow: "Features",
-    featuresTitle: "What's included in the MVP",
+    featuresTitle: "What's included in CRM Demo",
     features: [
       "Business management panel",
       "Clients, appointments, services",
@@ -137,8 +137,8 @@ const COPY: Record<
     priceCta: "Try now →",
   },
   ru: {
-    heroTitle: "MVP за 3 минуты",
-    heroSubtitle: "Готовый MVP для вашего бизнеса. €999 разово, без подписки.",
+    heroTitle: "CRM Demo за 3 минуты",
+    heroSubtitle: "Готовый CRM Demo для вашего бизнеса. €99 разово, без подписки.",
     heroCta: "Попробовать →",
     processEyebrow: "Процесс",
     processTitle: "Как работает",
@@ -150,17 +150,17 @@ const COPY: Record<
       },
       {
         icon: "⚙️",
-        title: "Система собирает ваш персональный MVP",
+        title: "Система собирает ваш CRM Demo",
         description: "Автоматически под вашу нишу",
       },
       {
         icon: "🚀",
-        title: "Получаете ссылку — ваш MVP уже онлайн",
+        title: "Получаете ссылку — ваш CRM Demo уже онлайн",
         description: "Уникальный URL на Netlify",
       },
     ],
     featuresEyebrow: "Возможности",
-    featuresTitle: "Что входит в MVP",
+    featuresTitle: "Что входит в CRM Demo",
     features: [
       "Панель управления бизнесом",
       "Клиенты, записи, услуги",
@@ -280,7 +280,7 @@ export function MarketingLanding() {
         <div className="absolute inset-0 bg-black/50" aria-hidden />
         <div className="relative z-10 mx-auto max-w-4xl px-6 py-24 text-center">
           <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-            MVP Factory
+            CRM Demo
           </p>
           <h1 className="text-5xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl">
             {t.heroTitle}
@@ -385,7 +385,7 @@ export function MarketingLanding() {
       <footer className="border-t border-slate-200 bg-slate-900 py-12 text-slate-300">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-6 text-center text-sm sm:flex-row sm:justify-between sm:text-left">
           <p>
-            <span className="font-semibold text-white">MVP Factory</span>
+            <span className="font-semibold text-white">CRM Demo</span>
             {" | München, Deutschland | "}
             <a
               href="mailto:contact@mvpfactory.de"

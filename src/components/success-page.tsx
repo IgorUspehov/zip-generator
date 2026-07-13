@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
 const COPY = {
   ru: {
     title: "Оплата прошла успешно!",
-    subtitleDemo: "Ваш сайт сохранён навсегда",
-    subtitlePro: "Ваш MVP Pro готов к скачиванию",
+    subtitleDemo: "Ваш CRM Demo сохранён навсегда",
+    subtitlePro: "Ваш CRM Pro готов к скачиванию",
     emailHint: "В течение 5 минут вы получите письмо со ссылкой.",
     download: "Скачать ZIP",
     home: "Вернуться на главную",
@@ -16,8 +16,8 @@ const COPY = {
   },
   de: {
     title: "Zahlung erfolgreich!",
-    subtitleDemo: "Ihre Website ist dauerhaft gespeichert",
-    subtitlePro: "Ihr MVP Pro ist zum Download bereit",
+    subtitleDemo: "Ihr CRM Demo ist dauerhaft gespeichert",
+    subtitlePro: "Ihr CRM Pro ist zum Download bereit",
     emailHint: "Sie erhalten innerhalb von 5 Minuten eine E-Mail.",
     download: "ZIP herunterladen",
     home: "Zur Startseite",
@@ -25,8 +25,8 @@ const COPY = {
   },
   en: {
     title: "Payment successful!",
-    subtitleDemo: "Your site is saved forever",
-    subtitlePro: "Your MVP Pro package is ready",
+    subtitleDemo: "Your CRM Demo is saved forever",
+    subtitlePro: "Your CRM Pro package is ready",
     emailHint: "You will receive an email within 5 minutes.",
     download: "Download ZIP",
     home: "Back to home",

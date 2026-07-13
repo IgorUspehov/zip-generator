@@ -69,7 +69,7 @@ export async function buildClientDistZipBuffer(input: {
   });
 }
 
-const CRM_DEMO_README = `MVP Factory — CRM Demo
+const CRM_DEMO_README = `CRM Demo
 
 This archive contains your published site files:
 - index.html

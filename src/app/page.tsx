@@ -10,19 +10,19 @@ const POLAR_CHECKOUT_CRM_DEMO =
 
 const translations = {
   en: {
-    hero_title: "Website + CRM in 3 Minutes",
+    hero_title: "CRM Demo in 3 Minutes",
     hero_button: "€99 — one-time payment",
     hero_subline: "No subscription. No monthly fees.",
     process_label: "PROCESS",
     process_title: "How it works",
     step1_title: "Fill out the form",
     step1_desc: "3 questions about your business",
-    step2_title: "System builds your MVP",
+    step2_title: "System builds your CRM Demo",
     step2_desc: "Automatically for your niche",
     step3_title: "Get your link",
     step3_desc: "Unique URL on Netlify",
     features_label: "FEATURES",
-    features_title: "What's included",
+    features_title: "What's included in CRM Demo",
     feature1: "Business management panel",
     feature2: "Clients, bookings, services",
     feature3: "Photo gallery for your niche",
@@ -31,7 +31,7 @@ const translations = {
     niches_label: "NICHES",
     niches_title: "Industries",
     price_label: "PRICE",
-    price_title: "CRM",
+    price_title: "CRM Demo",
     price_line1: "One-time payment.",
     price_line2: "No subscription.",
     price_line3: "No monthly fees.",
@@ -42,19 +42,19 @@ const translations = {
     footer_privacy: "Privacy",
   },
   de: {
-    hero_title: "Website + CRM in 3 Minuten",
+    hero_title: "CRM Demo in 3 Minuten",
     hero_button: "€99 — Einmalzahlung",
     hero_subline: "Kein Abo. Keine monatlichen Gebühren.",
     process_label: "PROZESS",
     process_title: "So funktioniert es",
     step1_title: "Fragebogen ausfüllen",
     step1_desc: "3 Fragen zu Ihrem Unternehmen",
-    step2_title: "System erstellt Ihr MVP",
+    step2_title: "System erstellt Ihr CRM Demo",
     step2_desc: "Automatisch für Ihre Branche",
     step3_title: "Link erhalten",
     step3_desc: "Einzigartige URL auf Netlify",
     features_label: "LEISTUNGEN",
-    features_title: "Was enthalten ist",
+    features_title: "Was ist in CRM Demo enthalten",
     feature1: "Business-Management-Panel",
     feature2: "Kunden, Termine, Dienstleistungen",
     feature3: "Fotogalerie für Ihre Branche",
@@ -63,7 +63,7 @@ const translations = {
     niches_label: "BRANCHEN",
     niches_title: "Branchen",
     price_label: "PREIS",
-    price_title: "CRM",
+    price_title: "CRM Demo",
     price_line1: "Einmalzahlung.",
     price_line2: "Kein Abo.",
     price_line3: "Keine monatlichen Gebühren.",
@@ -74,19 +74,19 @@ const translations = {
     footer_privacy: "Datenschutz",
   },
   ru: {
-    hero_title: "Website + CRM за 3 минуты",
+    hero_title: "CRM Demo за 3 минуты",
     hero_button: "€99 — разовый платёж",
     hero_subline: "Без подписки. Без ежемесячных платежей.",
     process_label: "ПРОЦЕСС",
     process_title: "Как работает",
     step1_title: "Заполните анкету",
     step1_desc: "3 вопроса о вашем бизнесе",
-    step2_title: "Система собирает ваш MVP",
+    step2_title: "Система собирает ваш CRM Demo",
     step2_desc: "Автоматически под вашу нишу",
     step3_title: "Получаете ссылку",
     step3_desc: "Уникальный URL на Netlify",
     features_label: "ВОЗМОЖНОСТИ",
-    features_title: "Что входит в MVP",
+    features_title: "Что входит в CRM Demo",
     feature1: "Панель управления бизнесом",
     feature2: "Клиенты, записи, услуги",
     feature3: "Галерея с фото вашей ниши",
@@ -95,7 +95,7 @@ const translations = {
     niches_label: "НИШИ",
     niches_title: "Ниши",
     price_label: "ЦЕНА",
-    price_title: "CRM",
+    price_title: "CRM Demo",
     price_line1: "Разовый платёж.",
     price_line2: "Без подписки.",
     price_line3: "Без ежемесячных платежей.",
@@ -267,7 +267,7 @@ export default function Page() {
         <div className="absolute inset-0 bg-black/50" aria-hidden />
         <div className="relative z-10 mx-auto max-w-4xl px-6 py-24 text-center">
           <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-            MVP Factory
+            CRM Demo
           </p>
           <h1 className="text-5xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl">
             {t.hero_title}
@@ -377,7 +377,7 @@ export default function Page() {
       <footer className="border-t border-slate-200 bg-slate-900 py-12 text-slate-300">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-6 text-center text-sm sm:flex-row sm:justify-between sm:text-left">
           <p>
-            <span className="font-semibold text-white">MVP Factory</span>
+            <span className="font-semibold text-white">CRM Demo</span>
             {" | "}
             {t.footer_location}
             {" | "}

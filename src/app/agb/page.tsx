@@ -9,7 +9,7 @@ export default function AgbPage() {
         <section className="mt-10 space-y-3">
           <h2 className="text-xl font-semibold">§1 Anbieter</h2>
           <p className="leading-relaxed text-slate-700">
-            MVP Factory, Inhaber: Ihor Kriazhev, München, Deutschland
+            CRM Demo, Inhaber: Ihor Kriazhev, München, Deutschland
             <br />
             E-Mail:{" "}
             <a href="mailto:contact@mvpfactory.de" className="text-blue-600 underline">
@@ -21,7 +21,7 @@ export default function AgbPage() {
         <section className="mt-8 space-y-3">
           <h2 className="text-xl font-semibold">§2 Leistungsgegenstand</h2>
           <p className="leading-relaxed text-slate-700">
-            Erstellung individueller Web-MVPs und CRM-Demos für Kleinunternehmen im DACH-Raum.
+            Erstellung individueller CRM-Demos für Kleinunternehmen im DACH-Raum.
           </p>
         </section>
 

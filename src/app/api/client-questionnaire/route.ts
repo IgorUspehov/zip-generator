@@ -15,6 +15,7 @@ import {
   buildMvpRedirectUrl,
   saveClientManifest,
 } from "@/lib/manifest/storage";
+import { prunePersistentStorage } from "@/lib/manifest/prune-storage";
 import { normalizeManifestMedia } from "@/lib/manifest/normalize-manifest-media";
 import palettesData from "@/lib/palettes.json";
 import promotionsData from "@/lib/niche-promotions.json";
@@ -493,6 +494,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     console.log("[client-questionnaire] POST started");
+    prunePersistentStorage();
     const body = (await request.json()) as Record<string, unknown>;
 
     const payload = normalizePayload(body);

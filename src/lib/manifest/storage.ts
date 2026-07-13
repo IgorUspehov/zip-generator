@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 
+import { isEnospcError, prunePersistentStorage } from "@/lib/manifest/prune-storage";
+
 export function resolveManifestsDir(): string {
   const volumePath = process.env.RAILWAY_VOLUME_MOUNT_PATH;
   if (volumePath) {
@@ -9,7 +11,7 @@ export function resolveManifestsDir(): string {
   return path.join(process.cwd(), "data/manifests");
 }
 
-export function saveClientManifest(clientId: string, manifest: Record<string, unknown>): void {
+function writeClientManifestFile(clientId: string, manifest: Record<string, unknown>): void {
   const dir = resolveManifestsDir();
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(
@@ -17,6 +19,22 @@ export function saveClientManifest(clientId: string, manifest: Record<string, un
     `${JSON.stringify(manifest, null, 2)}\n`,
     "utf8",
   );
+}
+
+export function saveClientManifest(clientId: string, manifest: Record<string, unknown>): void {
+  prunePersistentStorage();
+
+  try {
+    writeClientManifestFile(clientId, manifest);
+  } catch (error) {
+    if (!isEnospcError(error)) {
+      throw error;
+    }
+
+    console.warn("[manifest-storage] ENOSPC while saving manifest, pruning and retrying once");
+    prunePersistentStorage({ maxManifests: 60, maxClientDists: 10, maxAgeDays: 3 });
+    writeClientManifestFile(clientId, manifest);
+  }
 }
 
 export function loadClientManifest(clientId: string): Record<string, unknown> | null {

@@ -30,9 +30,9 @@ function buildEmailCopy(language: ClientLanguage, siteUrl: string, downloadUrl: 
   } as const;
 
   const intros = {
-    ru: "Оплата подтверждена. Ваш Website+CRM уже опубликован.",
-    de: "Zahlung bestätigt. Ihr Website+CRM ist live.",
-    en: "Payment confirmed. Your Website+CRM is live.",
+    ru: "Оплата подтверждена. Ваш CRM Demo уже опубликован.",
+    de: "Zahlung bestätigt. Ihr CRM Demo ist live.",
+    en: "Payment confirmed. Your CRM Demo is live.",
   } as const;
 
   const bodies = {

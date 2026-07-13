@@ -509,12 +509,17 @@ function buildQuestionnairePayloadFromWizard(input: {
   email: string;
   businessType: string;
   language: string;
+  phone: string;
+  whatsapp: string;
+  telegram: string;
+  sectorId: string | null;
 }) {
   return {
     ...buildQuestionnairePayload(input),
-    phone: (document.getElementById("f-phone") as HTMLInputElement)?.value || "",
-    whatsapp: (document.getElementById("f-whatsapp") as HTMLInputElement)?.value || "",
-    telegram: (document.getElementById("f-telegram") as HTMLInputElement)?.value || "",
+    phone: input.phone,
+    whatsapp: input.whatsapp,
+    telegram: input.telegram,
+    sector_id: input.sectorId ?? "",
   };
 }
 
@@ -544,6 +549,9 @@ function ClientWizardFlow() {
   const [step, setStep] = useState<StepId>("s1");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactWhatsapp, setContactWhatsapp] = useState("");
+  const [contactTelegram, setContactTelegram] = useState("");
   const [selSector, setSelSector] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [pendingRedirectUrl, setPendingRedirectUrl] = useState<string | null>(null);
@@ -708,10 +716,10 @@ function ClientWizardFlow() {
   const [agbAccepted, setAgbAccepted] = useState(false);
 
   const runBuild = useCallback(
-    async (contactName: string) => {
+    async (contactName: string, selectedSector: string) => {
       setIsGenerating(true);
 
-      const businessType = SECTOR_TO_BUSINESS_TYPE[selSector ?? ""] ?? DEFAULT_BUSINESS_TYPE;
+      const businessType = SECTOR_TO_BUSINESS_TYPE[selectedSector] ?? DEFAULT_BUSINESS_TYPE;
       const languageCode = lang;
       const payload = {
         ...buildQuestionnairePayloadFromWizard({
@@ -720,6 +728,10 @@ function ClientWizardFlow() {
           email: email.trim(),
           businessType,
           language: languageCode,
+          phone: contactPhone,
+          whatsapp: contactWhatsapp,
+          telegram: contactTelegram,
+          sectorId: selectedSector,
         }),
         terms_accepted: agbAccepted,
         privacy_accepted: agbAccepted,
@@ -728,6 +740,7 @@ function ClientWizardFlow() {
       try {
         const recaptchaToken = await executeRecaptcha("submit_questionnaire");
         const data = await saveQuestionnaire(payload, recaptchaToken);
+        console.log("[wizard] API response:", data);
         if (data.redirectUrl) {
           setPendingRedirectUrl(data.redirectUrl);
           setDeployMeta({
@@ -736,16 +749,24 @@ function ClientWizardFlow() {
             clientId: data.clientId,
           });
           setIsGenerating(false);
+          console.log("[wizard] navigation target:", "s5");
           return;
         }
         throw new Error("No redirect URL returned");
       } catch (error) {
         console.error("POST /api/client-questionnaire failed:", error);
+        console.log("[wizard] navigation target:", "s4 (build error, staying on build screen)");
         setIsGenerating(false);
-        goTo("s2");
       }
     },
-    [agbAccepted, email, goTo, lang, selSector],
+    [
+      agbAccepted,
+      contactPhone,
+      contactTelegram,
+      contactWhatsapp,
+      email,
+      lang,
+    ],
   );
 
   function goRestart() {
@@ -755,6 +776,9 @@ function ClientWizardFlow() {
     setSelSector(null);
     setName("");
     setEmail("");
+    setContactPhone("");
+    setContactWhatsapp("");
+    setContactTelegram("");
     for (const id of ["f-phone", "f-whatsapp", "f-telegram"]) {
       const el = document.getElementById(id) as HTMLInputElement | null;
       if (el) el.value = "";
@@ -798,22 +822,40 @@ function ClientWizardFlow() {
       return;
     }
 
+    setContactPhone(phone);
+    setContactWhatsapp(whatsapp);
+    setContactTelegram(telegram);
     void executeRecaptcha("wizard_step_1");
     goTo("s2");
   }
 
   function go2() {
-    if (!selSector) {
+    const sectorFromSelect =
+      (document.getElementById("sector-select") as HTMLSelectElement | null)?.value.trim() || null;
+    const selectedSector = selSector || sectorFromSelect;
+    const acceptedTerms = agbAccepted;
+
+    console.log("[wizard] selectedSector:", selectedSector);
+    console.log("[wizard] acceptedTerms:", acceptedTerms);
+
+    if (!selectedSector) {
       setSectorErr(true);
       setTimeout(() => setSectorErr(false), 800);
       return;
     }
-    if (!agbAccepted) {
+    if (!acceptedTerms) {
       return;
     }
+
+    if (!selSector && selectedSector) {
+      setSelSector(selectedSector);
+    }
+
+    console.log("[wizard] submit start");
+    console.log("[wizard] navigation target:", "s4");
     void executeRecaptcha("wizard_step_2");
     goTo("s4");
-    void runBuild(name.trim());
+    void runBuild(name.trim(), selectedSector);
   }
 
   async function handleYes() {
@@ -1077,7 +1119,7 @@ function ClientWizardFlow() {
               ) : null}
               {livePreviewIframeSrc ? (
                 <iframe
-                  title="Live Website+CRM preview"
+                  title="Live CRM Demo preview"
                   src={livePreviewIframeSrc}
                   className="wizard-live-preview"
                   sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
