@@ -29,7 +29,6 @@ const LEMONSQUEEZY_VARIANT_MVP_DEMO = "1801729";
 const LEMONSQUEEZY_VARIANT_MVP_PRO = "1807661";
 const LEMONSQUEEZY_VARIANT_CRM_FULL = "1807671";
 
-const PROMO_CODE = "serafim01";
 const SUPPORT_EMAIL = "support@mvpfactory.de";
 const PAYMENT_POLL_INTERVAL_MS = 3000;
 const PAYMENT_POLL_MAX_ATTEMPTS = 20;
@@ -568,11 +567,14 @@ function ClientWizardFlow() {
   const [siteAccessGranted, setSiteAccessGranted] = useState(false);
   const [showPromo, setShowPromo] = useState(false);
   const [promoInput, setPromoInput] = useState("");
+  const [promoValidated, setPromoValidated] = useState(false);
+  const [promoError, setPromoError] = useState(false);
+  const [promoChecking, setPromoChecking] = useState(false);
   const [livePreviewIframeSrc, setLivePreviewIframeSrc] = useState<string | null>(null);
   const [livePreviewWarming, setLivePreviewWarming] = useState(false);
 
   const livePreviewUrl = pendingRedirectUrl ?? deployMeta?.demoUrl ?? previewUrl;
-  const promoApplied = promoInput.trim().toLowerCase() === PROMO_CODE;
+  const hasPromoInput = promoInput.trim().length > 0;
 
   useEffect(() => {
     if (!siteAccessGranted || !pendingRedirectUrl) {
@@ -858,16 +860,39 @@ function ClientWizardFlow() {
     void runBuild(name.trim(), selectedSector);
   }
 
-  async function handleYes() {
+  function handleYes() {
     setSiteAccessGranted(false);
     setShowPromo(false);
     setPromoInput("");
+    setPromoValidated(false);
+    setPromoError(false);
     goTo("s6");
   }
 
-  function handlePayOrUnlock() {
-    if (promoApplied) {
-      setSiteAccessGranted(true);
+  async function handlePayOrUnlock() {
+    if (hasPromoInput) {
+      setPromoChecking(true);
+      setPromoError(false);
+      try {
+        const response = await fetch("/api/redeem-promo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: promoInput.trim() }),
+        });
+        const data = (await response.json()) as { valid?: boolean };
+        if (response.ok && data.valid) {
+          setPromoValidated(true);
+          setSiteAccessGranted(true);
+        } else {
+          setPromoValidated(false);
+          setPromoError(true);
+        }
+      } catch {
+        setPromoValidated(false);
+        setPromoError(true);
+      } finally {
+        setPromoChecking(false);
+      }
       return;
     }
 
@@ -1258,13 +1283,13 @@ function ClientWizardFlow() {
                   <button
                     type="button"
                     className="wizard-pay-action-btn"
-                    onClick={() => handlePayOrUnlock()}
-                    disabled={promoApplied && !promoInput.trim()}
+                    onClick={() => void handlePayOrUnlock()}
+                    disabled={promoChecking}
                   >
-                    {promoApplied ? copy.s6_promo_unlock : copy.s6_pay_button}
+                    {hasPromoInput ? copy.s6_promo_unlock : copy.s6_pay_button}
                   </button>
                 </div>
-                {!promoApplied ? (
+                {!hasPromoInput ? (
                   <p className="step-sub" style={{ marginTop: 8, textAlign: "center" }}>
                     {copy.s6_pay_subline}
                   </p>
@@ -1274,22 +1299,21 @@ function ClientWizardFlow() {
                     <input
                       type="text"
                       value={promoInput}
-                      onChange={(e) => setPromoInput(e.target.value)}
+                      onChange={(e) => {
+                        setPromoInput(e.target.value);
+                        setPromoValidated(false);
+                        setPromoError(false);
+                      }}
                       placeholder={copy.s6_promo_placeholder}
-                      className={`inp ${
-                        promoInput && !promoApplied
-                          ? "err"
-                          : promoApplied
-                            ? ""
-                            : ""
-                      }`}
+                      className={`inp ${promoError ? "err" : ""}`}
                       style={
-                        promoApplied
+                        promoValidated
                           ? { borderColor: "#22c55e", background: "#f0fdf4" }
                           : undefined
                       }
+                      disabled={promoChecking}
                     />
-                    {promoInput && !promoApplied ? (
+                    {promoError ? (
                       <p className="step-sub" style={{ marginTop: 8, color: "#ef4444" }}>
                         {copy.s6_promo_invalid}
                       </p>
