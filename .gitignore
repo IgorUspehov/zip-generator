@@ -15,6 +15,12 @@ artifacts/**
 artifacts/factory_output/react_mvp/node_modules/**
 artifacts/factory_output/react_mvp/dist/**
 
+# Factory Website+CRM template dist for Cloudflare Direct Upload (Railway)
+!client-template/
+!client-template/**
+!client-template/dist/
+!client-template/dist/**
+
 # netlify / vercel
 .netlify/
 .vercel/

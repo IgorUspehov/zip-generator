@@ -1,16 +1,24 @@
 # Factory Website+CRM → Cloudflare Pages (via existing pipeline)
 
-`mvp-template/` is gitignored. Populate it from the Factory template before Railway deploy.
+## Source of truth for client dist
 
-## Refresh dist
+Committed path: `client-template/dist` (built from sibling `Factory-Website-CRM`).
+
+`resolveMvpDistPath()` order:
+1. `MVP_DIST_PATH` (optional)
+2. `client-template/dist` ← **production**
+3. `mvp-template/dist` (local/gitignored mirror)
+4. `artifacts/factory_output/react_mvp/dist` (legacy)
+
+## Refresh dist from Factory
 
 ```bash
 cd ../Factory-Website-CRM
 npm run build
+./scripts/export-template-dist.sh ../saas-mvp-funnel/client-template/dist
+# optional local mirror:
 ./scripts/export-template-dist.sh ../saas-mvp-funnel/mvp-template/dist
 ```
-
-Or set `MVP_DIST_PATH` to Factory `dist/`.
 
 ## Runtime bootstrap
 
@@ -30,6 +38,4 @@ Mapper: `src/lib/factory-crm/mapToFactoryManifest.ts`
 npm run smoke:factory-crm
 ```
 
-Live `*.pages.dev` URL is still produced by `deployDistToPages` in
-`src/lib/cloudflare/deploy.ts` when `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_API_TOKEN`
-are set on Railway.
+Live `*.pages.dev` URL is produced by `deployDistToPages` when Cloudflare env is set.
