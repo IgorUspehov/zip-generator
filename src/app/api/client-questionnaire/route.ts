@@ -110,6 +110,7 @@ const BUSINESS_TYPE_TO_NICHE: Record<string, string> = {
   education: "education",
   logistics: "logistics",
   logistics_crm: "logistics",
+  logistics_delivery: "logistics",
   delivery: "logistics",
   technology: "technology",
 };
@@ -131,6 +132,7 @@ const BUSINESS_TYPE_DEFAULT_PAGES: Record<string, string[]> = {
   education: ["dashboard", "students", "courses", "teachers", "appointments", "settings"],
   logistics: ["dashboard", "routes", "drivers", "deliveries", "vehicles", "settings"],
   logistics_crm: ["dashboard", "routes", "drivers", "deliveries", "vehicles", "settings"],
+  logistics_delivery: ["dashboard", "routes", "drivers", "deliveries", "vehicles", "settings"],
   ecommerce: ["dashboard", "products", "orders", "clients", "payments", "settings"],
   ecommerce_crm: ["dashboard", "products", "orders", "clients", "payments", "settings"],
   technology: ["dashboard", "products", "clients", "projects", "developers", "settings"],
@@ -154,6 +156,7 @@ const BUSINESS_TYPE_TO_PATTERN_DIR: Record<string, string> = {
   education: "school_management",
   logistics: "car_service",
   logistics_crm: "car_service",
+  logistics_delivery: "car_service",
   delivery: "car_service",
   ecommerce: "inventory_system",
   ecommerce_crm: "inventory_system",
@@ -312,6 +315,7 @@ const PROMOTION_KEY_MAP: Record<string, string> = {
   barbershop: "beauty_salon",
   ecommerce_crm: "ecommerce",
   logistics_crm: "logistics",
+  logistics_delivery: "logistics",
   delivery: "logistics",
 };
 
@@ -329,7 +333,8 @@ function pickRandomPromotion(businessType: string): PromoText {
 }
 
 function pickRandomTheme(businessType: string): MvpTheme {
-  const nichePalettes = palettes[businessType] ?? palettes.restaurant;
+  const promoKey = resolvePromotionKey(businessType);
+  const nichePalettes = palettes[businessType] ?? palettes[promoKey] ?? palettes.logistics ?? palettes.restaurant;
   return nichePalettes[Math.floor(Math.random() * nichePalettes.length)];
 }
 

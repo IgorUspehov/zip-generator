@@ -18,7 +18,11 @@ export const CLIENT_DIST_HEADERS = `/*
 type ManifestLike = {
   businessName?: unknown;
   businessType?: unknown;
+  [key: string]: unknown;
 };
+
+/** Static path react_mvp loads from the Cloudflare Pages artifact when Railway API is unavailable. */
+export const CLIENT_MANIFEST_ARTIFACT = "client-manifest.json";
 
 function escapeHtml(value: string): string {
   return value
@@ -97,7 +101,11 @@ function patchClientIndexHtml(
   upsertMeta("twitter:image", ogImageUrl, "name");
 
   if (clientId) {
-    const bootstrapScript = `<script>window.__CRM_DEMO_CLIENT_ID__=${JSON.stringify(clientId)};</script>`;
+    const bootstrapParts = [
+      `window.__CRM_DEMO_CLIENT_ID__=${JSON.stringify(clientId)};`,
+      `window.__CRM_DEMO_MANIFEST__=${JSON.stringify(manifest)};`,
+    ];
+    const bootstrapScript = `<script>${bootstrapParts.join("")}</script>`;
     const rootDiv = html.indexOf('<div id="root">');
     if (rootDiv !== -1) {
       html = `${html.slice(0, rootDiv)}${bootstrapScript}\n    ${html.slice(rootDiv)}`;
@@ -105,6 +113,16 @@ function patchClientIndexHtml(
   }
 
   fs.writeFileSync(indexPath, html, "utf8");
+}
+
+function writeClientManifestArtifact(stagingDir: string, manifest: ManifestLike): void {
+  const artifactPath = path.join(stagingDir, CLIENT_MANIFEST_ARTIFACT);
+  fs.writeFileSync(artifactPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  console.log("[og-image] wrote client manifest artifact", {
+    artifactPath,
+    businessName: String(manifest.businessName ?? ""),
+    businessType: String(manifest.businessType ?? ""),
+  });
 }
 
 export async function prepareClientDistWithOgImage(
@@ -139,6 +157,7 @@ export async function prepareClientDistWithOgImage(
   });
 
   writeClientDistHeaders(stagingDir);
+  writeClientManifestArtifact(stagingDir, manifest);
   patchClientIndexHtml(stagingDir, manifest, siteUrl, clientId);
   return stagingDir;
 }

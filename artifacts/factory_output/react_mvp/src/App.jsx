@@ -46,6 +46,17 @@ function readDeployedClientId() {
   return typeof baked === "string" && baked.trim() ? baked.trim() : null;
 }
 
+function readDeployedManifest() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  const baked = window.__CRM_DEMO_MANIFEST__;
+  if (baked && typeof baked === "object" && !Array.isArray(baked)) {
+    return baked;
+  }
+  return null;
+}
+
 function readClientIdFromLocation() {
   if (typeof window === "undefined") {
     return null;
@@ -1204,6 +1215,28 @@ export default function App() {
     const controller = new AbortController();
 
     const loadConfig = async () => {
+      const embedded = readDeployedManifest();
+      if (embedded && applyManifestFromConfig(embedded)) {
+        return;
+      }
+
+      try {
+        const staticResponse = await fetch("./client-manifest.json", {
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        if (staticResponse.ok) {
+          const config = await staticResponse.json();
+          if (applyManifestFromConfig(config)) {
+            return;
+          }
+        }
+      } catch (error) {
+        if (error?.name === "AbortError") {
+          return;
+        }
+      }
+
       const clientId = readClientIdFromLocation();
       if (clientId) {
         try {
