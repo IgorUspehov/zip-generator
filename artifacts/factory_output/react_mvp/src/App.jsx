@@ -2344,3 +2344,5 @@ export default function App() {
     </div>
   );
 }
+
+/* logo-asset-sync 2026-07-16T22:26:14+02:00 */
