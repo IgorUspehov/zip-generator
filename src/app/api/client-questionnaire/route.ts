@@ -38,6 +38,42 @@ const FALLBACK_TEMPLATE_URL =
   process.env.SITE_TEMPLATE_URL ??
   "https://demo.pages.dev";
 
+/** Safe post-deploy probe — never logs secrets or full HTML. */
+async function logDeployedSiteProbe(siteUrl: string): Promise<void> {
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      const response = await fetch(siteUrl, {
+        method: "GET",
+        redirect: "follow",
+        headers: { Accept: "text/html" },
+      });
+      const contentType = response.headers.get("content-type");
+      const xFrameOptions = response.headers.get("x-frame-options");
+      const csp = response.headers.get("content-security-policy");
+      const body = await response.text();
+      console.log("[client-questionnaire] deployed site probe", {
+        attempt,
+        siteUrl,
+        status: response.status,
+        contentType,
+        xFrameOptions,
+        contentSecurityPolicy: csp,
+        frameAncestors: csp?.match(/frame-ancestors[^;]*/i)?.[0] ?? null,
+        bodyPreview: body.slice(0, 200),
+        hasIndexHtml: /<!doctype html|<html/i.test(body),
+      });
+      if (response.ok) return;
+    } catch (error) {
+      console.error("[client-questionnaire] deployed site probe failed", {
+        attempt,
+        siteUrl,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+}
+
 let openaiClient: OpenAI | null = null;
 
 function getOpenAIClient(): OpenAI | null {
@@ -580,7 +616,14 @@ export async function POST(request: Request) {
         siteUrl = pagesProject.siteUrl;
         deployId = deployResult.deploymentId;
         redirectUrl = buildMvpRedirectUrl(siteUrl, clientId);
-        console.log("[client-questionnaire] Cloudflare deploy success:", { siteId, siteUrl, deployId });
+        console.log("[client-questionnaire] Cloudflare deploy success:", {
+          siteId,
+          siteUrl,
+          deployId,
+          redirectUrl,
+        });
+
+        await logDeployedSiteProbe(redirectUrl);
 
         scheduleDeletion({
           siteId,

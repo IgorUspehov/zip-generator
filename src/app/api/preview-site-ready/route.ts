@@ -22,22 +22,17 @@ async function probePreviewSite(url: string): Promise<boolean> {
   const timeout = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
 
   try {
-    let response = await fetch(url, {
-      method: "HEAD",
+    // Prefer GET — some Pages edge paths mishandle HEAD for brand-new deployments.
+    const response = await fetch(url, {
+      method: "GET",
       redirect: "follow",
       signal: controller.signal,
+      headers: {
+        Accept: "text/html",
+        Range: "bytes=0-0",
+      },
     });
-
-    if (!response.ok && (response.status === 404 || response.status === 405)) {
-      response = await fetch(url, {
-        method: "GET",
-        redirect: "follow",
-        signal: controller.signal,
-        headers: { Range: "bytes=0-0" },
-      });
-    }
-
-    return response.ok;
+    return response.ok || response.status === 206;
   } catch {
     return false;
   } finally {

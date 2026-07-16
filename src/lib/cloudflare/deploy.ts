@@ -99,6 +99,9 @@ function getContentType(relativePath: string): string {
   return map[ext] ?? "application/octet-stream";
 }
 
+/** Same as wrangler pages validate IGNORE_LIST — these are deployment FormData fields, not assets. */
+const PAGES_SPECIAL_FILES = new Set(["_headers", "_redirects"]);
+
 function walkDistFiles(distPath: string, base = distPath): DistFile[] {
   const entries: DistFile[] = [];
   for (const entry of fs.readdirSync(distPath, { withFileTypes: true })) {
@@ -106,6 +109,10 @@ function walkDistFiles(distPath: string, base = distPath): DistFile[] {
     const relativePath = path.relative(base, absolutePath).split(path.sep).join("/");
     if (entry.isDirectory()) {
       entries.push(...walkDistFiles(absolutePath, base));
+      continue;
+    }
+    // Do not hash/upload _headers/_redirects as regular assets (wrangler IGNORE_LIST).
+    if (PAGES_SPECIAL_FILES.has(entry.name) && !relativePath.includes("/")) {
       continue;
     }
     const buffer = fs.readFileSync(absolutePath);
@@ -119,6 +126,13 @@ function walkDistFiles(distPath: string, base = distPath): DistFile[] {
     });
   }
   return entries;
+}
+
+function readPagesSpecialFile(distPath: string, fileName: "_headers" | "_redirects"): string | null {
+  const filePath = path.join(distPath, fileName);
+  if (!fs.existsSync(filePath)) return null;
+  const contents = fs.readFileSync(filePath, "utf8").trim();
+  return contents.length > 0 ? `${contents}\n` : null;
 }
 
 function resolveSiteUrl(subdomain: string | undefined, projectName: string): string {
@@ -341,6 +355,47 @@ async function waitForDeploymentReady(
   throw new Error("Cloudflare deployment timed out waiting for ready state");
 }
 
+/**
+ * Pages edge often returns 522 (with X-Frame-Options: SAMEORIGIN) for a short window
+ * after deploy success. Wait until the production URL serves real HTML.
+ */
+async function waitForPagesEdgeReady(siteUrl: string, timeoutMs = 120_000): Promise<void> {
+  const startedAt = Date.now();
+  let attempt = 0;
+
+  while (Date.now() - startedAt < timeoutMs) {
+    attempt += 1;
+    try {
+      const response = await fetch(siteUrl, {
+        method: "GET",
+        redirect: "follow",
+        headers: { Accept: "text/html" },
+      });
+      const contentType = response.headers.get("content-type") ?? "";
+      const csp = response.headers.get("content-security-policy");
+      const xFrameOptions = response.headers.get("x-frame-options");
+      console.log("[cloudflare/deploy] edge probe", {
+        attempt,
+        status: response.status,
+        contentType,
+        xFrameOptions,
+        frameAncestors: csp?.match(/frame-ancestors[^;]*/i)?.[0] ?? null,
+      });
+      if (response.ok && /text\/html/i.test(contentType)) {
+        return;
+      }
+    } catch (error) {
+      console.log("[cloudflare/deploy] edge probe error", {
+        attempt,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+  }
+
+  console.warn("[cloudflare/deploy] edge not ready within timeout — continuing", { siteUrl, timeoutMs });
+}
+
 export function resolveMvpDistPath(): string {
   const candidates = [
     process.env.MVP_DIST_PATH,
@@ -403,7 +458,10 @@ export async function createPagesProject(
  * 2) blake3 asset hashes + check-missing
  * 3) POST /pages/assets/upload for missing files
  * 4) upsert-hashes
- * 5) POST .../deployments with manifest only (no file bodies)
+ * 5) POST .../deployments with manifest + optional _headers/_redirects FormData fields
+ *
+ * Important: `_headers` must be a separate FormData field on the deployment request
+ * (like wrangler). Uploading it as a normal asset does NOT apply response headers.
  */
 export async function deployDistToPages(
   projectName: string,
@@ -424,7 +482,11 @@ export async function deployDistToPages(
     throw new Error(`Missing index.html in dist: ${distPath}`);
   }
 
+  const headersContents = readPagesSpecialFile(distPath, "_headers");
+  const redirectsContents = readPagesSpecialFile(distPath, "_redirects");
+
   // Manifest keys MUST include leading slash (wrangler format).
+  // Do not include _headers/_redirects — they are FormData fields below.
   const manifest: Record<string, string> = {};
   for (const file of files) {
     manifest[`/${file.relativePath}`] = file.hash;
@@ -436,6 +498,8 @@ export async function deployDistToPages(
     hasIndexHtml: true,
     indexHtmlBytes: indexFile.sizeInBytes,
     indexHtmlHash: indexFile.hash,
+    hasHeadersFile: Boolean(headersContents),
+    hasRedirectsFile: Boolean(redirectsContents),
     accountIdMasked: maskAccountId(accountId),
   });
 
@@ -459,10 +523,25 @@ export async function deployDistToPages(
 
   const form = new FormData();
   form.append("manifest", JSON.stringify(manifest));
+  if (headersContents) {
+    // Match wrangler: formData.append("_headers", new File([contents], "_headers"))
+    form.append("_headers", new File([headersContents], "_headers"));
+    console.log("[cloudflare/deploy] attaching _headers FormData field", {
+      bytes: Buffer.byteLength(headersContents, "utf8"),
+    });
+  }
+  if (redirectsContents) {
+    form.append("_redirects", new File([redirectsContents], "_redirects"));
+    console.log("[cloudflare/deploy] attaching _redirects FormData field", {
+      bytes: Buffer.byteLength(redirectsContents, "utf8"),
+    });
+  }
 
   console.log("[cloudflare/deploy] creating deployment with manifest", {
     projectName,
     manifestEntries: Object.keys(manifest).length,
+    headersAttached: Boolean(headersContents),
+    redirectsAttached: Boolean(redirectsContents),
   });
 
   const response = await fetch(
@@ -496,9 +575,12 @@ export async function deployDistToPages(
   }
 
   const ready = await waitForDeploymentReady(accountId, token, projectName, deploymentId);
+  const productionUrl = `https://${projectName}.pages.dev`;
+  await waitForPagesEdgeReady(productionUrl);
   console.log("[cloudflare/deploy] deployment ready", {
     deploymentId,
     deploymentUrl: ready.url ?? deployment?.url,
+    productionUrl,
     latest_stage: ready.latest_stage,
   });
 

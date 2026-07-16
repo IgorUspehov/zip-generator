@@ -7,6 +7,14 @@ import {
   getOgImagePath,
 } from "@/lib/image-library";
 
+const RAILWAY_FRAME_ANCESTOR = "https://saas-mvp-funnel-production.up.railway.app";
+
+/** Cloudflare Pages _headers — allow Live Preview iframe from Railway only. */
+export const CLIENT_DIST_HEADERS = `/*
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors 'self' ${RAILWAY_FRAME_ANCESTOR}
+`;
+
 type ManifestLike = {
   businessName?: unknown;
   businessType?: unknown;
@@ -26,6 +34,15 @@ function formatBusinessTypeLabel(businessType: string): string {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function writeClientDistHeaders(stagingDir: string): void {
+  const headersPath = path.join(stagingDir, "_headers");
+  fs.writeFileSync(headersPath, `${CLIENT_DIST_HEADERS.trim()}\n`, "utf8");
+  console.log("[og-image] wrote _headers for Railway iframe embedding", {
+    headersPath,
+    frameAncestor: RAILWAY_FRAME_ANCESTOR,
+  });
 }
 
 function patchClientIndexHtml(
@@ -121,6 +138,7 @@ export async function prepareClientDistWithOgImage(
     bytes: ogBytes,
   });
 
+  writeClientDistHeaders(stagingDir);
   patchClientIndexHtml(stagingDir, manifest, siteUrl, clientId);
   return stagingDir;
 }
