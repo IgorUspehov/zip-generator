@@ -51,7 +51,22 @@ const TARGET_ROOTS = [
   path.join(projectRoot, "artifacts", "factory_output", "react_mvp", "public", "image-library"),
 ];
 
-const nicheAssetsRoot = path.join(projectRoot, "mvp-template", "dist", "assets", "niches");
+/** Prefer tracked react_mvp niches; fall back to local mvp-template sync. */
+const NICHE_ASSETS_CANDIDATES = [
+  path.join(projectRoot, "artifacts", "factory_output", "react_mvp", "public", "assets", "niches"),
+  path.join(projectRoot, "mvp-template", "dist", "assets", "niches"),
+];
+
+function resolveNicheAssetsRoot() {
+  for (const candidate of NICHE_ASSETS_CANDIDATES) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return NICHE_ASSETS_CANDIDATES[0];
+}
+
+const nicheAssetsRoot = resolveNicheAssetsRoot();
 
 function sourcePhoto(nicheFolder, index) {
   return path.join(
@@ -304,11 +319,13 @@ async function bootstrapFolder(libraryFolder, source) {
 
 async function main() {
   if (!fs.existsSync(nicheAssetsRoot)) {
-    console.error(
-      "[image-library] Run react_mvp build first so mvp-template/dist/assets/niches exists.",
+    console.log(
+      "image-library:bootstrap skipped — niche assets not found, using existing public/image-library/",
     );
-    process.exit(1);
+    process.exit(0);
   }
+
+  console.log(`[image-library] niche source: ${path.relative(projectRoot, nicheAssetsRoot)}`);
 
   const genericSource = LIBRARY_SOURCES.generic;
   await bootstrapFolder("generic", genericSource);
