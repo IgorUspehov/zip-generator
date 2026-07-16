@@ -516,12 +516,13 @@ export async function deployToCloudflarePages(
     const { projectName, siteUrl } = await createPagesProject(clientId);
     createdProjectName = projectName;
     const { deploymentId, deploymentUrl } = await deployDistToPages(projectName, distPath);
+    // Prefer stable project production URL (*.pages.dev), not short-id alias.
     const result = {
       projectName,
-      siteUrl: deploymentUrl ?? siteUrl,
+      siteUrl,
       deploymentId,
     };
-    console.log("[cloudflare/deploy] success", result);
+    console.log("[cloudflare/deploy] success", { ...result, deploymentUrl });
     return result;
   } catch (error) {
     if (createdProjectName) {
