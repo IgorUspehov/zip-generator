@@ -6,3 +6,5 @@ buildCommand = "npm run build:railway:deploy"
 startCommand = "npm run start"
 healthcheckPath = "/api/client-questionnaire"
 healthcheckTimeout = 120
+
+# cache-bust logo deploy 2026-07-16T22:13:25+02:00
