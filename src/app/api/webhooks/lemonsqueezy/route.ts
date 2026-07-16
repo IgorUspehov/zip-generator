@@ -6,7 +6,7 @@ import {
   cancelDeletion,
   findPendingByClientId,
   findPendingBySiteUrl,
-} from "@/lib/netlify/scheduler";
+} from "@/lib/cloudflare/scheduler";
 import { LEMONSQUEEZY_VARIANT_CRM_FULL } from "@/lib/crm-full/constants";
 import { fulfillCrmFullOrder } from "@/lib/crm-full/fulfillment";
 import { LEMONSQUEEZY_VARIANT_MVP_PRO } from "@/lib/mvp-pro/constants";

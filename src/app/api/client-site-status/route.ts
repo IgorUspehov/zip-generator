@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { buildMvpRedirectUrl } from "@/lib/manifest/storage";
-import { findPendingByClientId } from "@/lib/netlify/scheduler";
+import { findPendingByClientId } from "@/lib/cloudflare/scheduler";
 
 export async function GET(request: NextRequest) {
   const clientId = request.nextUrl.searchParams.get("clientId")?.trim();

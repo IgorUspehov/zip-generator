@@ -1,6 +1,6 @@
 import { sendResendEmail, resolveClientLanguage, type ClientLanguage } from "@/lib/email/resend";
 import { buildMvpRedirectUrl, loadClientManifest } from "@/lib/manifest/storage";
-import { findPendingByClientId } from "@/lib/netlify/scheduler";
+import { findPendingByClientId } from "@/lib/cloudflare/scheduler";
 import { grantSiteDownloadAccess } from "@/lib/site-delivery/download-access";
 import { markClientDistEmailDelivered } from "@/lib/site-delivery/dist-protection";
 import { clientDistExists } from "@/lib/site-delivery/dist-store";

@@ -37,7 +37,10 @@ const LIVE_PREVIEW_PROBE_MAX_ATTEMPTS = 10;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function isProbeablePreviewUrl(url: string): boolean {
-  return url.startsWith("https://") && url.includes(".netlify.app");
+  return (
+    url.startsWith("https://") &&
+    (url.includes(".pages.dev") || url.includes(".netlify.app"))
+  );
 }
 
 function PaymentReturnScreen({
@@ -559,7 +562,7 @@ function ClientWizardFlow() {
     siteId?: string;
     clientId?: string;
   } | null>(null);
-  const [previewUrl, setPreviewUrl] = useState("https://—.netlify.app");
+  const [previewUrl, setPreviewUrl] = useState("https://—.pages.dev");
   const [previewTitle, setPreviewTitle] = useState("—");
   const [previewSub, setPreviewSub] = useState("—");
   const [publishCountdown, setPublishCountdown] = useState<number | null>(null);
@@ -605,7 +608,7 @@ function ClientWizardFlow() {
 
     setPreviewTitle(name.trim() || "—");
     setPreviewSub(sector ? `${sector.icon} ${sector.label}` : "—");
-    setPreviewUrl(pendingRedirectUrl ?? deployMeta?.demoUrl ?? "https://—.netlify.app");
+    setPreviewUrl(pendingRedirectUrl ?? deployMeta?.demoUrl ?? "https://—.pages.dev");
 
     void (async () => {
       try {

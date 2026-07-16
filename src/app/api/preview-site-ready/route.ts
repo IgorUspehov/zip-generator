@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { findPendingByClientId } from "@/lib/netlify/scheduler";
+import { findPendingByClientId } from "@/lib/cloudflare/scheduler";
 
-const NETLIFY_HOST = /\.netlify\.app$/i;
+const ALLOWED_PREVIEW_HOST = /\.(pages\.dev|netlify\.app)$/i;
 const PROBE_TIMEOUT_MS = 5_000;
 
 function parsePreviewUrl(value: string): URL | null {
   try {
     const parsed = new URL(value);
-    if (parsed.protocol !== "https:" || !NETLIFY_HOST.test(parsed.hostname)) {
+    if (parsed.protocol !== "https:" || !ALLOWED_PREVIEW_HOST.test(parsed.hostname)) {
       return null;
     }
     return parsed;

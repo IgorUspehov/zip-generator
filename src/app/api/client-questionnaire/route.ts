@@ -9,8 +9,14 @@ import { DEFAULT_BUSINESS_TYPE, SECTOR_ID_TO_BUSINESS_TYPE } from "@/lib/sector-
 import { buildCommercialData } from "@/lib/payment/payment-service";
 import { notifyNewLead } from "@/lib/leads/notify-lead";
 import { cleanupClientDist, prepareClientDistWithOgImage } from "@/lib/og-image/prepare-client-dist";
-import { createNetlifySite, uploadAndDeploy, deleteNetlifySite, resolveMvpDistPath } from "@/lib/netlify/deploy";
-import { scheduleDeletion, startDeletionScheduler } from "@/lib/netlify/scheduler";
+import {
+  createPagesProject,
+  deletePagesProject,
+  deployDistToPages,
+  isCloudflareDeployConfigured,
+  resolveMvpDistPath,
+} from "@/lib/cloudflare/deploy";
+import { scheduleDeletion, startDeletionScheduler } from "@/lib/cloudflare/scheduler";
 import {
   buildMvpRedirectUrl,
   saveClientManifest,
@@ -26,8 +32,10 @@ import { persistClientDistSnapshot } from "@/lib/site-delivery/dist-store";
 const sectorMapping = { sector_id_to_business_type: SECTOR_ID_TO_BUSINESS_TYPE };
 
 const QUESTIONNAIRE_PATH = path.join(process.cwd(), "input/client_onboarding_questionnaire.json");
-const NETLIFY_TEMPLATE_URL =
-  process.env.NETLIFY_TEMPLATE_URL ?? "https://harmonious-unicorn-e1596b.netlify.app";
+const FALLBACK_TEMPLATE_URL =
+  process.env.CLOUDFLARE_TEMPLATE_URL ??
+  process.env.SITE_TEMPLATE_URL ??
+  "https://demo.pages.dev";
 
 let openaiClient: OpenAI | null = null;
 
@@ -537,40 +545,40 @@ export async function POST(request: Request) {
     let siteId: string | undefined;
     let siteUrl: string | undefined;
     let deployId: string | undefined;
-    let redirectUrl = buildMvpRedirectUrl(NETLIFY_TEMPLATE_URL, clientId);
+    let redirectUrl = buildMvpRedirectUrl(FALLBACK_TEMPLATE_URL, clientId);
 
-    if (process.env.NETLIFY_API_TOKEN || process.env.NETLIFY_AUTH_TOKEN) {
+    if (isCloudflareDeployConfigured()) {
       try {
         const distPath = resolveMvpDistPath();
-        console.log("[client-questionnaire] Netlify deploy starting:", { clientId, distPath });
+        console.log("[client-questionnaire] Cloudflare deploy starting:", { clientId, distPath });
 
-        const netlifySite = await createNetlifySite(clientId);
+        const pagesProject = await createPagesProject(clientId);
 
         const clientDistPath = await prepareClientDistWithOgImage(
           clientId,
           distPath,
           manifest as Record<string, unknown>,
-          netlifySite.siteUrl,
+          pagesProject.siteUrl,
         );
 
-        let deployResult: { deployId: string };
+        let deployResult: { deploymentId: string };
         try {
-          deployResult = await uploadAndDeploy(netlifySite.siteId, clientDistPath);
+          deployResult = await deployDistToPages(pagesProject.projectName, clientDistPath);
           persistClientDistSnapshot(clientId, clientDistPath);
         } catch (uploadError) {
-          await deleteNetlifySite(netlifySite.siteId).catch((deleteError) => {
-            console.error("[client-questionnaire] failed to delete orphaned site:", deleteError);
+          await deletePagesProject(pagesProject.projectName).catch((deleteError) => {
+            console.error("[client-questionnaire] failed to delete orphaned project:", deleteError);
           });
           throw uploadError;
         } finally {
           cleanupClientDist(clientDistPath);
         }
 
-        siteId = netlifySite.siteId;
-        siteUrl = netlifySite.siteUrl;
-        deployId = deployResult.deployId;
+        siteId = pagesProject.projectName;
+        siteUrl = pagesProject.siteUrl;
+        deployId = deployResult.deploymentId;
         redirectUrl = buildMvpRedirectUrl(siteUrl, clientId);
-        console.log("[client-questionnaire] Netlify deploy success:", { siteId, siteUrl, deployId });
+        console.log("[client-questionnaire] Cloudflare deploy success:", { siteId, siteUrl, deployId });
 
         scheduleDeletion({
           siteId,
@@ -579,15 +587,15 @@ export async function POST(request: Request) {
           deployedAt: new Date().toISOString(),
         });
         startDeletionScheduler();
-      } catch (netlifyError) {
-        console.error("[client-questionnaire] Netlify deploy failed, falling back to shared template:", {
-          error: netlifyError,
-          message: netlifyError instanceof Error ? netlifyError.message : String(netlifyError),
-          stack: netlifyError instanceof Error ? netlifyError.stack : undefined,
+      } catch (cloudflareError) {
+        console.error("[client-questionnaire] Cloudflare deploy failed, falling back to shared template:", {
+          error: cloudflareError,
+          message: cloudflareError instanceof Error ? cloudflareError.message : String(cloudflareError),
+          stack: cloudflareError instanceof Error ? cloudflareError.stack : undefined,
         });
       }
     } else {
-      console.log("[client-questionnaire] Netlify token missing, using shared template URL");
+      console.log("[client-questionnaire] Cloudflare credentials missing, using shared template URL");
     }
 
     console.log("[client-questionnaire] POST success:", { redirectUrl, siteId, siteUrl, deployId, clientId });

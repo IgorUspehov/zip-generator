@@ -9,7 +9,7 @@ import {
   resolveOrderId,
 } from "@/lib/polar/order-context";
 import { resolvePolarProductKind } from "@/lib/polar/product-match";
-import { cancelDeletion, findPendingByClientId } from "@/lib/netlify/scheduler";
+import { cancelDeletion, findPendingByClientId } from "@/lib/cloudflare/scheduler";
 import { markClientDistPaid } from "@/lib/site-delivery/dist-protection";
 import { fulfillPaidSiteDelivery } from "@/lib/site-delivery/post-payment-email";
 import { saveCheckoutReference } from "@/lib/polar/checkout-reference-store";

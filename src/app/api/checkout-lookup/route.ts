@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { findPendingByClientId } from "@/lib/netlify/scheduler";
+import { findPendingByClientId } from "@/lib/cloudflare/scheduler";
 import { getCheckoutReference } from "@/lib/polar/checkout-reference-store";
 
 const SITE_URL =

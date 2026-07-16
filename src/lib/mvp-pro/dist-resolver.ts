@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-import { resolveMvpDistPath } from "@/lib/netlify/deploy";
+import { resolveMvpDistPath } from "@/lib/cloudflare/deploy";
 
 export function resolveClientDistPath(clientId: string): string {
   const perClientDist = path.join(process.cwd(), "artifacts", clientId, "dist");

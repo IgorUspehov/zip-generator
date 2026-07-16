@@ -2,7 +2,7 @@ import { markCrmDemoEmailSent } from "@/lib/crm-demo/delivery-status";
 import { sendResendEmail, waitForResendDeliveryStatus } from "@/lib/email/resend";
 import { buildMvpRedirectUrl, loadClientManifest } from "@/lib/manifest/storage";
 import { runStorageCleanup } from "@/lib/manifest/storage-manager";
-import { findPendingByClientId } from "@/lib/netlify/scheduler";
+import { findPendingByClientId } from "@/lib/cloudflare/scheduler";
 import { grantSiteDownloadAccess } from "@/lib/site-delivery/download-access";
 import { markClientDistEmailDelivered } from "@/lib/site-delivery/dist-protection";
 import { clientDistExists, resolveClientDistPath } from "@/lib/site-delivery/dist-store";
