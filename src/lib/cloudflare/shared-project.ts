@@ -1,0 +1,39 @@
+import { RAILWAY_FRAME_ANCESTOR } from "@/lib/cloudflare/iframe-ready";
+
+/**
+ * Cloudflare Pages account project limit varies; free plans often allow ~100.
+ * This account previously failed near 20 — keep headroom but do not create per-client projects.
+ */
+export const DEFAULT_SHARED_PAGES_PROJECT = "crm-demo-sites";
+export const DEFAULT_DEPLOYMENT_KEEP = 40;
+
+export function getSharedPagesProjectName(): string {
+  const raw = process.env.CLOUDFLARE_PAGES_PROJECT_NAME?.trim() || DEFAULT_SHARED_PAGES_PROJECT;
+  return raw
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 58);
+}
+
+export function getDeploymentKeepCount(): number {
+  const raw = Number(process.env.CLOUDFLARE_DEPLOYMENT_KEEP ?? DEFAULT_DEPLOYMENT_KEEP);
+  if (!Number.isFinite(raw) || raw < 5) return DEFAULT_DEPLOYMENT_KEEP;
+  return Math.floor(raw);
+}
+
+export function getPublicSiteOrigin(): string {
+  return (
+    process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "") ||
+    RAILWAY_FRAME_ANCESTOR
+  );
+}
+
+export function buildReadableDemoUrl(slug: string, clientId?: string): string {
+  const base = `${getPublicSiteOrigin()}/demo/${slug}`;
+  if (!clientId) return base;
+  const url = new URL(base);
+  url.searchParams.set("clientId", clientId);
+  return url.toString();
+}

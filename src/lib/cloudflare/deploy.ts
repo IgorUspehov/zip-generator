@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 
 import { isPagesIframeEmbedReady } from "@/lib/cloudflare/iframe-ready";
+import { getSharedPagesProjectName } from "@/lib/cloudflare/shared-project";
 
 const CF_API = "https://api.cloudflare.com/client/v4";
 const MAX_BUCKET_BYTES = 50 * 1024 * 1024;
@@ -126,37 +127,36 @@ export type PagesProjectNameInput = {
   businessName?: string;
 };
 
-/** First whitespace-separated word of businessName → slug (e.g. "Ihor Kriazhev" → "ihor"). */
-function firstNameSlug(businessName: string): string {
-  const firstWord = String(businessName ?? "").trim().split(/\s+/)[0] ?? "";
-  return slugifyProjectSegment(firstWord);
-}
-
 /**
- * Readable unique Pages project name:
- * `{businessType}-{firstNameSlug}-{shortId}` (no mvp- prefix, no timestamp).
+ * Readable demo slug (not a Cloudflare project name):
+ * `{businessNameSlug}-{shortId}` or `{businessType}-{shortId}` when name missing.
  */
-export function buildPagesProjectName(input: PagesProjectNameInput): string {
+export function buildDemoSlug(input: PagesProjectNameInput): string {
   const shortId = String(input.clientId ?? "")
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "")
     .slice(0, 4);
   if (!shortId) {
-    throw new Error("clientId is required to build Cloudflare Pages project name");
+    throw new Error("clientId is required to build demo slug");
   }
 
+  const nameSlug = slugifyProjectSegment(input.businessName || "");
   const typeSlug = slugifyProjectSegment(input.businessType || "business") || "business";
-  const nameSlug = firstNameSlug(input.businessName || "");
+  const primary = nameSlug || typeSlug;
 
-  if (!nameSlug) {
-    return `${typeSlug}-${shortId}`.slice(0, CF_PROJECT_NAME_MAX).replace(/-$/, "");
-  }
-
-  const prefix = `${typeSlug}-`;
   const suffix = `-${shortId}`;
-  const maxNameLen = Math.max(1, CF_PROJECT_NAME_MAX - prefix.length - suffix.length);
-  const truncatedName = nameSlug.slice(0, maxNameLen).replace(/-$/, "");
-  return `${prefix}${truncatedName}${suffix}`;
+  const maxPrimary = Math.max(1, CF_PROJECT_NAME_MAX - suffix.length);
+  const truncated = primary.slice(0, maxPrimary).replace(/-$/, "");
+  return `${truncated}${suffix}`;
+}
+
+/** @deprecated Use buildDemoSlug — kept for transitional imports. */
+export function buildPagesProjectName(input: PagesProjectNameInput): string {
+  return buildDemoSlug(input);
+}
+
+export function buildPreviewBranch(slug: string): string {
+  return slugifyProjectSegment(slug).slice(0, 58) || `demo-${Date.now()}`;
 }
 
 /** Matches wrangler pages hashFile: blake3(base64(contents) + extension).hex.slice(0, 32) */
@@ -508,21 +508,43 @@ export function resolveMvpDistPath(): string {
   throw new Error("MVP dist folder not found. Build or copy react_mvp/dist to mvp-template/dist.");
 }
 
-export async function createPagesProject(
-  input: PagesProjectNameInput | string,
-): Promise<{ projectName: string; siteUrl: string }> {
+export async function ensureSharedPagesProject(): Promise<{
+  projectName: string;
+  productionUrl: string;
+}> {
   const { accountId, token } = getCloudflareConfig();
-  const opts: PagesProjectNameInput =
-    typeof input === "string" ? { clientId: input } : input;
-  const projectName = buildPagesProjectName(opts);
+  const projectName = getSharedPagesProjectName();
 
-  console.log("[cloudflare/deploy] creating project", {
+  const getOnce = async () => {
+    const response = await fetch(
+      `${CF_API}/accounts/${accountId}/pages/projects/${projectName}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      },
+    );
+    const body = await readJsonSafe(response);
+    return { response, body };
+  };
+
+  let { response, body } = await getOnce();
+  if (response.ok) {
+    const payload = body as { result?: { name?: string; subdomain?: string } };
+    const name = payload.result?.name ?? projectName;
+    return { projectName: name, productionUrl: resolveSiteUrl(payload.result?.subdomain, name) };
+  }
+
+  if (response.status !== 404) {
+    throw new Error(`Failed to get Cloudflare Pages project: ${JSON.stringify(body)}`);
+  }
+
+  console.log("[cloudflare/deploy] creating shared project once", {
     projectName,
-    clientId: opts.clientId,
-    businessType: opts.businessType,
     accountIdMasked: maskAccountId(accountId),
   });
-  const response = await fetch(`${CF_API}/accounts/${accountId}/pages/projects`, {
+  const createRes = await fetch(`${CF_API}/accounts/${accountId}/pages/projects`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -534,22 +556,31 @@ export async function createPagesProject(
       production_branch: "main",
     }),
   });
+  const createBody = await readJsonSafe(createRes);
 
-  const body = await readJsonSafe(response);
-  console.log("[cloudflare/deploy] create project response", {
-    status: response.status,
-    ok: response.ok,
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to create Cloudflare Pages project: ${JSON.stringify(body)}`);
+  if (!createRes.ok) {
+    // Race: another request created it — retry GET.
+    const retry = await getOnce();
+    if (retry.response.ok) {
+      const payload = retry.body as { result?: { name?: string; subdomain?: string } };
+      const name = payload.result?.name ?? projectName;
+      return { projectName: name, productionUrl: resolveSiteUrl(payload.result?.subdomain, name) };
+    }
+    throw new Error(`Failed to create shared Cloudflare Pages project: ${JSON.stringify(createBody)}`);
   }
 
-  const payload = body as { result?: { name?: string; subdomain?: string } };
-  const resultName = payload.result?.name ?? projectName;
-  const siteUrl = resolveSiteUrl(payload.result?.subdomain, resultName);
-  console.log("[cloudflare/deploy] project created", { projectName: resultName, siteUrl });
-  return { projectName: resultName, siteUrl };
+  const payload = createBody as { result?: { name?: string; subdomain?: string } };
+  const name = payload.result?.name ?? projectName;
+  console.log("[cloudflare/deploy] shared project ready", { projectName: name });
+  return { projectName: name, productionUrl: resolveSiteUrl(payload.result?.subdomain, name) };
+}
+
+/** @deprecated Prefer ensureSharedPagesProject — no longer creates per-client projects. */
+export async function createPagesProject(
+  _input?: PagesProjectNameInput | string,
+): Promise<{ projectName: string; siteUrl: string }> {
+  const shared = await ensureSharedPagesProject();
+  return { projectName: shared.projectName, siteUrl: shared.productionUrl };
 }
 
 /**
@@ -560,13 +591,13 @@ export async function createPagesProject(
  * 4) upsert-hashes
  * 5) POST .../deployments with manifest + optional _headers/_redirects FormData fields
  *
- * Important: `_headers` must be a separate FormData field on the deployment request
- * (like wrangler). Uploading it as a normal asset does NOT apply response headers.
+ * Pass previewBranch ≠ production_branch to get a unique preview deployment URL.
  */
 export async function deployDistToPages(
   projectName: string,
   distPath: string,
-): Promise<{ deploymentId: string; deploymentUrl?: string }> {
+  options?: { previewBranch?: string },
+): Promise<{ deploymentId: string; deploymentUrl: string }> {
   if (!fs.existsSync(distPath)) {
     throw new Error(`Dist path does not exist: ${distPath}`);
   }
@@ -585,8 +616,6 @@ export async function deployDistToPages(
   const headersContents = readPagesSpecialFile(distPath, "_headers");
   const redirectsContents = readPagesSpecialFile(distPath, "_redirects");
 
-  // Manifest keys MUST include leading slash (wrangler format).
-  // Do not include _headers/_redirects — they are FormData fields below.
   const manifest: Record<string, string> = {};
   for (const file of files) {
     manifest[`/${file.relativePath}`] = file.hash;
@@ -594,6 +623,7 @@ export async function deployDistToPages(
 
   console.log("[cloudflare/deploy] preparing upload", {
     projectName,
+    previewBranch: options?.previewBranch,
     fileCount: files.length,
     hasIndexHtml: true,
     indexHtmlBytes: indexFile.sizeInBytes,
@@ -623,8 +653,10 @@ export async function deployDistToPages(
 
   const form = new FormData();
   form.append("manifest", JSON.stringify(manifest));
+  if (options?.previewBranch) {
+    form.append("branch", options.previewBranch);
+  }
   if (headersContents) {
-    // Match wrangler: formData.append("_headers", new File([contents], "_headers"))
     form.append("_headers", new File([headersContents], "_headers"));
     console.log("[cloudflare/deploy] attaching _headers FormData field", {
       bytes: Buffer.byteLength(headersContents, "utf8"),
@@ -639,6 +671,7 @@ export async function deployDistToPages(
 
   console.log("[cloudflare/deploy] creating deployment with manifest", {
     projectName,
+    previewBranch: options?.previewBranch,
     manifestEntries: Object.keys(manifest).length,
     headersAttached: Boolean(headersContents),
     redirectsAttached: Boolean(redirectsContents),
@@ -675,16 +708,18 @@ export async function deployDistToPages(
   }
 
   const ready = await waitForDeploymentReady(accountId, token, projectName, deploymentId);
-  const productionUrl = `https://${projectName}.pages.dev`;
-  await waitForPagesEdgeReady(productionUrl);
+  const deploymentUrl = ready.url ?? deployment?.url;
+  if (!deploymentUrl) {
+    throw new Error("Cloudflare deployment missing url");
+  }
+  await waitForPagesEdgeReady(deploymentUrl);
   console.log("[cloudflare/deploy] deployment ready", {
     deploymentId,
-    deploymentUrl: ready.url ?? deployment?.url,
-    productionUrl,
+    deploymentUrl,
     latest_stage: ready.latest_stage,
   });
 
-  return { deploymentId, deploymentUrl: ready.url ?? deployment?.url };
+  return { deploymentId, deploymentUrl };
 }
 
 export async function deployToCloudflarePages(
@@ -693,38 +728,121 @@ export async function deployToCloudflarePages(
   meta?: Omit<PagesProjectNameInput, "clientId">,
 ): Promise<CloudflareDeployResult> {
   console.log("[cloudflare/deploy] start", { clientId, distPath, ...meta });
-  let createdProjectName: string | null = null;
+  const { projectName } = await ensureSharedPagesProject();
+  const slug = buildDemoSlug({
+    clientId,
+    businessType: meta?.businessType,
+    businessName: meta?.businessName,
+  });
+  const { deploymentId, deploymentUrl } = await deployDistToPages(projectName, distPath, {
+    previewBranch: buildPreviewBranch(slug),
+  });
+  const result = {
+    projectName,
+    siteUrl: deploymentUrl,
+    deploymentId,
+  };
+  console.log("[cloudflare/deploy] success", { ...result, slug });
+  return result;
+}
 
-  try {
-    const { projectName, siteUrl } = await createPagesProject({
-      clientId,
-      businessType: meta?.businessType,
-      businessName: meta?.businessName,
-    });
-    createdProjectName = projectName;
-    const { deploymentId, deploymentUrl } = await deployDistToPages(projectName, distPath);
-    // Prefer stable project production URL (*.pages.dev), not short-id alias.
-    const result = {
-      projectName,
-      siteUrl,
-      deploymentId,
-    };
-    console.log("[cloudflare/deploy] success", { ...result, deploymentUrl });
-    return result;
-  } catch (error) {
-    if (createdProjectName) {
-      console.error("[cloudflare/deploy] cleaning up failed project", {
-        projectName: createdProjectName,
-      });
-      await deletePagesProject(createdProjectName).catch((deleteError) => {
-        console.error("[cloudflare/deploy] failed to delete orphaned project:", deleteError);
-      });
-    }
-    throw error;
+export async function deletePagesDeployment(
+  projectName: string,
+  deploymentId: string,
+): Promise<void> {
+  const { accountId, token } = getCloudflareConfig();
+  const response = await fetch(
+    `${CF_API}/accounts/${accountId}/pages/projects/${projectName}/deployments/${deploymentId}?force=true`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    },
+  );
+  if (!response.ok && response.status !== 404) {
+    throw new Error(
+      `Failed to delete Cloudflare deployment ${deploymentId}: ${await response.text()}`,
+    );
   }
 }
 
+export async function listPagesDeployments(
+  projectName: string,
+  page = 1,
+): Promise<Array<{ id?: string; created_on?: string; url?: string; environment?: string }>> {
+  const { accountId, token } = getCloudflareConfig();
+  const response = await fetch(
+    `${CF_API}/accounts/${accountId}/pages/projects/${projectName}/deployments?page=${page}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    },
+  );
+  const body = await readJsonSafe(response);
+  if (!response.ok) {
+    throw new Error(`Failed to list Cloudflare deployments: ${JSON.stringify(body)}`);
+  }
+  const result = (body as { result?: unknown }).result;
+  return Array.isArray(result)
+    ? (result as Array<{ id?: string; created_on?: string; url?: string; environment?: string }>)
+    : [];
+}
+
+/** Fetch all deployment pages (Cloudflare default page size is 10). */
+export async function listAllPagesDeployments(
+  projectName: string,
+  maxPages = 50,
+): Promise<Array<{ id?: string; created_on?: string; url?: string; environment?: string }>> {
+  const all: Array<{ id?: string; created_on?: string; url?: string; environment?: string }> = [];
+  for (let page = 1; page <= maxPages; page += 1) {
+    const batch = await listPagesDeployments(projectName, page);
+    all.push(...batch);
+    if (batch.length < 10) break;
+  }
+  return all;
+}
+
+export async function pruneOldDeployments(
+  projectName: string,
+  keep: number,
+  protectIds: Set<string>,
+): Promise<number> {
+  const deployments = await listAllPagesDeployments(projectName);
+  // Newest first — keep the latest `keep` deletable deployments.
+  const sorted = [...deployments].sort((a, b) =>
+    String(b.created_on || "").localeCompare(String(a.created_on || "")),
+  );
+  const deletable = sorted.filter((d) => d.id && !protectIds.has(d.id));
+  const toDelete = deletable.slice(keep);
+  let removed = 0;
+  for (const item of toDelete) {
+    if (!item.id) continue;
+    try {
+      await deletePagesDeployment(projectName, item.id);
+      removed += 1;
+    } catch (error) {
+      console.error("[cloudflare/deploy] prune failed", { id: item.id, error });
+    }
+  }
+  console.log("[cloudflare/deploy] pruneOldDeployments", {
+    projectName,
+    keep,
+    removed,
+    total: deployments.length,
+  });
+  return removed;
+}
+
 export async function deletePagesProject(projectName: string): Promise<void> {
+  const shared = getSharedPagesProjectName();
+  if (projectName === shared) {
+    console.warn("[cloudflare/deploy] refusing to delete shared Pages project", { projectName });
+    return;
+  }
   const { accountId, token } = getCloudflareConfig();
   const response = await fetch(`${CF_API}/accounts/${accountId}/pages/projects/${projectName}`, {
     method: "DELETE",

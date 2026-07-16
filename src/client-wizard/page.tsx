@@ -38,10 +38,14 @@ const LIVE_PREVIEW_PROBE_MAX_ATTEMPTS = 60;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function isProbeablePreviewUrl(url: string): boolean {
-  return (
-    url.startsWith("https://") &&
-    (url.includes(".pages.dev") || url.includes(".netlify.app"))
-  );
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:") return false;
+    if (parsed.pathname.startsWith("/demo/")) return true;
+    return parsed.hostname.endsWith(".pages.dev") || parsed.hostname.endsWith(".netlify.app");
+  } catch {
+    return false;
+  }
 }
 
 function PaymentReturnScreen({

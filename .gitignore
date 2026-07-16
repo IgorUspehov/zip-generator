@@ -48,6 +48,7 @@ mvp-template/
 *.log
 logs/
 data/pending-deletions.json
+data/demo-registry.json
 data/checkout-references.json
 data/site-download-access.json
 data/client-dists/

@@ -1,14 +1,31 @@
 import fs from "fs";
 import path from "path";
 
-import { deletePagesProject, isCloudflareDeployConfigured } from "@/lib/cloudflare/deploy";
+import {
+  deletePagesDeployment,
+  isCloudflareDeployConfigured,
+  pruneOldDeployments,
+} from "@/lib/cloudflare/deploy";
+import {
+  listDemoRecords,
+  markDemoPaid,
+  removeDemoByDeploymentId,
+} from "@/lib/cloudflare/demo-registry";
+import {
+  getDeploymentKeepCount,
+  getSharedPagesProjectName,
+} from "@/lib/cloudflare/shared-project";
 import type { PendingDeletionRecord } from "@/lib/manifest/storage-manager";
 import { resolvePendingDeletionsPath } from "@/lib/manifest/storage-paths";
 
 const FORTY_EIGHT_HOURS_MS = 48 * 60 * 60 * 1000;
 const CHECK_INTERVAL_MS = 30 * 60 * 1000;
 
-export type PendingDeletion = PendingDeletionRecord;
+export type PendingDeletion = PendingDeletionRecord & {
+  deploymentUrl?: string;
+  slug?: string;
+  projectName?: string;
+};
 
 function getPendingDeletionsPath(): string {
   return resolvePendingDeletionsPath();
@@ -40,6 +57,9 @@ export function scheduleDeletion(entry: {
   siteUrl: string;
   deployedAt: string;
   deleteAt?: string;
+  deploymentUrl?: string;
+  slug?: string;
+  projectName?: string;
 }): PendingDeletion {
   const deployedAt = entry.deployedAt;
   const deleteAt =
@@ -52,6 +72,9 @@ export function scheduleDeletion(entry: {
     siteUrl: entry.siteUrl,
     deployedAt,
     deleteAt,
+    deploymentUrl: entry.deploymentUrl,
+    slug: entry.slug,
+    projectName: entry.projectName ?? getSharedPagesProjectName(),
   };
 
   const entries = readPendingDeletions().filter((item) => item.siteId !== record.siteId);
@@ -66,7 +89,7 @@ export function cancelDeletion(siteId: string): boolean {
   let updated = false;
 
   const next = entries.map((item) => {
-    if (item.siteId !== siteId) {
+    if (item.siteId !== siteId && item.slug !== siteId) {
       return item;
     }
 
@@ -74,12 +97,11 @@ export function cancelDeletion(siteId: string): boolean {
     return { ...item, paid: true };
   });
 
-  if (!updated) {
-    return false;
+  if (updated) {
+    writePendingDeletions(next);
   }
-
-  writePendingDeletions(next);
-  return true;
+  const registryUpdated = markDemoPaid(siteId);
+  return updated || registryUpdated;
 }
 
 export function findPendingBySiteId(siteId: string): PendingDeletion | undefined {
@@ -92,7 +114,10 @@ export function findPendingByClientId(clientId: string): PendingDeletion | undef
 
 export function findPendingBySiteUrl(siteUrl: string): PendingDeletion | undefined {
   const normalized = siteUrl.replace(/\/$/, "");
-  return readPendingDeletions().find((item) => item.siteUrl.replace(/\/$/, "") === normalized);
+  return readPendingDeletions().find((item) => {
+    const urls = [item.siteUrl, item.deploymentUrl].filter(Boolean) as string[];
+    return urls.some((u) => u.replace(/\/$/, "") === normalized);
+  });
 }
 
 export async function processExpiredDeletions(): Promise<void> {
@@ -100,6 +125,7 @@ export async function processExpiredDeletions(): Promise<void> {
     return;
   }
 
+  const projectName = getSharedPagesProjectName();
   const now = Date.now();
   const entries = readPendingDeletions();
   const remaining: PendingDeletion[] = [];
@@ -112,10 +138,13 @@ export async function processExpiredDeletions(): Promise<void> {
 
     if (new Date(entry.deleteAt).getTime() <= now) {
       try {
-        await deletePagesProject(entry.siteId);
-        console.info(`[cloudflare-scheduler] Deleted expired project ${entry.siteId}`);
+        const targetProject = entry.projectName || projectName;
+        // siteId is deploymentId in the shared-project model.
+        await deletePagesDeployment(targetProject, entry.siteId);
+        removeDemoByDeploymentId(entry.siteId);
+        console.info(`[cloudflare-scheduler] Deleted expired deployment ${entry.siteId}`);
       } catch (error) {
-        console.error(`[cloudflare-scheduler] Failed to delete project ${entry.siteId}:`, error);
+        console.error(`[cloudflare-scheduler] Failed to delete deployment ${entry.siteId}:`, error);
         remaining.push(entry);
       }
     } else {
@@ -124,6 +153,20 @@ export async function processExpiredDeletions(): Promise<void> {
   }
 
   writePendingDeletions(remaining);
+}
+
+export async function pruneSharedProjectDeployments(): Promise<void> {
+  if (!isCloudflareDeployConfigured()) return;
+  const projectName = getSharedPagesProjectName();
+  const keep = getDeploymentKeepCount();
+  const protect = new Set<string>();
+  for (const entry of readPendingDeletions()) {
+    if (entry.paid) protect.add(entry.siteId);
+  }
+  for (const demo of listDemoRecords()) {
+    if (demo.paid) protect.add(demo.deploymentId);
+  }
+  await pruneOldDeployments(projectName, keep, protect);
 }
 
 let schedulerStarted = false;

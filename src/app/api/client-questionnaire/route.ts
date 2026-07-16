@@ -10,14 +10,21 @@ import { buildCommercialData } from "@/lib/payment/payment-service";
 import { notifyNewLead } from "@/lib/leads/notify-lead";
 import { cleanupClientDist, prepareClientDistWithOgImage } from "@/lib/og-image/prepare-client-dist";
 import {
-  createPagesProject,
-  deletePagesProject,
+  buildDemoSlug,
+  buildPreviewBranch,
   deployDistToPages,
+  ensureSharedPagesProject,
   isCloudflareDeployConfigured,
   logCloudflareEnvPresence,
   resolveMvpDistPath,
 } from "@/lib/cloudflare/deploy";
-import { scheduleDeletion, startDeletionScheduler } from "@/lib/cloudflare/scheduler";
+import { upsertDemoRecord } from "@/lib/cloudflare/demo-registry";
+import {
+  pruneSharedProjectDeployments,
+  scheduleDeletion,
+  startDeletionScheduler,
+} from "@/lib/cloudflare/scheduler";
+import { buildReadableDemoUrl } from "@/lib/cloudflare/shared-project";
 import {
   buildMvpRedirectUrl,
   saveClientManifest,
@@ -33,10 +40,6 @@ import { persistClientDistSnapshot } from "@/lib/site-delivery/dist-store";
 const sectorMapping = { sector_id_to_business_type: SECTOR_ID_TO_BUSINESS_TYPE };
 
 const QUESTIONNAIRE_PATH = path.join(process.cwd(), "input/client_onboarding_questionnaire.json");
-const FALLBACK_TEMPLATE_URL =
-  process.env.CLOUDFLARE_TEMPLATE_URL ??
-  process.env.SITE_TEMPLATE_URL ??
-  "https://demo.pages.dev";
 
 /** Safe post-deploy probe — never logs secrets or full HTML. */
 async function logDeployedSiteProbe(siteUrl: string): Promise<void> {
@@ -582,82 +585,126 @@ export async function POST(request: Request) {
     let siteId: string | undefined;
     let siteUrl: string | undefined;
     let deployId: string | undefined;
-    let redirectUrl = buildMvpRedirectUrl(FALLBACK_TEMPLATE_URL, clientId);
+    let redirectUrl: string | undefined;
+    let demoSlug: string | undefined;
 
     logCloudflareEnvPresence("client-questionnaire");
-    if (isCloudflareDeployConfigured()) {
-      try {
-        const distPath = resolveMvpDistPath();
-        console.log("[client-questionnaire] Cloudflare deploy starting:", { clientId, distPath });
-
-        const pagesProject = await createPagesProject({
+    if (!isCloudflareDeployConfigured()) {
+      return NextResponse.json(
+        {
+          ok: false,
+          success: false,
+          error: "Cloudflare is not configured",
           clientId,
-          businessType: String(
-            (manifest as { businessType?: unknown }).businessType ??
-              payload.business_type ??
-              "business",
-          ),
-          businessName: String(
-            (manifest as { businessName?: unknown }).businessName ??
-              payload.business_name ??
-              "",
-          ),
-        });
-
-        const clientDistPath = await prepareClientDistWithOgImage(
-          clientId,
-          distPath,
-          manifest as Record<string, unknown>,
-          pagesProject.siteUrl,
-        );
-
-        let deployResult: { deploymentId: string };
-        try {
-          deployResult = await deployDistToPages(pagesProject.projectName, clientDistPath);
-          persistClientDistSnapshot(clientId, clientDistPath);
-        } catch (uploadError) {
-          await deletePagesProject(pagesProject.projectName).catch((deleteError) => {
-            console.error("[client-questionnaire] failed to delete orphaned project:", deleteError);
-          });
-          throw uploadError;
-        } finally {
-          cleanupClientDist(clientDistPath);
-        }
-
-        siteId = pagesProject.projectName;
-        siteUrl = pagesProject.siteUrl;
-        deployId = deployResult.deploymentId;
-        redirectUrl = buildMvpRedirectUrl(siteUrl, clientId);
-        console.log("[client-questionnaire] Cloudflare deploy success:", {
-          siteId,
-          siteUrl,
-          deployId,
-          redirectUrl,
-        });
-
-        await logDeployedSiteProbe(redirectUrl);
-
-        scheduleDeletion({
-          siteId,
-          clientId,
-          siteUrl,
-          deployedAt: new Date().toISOString(),
-        });
-        startDeletionScheduler();
-      } catch (cloudflareError) {
-        console.error("[client-questionnaire] Cloudflare deploy failed, falling back to shared template:", {
-          error: cloudflareError,
-          message: cloudflareError instanceof Error ? cloudflareError.message : String(cloudflareError),
-          stack: cloudflareError instanceof Error ? cloudflareError.stack : undefined,
-        });
-      }
-    } else {
-      console.log("[client-questionnaire] Cloudflare credentials missing, using shared template URL");
+        },
+        { status: 503 },
+      );
     }
 
-    console.log("[client-questionnaire] POST success:", { redirectUrl, siteId, siteUrl, deployId, clientId });
+    try {
+      const distPath = resolveMvpDistPath();
+      const businessType = String(
+        (manifest as { businessType?: unknown }).businessType ??
+          payload.business_type ??
+          "business",
+      );
+      const businessName = String(
+        (manifest as { businessName?: unknown }).businessName ??
+          payload.business_name ??
+          "",
+      );
+      demoSlug = buildDemoSlug({ clientId, businessType, businessName });
+      console.log("[client-questionnaire] Cloudflare deploy starting:", {
+        clientId,
+        distPath,
+        demoSlug,
+      });
 
-    const publicSiteUrl = siteUrl ? buildMvpRedirectUrl(siteUrl, clientId) : undefined;
+      const pagesProject = await ensureSharedPagesProject();
+      const clientDistPath = await prepareClientDistWithOgImage(
+        clientId,
+        distPath,
+        manifest as Record<string, unknown>,
+        pagesProject.productionUrl,
+      );
+
+      let deployResult: { deploymentId: string; deploymentUrl: string };
+      try {
+        deployResult = await deployDistToPages(pagesProject.projectName, clientDistPath, {
+          previewBranch: buildPreviewBranch(demoSlug),
+        });
+        persistClientDistSnapshot(clientId, clientDistPath);
+      } finally {
+        cleanupClientDist(clientDistPath);
+      }
+
+      siteId = deployResult.deploymentId;
+      siteUrl = deployResult.deploymentUrl;
+      deployId = deployResult.deploymentId;
+      redirectUrl = buildReadableDemoUrl(demoSlug, clientId);
+
+      const deployedAt = new Date().toISOString();
+      upsertDemoRecord({
+        slug: demoSlug,
+        clientId,
+        deploymentId: deployResult.deploymentId,
+        deploymentUrl: deployResult.deploymentUrl,
+        projectName: pagesProject.projectName,
+        deployedAt,
+        deleteAt: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+      });
+
+      console.log("[client-questionnaire] Cloudflare deploy success:", {
+        siteId,
+        siteUrl,
+        deployId,
+        redirectUrl,
+        demoSlug,
+      });
+
+      await logDeployedSiteProbe(buildMvpRedirectUrl(siteUrl, clientId));
+
+      scheduleDeletion({
+        siteId,
+        clientId,
+        siteUrl: redirectUrl,
+        deploymentUrl: siteUrl,
+        slug: demoSlug,
+        projectName: pagesProject.projectName,
+        deployedAt,
+      });
+      startDeletionScheduler();
+      void pruneSharedProjectDeployments().catch((error) => {
+        console.error("[client-questionnaire] prune deployments failed:", error);
+      });
+    } catch (cloudflareError) {
+      const message =
+        cloudflareError instanceof Error ? cloudflareError.message : String(cloudflareError);
+      console.error("[client-questionnaire] Cloudflare deploy failed:", {
+        error: cloudflareError,
+        message,
+        stack: cloudflareError instanceof Error ? cloudflareError.stack : undefined,
+        clientId,
+      });
+      return NextResponse.json(
+        {
+          ok: false,
+          success: false,
+          error: message,
+          clientId,
+        },
+        { status: 502 },
+      );
+    }
+
+    console.log("[client-questionnaire] POST success:", {
+      redirectUrl,
+      siteId,
+      siteUrl,
+      deployId,
+      clientId,
+      demoSlug,
+    });
 
     return NextResponse.json({
       ok: true,
@@ -665,8 +712,10 @@ export async function POST(request: Request) {
       redirectUrl,
       clientId,
       siteId,
-      siteUrl: publicSiteUrl,
+      siteUrl: redirectUrl,
       deployId,
+      deploymentUrl: siteUrl,
+      slug: demoSlug,
       path: "input/client_onboarding_questionnaire.json",
     });
   } catch (error) {

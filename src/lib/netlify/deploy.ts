@@ -5,11 +5,12 @@
  */
 import {
   createPagesProject,
-  deletePagesProject,
+  deletePagesDeployment,
   deployDistToPages,
   deployToCloudflarePages,
   resolveMvpDistPath as resolveCloudflareMvpDistPath,
 } from "@/lib/cloudflare/deploy";
+import { getSharedPagesProjectName } from "@/lib/cloudflare/shared-project";
 
 export type NetlifyDeployResult = {
   siteId: string;
@@ -45,14 +46,15 @@ export async function deployToNetlify(
 ): Promise<NetlifyDeployResult> {
   const result = await deployToCloudflarePages(clientId, distPath);
   return {
-    siteId: result.projectName,
+    siteId: result.deploymentId,
     siteUrl: result.siteUrl,
     deployId: result.deploymentId,
   };
 }
 
 export async function deleteNetlifySite(siteId: string): Promise<void> {
-  await deletePagesProject(siteId);
+  // Shared-project model: siteId is a deployment id.
+  await deletePagesDeployment(getSharedPagesProjectName(), siteId);
 }
 
 export function monitorDeployInBackground(_deployId: string, _siteId: string): void {
