@@ -173,7 +173,7 @@
     "promo:create": "npx tsx scripts/create-promo.mjs",
     "build": "npm run image-library:bootstrap && npm run react-mvp:build && next build && npm run verify:production-assets",
     "build:railway": "next build",
-    "build:railway:deploy": "node scripts/sync-factory-client-template.mjs && next build",
+    "build:railway:deploy": "npm run react-mvp:install && npm run react-mvp:build && next build",
     "start": "next start",
     "lint": "eslint",
     "knowledge-library-audit:generate": "python3 -m factory.knowledge_library_audit_factory.knowledge_library_audit_factory"

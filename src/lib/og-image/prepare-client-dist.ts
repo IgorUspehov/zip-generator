@@ -6,7 +6,6 @@ import {
   ensureImageLibraryInDist,
   getOgImagePath,
 } from "@/lib/image-library";
-import { buildFactoryBootstrap } from "@/lib/factory-crm/mapToFactoryManifest";
 
 const RAILWAY_FRAME_ANCESTOR = "https://saas-mvp-funnel-production.up.railway.app";
 
@@ -19,7 +18,6 @@ export const CLIENT_DIST_HEADERS = `/*
 type ManifestLike = {
   businessName?: unknown;
   businessType?: unknown;
-  [key: string]: unknown;
 };
 
 function escapeHtml(value: string): string {
@@ -47,13 +45,6 @@ function writeClientDistHeaders(stagingDir: string): void {
   });
 }
 
-function writeSpaRedirects(stagingDir: string): void {
-  const redirectsPath = path.join(stagingDir, "_redirects");
-  if (!fs.existsSync(redirectsPath)) {
-    fs.writeFileSync(redirectsPath, "/*    /index.html   200\n", "utf8");
-  }
-}
-
 function patchClientIndexHtml(
   stagingDir: string,
   manifest: ManifestLike,
@@ -71,7 +62,7 @@ function patchClientIndexHtml(
   const typeLabel = formatBusinessTypeLabel(businessType);
   const title = `${businessName} — ${typeLabel}`;
   const ogTitle = businessName;
-  const ogDescription = `Website + CRM for ${businessName} — ready in minutes`;
+  const ogDescription = `CRM Demo for ${businessName} — ready in minutes`;
   const ogImageRelative = getOgImagePath(businessType);
   const ogImageUrl = siteUrl ? `${siteUrl}${ogImageRelative}` : ogImageRelative;
 
@@ -106,20 +97,11 @@ function patchClientIndexHtml(
   upsertMeta("twitter:image", ogImageUrl, "name");
 
   if (clientId) {
-    const bootstrap = buildFactoryBootstrap(manifest, clientId, siteUrl);
-    const bootstrapScript = [
-      `<script>window.__CRM_DEMO_CLIENT_ID__=${JSON.stringify(clientId)};</script>`,
-      `<script>window.__FACTORY_BOOTSTRAP__=${JSON.stringify(bootstrap)};</script>`,
-    ].join("\n    ");
+    const bootstrapScript = `<script>window.__CRM_DEMO_CLIENT_ID__=${JSON.stringify(clientId)};</script>`;
     const rootDiv = html.indexOf('<div id="root">');
     if (rootDiv !== -1) {
       html = `${html.slice(0, rootDiv)}${bootstrapScript}\n    ${html.slice(rootDiv)}`;
     }
-    console.log("[og-image] injected __FACTORY_BOOTSTRAP__", {
-      clientId,
-      sector: bootstrap.manifest.business.sector,
-      vocabularyKey: bootstrap.manifest.crm.vocabularyKey,
-    });
   }
 
   fs.writeFileSync(indexPath, html, "utf8");
@@ -157,7 +139,6 @@ export async function prepareClientDistWithOgImage(
   });
 
   writeClientDistHeaders(stagingDir);
-  writeSpaRedirects(stagingDir);
   patchClientIndexHtml(stagingDir, manifest, siteUrl, clientId);
   return stagingDir;
 }

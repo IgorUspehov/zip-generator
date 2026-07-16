@@ -399,10 +399,8 @@ async function waitForPagesEdgeReady(siteUrl: string, timeoutMs = 120_000): Prom
 export function resolveMvpDistPath(): string {
   const candidates = [
     process.env.MVP_DIST_PATH,
-    // Factory-Website-CRM built template (committed / uploaded with railway up)
-    path.join(process.cwd(), "client-template/dist"),
-    path.join(process.cwd(), "mvp-template/dist"),
     path.join(process.cwd(), "artifacts/factory_output/react_mvp/dist"),
+    path.join(process.cwd(), "mvp-template/dist"),
   ].filter((value): value is string => Boolean(value));
 
   for (const candidate of candidates) {
@@ -411,9 +409,7 @@ export function resolveMvpDistPath(): string {
     }
   }
 
-  throw new Error(
-    "MVP dist folder not found. Copy Factory-Website-CRM dist to client-template/dist (see docs/FACTORY_CRM_TEMPLATE.md).",
-  );
+  throw new Error("MVP dist folder not found. Build or copy react_mvp/dist to mvp-template/dist.");
 }
 
 export async function createPagesProject(
