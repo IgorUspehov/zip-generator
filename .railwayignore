@@ -3,7 +3,10 @@ node_modules
 .netlify
 output
 .vercel
+.git
 mvp-funnel-template/node_modules
+artifacts/**/node_modules
+artifacts/**/dist
 factory
 knowledge_library
 data/pending-deletions.json
