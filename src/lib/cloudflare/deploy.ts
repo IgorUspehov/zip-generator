@@ -126,9 +126,15 @@ export type PagesProjectNameInput = {
   businessName?: string;
 };
 
+/** First whitespace-separated word of businessName → slug (e.g. "Ihor Kriazhev" → "ihor"). */
+function firstNameSlug(businessName: string): string {
+  const firstWord = String(businessName ?? "").trim().split(/\s+/)[0] ?? "";
+  return slugifyProjectSegment(firstWord);
+}
+
 /**
  * Readable unique Pages project name:
- * `mvp-{businessType}-{businessNameSlug}-{shortId}` (no timestamp).
+ * `{businessType}-{firstNameSlug}-{shortId}` (no mvp- prefix, no timestamp).
  */
 export function buildPagesProjectName(input: PagesProjectNameInput): string {
   const shortId = String(input.clientId ?? "")
@@ -140,13 +146,13 @@ export function buildPagesProjectName(input: PagesProjectNameInput): string {
   }
 
   const typeSlug = slugifyProjectSegment(input.businessType || "business") || "business";
-  const nameSlug = slugifyProjectSegment(input.businessName || "");
+  const nameSlug = firstNameSlug(input.businessName || "");
 
   if (!nameSlug) {
-    return `mvp-${typeSlug}-${shortId}`.slice(0, CF_PROJECT_NAME_MAX).replace(/-$/, "");
+    return `${typeSlug}-${shortId}`.slice(0, CF_PROJECT_NAME_MAX).replace(/-$/, "");
   }
 
-  const prefix = `mvp-${typeSlug}-`;
+  const prefix = `${typeSlug}-`;
   const suffix = `-${shortId}`;
   const maxNameLen = Math.max(1, CF_PROJECT_NAME_MAX - prefix.length - suffix.length);
   const truncatedName = nameSlug.slice(0, maxNameLen).replace(/-$/, "");
