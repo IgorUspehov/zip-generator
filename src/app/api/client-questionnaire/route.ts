@@ -21,6 +21,7 @@ import {
 import { upsertDemoRecord } from "@/lib/cloudflare/demo-registry";
 import {
   pruneSharedProjectDeployments,
+  getCrmDemoTtlMs,
   scheduleDeletion,
   startDeletionScheduler,
 } from "@/lib/cloudflare/scheduler";
@@ -644,6 +645,7 @@ export async function POST(request: Request) {
       redirectUrl = buildReadableDemoUrl(demoSlug, clientId);
 
       const deployedAt = new Date().toISOString();
+      const deleteAt = new Date(Date.now() + getCrmDemoTtlMs()).toISOString();
       upsertDemoRecord({
         slug: demoSlug,
         clientId,
@@ -651,7 +653,7 @@ export async function POST(request: Request) {
         deploymentUrl: deployResult.deploymentUrl,
         projectName: pagesProject.projectName,
         deployedAt,
-        deleteAt: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+        deleteAt,
       });
 
       console.log("[client-questionnaire] Cloudflare deploy success:", {
@@ -660,6 +662,8 @@ export async function POST(request: Request) {
         deployId,
         redirectUrl,
         demoSlug,
+        deployedAt,
+        deleteAt,
       });
 
       await logDeployedSiteProbe(buildMvpRedirectUrl(siteUrl, clientId));
@@ -672,6 +676,7 @@ export async function POST(request: Request) {
         slug: demoSlug,
         projectName: pagesProject.projectName,
         deployedAt,
+        deleteAt,
       });
       startDeletionScheduler();
       void pruneSharedProjectDeployments().catch((error) => {

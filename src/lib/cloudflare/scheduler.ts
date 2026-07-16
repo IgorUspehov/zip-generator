@@ -18,8 +18,19 @@ import {
 import type { PendingDeletionRecord } from "@/lib/manifest/storage-manager";
 import { resolvePendingDeletionsPath } from "@/lib/manifest/storage-paths";
 
-const FORTY_EIGHT_HOURS_MS = 48 * 60 * 60 * 1000;
-const CHECK_INTERVAL_MS = 30 * 60 * 1000;
+/** Test-mode default: auto-delete unpaid CRM Demo deployments after 10 minutes. */
+const DEFAULT_TTL_MINUTES = 10;
+const CHECK_INTERVAL_MS = 60 * 1000;
+
+export function getCrmDemoTtlMinutes(): number {
+  const raw = Number(process.env.CRM_DEMO_TTL_MINUTES ?? DEFAULT_TTL_MINUTES);
+  if (!Number.isFinite(raw) || raw < 1) return DEFAULT_TTL_MINUTES;
+  return Math.floor(raw);
+}
+
+export function getCrmDemoTtlMs(): number {
+  return getCrmDemoTtlMinutes() * 60 * 1000;
+}
 
 export type PendingDeletion = PendingDeletionRecord & {
   deploymentUrl?: string;
@@ -64,7 +75,7 @@ export function scheduleDeletion(entry: {
   const deployedAt = entry.deployedAt;
   const deleteAt =
     entry.deleteAt ??
-    new Date(new Date(deployedAt).getTime() + FORTY_EIGHT_HOURS_MS).toISOString();
+    new Date(new Date(deployedAt).getTime() + getCrmDemoTtlMs()).toISOString();
 
   const record: PendingDeletion = {
     siteId: entry.siteId,
@@ -80,6 +91,14 @@ export function scheduleDeletion(entry: {
   const entries = readPendingDeletions().filter((item) => item.siteId !== record.siteId);
   entries.push(record);
   writePendingDeletions(entries);
+
+  console.info("[cloudflare-scheduler] scheduled deletion", {
+    deploymentId: record.siteId,
+    clientId: record.clientId,
+    deployedAt: record.deployedAt,
+    deleteAt: record.deleteAt,
+    ttlMinutes: getCrmDemoTtlMinutes(),
+  });
 
   return record;
 }
@@ -177,6 +196,12 @@ export function startDeletionScheduler(): void {
   }
 
   schedulerStarted = true;
+
+  console.info("[cloudflare-scheduler] started", {
+    ttlMinutes: getCrmDemoTtlMinutes(),
+    checkIntervalMs: CHECK_INTERVAL_MS,
+    pendingPath: getPendingDeletionsPath(),
+  });
 
   void processExpiredDeletions();
   setInterval(() => {
