@@ -32,8 +32,9 @@ const LEMONSQUEEZY_VARIANT_CRM_FULL = "1807671";
 const SUPPORT_EMAIL = "support@mvpfactory.de";
 const PAYMENT_POLL_INTERVAL_MS = 3000;
 const PAYMENT_POLL_MAX_ATTEMPTS = 20;
-const LIVE_PREVIEW_PROBE_INTERVAL_MS = 500;
-const LIVE_PREVIEW_PROBE_MAX_ATTEMPTS = 10;
+/** Wait for CF edge 200 + embed CSP (522/XFO window can last ~1–2 min). */
+const LIVE_PREVIEW_PROBE_INTERVAL_MS = 2_000;
+const LIVE_PREVIEW_PROBE_MAX_ATTEMPTS = 60;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function isProbeablePreviewUrl(url: string): boolean {
@@ -689,8 +690,8 @@ function ClientWizardFlow() {
         }
       }
 
+      // Do not mount iframe until probe confirms embed headers (avoid 522 + XFO SAMEORIGIN).
       if (!cancelled) {
-        setLivePreviewIframeSrc(livePreviewUrl);
         setLivePreviewWarming(false);
       }
     })();

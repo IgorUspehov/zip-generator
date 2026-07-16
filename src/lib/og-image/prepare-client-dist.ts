@@ -7,7 +7,7 @@ import {
   getOgImagePath,
 } from "@/lib/image-library";
 
-const RAILWAY_FRAME_ANCESTOR = "https://saas-mvp-funnel-production.up.railway.app";
+import { RAILWAY_FRAME_ANCESTOR } from "@/lib/cloudflare/iframe-ready";
 
 /** Cloudflare Pages _headers — allow Live Preview iframe from Railway only. */
 export const CLIENT_DIST_HEADERS = `/*

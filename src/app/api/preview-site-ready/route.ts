@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { isPagesIframeEmbedReady } from "@/lib/cloudflare/iframe-ready";
 import { findPendingByClientId } from "@/lib/cloudflare/scheduler";
 
 const ALLOWED_PREVIEW_HOST = /\.(pages\.dev|netlify\.app)$/i;
-const PROBE_TIMEOUT_MS = 5_000;
+const PROBE_TIMEOUT_MS = 8_000;
 
 function parsePreviewUrl(value: string): URL | null {
   try {
@@ -23,16 +24,16 @@ async function probePreviewSite(url: string): Promise<boolean> {
 
   try {
     // Prefer GET — some Pages edge paths mishandle HEAD for brand-new deployments.
+    // Do not use Range: CF 522 error pages and partial responses omit embed headers.
     const response = await fetch(url, {
       method: "GET",
       redirect: "follow",
       signal: controller.signal,
       headers: {
         Accept: "text/html",
-        Range: "bytes=0-0",
       },
     });
-    return response.ok || response.status === 206;
+    return isPagesIframeEmbedReady(response);
   } catch {
     return false;
   } finally {

@@ -21,8 +21,13 @@ export const resolveMvpDistPath = resolveCloudflareMvpDistPath;
 
 export async function createNetlifySite(
   clientId: string,
+  meta?: { businessType?: string; businessName?: string },
 ): Promise<{ siteId: string; siteUrl: string }> {
-  const { projectName, siteUrl } = await createPagesProject(clientId);
+  const { projectName, siteUrl } = await createPagesProject({
+    clientId,
+    businessType: meta?.businessType,
+    businessName: meta?.businessName,
+  });
   return { siteId: projectName, siteUrl };
 }
 

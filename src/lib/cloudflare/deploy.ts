@@ -3,6 +3,8 @@ import { bytesToHex } from "@noble/hashes/utils.js";
 import fs from "fs";
 import path from "path";
 
+import { isPagesIframeEmbedReady } from "@/lib/cloudflare/iframe-ready";
+
 const CF_API = "https://api.cloudflare.com/client/v4";
 const MAX_BUCKET_BYTES = 50 * 1024 * 1024;
 const MAX_BUCKET_FILES = 100;
@@ -57,13 +59,98 @@ export function isCloudflareDeployConfigured(): boolean {
   return Boolean(process.env.CLOUDFLARE_ACCOUNT_ID?.trim() && process.env.CLOUDFLARE_API_TOKEN?.trim());
 }
 
-function sanitizeProjectName(clientId: string, timestamp: number): string {
-  return `mvp-${clientId}-${timestamp}`
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, "-")
+const CF_PROJECT_NAME_MAX = 58;
+
+const CYRILLIC_TO_LATIN: Record<string, string> = {
+  а: "a",
+  б: "b",
+  в: "v",
+  г: "g",
+  д: "d",
+  е: "e",
+  ё: "e",
+  ж: "zh",
+  з: "z",
+  и: "i",
+  й: "y",
+  к: "k",
+  л: "l",
+  м: "m",
+  н: "n",
+  о: "o",
+  п: "p",
+  р: "r",
+  с: "s",
+  т: "t",
+  у: "u",
+  ф: "f",
+  х: "h",
+  ц: "ts",
+  ч: "ch",
+  ш: "sh",
+  щ: "sch",
+  ъ: "",
+  ы: "y",
+  ь: "",
+  э: "e",
+  ю: "yu",
+  я: "ya",
+  і: "i",
+  ї: "yi",
+  є: "ye",
+  ґ: "g",
+};
+
+/** Lowercase slug: Cyrillic translit, Latin diacritics stripped, non-alnum → `-`. */
+export function slugifyProjectSegment(value: string): string {
+  const lower = String(value ?? "").trim().toLowerCase();
+  let out = "";
+  for (const char of lower) {
+    if (CYRILLIC_TO_LATIN[char] !== undefined) {
+      out += CYRILLIC_TO_LATIN[char];
+      continue;
+    }
+    out += char;
+  }
+  return out
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/[^a-z0-9]+/g, "-")
     .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 58);
+    .replace(/^-|-$/g, "");
+}
+
+export type PagesProjectNameInput = {
+  clientId: string;
+  businessType?: string;
+  businessName?: string;
+};
+
+/**
+ * Readable unique Pages project name:
+ * `mvp-{businessType}-{businessNameSlug}-{shortId}` (no timestamp).
+ */
+export function buildPagesProjectName(input: PagesProjectNameInput): string {
+  const shortId = String(input.clientId ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "")
+    .slice(0, 4);
+  if (!shortId) {
+    throw new Error("clientId is required to build Cloudflare Pages project name");
+  }
+
+  const typeSlug = slugifyProjectSegment(input.businessType || "business") || "business";
+  const nameSlug = slugifyProjectSegment(input.businessName || "");
+
+  if (!nameSlug) {
+    return `mvp-${typeSlug}-${shortId}`.slice(0, CF_PROJECT_NAME_MAX).replace(/-$/, "");
+  }
+
+  const prefix = `mvp-${typeSlug}-`;
+  const suffix = `-${shortId}`;
+  const maxNameLen = Math.max(1, CF_PROJECT_NAME_MAX - prefix.length - suffix.length);
+  const truncatedName = nameSlug.slice(0, maxNameLen).replace(/-$/, "");
+  return `${prefix}${truncatedName}${suffix}`;
 }
 
 /** Matches wrangler pages hashFile: blake3(base64(contents) + extension).hex.slice(0, 32) */
@@ -357,7 +444,8 @@ async function waitForDeploymentReady(
 
 /**
  * Pages edge often returns 522 (with X-Frame-Options: SAMEORIGIN) for a short window
- * after deploy success. Wait until the production URL serves real HTML.
+ * after deploy success. Wait until the production URL serves embeddable HTML
+ * (200 + CSP frame-ancestors for Railway, no blocking XFO).
  */
 async function waitForPagesEdgeReady(siteUrl: string, timeoutMs = 120_000): Promise<void> {
   const startedAt = Date.now();
@@ -374,14 +462,16 @@ async function waitForPagesEdgeReady(siteUrl: string, timeoutMs = 120_000): Prom
       const contentType = response.headers.get("content-type") ?? "";
       const csp = response.headers.get("content-security-policy");
       const xFrameOptions = response.headers.get("x-frame-options");
+      const embedReady = isPagesIframeEmbedReady(response);
       console.log("[cloudflare/deploy] edge probe", {
         attempt,
         status: response.status,
         contentType,
         xFrameOptions,
+        embedReady,
         frameAncestors: csp?.match(/frame-ancestors[^;]*/i)?.[0] ?? null,
       });
-      if (response.ok && /text\/html/i.test(contentType)) {
+      if (embedReady && /text\/html/i.test(contentType)) {
         return;
       }
     } catch (error) {
@@ -413,13 +503,17 @@ export function resolveMvpDistPath(): string {
 }
 
 export async function createPagesProject(
-  clientId: string,
+  input: PagesProjectNameInput | string,
 ): Promise<{ projectName: string; siteUrl: string }> {
   const { accountId, token } = getCloudflareConfig();
-  const projectName = sanitizeProjectName(clientId, Date.now());
+  const opts: PagesProjectNameInput =
+    typeof input === "string" ? { clientId: input } : input;
+  const projectName = buildPagesProjectName(opts);
 
   console.log("[cloudflare/deploy] creating project", {
     projectName,
+    clientId: opts.clientId,
+    businessType: opts.businessType,
     accountIdMasked: maskAccountId(accountId),
   });
   const response = await fetch(`${CF_API}/accounts/${accountId}/pages/projects`, {
@@ -590,12 +684,17 @@ export async function deployDistToPages(
 export async function deployToCloudflarePages(
   clientId: string,
   distPath: string,
+  meta?: Omit<PagesProjectNameInput, "clientId">,
 ): Promise<CloudflareDeployResult> {
-  console.log("[cloudflare/deploy] start", { clientId, distPath });
+  console.log("[cloudflare/deploy] start", { clientId, distPath, ...meta });
   let createdProjectName: string | null = null;
 
   try {
-    const { projectName, siteUrl } = await createPagesProject(clientId);
+    const { projectName, siteUrl } = await createPagesProject({
+      clientId,
+      businessType: meta?.businessType,
+      businessName: meta?.businessName,
+    });
     createdProjectName = projectName;
     const { deploymentId, deploymentUrl } = await deployDistToPages(projectName, distPath);
     // Prefer stable project production URL (*.pages.dev), not short-id alias.

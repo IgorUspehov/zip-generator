@@ -590,7 +590,19 @@ export async function POST(request: Request) {
         const distPath = resolveMvpDistPath();
         console.log("[client-questionnaire] Cloudflare deploy starting:", { clientId, distPath });
 
-        const pagesProject = await createPagesProject(clientId);
+        const pagesProject = await createPagesProject({
+          clientId,
+          businessType: String(
+            (manifest as { businessType?: unknown }).businessType ??
+              payload.business_type ??
+              "business",
+          ),
+          businessName: String(
+            (manifest as { businessName?: unknown }).businessName ??
+              payload.business_name ??
+              "",
+          ),
+        });
 
         const clientDistPath = await prepareClientDistWithOgImage(
           clientId,
