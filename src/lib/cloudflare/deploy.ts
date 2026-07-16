@@ -24,6 +24,16 @@ function getCloudflareConfig(): CloudflareConfig {
   return { accountId, token };
 }
 
+/** Temporary diagnostic — never logs secret values. */
+export function logCloudflareEnvPresence(context = "cloudflare-env"): void {
+  console.log(`[${context}]`, {
+    cloudflareAccountIdPresent: Boolean(process.env.CLOUDFLARE_ACCOUNT_ID?.trim()),
+    cloudflareApiTokenPresent: Boolean(process.env.CLOUDFLARE_API_TOKEN?.trim()),
+    cloudflareAccountIdLength: process.env.CLOUDFLARE_ACCOUNT_ID?.trim().length ?? 0,
+    cloudflareApiTokenLength: process.env.CLOUDFLARE_API_TOKEN?.trim().length ?? 0,
+  });
+}
+
 export function isCloudflareDeployConfigured(): boolean {
   return Boolean(process.env.CLOUDFLARE_ACCOUNT_ID?.trim() && process.env.CLOUDFLARE_API_TOKEN?.trim());
 }

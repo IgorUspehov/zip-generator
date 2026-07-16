@@ -14,6 +14,7 @@ import {
   deletePagesProject,
   deployDistToPages,
   isCloudflareDeployConfigured,
+  logCloudflareEnvPresence,
   resolveMvpDistPath,
 } from "@/lib/cloudflare/deploy";
 import { scheduleDeletion, startDeletionScheduler } from "@/lib/cloudflare/scheduler";
@@ -547,6 +548,7 @@ export async function POST(request: Request) {
     let deployId: string | undefined;
     let redirectUrl = buildMvpRedirectUrl(FALLBACK_TEMPLATE_URL, clientId);
 
+    logCloudflareEnvPresence("client-questionnaire");
     if (isCloudflareDeployConfigured()) {
       try {
         const distPath = resolveMvpDistPath();
