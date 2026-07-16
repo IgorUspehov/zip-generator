@@ -887,8 +887,8 @@ const NICHE_ICONS = {
   ecommerce: "🛒",
   ecommerce_crm: "🛒",
   technology: "💻",
-  real_estate: "🏠",
-  real_estate_crm: "🏠",
+  real_estate: "/image-library/real_estate/logo.png",
+  real_estate_crm: "/image-library/real_estate/logo.png",
 };
 
 const NICHE_SECTOR_LABELS = {
@@ -1787,7 +1787,12 @@ export default function App() {
     <div className="app-shell" data-domain={effectiveBusinessType || domainUi.domain_key}>
       <aside className="mvp-sidebar">
         <div className="sidebar-brand">
-          <span className="domain-icon" aria-hidden="true">{businessIcon}</span>
+          {typeof businessIcon === "string" &&
+          (businessIcon.startsWith("/") || businessIcon.startsWith("http") || businessIcon.endsWith(".png") || businessIcon.endsWith(".svg")) ? (
+            <img className="domain-icon domain-icon-img" src={businessIcon} alt="" aria-hidden="true" />
+          ) : (
+            <span className="domain-icon" aria-hidden="true">{businessIcon}</span>
+          )}
           <div>
             <h2 className="sidebar-business-name">{businessName}</h2>
             <p className="sidebar-sector">{sectorLabel}</p>

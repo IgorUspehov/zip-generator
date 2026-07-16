@@ -149,6 +149,14 @@ body {
   line-height: 1;
 }
 
+.domain-icon-img {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
 .domain-badge {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.35);
