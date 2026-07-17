@@ -616,12 +616,13 @@
   font-weight: 500;
 }
 
-/* Live Preview (s5): wider card + taller iframe on desktop */
+/* Demo generation (s4) + Live Preview (s5): wider card on desktop */
 .mf-root[data-step="s5"] .card {
   max-width: min(720px, calc(100vw - 32px));
 }
 
 @media (min-width: 1024px) {
+  .mf-root[data-step="s4"] .card,
   .mf-root[data-step="s5"] .card {
     max-width: min(1120px, calc(100vw - 64px));
     padding: 40px 44px;
@@ -636,6 +637,7 @@
 }
 
 @media (min-width: 1440px) {
+  .mf-root[data-step="s4"] .card,
   .mf-root[data-step="s5"] .card {
     max-width: min(1280px, calc(100vw - 80px));
   }
