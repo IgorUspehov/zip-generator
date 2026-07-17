@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import {
   Search,
   CalendarCheck,
@@ -105,6 +106,17 @@ export default function Page() {
   const { locale, setLocale } = useTranslation();
   const lang = locale as Lang;
   const t = translations[lang] ?? translations.de;
+
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
 
   const niches = t.niches.map((label, i) => ({
     icon: NICHES_ICONS[i],
