@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
 import {
   Search,
   CalendarCheck,
@@ -107,39 +106,6 @@ export default function Page() {
   const lang = locale as Lang;
   const t = translations[lang] ?? translations.de;
 
-  useEffect(() => {
-    if ("scrollRestoration" in history) {
-      history.scrollRestoration = "manual";
-    }
-
-    const resetScroll = () => {
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    };
-
-    resetScroll();
-
-    const handlePageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) {
-        window.location.reload();
-        return;
-      }
-      resetScroll();
-    };
-
-    const handlePopState = () => {
-      requestAnimationFrame(resetScroll);
-    };
-
-    window.addEventListener("pageshow", handlePageShow);
-    window.addEventListener("popstate", handlePopState);
-    return () => {
-      window.removeEventListener("pageshow", handlePageShow);
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, []);
-
   const niches = t.niches.map((label, i) => ({
     icon: NICHES_ICONS[i],
     label,
@@ -172,12 +138,12 @@ export default function Page() {
       </div>
 
       {/* HERO */}
-      <section className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+      <section className="relative flex min-h-svh flex-col overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
         {/* decorative blobs */}
         <div className="absolute top-0 left-0 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500/10 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-80 w-80 translate-x-1/3 translate-y-1/3 rounded-full bg-orange-400/10 blur-3xl" />
 
-        <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 px-6 py-24 lg:grid-cols-2">
+        <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 items-center gap-12 px-6 py-16 lg:grid-cols-2 lg:py-24">
           {/* Left */}
           <div>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/20 px-4 py-1.5">
@@ -306,9 +272,11 @@ export default function Page() {
         </div>
 
         {/* scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 text-xs text-gray-500">
-          <span>{t.scrollDown}</span>
-          <ChevronRight className="h-4 w-4 rotate-90" />
+        <div className="relative z-10 flex shrink-0 justify-center pb-8 pt-4">
+          <div className="flex flex-col items-center gap-1 text-xs text-gray-500">
+            <span>{t.scrollDown}</span>
+            <ChevronRight className="h-4 w-4 rotate-90" />
+          </div>
         </div>
       </section>
 

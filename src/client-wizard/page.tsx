@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
+import { markLandingReturnReload } from "@/lib/landing-navigation";
+
 import {
   buildQuestionnairePayload,
   fetchPreviewLatest,
@@ -533,6 +535,10 @@ function buildQuestionnairePayloadFromWizard(input: {
 }
 
 export function ClientWizardPage() {
+  useEffect(() => {
+    markLandingReturnReload();
+  }, []);
+
   const searchParams = useSearchParams();
   const payment = searchParams?.get("payment");
   const paymentClientId = searchParams?.get("clientId")?.trim() ?? "";
