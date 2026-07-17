@@ -117,9 +117,9 @@ export default function Page() {
 
   return (
     <div className="bg-white font-sans text-gray-900">
-      {/* Language switcher */}
+      {/* Language switcher — bottom-right on mobile so it doesn't cover hero/problem text */}
       <div
-        className="fixed top-4 right-4 z-50 flex gap-1 rounded-full border border-gray-200 bg-white/90 px-3 py-1.5 shadow-md backdrop-blur"
+        className="fixed right-3 bottom-3 z-50 flex gap-0.5 rounded-full border border-gray-200 bg-white/95 px-2 py-1 shadow-md backdrop-blur sm:top-4 sm:right-4 sm:bottom-auto sm:gap-1 sm:px-3 sm:py-1.5"
         role="group"
         aria-label={t.langLabel}
       >
@@ -128,7 +128,7 @@ export default function Page() {
             key={l}
             type="button"
             onClick={() => setLocale(l)}
-            className={`rounded-full px-2 py-0.5 text-xs font-semibold transition-all ${
+            className={`rounded-full px-1.5 py-0.5 text-[11px] font-semibold transition-all sm:px-2 sm:text-xs ${
               lang === l
                 ? "bg-orange-500 text-white"
                 : "text-gray-500 hover:text-gray-800"
@@ -145,7 +145,7 @@ export default function Page() {
         <div className="absolute top-0 left-0 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500/10 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-80 w-80 translate-x-1/3 translate-y-1/3 rounded-full bg-orange-400/10 blur-3xl" />
 
-        <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 items-center gap-12 px-6 py-16 lg:grid-cols-2 lg:py-24">
+        <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 items-center gap-12 px-6 pt-16 pb-20 sm:py-16 lg:grid-cols-2 lg:py-24">
           {/* Left */}
           <div>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/20 px-4 py-1.5">
@@ -313,14 +313,16 @@ export default function Page() {
             })}
           </div>
 
-          <div className="rounded-3xl border border-orange-500/20 bg-orange-500/10 p-8">
-            <div className="mb-6 grid grid-cols-3 gap-6">
+          <div className="rounded-3xl border border-orange-500/20 bg-orange-500/10 p-6 sm:p-8">
+            <div className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-6">
               {t.stats.map(({ value, label }, i) => {
                 const Icon = STATS_ICONS[i];
                 return (
-                  <div key={label} className="text-center">
+                  <div key={label} className="min-w-0 text-center">
                     <Icon className="mx-auto mb-1 h-6 w-6 text-orange-400" />
-                    <div className="text-4xl font-black text-white">{value}</div>
+                    <div className="text-3xl font-black tracking-tight text-white sm:text-4xl">
+                      {value}
+                    </div>
                     <div className="text-sm text-gray-400">{label}</div>
                   </div>
                 );
@@ -569,7 +571,7 @@ export default function Page() {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-gray-800 bg-gray-950 py-8">
+      <footer className="border-t border-gray-800 bg-gray-950 py-8 pb-20 sm:pb-8">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
           <div className="flex items-center gap-2">
             <Rocket className="h-5 w-5 text-orange-500" />
