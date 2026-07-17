@@ -249,6 +249,7 @@ function normalizePayload(body: Record<string, unknown>) {
     phone: String(body.phone ?? "").trim(),
     telegram: String(body.telegram ?? "").trim(),
     whatsapp: String(body.whatsapp ?? "").trim(),
+    postal_code: String(body.postal_code ?? body.postalCode ?? "").trim(),
     address: String(body.address ?? "").trim(),
     working_hours:
       typeof body.working_hours === "object" && body.working_hours !== null
@@ -340,8 +341,7 @@ function pickRandomTheme(businessType: string): MvpTheme {
 
 function buildMvpManifest(payload: Record<string, unknown>) {
   const businessType = String(payload.business_type ?? DEFAULT_BUSINESS_TYPE);
-  const address = String(payload.address ?? "").trim();
-  const city = address.split(",").pop()?.trim() || "München";
+  const city = String(payload.city ?? "").trim() || "München";
   const defaultPages =
     BUSINESS_TYPE_DEFAULT_PAGES[businessType] ?? [
       "dashboard",
@@ -370,6 +370,9 @@ function buildMvpManifest(payload: Record<string, unknown>) {
     heroPhoto,
     phone: String(payload.phone ?? ""),
     email: String(payload.email ?? ""),
+    whatsapp: String(payload.whatsapp ?? ""),
+    postalCode: String(payload.postal_code ?? payload.postalCode ?? ""),
+    address: String(payload.address ?? ""),
     city,
     features: ["booking", "clients", "analytics"],
     pages: defaultPages,
@@ -405,6 +408,9 @@ function normalizeManifestForTemplate(
     heroPhoto,
     phone: String(manifest.phone ?? fallback.phone),
     email: String(manifest.email ?? fallback.email),
+    whatsapp: String(manifest.whatsapp ?? fallback.whatsapp),
+    postalCode: String(manifest.postalCode ?? manifest.postal_code ?? fallback.postalCode),
+    address: String(manifest.address ?? fallback.address),
     city: String(manifest.city ?? fallback.city),
     features: Array.isArray(manifest.features) ? manifest.features : fallback.features,
     pages: BUSINESS_TYPE_DEFAULT_PAGES[businessType] ?? fallback.pages,
@@ -481,7 +487,10 @@ ${demoData}
   "language": "язык из опросника",
   "phone": "телефон из опросника",
   "email": "email из опросника",
-  "city": "город из адреса опросника",
+  "whatsapp": "whatsapp из опросника",
+  "postalCode": "индекс из опросника",
+  "address": "адрес (улица, дом) из опросника",
+  "city": "город (München если не указан отдельно)",
   "features": ["модули из паттерна"],
   "pages": ["страницы из паттерна"],
   "workingHours": "часы работы из опросника"
@@ -492,7 +501,8 @@ ${demoData}
 
 ОБЯЗАТЕЛЬНО верни поля:
 - niche: точно одно из: beauty, dental, fitness, massage, car_service, health_clinic
-- city: извлечь из поля address (последнее слово после запятой, или München если пусто)
+- city: использовать payload.city если есть, иначе München. НЕ извлекать city из address (address = улица и дом)
+- whatsapp, postalCode, address: скопировать из опросника
 - businessType: скопировать из опросника без изменений
 `;
 
@@ -515,11 +525,16 @@ ${demoData}
     delete manifest.demoData;
     manifest.niche = BUSINESS_TYPE_TO_NICHE[businessTypeKey] ?? "beauty";
     if (!manifest.city) {
-      manifest.city =
-        String(payload.address ?? "")
-          .split(",")
-          .pop()
-          ?.trim() || "München";
+      manifest.city = String(payload.city ?? "").trim() || "München";
+    }
+    if (!manifest.whatsapp) {
+      manifest.whatsapp = String(payload.whatsapp ?? "").trim();
+    }
+    if (!manifest.postalCode && !manifest.postal_code) {
+      manifest.postalCode = String(payload.postal_code ?? payload.postalCode ?? "").trim();
+    }
+    if (!manifest.address) {
+      manifest.address = String(payload.address ?? "").trim();
     }
 
     const normalized = normalizeManifestForTemplate(manifest, payload);

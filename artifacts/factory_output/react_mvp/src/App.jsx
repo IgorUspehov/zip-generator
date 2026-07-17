@@ -588,6 +588,9 @@ function normalizeManifestConfig(raw) {
     businessType,
     phone: payload.phone ?? null,
     email: payload.email ?? null,
+    whatsapp: payload.whatsapp ?? null,
+    postalCode: payload.postalCode ?? payload.postal_code ?? null,
+    address: payload.address ?? null,
     city: payload.city ?? null,
     pages: Array.isArray(payload.pages) ? payload.pages : null,
     demoData: payload.demoData ?? payload.demo_data ?? null,
@@ -642,6 +645,18 @@ function applyManifestPatch(config, handlers) {
   }
   if (normalized.email) {
     handlers.setEmail(normalized.email);
+    applied = true;
+  }
+  if (normalized.whatsapp) {
+    handlers.setWhatsapp(normalized.whatsapp);
+    applied = true;
+  }
+  if (normalized.postalCode) {
+    handlers.setPostalCode(normalized.postalCode);
+    applied = true;
+  }
+  if (normalized.address) {
+    handlers.setAddress(normalized.address);
     applied = true;
   }
   if (normalized.city) {
@@ -1080,45 +1095,67 @@ const PAGE_NAV = {
   settings: { icon: "⚙️", label: "Settings" },
 };
 
-const FIREBASE_WHATSAPP_NUMBER = "4915258400610";
-
-function pickTrimmed(value) {
-  return typeof value === "string" ? value.trim() : "";
+function companyStorageKey(clientId) {
+  return clientId ? `mvp_crm:${clientId}:company` : null;
 }
 
-function resolveSiteUrlForWhatsApp(mvpUrl) {
-  const raw = pickTrimmed(mvpUrl);
-  if (!raw) {
-    return "";
+function readCompanySettings(clientId) {
+  const key = companyStorageKey(clientId);
+  if (!key) {
+    return null;
   }
   try {
-    const url = new URL(raw);
-    url.searchParams.delete("clientId");
-    const pathname = url.pathname.replace(/\/$/, "");
-    return `${url.origin}${pathname}` || url.origin;
+    const raw = localStorage.getItem(key);
+    if (!raw) {
+      return null;
+    }
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : null;
   } catch {
-    return raw.split("?")[0] || raw;
+    return null;
   }
 }
 
-function buildFirebaseWhatsAppUrl(language, { clientId, businessName, clientEmail, siteUrl }) {
-  const intros = {
-    ru: "Здравствуйте.\nХочу подключить облачное хранение для моей CRM Demo.",
-    en: "Hello.\nI'd like to connect cloud storage for my CRM Demo.",
-    de: "Hallo.\nIch möchte Cloud-Speicher für meine CRM Demo anschließen.",
-  };
-  const intro = intros[language] || intros.ru;
-  const details = [];
-  const id = pickTrimmed(clientId);
-  const business = pickTrimmed(businessName);
-  const mail = pickTrimmed(clientEmail);
-  const site = pickTrimmed(siteUrl);
-  if (id) details.push(`Client ID: ${id}`);
-  if (business) details.push(`Business: ${business}`);
-  if (mail) details.push(`Email: ${mail}`);
-  if (site) details.push(`Site: ${site}`);
-  const text = details.length > 0 ? `${intro}\n\n${details.join("\n")}` : intro;
-  return `https://wa.me/${FIREBASE_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+function writeCompanySettings(clientId, settings) {
+  const key = companyStorageKey(clientId);
+  if (!key) {
+    return;
+  }
+  try {
+    localStorage.setItem(key, JSON.stringify(settings));
+  } catch {
+    // ignore quota / private mode
+  }
+}
+
+function applyStoredCompanySettings(stored, handlers) {
+  if (!stored) {
+    return;
+  }
+  if (typeof stored.businessName === "string") {
+    handlers.setBusinessName(stored.businessName);
+  }
+  if (typeof stored.nicheLabel === "string") {
+    handlers.setNicheLabel(stored.nicheLabel);
+  }
+  if (typeof stored.phone === "string") {
+    handlers.setPhone(stored.phone);
+  }
+  if (typeof stored.email === "string") {
+    handlers.setEmail(stored.email);
+  }
+  if (typeof stored.whatsapp === "string") {
+    handlers.setWhatsapp(stored.whatsapp);
+  }
+  if (typeof stored.postalCode === "string") {
+    handlers.setPostalCode(stored.postalCode);
+  }
+  if (typeof stored.address === "string") {
+    handlers.setAddress(stored.address);
+  }
+  if (typeof stored.city === "string") {
+    handlers.setCity(stored.city);
+  }
 }
 
 export default function App() {
@@ -1137,7 +1174,11 @@ export default function App() {
   );
   const [phone, setPhone] = useState(clientData.phone || "");
   const [email, setEmail] = useState(clientData.email || "");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
+  const [nicheLabel, setNicheLabel] = useState("");
   const [pages, setPages] = useState(null);
   const [demoData, setDemoData] = useState(null);
   const [features, setFeatures] = useState([]);
@@ -1172,6 +1213,9 @@ export default function App() {
       setBusinessType,
       setPhone,
       setEmail,
+      setWhatsapp,
+      setPostalCode,
+      setAddress,
       setCity,
       setPages,
       setDemoData,
@@ -1187,12 +1231,31 @@ export default function App() {
       setUiLabels,
     });
     if (applied) {
+      const normalized = normalizeManifestConfig(config);
+      if (normalized?.businessType) {
+        const lang = normalized.language || "ru";
+        const seedNiche =
+          NICHE_SECTOR_LABELS[normalized.businessType]?.[lang] ||
+          NICHE_SECTOR_LABELS[normalized.businessType]?.en ||
+          formatPageLabel(normalized.businessType);
+        setNicheLabel((prev) => prev || seedNiche);
+      }
+      applyStoredCompanySettings(readCompanySettings(crmStorageId), {
+        setBusinessName,
+        setNicheLabel,
+        setPhone,
+        setEmail,
+        setWhatsapp,
+        setPostalCode,
+        setAddress,
+        setCity,
+      });
       setManifestLoaded(true);
       setManifestPending(false);
       setManifestError(null);
     }
     return applied;
-  }, []);
+  }, [crmStorageId]);
 
   useEffect(() => {
     if (manifestLoaded) {
@@ -1501,9 +1564,9 @@ export default function App() {
   const businessIcon = NICHE_ICONS[effectiveBusinessType] ?? theme.icon;
 
   const i18n = {
-    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", mvpReadyTitle: "Your CRM Demo is ready", mvpReadySubtitle: "Save the link — this is your working CRM Demo", copyLink: "Copy link", openMvpTab: "Open CRM Demo in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", firebaseCtaButton: "Connect Firebase cloud storage", firebaseCtaHint: "Demo data is saved in this browser only.", firebaseModalTitle: "Cloud storage for your CRM", firebaseModalBody: "Want your data saved in the cloud and available from any device? Contact us — we'll connect Firebase for your business.", firebaseContactEmail: "Email", firebaseContactTelegram: "Telegram", deleteConfirm: "Delete this record?" },
-    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", mvpReadyTitle: "Ihre CRM Demo ist bereit", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihre CRM Demo", copyLink: "Link kopieren", openMvpTab: "CRM Demo in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", firebaseCtaButton: "Firebase-Cloudspeicher verbinden", firebaseCtaHint: "Demo-Daten werden nur in diesem Browser gespeichert.", firebaseModalTitle: "Cloud-Speicher für Ihr CRM", firebaseModalBody: "Möchten Sie, dass Ihre Daten in der Cloud gespeichert werden und von jedem Gerät verfügbar sind? Kontaktieren Sie uns — wir richten Firebase für Ihr Unternehmen ein.", firebaseContactEmail: "E-Mail", firebaseContactTelegram: "Telegram", deleteConfirm: "Diesen Eintrag löschen?" },
-    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", mvpReadyTitle: "Ваша CRM Demo готова", mvpReadySubtitle: "Сохраните ссылку — это ваша рабочая CRM Demo", copyLink: "Копировать ссылку", openMvpTab: "Открыть CRM Demo в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", firebaseCtaButton: "Подключить облачное хранение Firebase", firebaseCtaHint: "Демо-данные сохраняются только в этом браузере.", firebaseModalTitle: "Облачное хранение для CRM", firebaseModalBody: "Хотите, чтобы данные сохранялись в облаке и были доступны с любого устройства? Свяжитесь с нами — подключим Firebase для вашего бизнеса.", firebaseContactEmail: "Email", firebaseContactTelegram: "Telegram", deleteConfirm: "Удалить эту запись?" },
+    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", mvpReadyTitle: "Your CRM Demo is ready", mvpReadySubtitle: "Save the link — this is your working CRM Demo", copyLink: "Copy link", openMvpTab: "Open CRM Demo in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", settingsSubtitle: "Basic settings for your CRM.", settingsNiche: "Niche", settingsCity: "City", settingsWhatsapp: "WhatsApp", settingsPostal: "Postal code", settingsAddress: "Address", deleteConfirm: "Delete this record?" },
+    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", mvpReadyTitle: "Ihre CRM Demo ist bereit", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihre CRM Demo", copyLink: "Link kopieren", openMvpTab: "CRM Demo in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", settingsSubtitle: "Grundeinstellungen für Ihr CRM.", settingsNiche: "Branche", settingsCity: "Stadt", settingsWhatsapp: "WhatsApp", settingsPostal: "Postleitzahl", settingsAddress: "Adresse", deleteConfirm: "Diesen Eintrag löschen?" },
+    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", mvpReadyTitle: "Ваша CRM Demo готова", mvpReadySubtitle: "Сохраните ссылку — это ваша рабочая CRM Demo", copyLink: "Копировать ссылку", openMvpTab: "Открыть CRM Demo в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", settingsSubtitle: "Базовые настройки вашей CRM.", settingsNiche: "Ниша", settingsCity: "Город", settingsWhatsapp: "WhatsApp", settingsPostal: "Индекс", settingsAddress: "Адрес", deleteConfirm: "Удалить эту запись?" },
   };
   const sectionLabels = uiSections ?? {};
   const baseT = i18n[language] || i18n.ru;
@@ -1601,44 +1664,59 @@ export default function App() {
     color: "#b91c1c",
     borderColor: "#fecaca",
   };
-  const openFirebaseWhatsAppChat = () => {
-    const whatsappUrl = buildFirebaseWhatsAppUrl(language, {
-      clientId: bootClientId,
+  const persistCompanySettings = (patch) => {
+    const next = {
       businessName,
-      clientEmail: email,
-      siteUrl: resolveSiteUrlForWhatsApp(mvpUrl),
-    });
-    window.open(whatsappUrl, "_blank");
+      nicheLabel,
+      phone,
+      email,
+      whatsapp,
+      postalCode,
+      address,
+      city,
+      ...patch,
+    };
+    if (patch.businessName !== undefined) setBusinessName(patch.businessName);
+    if (patch.nicheLabel !== undefined) setNicheLabel(patch.nicheLabel);
+    if (patch.phone !== undefined) setPhone(patch.phone);
+    if (patch.email !== undefined) setEmail(patch.email);
+    if (patch.whatsapp !== undefined) setWhatsapp(patch.whatsapp);
+    if (patch.postalCode !== undefined) setPostalCode(patch.postalCode);
+    if (patch.address !== undefined) setAddress(patch.address);
+    if (patch.city !== undefined) setCity(patch.city);
+    writeCompanySettings(crmStorageId, next);
   };
-  const firebaseCtaPanel = (
-    <section
-      className="panel domain-section"
-      style={{
-        marginTop: "1rem",
-        background: "linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%)",
-        border: "1px solid #bfdbfe",
-      }}
-    >
-      <p style={{ margin: "0 0 0.75rem", color: "#475569", fontSize: "0.92rem" }}>{t.firebaseCtaHint}</p>
-      <button
-        type="button"
-        onClick={openFirebaseWhatsAppChat}
-        style={{
-          background: "var(--color-accent, #1d4ed8)",
-          color: "#ffffff",
-          border: "none",
-          borderRadius: "10px",
-          padding: "0.65rem 1.15rem",
-          fontWeight: 700,
-          fontSize: "0.9rem",
-          cursor: "pointer",
-          boxShadow: "0 4px 14px rgba(29, 78, 216, 0.25)",
-        }}
-      >
-        ☁️ {t.firebaseCtaButton}
-      </button>
-    </section>
-  );
+
+  useEffect(() => {
+    if (nicheLabel) {
+      return;
+    }
+    if (!sectorLabel) {
+      return;
+    }
+    setNicheLabel(sectorLabel);
+  }, [nicheLabel, sectorLabel]);
+
+  const settingsFieldStyle = {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.35rem",
+    marginBottom: "0.85rem",
+  };
+  const settingsInputStyle = {
+    border: "1px solid #cbd5e1",
+    borderRadius: "8px",
+    padding: "0.55rem 0.75rem",
+    fontSize: "0.92rem",
+    width: "100%",
+    boxSizing: "border-box",
+  };
+  const settingsLabelStyle = {
+    fontSize: "0.82rem",
+    fontWeight: 600,
+    color: "#475569",
+  };
+
   const tableRows = getPageRecords(demoData, "tables").map((item) => localizeRecord(item, language));
 
   const tableHeaders = getTableHeaders(language);
@@ -1968,8 +2046,6 @@ export default function App() {
                 {t.openMvpTab}
               </a>
             </div>
-
-            {firebaseCtaPanel}
           </>
         )}
 
@@ -2270,14 +2346,76 @@ export default function App() {
         {activeTab === "settings" && (
           <section className="panel domain-section">
             <h3>{t.settings}</h3>
-            <p style={{ color: "#64748b", margin: "0 0 1rem" }}>
-              {language === "de"
-                ? "Grundeinstellungen für Ihr CRM."
-                : language === "en"
-                  ? "Basic settings for your CRM."
-                  : "Базовые настройки вашей CRM."}
-            </p>
-            {firebaseCtaPanel}
+            <p style={{ color: "#64748b", margin: "0 0 1rem" }}>{t.settingsSubtitle}</p>
+            <div style={{ maxWidth: 480 }}>
+              <label style={settingsFieldStyle}>
+                <span style={settingsLabelStyle}>{t.name}</span>
+                <input
+                  style={settingsInputStyle}
+                  value={businessName}
+                  onChange={(e) => persistCompanySettings({ businessName: e.target.value })}
+                />
+              </label>
+              <label style={settingsFieldStyle}>
+                <span style={settingsLabelStyle}>{t.settingsNiche}</span>
+                <input
+                  style={settingsInputStyle}
+                  value={nicheLabel}
+                  onChange={(e) => persistCompanySettings({ nicheLabel: e.target.value })}
+                />
+              </label>
+              <label style={settingsFieldStyle}>
+                <span style={settingsLabelStyle}>{t.settingsCity}</span>
+                <input
+                  style={settingsInputStyle}
+                  value={city}
+                  onChange={(e) => persistCompanySettings({ city: e.target.value })}
+                />
+              </label>
+              <label style={settingsFieldStyle}>
+                <span style={settingsLabelStyle}>{t.settingsEmail}</span>
+                <input
+                  style={settingsInputStyle}
+                  type="email"
+                  value={email}
+                  onChange={(e) => persistCompanySettings({ email: e.target.value })}
+                />
+              </label>
+              <label style={settingsFieldStyle}>
+                <span style={settingsLabelStyle}>{t.settingsPhone}</span>
+                <input
+                  style={settingsInputStyle}
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => persistCompanySettings({ phone: e.target.value })}
+                />
+              </label>
+              <label style={settingsFieldStyle}>
+                <span style={settingsLabelStyle}>{t.settingsWhatsapp}</span>
+                <input
+                  style={settingsInputStyle}
+                  type="tel"
+                  value={whatsapp}
+                  onChange={(e) => persistCompanySettings({ whatsapp: e.target.value })}
+                />
+              </label>
+              <label style={settingsFieldStyle}>
+                <span style={settingsLabelStyle}>{t.settingsPostal}</span>
+                <input
+                  style={settingsInputStyle}
+                  value={postalCode}
+                  onChange={(e) => persistCompanySettings({ postalCode: e.target.value })}
+                />
+              </label>
+              <label style={settingsFieldStyle}>
+                <span style={settingsLabelStyle}>{t.settingsAddress}</span>
+                <input
+                  style={settingsInputStyle}
+                  value={address}
+                  onChange={(e) => persistCompanySettings({ address: e.target.value })}
+                />
+              </label>
+            </div>
           </section>
         )}
 

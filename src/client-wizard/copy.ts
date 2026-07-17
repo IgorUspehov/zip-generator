@@ -21,6 +21,12 @@ export type CopyBundle = {
   err_phone: string;
   err_whatsapp: string;
   err_telegram: string;
+  lbl_postal: string;
+  ph_postal: string;
+  err_postal: string;
+  lbl_address: string;
+  ph_address: string;
+  err_address: string;
   agb_accept: string;
   agb_terms: string;
   agb_and: string;
@@ -84,6 +90,12 @@ const T: Record<UiLang, CopyBundle> = {
     err_phone: "Enter your phone",
     err_whatsapp: "Enter your WhatsApp",
     err_telegram: "Enter your Telegram",
+    lbl_postal: "Postal code",
+    ph_postal: "80331",
+    err_postal: "Enter your postal code",
+    lbl_address: "Address (street, building)",
+    ph_address: "Maximilianstraße 1",
+    err_address: "Enter your address",
     agb_accept: "I accept the",
     agb_terms: "Terms",
     agb_and: "and",
@@ -173,6 +185,12 @@ const T: Record<UiLang, CopyBundle> = {
     err_phone: "Telefonnummer eingeben",
     err_whatsapp: "WhatsApp eingeben",
     err_telegram: "Telegram eingeben",
+    lbl_postal: "Postleitzahl",
+    ph_postal: "80331",
+    err_postal: "Postleitzahl eingeben",
+    lbl_address: "Adresse (Straße, Hausnummer)",
+    ph_address: "Maximilianstraße 1",
+    err_address: "Adresse eingeben",
     agb_accept: "Ich akzeptiere die",
     agb_terms: "AGB",
     agb_and: "und die",
@@ -262,6 +280,12 @@ const T: Record<UiLang, CopyBundle> = {
     err_phone: "Введите телефон",
     err_whatsapp: "Введите WhatsApp",
     err_telegram: "Введите Telegram",
+    lbl_postal: "Индекс",
+    ph_postal: "80331",
+    err_postal: "Введите индекс",
+    lbl_address: "Адрес (улица, дом)",
+    ph_address: "Maximilianstraße 1",
+    err_address: "Введите адрес",
     agb_accept: "Я принимаю",
     agb_terms: "условия",
     agb_and: "и",

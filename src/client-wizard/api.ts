@@ -102,6 +102,8 @@ export function buildQuestionnairePayload(input: {
   email: string;
   businessType: string;
   language: string;
+  postalCode?: string;
+  address?: string;
 }) {
   return {
     name: input.name,
@@ -112,7 +114,8 @@ export function buildQuestionnairePayload(input: {
     phone: "",
     telegram: "",
     whatsapp: "",
-    address: "",
+    postal_code: input.postalCode ?? "",
+    address: input.address ?? "",
     website: "",
     logo: "assets/logo.png",
     currency: "EUR",

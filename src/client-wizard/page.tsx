@@ -524,6 +524,8 @@ function buildQuestionnairePayloadFromWizard(input: {
   phone: string;
   whatsapp: string;
   telegram: string;
+  postalCode: string;
+  address: string;
   sectorId: string | null;
 }) {
   return {
@@ -531,6 +533,8 @@ function buildQuestionnairePayloadFromWizard(input: {
     phone: input.phone,
     whatsapp: input.whatsapp,
     telegram: input.telegram,
+    postal_code: input.postalCode,
+    address: input.address,
     sector_id: input.sectorId ?? "",
   };
 }
@@ -570,6 +574,8 @@ function ClientWizardFlow() {
   const [contactPhone, setContactPhone] = useState("");
   const [contactWhatsapp, setContactWhatsapp] = useState("");
   const [contactTelegram, setContactTelegram] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [address, setAddress] = useState("");
   const nicheFromUrl = searchParams?.get("niche")?.trim() ?? "";
   const nicheLocked = isWizardSectorId(nicheFromUrl);
   const [selSector, setSelSector] = useState<string | null>(() =>
@@ -737,11 +743,23 @@ function ClientWizardFlow() {
   const [phoneErr, setPhoneErr] = useState(false);
   const [whatsappErr, setWhatsappErr] = useState(false);
   const [telegramErr, setTelegramErr] = useState(false);
+  const [postalErr, setPostalErr] = useState(false);
+  const [addressErr, setAddressErr] = useState(false);
   const [sectorErr, setSectorErr] = useState(false);
   const [agbAccepted, setAgbAccepted] = useState(false);
 
   const runBuild = useCallback(
-    async (contactName: string, selectedSector: string) => {
+    async (
+      contactName: string,
+      selectedSector: string,
+      contacts: {
+        phone: string;
+        whatsapp: string;
+        telegram: string;
+        postalCode: string;
+        address: string;
+      },
+    ) => {
       setIsGenerating(true);
 
       const businessType = SECTOR_TO_BUSINESS_TYPE[selectedSector] ?? DEFAULT_BUSINESS_TYPE;
@@ -753,9 +771,11 @@ function ClientWizardFlow() {
           email: email.trim(),
           businessType,
           language: languageCode,
-          phone: contactPhone,
-          whatsapp: contactWhatsapp,
-          telegram: contactTelegram,
+          phone: contacts.phone,
+          whatsapp: contacts.whatsapp,
+          telegram: contacts.telegram,
+          postalCode: contacts.postalCode,
+          address: contacts.address,
           sectorId: selectedSector,
         }),
         terms_accepted: agbAccepted,
@@ -784,14 +804,7 @@ function ClientWizardFlow() {
         setIsGenerating(false);
       }
     },
-    [
-      agbAccepted,
-      contactPhone,
-      contactTelegram,
-      contactWhatsapp,
-      email,
-      lang,
-    ],
+    [agbAccepted, email, lang],
   );
 
   function goRestart() {
@@ -804,6 +817,8 @@ function ClientWizardFlow() {
     setContactPhone("");
     setContactWhatsapp("");
     setContactTelegram("");
+    setPostalCode("");
+    setAddress("");
     for (const id of ["f-phone", "f-whatsapp", "f-telegram"]) {
       const el = document.getElementById(id) as HTMLInputElement | null;
       if (el) el.value = "";
@@ -814,6 +829,8 @@ function ClientWizardFlow() {
     setPhoneErr(false);
     setWhatsappErr(false);
     setTelegramErr(false);
+    setPostalErr(false);
+    setAddressErr(false);
     setPublishCountdown(null);
     setAutoAdvancedToPreview(false);
     setSiteAccessGranted(false);
@@ -852,20 +869,34 @@ function ClientWizardFlow() {
     const phone = (document.getElementById("f-phone") as HTMLInputElement | null)?.value.trim() ?? "";
     const whatsapp = (document.getElementById("f-whatsapp") as HTMLInputElement | null)?.value.trim() ?? "";
     const telegram = (document.getElementById("f-telegram") as HTMLInputElement | null)?.value.trim() ?? "";
+    const trimmedPostal = postalCode.trim();
+    const trimmedAddress = address.trim();
 
     const nameInvalid = !trimmedName;
     const emailInvalid = !trimmedEmail || !EMAIL_RE.test(trimmedEmail);
     const phoneInvalid = !phone;
     const whatsappInvalid = !whatsapp;
     const telegramInvalid = !telegram;
+    const postalInvalid = !trimmedPostal;
+    const addressInvalid = !trimmedAddress;
 
     setNameErr(nameInvalid);
     setEmailErr(emailInvalid);
     setPhoneErr(phoneInvalid);
     setWhatsappErr(whatsappInvalid);
     setTelegramErr(telegramInvalid);
+    setPostalErr(postalInvalid);
+    setAddressErr(addressInvalid);
 
-    if (nameInvalid || emailInvalid || phoneInvalid || whatsappInvalid || telegramInvalid) {
+    if (
+      nameInvalid ||
+      emailInvalid ||
+      phoneInvalid ||
+      whatsappInvalid ||
+      telegramInvalid ||
+      postalInvalid ||
+      addressInvalid
+    ) {
       return;
     }
 
@@ -880,13 +911,21 @@ function ClientWizardFlow() {
     setContactPhone(phone);
     setContactWhatsapp(whatsapp);
     setContactTelegram(telegram);
+    setPostalCode(trimmedPostal);
+    setAddress(trimmedAddress);
 
     console.log("[wizard] selectedSector:", selectedSector);
     console.log("[wizard] submit start");
     console.log("[wizard] navigation target:", "s4");
     void executeRecaptcha("wizard_step_2");
     goTo("s4");
-    void runBuild(trimmedName, selectedSector);
+    void runBuild(trimmedName, selectedSector, {
+      phone,
+      whatsapp,
+      telegram,
+      postalCode: trimmedPostal,
+      address: trimmedAddress,
+    });
   }
 
   function handleYes() {
@@ -1090,6 +1129,42 @@ function ClientWizardFlow() {
                 onInput={() => setWhatsappErr(false)}
               />
               {whatsappErr ? <p className="field-err">{copy.err_whatsapp}</p> : null}
+            </div>
+            <div className="field">
+              <label className="inp-label" htmlFor="f-postal">
+                {copy.lbl_postal}
+              </label>
+              <input
+                id="f-postal"
+                className={`inp ${postalErr ? "err shake" : ""}`}
+                type="text"
+                value={postalCode}
+                onChange={(e) => {
+                  setPostalCode(e.target.value);
+                  setPostalErr(false);
+                }}
+                placeholder={copy.ph_postal}
+                autoComplete="postal-code"
+              />
+              {postalErr ? <p className="field-err">{copy.err_postal}</p> : null}
+            </div>
+            <div className="field">
+              <label className="inp-label" htmlFor="f-address">
+                {copy.lbl_address}
+              </label>
+              <input
+                id="f-address"
+                className={`inp ${addressErr ? "err shake" : ""}`}
+                type="text"
+                value={address}
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                  setAddressErr(false);
+                }}
+                placeholder={copy.ph_address}
+                autoComplete="street-address"
+              />
+              {addressErr ? <p className="field-err">{copy.err_address}</p> : null}
             </div>
             <div className="field">
               <label className="inp-label" htmlFor="f-telegram">
