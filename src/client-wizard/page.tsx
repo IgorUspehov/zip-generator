@@ -981,7 +981,7 @@ function ClientWizardFlow() {
   const canProceedStep1 = agbAccepted && Boolean(selSector);
 
   return (
-    <div className="mf-root" data-step={step}>
+    <div className="mf-root" data-step={step} lang={lang} translate="no">
       <div className="shell">
         <div className="glow" />
 

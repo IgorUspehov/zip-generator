@@ -1033,13 +1033,13 @@
   .mf-root[data-step="s1"] .card {
     display: flex;
     justify-content: center;
-    align-items: stretch;
+    align-items: center;
     min-height: 100dvh;
   }
 
   .step.active.s1-split {
     flex-direction: row;
-    align-items: stretch;
+    align-items: center;
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
@@ -1047,7 +1047,8 @@
   }
 
   .s1-panel {
-    justify-content: flex-start;
+    justify-content: center;
+    align-self: stretch;
   }
 
   .s1-panel-left,
@@ -1055,7 +1056,7 @@
     flex: 1 1 50%;
     width: 50%;
     max-width: 50%;
-    min-height: auto;
+    min-height: 100dvh;
     padding: 72px 40px;
   }
 
