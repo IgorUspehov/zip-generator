@@ -4,7 +4,13 @@ export type Sector = { id: string; icon: string; label: string };
 
 export type CopyBundle = {
   s1_label: string;
-  s1_intro: string;
+  s1_h: string;
+  s1_sub: string;
+  s1_motivation: string;
+  s1_placeholder: string;
+  s2_label: string;
+  s2_h: string;
+  s2_motivation: string;
   lbl_name: string;
   ph_name: string;
   lbl_biz: string;
@@ -15,10 +21,6 @@ export type CopyBundle = {
   err_phone: string;
   err_whatsapp: string;
   err_telegram: string;
-  s2_label: string;
-  s2_placeholder: string;
-  s2_h: string;
-  s2_sub: string;
   agb_accept: string;
   agb_terms: string;
   agb_and: string;
@@ -65,7 +67,13 @@ export type CopyBundle = {
 const T: Record<UiLang, CopyBundle> = {
   en: {
     s1_label: "Step 1 of 2",
-    s1_intro: "Fill out the questionnaire about yourself",
+    s1_h: "Business sector",
+    s1_sub: "Select the sector that best describes your business.",
+    s1_motivation: "Great! Almost there",
+    s1_placeholder: "— Select sector —",
+    s2_label: "Step 2 of 2",
+    s2_h: "Your details",
+    s2_motivation: "Last step — and your demo is ready",
     lbl_name: "Your name",
     ph_name: "Anna Müller",
     lbl_biz: "Business name",
@@ -76,10 +84,6 @@ const T: Record<UiLang, CopyBundle> = {
     err_phone: "Enter your phone",
     err_whatsapp: "Enter your WhatsApp",
     err_telegram: "Enter your Telegram",
-    s2_label: "Step 2 of 2",
-    s2_placeholder: "— Select sector —",
-    s2_h: "Business sector",
-    s2_sub: "Select the sector that best describes your business.",
     agb_accept: "I accept the",
     agb_terms: "Terms",
     agb_and: "and",
@@ -152,7 +156,13 @@ const T: Record<UiLang, CopyBundle> = {
   },
   de: {
     s1_label: "Schritt 1 von 2",
-    s1_intro: "Fülle den Fragebogen über dich aus",
+    s1_h: "Branche",
+    s1_sub: "Wählen Sie die Branche, die Ihr Unternehmen am besten beschreibt.",
+    s1_motivation: "Super! Fast geschafft",
+    s1_placeholder: "— Branche auswählen —",
+    s2_label: "Schritt 2 von 2",
+    s2_h: "Ihre Angaben",
+    s2_motivation: "Letzter Schritt — und die Demo ist fertig",
     lbl_name: "Ihr Name",
     ph_name: "Anna Müller",
     lbl_biz: "Unternehmensname",
@@ -163,10 +173,6 @@ const T: Record<UiLang, CopyBundle> = {
     err_phone: "Telefonnummer eingeben",
     err_whatsapp: "WhatsApp eingeben",
     err_telegram: "Telegram eingeben",
-    s2_label: "Schritt 2 von 2",
-    s2_placeholder: "— Branche auswählen —",
-    s2_h: "Branche",
-    s2_sub: "Wählen Sie die Branche, die Ihr Unternehmen am besten beschreibt.",
     agb_accept: "Ich akzeptiere die",
     agb_terms: "AGB",
     agb_and: "und die",
@@ -239,7 +245,13 @@ const T: Record<UiLang, CopyBundle> = {
   },
   ru: {
     s1_label: "Шаг 1 из 2",
-    s1_intro: "Заполни опросник о себе",
+    s1_h: "Сфера бизнеса",
+    s1_sub: "Выберите сферу, которая лучше всего описывает ваш бизнес.",
+    s1_motivation: "Отлично! Почти готово",
+    s1_placeholder: "— Выберите сферу —",
+    s2_label: "Шаг 2 из 2",
+    s2_h: "Ваши данные",
+    s2_motivation: "Последний шаг — и демо готово",
     lbl_name: "Ваше имя",
     ph_name: "Анна Мюллер",
     lbl_biz: "Название бизнеса",
@@ -250,10 +262,6 @@ const T: Record<UiLang, CopyBundle> = {
     err_phone: "Введите телефон",
     err_whatsapp: "Введите WhatsApp",
     err_telegram: "Введите Telegram",
-    s2_label: "Шаг 2 из 2",
-    s2_placeholder: "— Выберите сферу —",
-    s2_h: "Сфера бизнеса",
-    s2_sub: "Выберите сферу, которая лучше всего описывает ваш бизнес.",
     agb_accept: "Я принимаю",
     agb_terms: "условия",
     agb_and: "и",

@@ -571,8 +571,9 @@ function ClientWizardFlow() {
   const [contactWhatsapp, setContactWhatsapp] = useState("");
   const [contactTelegram, setContactTelegram] = useState("");
   const nicheFromUrl = searchParams?.get("niche")?.trim() ?? "";
+  const nicheLocked = isWizardSectorId(nicheFromUrl);
   const [selSector, setSelSector] = useState<string | null>(() =>
-    isWizardSectorId(nicheFromUrl) ? nicheFromUrl : null,
+    nicheLocked ? nicheFromUrl : null,
   );
   const [isGenerating, setIsGenerating] = useState(false);
   const [pendingRedirectUrl, setPendingRedirectUrl] = useState<string | null>(null);
@@ -824,6 +825,28 @@ function ClientWizardFlow() {
   }
 
   function go1() {
+    const sectorFromSelect =
+      (document.getElementById("sector-select") as HTMLSelectElement | null)?.value.trim() || null;
+    const selectedSector = selSector || sectorFromSelect;
+
+    if (!selectedSector) {
+      setSectorErr(true);
+      setTimeout(() => setSectorErr(false), 800);
+      return;
+    }
+    if (!agbAccepted) {
+      return;
+    }
+
+    if (!selSector && selectedSector) {
+      setSelSector(selectedSector);
+    }
+
+    void executeRecaptcha("wizard_step_1");
+    goTo("s2");
+  }
+
+  function go2() {
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
     const phone = (document.getElementById("f-phone") as HTMLInputElement | null)?.value.trim() ?? "";
@@ -846,40 +869,24 @@ function ClientWizardFlow() {
       return;
     }
 
-    setContactPhone(phone);
-    setContactWhatsapp(whatsapp);
-    setContactTelegram(telegram);
-    void executeRecaptcha("wizard_step_1");
-    goTo("s2");
-  }
-
-  function go2() {
-    const sectorFromSelect =
-      (document.getElementById("sector-select") as HTMLSelectElement | null)?.value.trim() || null;
-    const selectedSector = selSector || sectorFromSelect;
-    const acceptedTerms = agbAccepted;
-
-    console.log("[wizard] selectedSector:", selectedSector);
-    console.log("[wizard] acceptedTerms:", acceptedTerms);
-
+    const selectedSector = selSector;
     if (!selectedSector) {
       setSectorErr(true);
       setTimeout(() => setSectorErr(false), 800);
-      return;
-    }
-    if (!acceptedTerms) {
+      goTo("s1");
       return;
     }
 
-    if (!selSector && selectedSector) {
-      setSelSector(selectedSector);
-    }
+    setContactPhone(phone);
+    setContactWhatsapp(whatsapp);
+    setContactTelegram(telegram);
 
+    console.log("[wizard] selectedSector:", selectedSector);
     console.log("[wizard] submit start");
     console.log("[wizard] navigation target:", "s4");
     void executeRecaptcha("wizard_step_2");
     goTo("s4");
-    void runBuild(name.trim(), selectedSector);
+    void runBuild(trimmedName, selectedSector);
   }
 
   function handleYes() {
@@ -929,6 +936,10 @@ function ClientWizardFlow() {
   }
 
   const stepClass = (id: StepId) => (step === id ? "step active" : "step");
+  const confirmedSector = nicheLocked
+    ? copy.sectors.find((item) => item.id === nicheFromUrl)
+    : null;
+  const canProceedStep1 = agbAccepted && Boolean(selSector);
 
   return (
     <div className="mf-root">
@@ -949,11 +960,77 @@ function ClientWizardFlow() {
         </div>
 
         <div className="card">
-          {/* STEP 1 */}
+          {/* STEP 1 — Business sector */}
           <div className={stepClass("s1")} id="s1">
             <ProgressBar step="s1" />
             <div className="step-label">{copy.s1_label}</div>
-            <div className="step-h step-h-intro">{copy.s1_intro}</div>
+            <div className="step-h">{copy.s1_h}</div>
+            <div className="step-motivation">{copy.s1_motivation}</div>
+            {confirmedSector ? (
+              <div className="niche-confirm">
+                <span className="niche-confirm-icon" aria-hidden>
+                  {confirmedSector.icon}
+                </span>
+                <span className="niche-confirm-label">{confirmedSector.label}</span>
+              </div>
+            ) : (
+              <>
+                <div className="step-sub">{copy.s1_sub}</div>
+                <select
+                  className={`inp ${sectorErr ? "err" : ""}`}
+                  id="sector-select"
+                  value={selSector ?? ""}
+                  onChange={(e) => setSelSector(e.target.value || null)}
+                  style={{ fontSize: 15, padding: "14px 16px", marginBottom: 8 }}
+                >
+                  <option value="">{copy.s1_placeholder}</option>
+                  {copy.sectors.map((sector) => (
+                    <option key={sector.id} value={sector.id}>
+                      {sector.icon} {sector.label}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+            <label className="agb-row">
+              <input
+                type="checkbox"
+                id="agb-checkbox"
+                checked={agbAccepted}
+                onChange={(e) => setAgbAccepted(e.target.checked)}
+              />
+              <span>
+                {copy.agb_accept}{" "}
+                <a href="/agb" target="_blank" rel="noreferrer" className="agb-link">
+                  {copy.agb_terms}
+                </a>{" "}
+                {copy.agb_and}{" "}
+                <a href="/datenschutz" target="_blank" rel="noreferrer" className="agb-link">
+                  {copy.agb_privacy}
+                </a>
+              </span>
+            </label>
+            <WizardStepNav>
+              <Link href="/" className="btn-back btn-nav-secondary">
+                <span>{copy.btn_back}</span>
+              </Link>
+              <button
+                type="button"
+                className="btn-primary btn-nav-primary"
+                onClick={go1}
+                disabled={!canProceedStep1}
+              >
+                <span>{copy.btn_next}</span>
+              </button>
+            </WizardStepNav>
+          </div>
+
+          {/* STEP 2 — Personal details */}
+          <div className={stepClass("s2")} id="s2">
+            <ProgressBar step="s2" />
+            <div className="step-label">{copy.s2_label}</div>
+            <div className="step-h step-h-intro">{copy.s2_h}</div>
+            <div className="step-motivation">{copy.s2_motivation}</div>
             <div className="field">
               <label className="inp-label" htmlFor="f-name">
                 {copy.lbl_name}
@@ -1028,66 +1105,10 @@ function ClientWizardFlow() {
               {telegramErr ? <p className="field-err">{copy.err_telegram}</p> : null}
             </div>
             <WizardStepNav>
-              <Link href="/" className="btn-back btn-nav-secondary">
-                <span>{copy.btn_back}</span>
-              </Link>
-              <button type="button" className="btn-primary btn-nav-primary" onClick={go1}>
-                <span>{copy.btn_next}</span>
-              </button>
-            </WizardStepNav>
-          </div>
-
-          {/* STEP 2 */}
-          <div className={stepClass("s2")} id="s2">
-            <ProgressBar step="s2" />
-            <div className="step-label">{copy.s2_label}</div>
-            <div className="step-h">{copy.s2_h}</div>
-            <div className="step-sub">{copy.s2_sub}</div>
-            <select
-              className={`inp ${sectorErr ? "err" : ""}`}
-              id="sector-select"
-              value={selSector ?? ""}
-              onChange={(e) => setSelSector(e.target.value || null)}
-              style={{ fontSize: 15, padding: "14px 16px", marginBottom: 8 }}
-            >
-              <option value="">{copy.s2_placeholder}</option>
-              {copy.sectors.map((sector) => (
-                <option key={sector.id} value={sector.id}>
-                  {sector.icon} {sector.label}
-                </option>
-              ))}
-            </select>
-            <label className="flex items-center gap-2 text-sm text-gray-600 mt-4">
-              <input
-                type="checkbox"
-                id="agb-checkbox"
-                checked={agbAccepted}
-                onChange={(e) => setAgbAccepted(e.target.checked)}
-              />
-              {copy.agb_accept}{" "}
-              <a href="/agb" target="_blank" rel="noreferrer" className="text-blue-600 underline">
-                {copy.agb_terms}
-              </a>{" "}
-              {copy.agb_and}{" "}
-              <a
-                href="/datenschutz"
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-600 underline"
-              >
-                {copy.agb_privacy}
-              </a>
-            </label>
-            <WizardStepNav>
               <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s1")}>
                 <span>{copy.btn_back}</span>
               </button>
-              <button
-                type="button"
-                className="btn-primary btn-nav-primary"
-                onClick={go2}
-                disabled={!agbAccepted}
-              >
+              <button type="button" className="btn-primary btn-nav-primary" onClick={go2}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
