@@ -1029,19 +1029,40 @@
 }
 
 @media (min-width: 1024px) {
+  /* Centered max-width shell so columns stay side-by-side, not pinned to viewport edges */
+  .mf-root[data-step="s1"] .card {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    min-height: 100dvh;
+  }
+
   .step.active.s1-split {
     flex-direction: row;
     align-items: stretch;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 100dvh;
+  }
+
+  .s1-panel {
+    justify-content: flex-start;
   }
 
   .s1-panel-left,
   .s1-panel-right {
+    flex: 1 1 50%;
     width: 50%;
-    min-height: 100dvh;
-    padding: 72px 48px;
+    max-width: 50%;
+    min-height: auto;
+    padding: 72px 40px;
   }
 
-  .s1-left-inner {
+  .s1-left-inner,
+  .s1-right-inner {
+    max-width: none;
+    width: 100%;
     margin: 0;
   }
 }
