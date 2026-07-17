@@ -19,6 +19,7 @@ import {
   POLAR_CHECKOUT_RECURRING,
 } from "@/lib/polar/constants";
 import { DEFAULT_BUSINESS_TYPE } from "@/lib/sector-mapping";
+import { useTranslation } from "@/lib/i18n/context";
 import { executeRecaptcha } from "@/lib/recaptcha/client";
 import type { ResultApiResponse, StepId } from "@/client-wizard/types";
 
@@ -57,7 +58,8 @@ function PaymentReturnScreen({
   clientId: string;
   checkoutId: string;
 }) {
-  const [lang, setLang] = useState<UiLang>("en");
+  const { locale, setLocale } = useTranslation();
+  const lang = locale as UiLang;
   const [timedOut, setTimedOut] = useState(false);
   const copy = getCopy(lang);
 
@@ -159,7 +161,7 @@ function PaymentReturnScreen({
               key={code}
               type="button"
               className={`ui-lang-btn ${lang === code ? "active" : ""}`}
-              onClick={() => setLang(code)}
+              onClick={() => setLocale(code)}
             >
               {code.toUpperCase()}
             </button>
@@ -550,7 +552,8 @@ export function ClientWizardPage() {
 }
 
 function ClientWizardFlow() {
-  const [lang, setLang] = useState<UiLang>("en");
+  const { locale, setLocale } = useTranslation();
+  const lang = locale as UiLang;
   const copy = getCopy(lang);
 
   const [step, setStep] = useState<StepId>("s1");
@@ -927,7 +930,7 @@ function ClientWizardFlow() {
               key={code}
               type="button"
               className={`ui-lang-btn ${lang === code ? "active" : ""}`}
-              onClick={() => setLang(code)}
+              onClick={() => setLocale(code)}
             >
               {code.toUpperCase()}
             </button>

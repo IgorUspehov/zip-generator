@@ -108,14 +108,36 @@ export default function Page() {
   const t = translations[lang] ?? translations.de;
 
   useEffect(() => {
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+
+    const resetScroll = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    resetScroll();
+
     const handlePageShow = (event: PageTransitionEvent) => {
       if (event.persisted) {
         window.location.reload();
+        return;
       }
+      resetScroll();
+    };
+
+    const handlePopState = () => {
+      requestAnimationFrame(resetScroll);
     };
 
     window.addEventListener("pageshow", handlePageShow);
-    return () => window.removeEventListener("pageshow", handlePageShow);
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+      window.removeEventListener("popstate", handlePopState);
+    };
   }, []);
 
   const niches = t.niches.map((label, i) => ({
@@ -126,7 +148,7 @@ export default function Page() {
   }));
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900">
+    <div className="bg-white font-sans text-gray-900">
       {/* Language switcher */}
       <div
         className="fixed top-4 right-4 z-50 flex gap-1 rounded-full border border-gray-200 bg-white/90 px-3 py-1.5 shadow-md backdrop-blur"
@@ -284,7 +306,7 @@ export default function Page() {
         </div>
 
         {/* scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 animate-bounce flex-col items-center gap-1 text-xs text-gray-500">
+        <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1 text-xs text-gray-500">
           <span>{t.scrollDown}</span>
           <ChevronRight className="h-4 w-4 rotate-90" />
         </div>
