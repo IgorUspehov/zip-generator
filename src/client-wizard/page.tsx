@@ -1360,90 +1360,45 @@ function ClientWizardFlow() {
           <div className={stepClass("s6")} id="s6">
             {siteAccessGranted && pendingRedirectUrl ? (
               <>
-                <div className="build-wrap">
+                <div className="build-wrap wizard-ready-wrap">
                   <div className="step-h" style={{ textAlign: "center" }}>
                     {copy.s4_ready}
                   </div>
                   <div className="step-sub" style={{ textAlign: "center", marginBottom: 0 }}>
                     {name.trim()}
                   </div>
-                  <div style={{ marginTop: 28, textAlign: "left" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 8,
-                        marginBottom: 12,
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <input
-                        type="text"
-                        readOnly
-                        value={pendingRedirectUrl}
-                        style={{
-                          flex: 1,
-                          minWidth: 0,
-                          padding: "10px 12px",
-                          borderRadius: 10,
-                          border: "1px solid #cbd5e1",
-                          background: "#f8fafc",
-                          color: "#0f172a",
-                          fontSize: 13,
-                        }}
-                      />
-                      <button
-                        type="button"
-                        className="btn-primary"
-                        style={{
-                          flexShrink: 0,
-                          marginBottom: 0,
-                          padding: "10px 16px",
-                          fontSize: 14,
-                        }}
-                        onClick={() => void navigator.clipboard.writeText(pendingRedirectUrl)}
-                      >
-                        {copy.s4_copy_link}
-                      </button>
-                    </div>
+                  <div className="wizard-ready-actions">
+                    <input
+                      type="text"
+                      readOnly
+                      className="wizard-ready-url"
+                      value={pendingRedirectUrl}
+                      aria-label={copy.s4_copy_link}
+                    />
                     {publishCountdownText ? (
-                      <p
-                        className="step-sub"
-                        style={{ textAlign: "center", marginBottom: 12, fontWeight: 600 }}
-                      >
-                        {publishCountdownText}
-                      </p>
+                      <p className="step-sub wizard-ready-countdown">{publishCountdownText}</p>
                     ) : (
                       <a
                         href={pendingRedirectUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="btn-primary"
-                        style={{
-                          display: "flex",
-                          width: "100%",
-                          justifyContent: "center",
-                          marginBottom: 0,
-                        }}
+                        className="btn-primary wizard-ready-open"
                       >
                         {copy.s4_open}
                       </a>
                     )}
+                    <button
+                      type="button"
+                      className="wizard-ready-copy"
+                      onClick={() => void navigator.clipboard.writeText(pendingRedirectUrl)}
+                    >
+                      {copy.s4_copy_link}
+                    </button>
+                    <button type="button" className="wizard-ready-restart" onClick={goRestart}>
+                      {copy.btn_restart}
+                    </button>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  className="btn-primary"
-                  style={{
-                    background: "#ffffff",
-                    border: "1px solid #e2e8f0",
-                    color: "#64748b",
-                    fontWeight: 500,
-                    marginTop: 24,
-                  }}
-                  onClick={goRestart}
-                >
-                  <span>{copy.btn_restart}</span>
-                </button>
               </>
             ) : (
               <>
