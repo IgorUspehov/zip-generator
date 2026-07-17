@@ -616,6 +616,38 @@
   font-weight: 500;
 }
 
+/* Live Preview (s5): wider card + taller iframe on desktop */
+.mf-root[data-step="s5"] .card {
+  max-width: min(720px, calc(100vw - 32px));
+}
+
+@media (min-width: 1024px) {
+  .mf-root[data-step="s5"] .card {
+    max-width: min(1120px, calc(100vw - 64px));
+    padding: 40px 44px;
+  }
+
+  .mf-root[data-step="s5"] .wizard-live-preview,
+  .mf-root[data-step="s5"] .wizard-live-preview-frame,
+  .mf-root[data-step="s5"] .wizard-live-preview-loading {
+    height: min(62vh, 680px);
+    min-height: 560px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .mf-root[data-step="s5"] .card {
+    max-width: min(1280px, calc(100vw - 80px));
+  }
+
+  .mf-root[data-step="s5"] .wizard-live-preview,
+  .mf-root[data-step="s5"] .wizard-live-preview-frame,
+  .mf-root[data-step="s5"] .wizard-live-preview-loading {
+    height: min(68vh, 760px);
+    min-height: 620px;
+  }
+}
+
 .wizard-pay-actions {
   display: flex;
   flex-direction: column;
