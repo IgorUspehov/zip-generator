@@ -186,18 +186,26 @@
 .agb-row {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   margin-top: 18px;
-  font-size: 13px;
-  line-height: 1.45;
+  margin-bottom: 4px;
+  font-size: 15px;
+  line-height: 1.5;
   color: #d1d5db;
   cursor: pointer;
 }
 
 .agb-row input {
+  width: 18px;
+  height: 18px;
   margin-top: 2px;
   accent-color: #f97316;
   flex-shrink: 0;
+}
+
+.agb-row > span {
+  flex: 1;
+  min-width: 0;
 }
 
 .agb-link {
