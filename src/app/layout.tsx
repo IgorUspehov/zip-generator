@@ -48,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="light" suppressHydrationWarning>
+    <html lang="de" className="light" suppressHydrationWarning>
       <head>
         <meta property="og:title" content="CRM Demo — за 3 минуты" />
         <meta
