@@ -139,7 +139,7 @@ export async function prepareClientDistWithOgImage(
   const businessType = String(manifest.businessType ?? "generic");
   const businessName = String(manifest.businessName ?? "CRM Demo");
 
-  ensureImageLibraryInDist(stagingDir);
+  ensureImageLibraryInDist(stagingDir, businessType);
 
   const ogImageUrl = getOgImagePath(businessType);
   const ogFilePath = path.join(stagingDir, ogImageUrl.replace(/^\//, ""));

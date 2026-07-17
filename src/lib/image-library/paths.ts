@@ -42,15 +42,44 @@ export function resolveOgImageFilePath(businessType: string, projectRoot = proce
   return path.join(root, "generic", "og.jpg");
 }
 
-export function ensureImageLibraryInDist(stagingDir: string, projectRoot = process.cwd()): void {
-  const source = getImageLibraryRoot(projectRoot);
-  const destination = path.join(stagingDir, "image-library");
-  if (!fs.existsSync(source)) {
-    console.warn("[image-library] library root missing:", source);
+/**
+ * Copy only the niche image-library folder (+ generic fallback) into a staging dist.
+ * Avoids duplicating the full ~24MB library into every client-dist / Pages deploy.
+ */
+export function ensureImageLibraryInDist(
+  stagingDir: string,
+  businessType: string,
+  projectRoot = process.cwd(),
+): void {
+  const sourceRoot = getImageLibraryRoot(projectRoot);
+  const destinationRoot = path.join(stagingDir, "image-library");
+  if (!fs.existsSync(sourceRoot)) {
+    console.warn("[image-library] library root missing:", sourceRoot);
     return;
   }
-  if (fs.existsSync(destination)) {
-    return;
+
+  const nicheFolder = resolveImageLibraryFolder(businessType);
+  const folders = new Set<string>([nicheFolder, "generic"]);
+
+  fs.mkdirSync(destinationRoot, { recursive: true });
+
+  for (const folder of folders) {
+    const source = path.join(sourceRoot, folder);
+    const destination = path.join(destinationRoot, folder);
+    if (!fs.existsSync(source)) {
+      console.warn("[image-library] niche folder missing:", source);
+      continue;
+    }
+    if (fs.existsSync(destination)) {
+      continue;
+    }
+    fs.cpSync(source, destination, { recursive: true });
   }
-  fs.cpSync(source, destination, { recursive: true });
+
+  console.log("[image-library] staged niche folders", {
+    businessType,
+    nicheFolder,
+    folders: [...folders],
+    destinationRoot,
+  });
 }

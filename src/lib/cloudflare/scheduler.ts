@@ -17,6 +17,8 @@ import {
 } from "@/lib/cloudflare/shared-project";
 import type { PendingDeletionRecord } from "@/lib/manifest/storage-manager";
 import { resolvePendingDeletionsPath } from "@/lib/manifest/storage-paths";
+import { removeClientDistIfUnprotected } from "@/lib/site-delivery/dist-store";
+import { isClientDistProtected } from "@/lib/site-delivery/dist-protection";
 
 /** Test-mode default: auto-delete unpaid CRM Demo deployments after 10 minutes. */
 const DEFAULT_TTL_MINUTES = 10;
@@ -161,6 +163,17 @@ export async function processExpiredDeletions(): Promise<void> {
         // siteId is deploymentId in the shared-project model.
         await deletePagesDeployment(targetProject, entry.siteId);
         removeDemoByDeploymentId(entry.siteId);
+
+        // Volume snapshot: unpaid only (paid entries already skipped above).
+        // Double protection check lives in removeClientDistIfUnprotected.
+        if (isClientDistProtected(entry.clientId)) {
+          console.info("[cloudflare-scheduler] skip client-dist delete — protected", {
+            clientId: entry.clientId,
+          });
+        } else {
+          removeClientDistIfUnprotected(entry.clientId);
+        }
+
         console.info(`[cloudflare-scheduler] Deleted expired deployment ${entry.siteId}`);
       } catch (error) {
         console.error(`[cloudflare-scheduler] Failed to delete deployment ${entry.siteId}:`, error);
