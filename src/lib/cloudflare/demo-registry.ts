@@ -47,6 +47,10 @@ export function findDemoBySlug(slug: string): DemoSiteRecord | undefined {
   return readRegistry().find((item) => item.slug === slug);
 }
 
+export function findDemoByShortId(shortId: string): DemoSiteRecord | undefined {
+  return readRegistry().find((item) => item.slug.endsWith(`-${shortId}`));
+}
+
 export function findDemoByClientId(clientId: string): DemoSiteRecord | undefined {
   return readRegistry().find((item) => item.clientId === clientId);
 }

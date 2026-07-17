@@ -1,350 +1,445 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import {
+  Search,
+  CalendarCheck,
+  TrendingUp,
+  Globe,
+  Smartphone,
+  Shield,
+  Zap,
+  CheckCircle2,
+  ChevronRight,
+  ClipboardList,
+  Eye,
+  CreditCard,
+  Rocket,
+  Users,
+  ShoppingCart,
+  Phone,
+  Scissors,
+  Dumbbell,
+  Stethoscope,
+  Heart,
+  UtensilsCrossed,
+  Coffee,
+  Hotel,
+  Car,
+  CircleDot,
+  Droplets,
+  Building2,
+  Scale,
+  Calculator,
+  GraduationCap,
+  Truck,
+  ShoppingBag,
+  Monitor,
+  Wrench,
+} from "lucide-react";
 
-type Lang = "ru" | "de" | "en";
+import {
+  LANGS,
+  LANG_LABELS,
+  translations,
+  type Lang,
+} from "@/lib/i18n/landing-copy";
+import { useTranslation } from "@/lib/i18n/context";
+import { POLAR_CHECKOUT_CRM_DEMO } from "@/lib/polar/constants";
 
-const POLAR_CHECKOUT_CRM_DEMO =
-  "https://buy.polar.sh/polar_cl_uUpNQRXBAVubDpDO3zwLa5SAswkU0Jkr2835A04UF1F";
+const NICHES_ICONS = [
+  Scissors,
+  Wrench,
+  Heart,
+  Dumbbell,
+  Globe,
+  Stethoscope,
+  Shield,
+  UtensilsCrossed,
+  Coffee,
+  Hotel,
+  Car,
+  CircleDot,
+  Droplets,
+  Building2,
+  Scale,
+  Calculator,
+  GraduationCap,
+  Truck,
+  ShoppingBag,
+  Monitor,
+];
 
-const translations = {
-  en: {
-    hero_title: "CRM Demo in 3 Minutes",
-    hero_button: "€99 — one-time payment",
-    hero_subline: "No subscription. No monthly fees.",
-    process_label: "PROCESS",
-    process_title: "How it works",
-    step1_title: "Fill out the form",
-    step1_desc: "3 questions about your business",
-    step2_title: "System builds your CRM Demo",
-    step2_desc: "Automatically for your niche",
-    step3_title: "Get your link",
-    step3_desc: "Unique URL on Netlify",
-    features_label: "FEATURES",
-    features_title: "What's included in CRM Demo",
-    feature1: "Business management panel",
-    feature2: "Clients, bookings, services",
-    feature3: "Photo gallery for your niche",
-    feature4: "Language switch EN/DE/RU",
-    feature5: "Unique URL on Netlify",
-    niches_label: "NICHES",
-    niches_title: "Industries",
-    price_label: "PRICE",
-    price_title: "CRM Demo",
-    price_line1: "One-time payment.",
-    price_line2: "No subscription.",
-    price_line3: "No monthly fees.",
-    price_button: "€99 — one-time payment",
-    price_subline: "No subscription. No monthly fees.",
-    footer_location: "München, Germany",
-    footer_agb: "Terms",
-    footer_privacy: "Privacy",
-  },
-  de: {
-    hero_title: "CRM Demo in 3 Minuten",
-    hero_button: "€99 — Einmalzahlung",
-    hero_subline: "Kein Abo. Keine monatlichen Gebühren.",
-    process_label: "PROZESS",
-    process_title: "So funktioniert es",
-    step1_title: "Fragebogen ausfüllen",
-    step1_desc: "3 Fragen zu Ihrem Unternehmen",
-    step2_title: "System erstellt Ihr CRM Demo",
-    step2_desc: "Automatisch für Ihre Branche",
-    step3_title: "Link erhalten",
-    step3_desc: "Einzigartige URL auf Netlify",
-    features_label: "LEISTUNGEN",
-    features_title: "Was ist in CRM Demo enthalten",
-    feature1: "Business-Management-Panel",
-    feature2: "Kunden, Termine, Dienstleistungen",
-    feature3: "Fotogalerie für Ihre Branche",
-    feature4: "Sprachwechsel EN/DE/RU",
-    feature5: "Einzigartige URL auf Netlify",
-    niches_label: "BRANCHEN",
-    niches_title: "Branchen",
-    price_label: "PREIS",
-    price_title: "CRM Demo",
-    price_line1: "Einmalzahlung.",
-    price_line2: "Kein Abo.",
-    price_line3: "Keine monatlichen Gebühren.",
-    price_button: "€99 — Einmalzahlung",
-    price_subline: "Kein Abo. Keine monatlichen Gebühren.",
-    footer_location: "München, Deutschland",
-    footer_agb: "AGB",
-    footer_privacy: "Datenschutz",
-  },
-  ru: {
-    hero_title: "CRM Demo за 3 минуты",
-    hero_button: "€99 — разовый платёж",
-    hero_subline: "Без подписки. Без ежемесячных платежей.",
-    process_label: "ПРОЦЕСС",
-    process_title: "Как работает",
-    step1_title: "Заполните анкету",
-    step1_desc: "3 вопроса о вашем бизнесе",
-    step2_title: "Система собирает ваш CRM Demo",
-    step2_desc: "Автоматически под вашу нишу",
-    step3_title: "Получаете ссылку",
-    step3_desc: "Уникальный URL на Netlify",
-    features_label: "ВОЗМОЖНОСТИ",
-    features_title: "Что входит в CRM Demo",
-    feature1: "Панель управления бизнесом",
-    feature2: "Клиенты, записи, услуги",
-    feature3: "Галерея с фото вашей ниши",
-    feature4: "Переключение языков EN/DE/RU",
-    feature5: "Уникальный URL на Netlify",
-    niches_label: "НИШИ",
-    niches_title: "Ниши",
-    price_label: "ЦЕНА",
-    price_title: "CRM Demo",
-    price_line1: "Разовый платёж.",
-    price_line2: "Без подписки.",
-    price_line3: "Без ежемесячных платежей.",
-    price_button: "€99 — разовый платёж",
-    price_subline: "Без подписки. Без ежемесячных платежей.",
-    footer_location: "Мюнхен, Германия",
-    footer_agb: "Условия",
-    footer_privacy: "Конфиденциальность",
-  },
-} as const;
+const NICHES_COLORS = [
+  { color: "text-pink-500", bg: "bg-pink-50" },
+  { color: "text-slate-600", bg: "bg-slate-50" },
+  { color: "text-rose-500", bg: "bg-rose-50" },
+  { color: "text-orange-500", bg: "bg-orange-50" },
+  { color: "text-teal-500", bg: "bg-teal-50" },
+  { color: "text-cyan-600", bg: "bg-cyan-50" },
+  { color: "text-blue-500", bg: "bg-blue-50" },
+  { color: "text-amber-600", bg: "bg-amber-50" },
+  { color: "text-yellow-700", bg: "bg-yellow-50" },
+  { color: "text-violet-500", bg: "bg-violet-50" },
+  { color: "text-gray-600", bg: "bg-gray-100" },
+  { color: "text-zinc-600", bg: "bg-zinc-50" },
+  { color: "text-sky-500", bg: "bg-sky-50" },
+  { color: "text-emerald-600", bg: "bg-emerald-50" },
+  { color: "text-indigo-600", bg: "bg-indigo-50" },
+  { color: "text-green-600", bg: "bg-green-50" },
+  { color: "text-purple-500", bg: "bg-purple-50" },
+  { color: "text-orange-600", bg: "bg-orange-50" },
+  { color: "text-red-500", bg: "bg-red-50" },
+  { color: "text-blue-600", bg: "bg-blue-50" },
+];
 
-const NICHE_ICONS = [
-  "💇",
-  "🍽️",
-  "💪",
-  "🦷",
-  "💆",
-  "🚗",
-  "🏨",
-  "📚",
-  "🚛",
-  "🛒",
-  "💻",
-] as const;
+const HOW_ICONS = [ClipboardList, Zap, Eye, CreditCard];
 
-const nicheLabels: Record<Lang, readonly string[]> = {
-  en: [
-    "Beauty Salon",
-    "Restaurant",
-    "Fitness",
-    "Dentistry",
-    "Massage",
-    "Car Service",
-    "Hotel",
-    "Education",
-    "Logistics",
-    "Online Shop",
-    "Technology",
-  ],
-  de: [
-    "Schönheitssalon",
-    "Restaurant",
-    "Fitnessstudio",
-    "Zahnarzt",
-    "Massagesalon",
-    "Autowerkstatt",
-    "Hotel",
-    "Bildung",
-    "Logistik",
-    "Online-Shop",
-    "Technologie",
-  ],
-  ru: [
-    "Салон красоты",
-    "Ресторан",
-    "Фитнес",
-    "Стоматология",
-    "Массаж",
-    "Автосервис",
-    "Отель",
-    "Образование",
-    "Логистика",
-    "Интернет-магазин",
-    "Технологии",
-  ],
-};
+const BENEFITS_ICONS = [Zap, Rocket, Smartphone, Shield, Globe, TrendingUp];
 
-const STEP_ICONS = ["📝", "⚙️", "🚀"] as const;
+const STATS_ICONS = [Users, Phone, ShoppingCart];
 
-function SectionTitle({
-  eyebrow,
-  children,
-}: {
-  eyebrow?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="text-center">
-      {eyebrow ? (
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-          {eyebrow}
-        </p>
-      ) : null}
-      <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-        {children}
-      </h2>
-    </div>
-  );
-}
-
-function CtaButton({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className="inline-flex items-center justify-center rounded-xl bg-amber-500 px-8 py-4 text-lg font-bold text-slate-900 shadow-lg shadow-amber-500/30 transition hover:bg-amber-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 sm:px-10 sm:py-5 sm:text-xl"
-    >
-      {children}
-    </Link>
-  );
-}
-
-function LanguageSwitcher({
-  lang,
-  onChange,
-}: {
-  lang: Lang;
-  onChange: (lang: Lang) => void;
-}) {
-  const langs: Lang[] = ["en", "de", "ru"];
-
-  return (
-    <div
-      className="fixed right-4 top-4 z-50 flex items-center rounded-full border border-slate-200 bg-white/95 px-3 py-1.5 text-sm font-semibold shadow-sm backdrop-blur-sm sm:right-6 sm:top-6"
-      role="group"
-      aria-label="Language"
-    >
-      {langs.map((code, index) => (
-        <span key={code} className="flex items-center">
-          {index > 0 ? <span className="mx-2 text-slate-400">|</span> : null}
-          <button
-            type="button"
-            onClick={() => onChange(code)}
-            className={`uppercase tracking-wide transition ${
-              lang === code
-                ? "text-amber-600"
-                : "text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            {code}
-          </button>
-        </span>
-      ))}
-    </div>
-  );
-}
+const PROBLEM_ICONS = [Search, CalendarCheck, Eye, Users];
 
 export default function Page() {
-  const [lang, setLang] = useState<Lang>("ru");
-  const t = translations[lang];
+  const { locale, setLocale } = useTranslation();
+  const lang = locale as Lang;
+  const t = translations[lang] ?? translations.de;
 
-  const steps = [
-    { number: "1", icon: STEP_ICONS[0], title: t.step1_title, description: t.step1_desc },
-    { number: "2", icon: STEP_ICONS[1], title: t.step2_title, description: t.step2_desc },
-    { number: "3", icon: STEP_ICONS[2], title: t.step3_title, description: t.step3_desc },
-  ];
-
-  const features = [t.feature1, t.feature2, t.feature3, t.feature4, t.feature5];
-
-  const niches = NICHE_ICONS.map((icon, index) => ({
-    icon,
-    label: nicheLabels[lang][index],
+  const niches = t.niches.map((label, i) => ({
+    icon: NICHES_ICONS[i],
+    label,
+    color: NICHES_COLORS[i].color,
+    bg: NICHES_COLORS[i].bg,
   }));
 
   return (
-    <div className="min-h-svh bg-white text-slate-900">
-      <LanguageSwitcher lang={lang} onChange={setLang} />
-
-      {/* Hero */}
-      <section
-        className="relative flex min-h-[72vh] items-center justify-center bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/og-image.png')" }}
+    <div className="min-h-screen bg-white font-sans text-gray-900">
+      {/* Language switcher */}
+      <div
+        className="fixed top-4 right-4 z-50 flex gap-1 rounded-full border border-gray-200 bg-white/90 px-3 py-1.5 shadow-md backdrop-blur"
+        role="group"
+        aria-label={t.langLabel}
       >
-        <div className="absolute inset-0 bg-black/50" aria-hidden />
-        <div className="relative z-10 mx-auto max-w-4xl px-6 py-24 text-center">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-            CRM Demo
+        {LANGS.map((l) => (
+          <button
+            key={l}
+            type="button"
+            onClick={() => setLocale(l)}
+            className={`rounded-full px-2 py-0.5 text-xs font-semibold transition-all ${
+              lang === l
+                ? "bg-orange-500 text-white"
+                : "text-gray-500 hover:text-gray-800"
+            }`}
+          >
+            {LANG_LABELS[l]}
+          </button>
+        ))}
+      </div>
+
+      {/* HERO */}
+      <section className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+        {/* decorative blobs */}
+        <div className="absolute top-0 left-0 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500/10 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-80 w-80 translate-x-1/3 translate-y-1/3 rounded-full bg-orange-400/10 blur-3xl" />
+
+        <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 px-6 py-24 lg:grid-cols-2">
+          {/* Left */}
+          <div>
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/20 px-4 py-1.5">
+              <Zap className="h-3.5 w-3.5 text-orange-400" />
+              <span className="text-xs font-semibold tracking-widest text-orange-300 uppercase">
+                {t.heroBadge}
+              </span>
+            </div>
+
+            <h1 className="mb-4 text-5xl leading-tight font-black text-white lg:text-6xl">
+              {t.heroTitle1}
+              <br />
+              <span className="text-orange-500">{t.heroTitle2}</span>
+              <br />
+              {t.heroTitle3}
+            </h1>
+
+            <p className="mb-3 text-lg font-medium text-gray-300">
+              {t.heroSubtitle}{" "}
+              <span className="font-bold text-orange-400">
+                {t.heroSubtitleHighlight}
+              </span>
+            </p>
+            <p className="mb-8 text-sm text-gray-400">{t.heroDescription}</p>
+
+            {/* Price badge */}
+            <div className="mb-8 inline-flex items-center gap-4 rounded-2xl bg-orange-500 px-6 py-4 shadow-xl shadow-orange-500/30">
+              <div>
+                <div className="text-xs font-semibold tracking-wider text-white/80 uppercase">
+                  {t.priceMonthly}
+                </div>
+                <div className="text-4xl leading-none font-black text-white">
+                  {t.priceValue}
+                </div>
+              </div>
+              <div className="border-l border-white/30 pl-4">
+                <div className="text-sm font-semibold text-white">
+                  {t.priceSiteCrm}
+                </div>
+                <div className="text-xs text-white/70">{t.priceConfigured}</div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/client"
+                className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-orange-500/30 transition-all duration-200 hover:scale-105 hover:bg-orange-600 hover:shadow-orange-500/50"
+              >
+                <Rocket className="h-5 w-5" />
+                {t.heroBtnPrimary}
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/showcase"
+                className="flex items-center justify-center gap-2 rounded-xl border border-gray-600 px-6 py-4 font-semibold text-gray-300 transition-all duration-200 hover:border-gray-400 hover:text-white"
+              >
+                {t.heroBtnSecondary}
+              </Link>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-4">
+              {t.heroCheckmarks.map((text) => (
+                <div
+                  key={text}
+                  className="flex items-center gap-1.5 text-sm text-gray-400"
+                >
+                  <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-green-400" />
+                  {text}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right — mock screen */}
+          <div className="hidden justify-center lg:flex">
+            <div className="relative w-full max-w-sm">
+              {/* phone mockup */}
+              <div className="rotate-1 rounded-[2.5rem] border border-gray-700 bg-gray-800 p-3 shadow-2xl">
+                <div className="overflow-hidden rounded-[2rem] bg-white">
+                  {/* status bar */}
+                  <div className="bg-amber-400 px-5 py-3">
+                    <div className="text-xs font-black text-gray-900">
+                      {t.mockTitle}
+                    </div>
+                    <div className="text-[10px] text-gray-900/70">
+                      {t.mockSubtitle}
+                    </div>
+                  </div>
+                  <div className="space-y-3 p-4">
+                    <div className="grid grid-cols-2 gap-2">
+                      {t.mockStats.map(([v, l]) => (
+                        <div
+                          key={l}
+                          className="rounded-xl bg-gray-50 p-3 text-center"
+                        >
+                          <div className="text-xl font-black text-gray-900">
+                            {v}
+                          </div>
+                          <div className="text-[10px] text-gray-500">{l}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="space-y-1.5">
+                      {t.mockEvents.map(([time, event, status]) => (
+                        <div
+                          key={time}
+                          className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 text-[11px]"
+                        >
+                          <span className="w-10 text-gray-400">{time}</span>
+                          <span className="flex-1 px-2 text-gray-700">
+                            {event}
+                          </span>
+                          <span className="rounded bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-700">
+                            {status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* badges */}
+              <div className="-left-8 top-16 absolute flex -rotate-3 items-center gap-1.5 rounded-2xl border border-gray-100 bg-white px-3 py-2 text-xs font-bold text-gray-800 shadow-xl">
+                <Zap className="h-3.5 w-3.5 text-orange-500" /> 3{" "}
+                {t.heroSubtitleHighlight}
+              </div>
+              <div className="-right-6 bottom-24 absolute flex rotate-2 items-center gap-1.5 rounded-2xl bg-orange-500 px-3 py-2 text-xs font-bold text-white shadow-xl">
+                <CheckCircle2 className="h-3.5 w-3.5" /> {t.ctaTitle1}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 animate-bounce flex-col items-center gap-1 text-xs text-gray-500">
+          <span>{t.scrollDown}</span>
+          <ChevronRight className="h-4 w-4 rotate-90" />
+        </div>
+      </section>
+
+      {/* PROBLEM SECTION */}
+      <section className="bg-gray-950 py-20">
+        <div className="mx-auto max-w-5xl px-6 text-center">
+          <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
+            {t.problemEyebrow}
           </p>
-          <h1 className="text-5xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl">
-            {t.hero_title}
-          </h1>
-          <div className="mt-10">
-            <CtaButton href="/client">{t.hero_button}</CtaButton>
-            <p className="mt-3 text-sm font-medium text-white/85">{t.hero_subline}</p>
+          <h2 className="mb-12 text-3xl font-black text-white lg:text-5xl">
+            {t.problemTitle1}
+            <br />
+            <span className="text-orange-500">{t.problemTitle2}</span>
+          </h2>
+
+          <div className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {t.problems.map(({ text }, i) => {
+              const Icon = PROBLEM_ICONS[i];
+              return (
+                <div
+                  key={text}
+                  className="flex flex-col items-start gap-3 rounded-2xl border border-gray-800 bg-gray-900 p-5"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10">
+                    <Icon className="h-5 w-5 text-orange-400" />
+                  </div>
+                  <p className="text-left text-sm font-medium text-gray-300">
+                    {text}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="rounded-3xl border border-orange-500/20 bg-orange-500/10 p-8">
+            <div className="mb-6 grid grid-cols-3 gap-6">
+              {t.stats.map(({ value, label }, i) => {
+                const Icon = STATS_ICONS[i];
+                return (
+                  <div key={label} className="text-center">
+                    <Icon className="mx-auto mb-1 h-6 w-6 text-orange-400" />
+                    <div className="text-4xl font-black text-white">{value}</div>
+                    <div className="text-sm text-gray-400">{label}</div>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-2xl font-black text-white">
+              {t.problemQuestion}{" "}
+              <span className="text-orange-500">
+                {t.problemQuestionHighlight}
+              </span>
+            </p>
+            <p className="mt-2 text-sm text-gray-400">{t.problemAnswer}</p>
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="border-y border-slate-200 bg-slate-50 py-20">
-        <div className="mx-auto max-w-6xl px-6">
-          <SectionTitle eyebrow={t.process_label}>{t.process_title}</SectionTitle>
-          <ol className="mt-14 grid gap-8 sm:grid-cols-3">
-            {steps.map((step) => (
-              <li
-                key={step.number}
-                className="flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-lg shadow-slate-200/60 transition hover:shadow-xl"
-              >
-                <span aria-hidden className="text-5xl">
-                  {step.icon}
-                </span>
-                <span className="mt-4 flex size-10 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">
-                  {step.number}
-                </span>
-                <h3 className="mt-4 text-lg font-semibold text-slate-900">
-                  {step.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  {step.description}
-                </p>
-              </li>
-            ))}
-          </ol>
+      {/* HOW IT WORKS */}
+      <section className="bg-white py-20">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-14 text-center">
+            <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
+              {t.howEyebrow}
+            </p>
+            <h2 className="text-3xl font-black text-gray-900 lg:text-4xl">
+              {t.howTitle}
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-gray-500">{t.howSubtitle}</p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {t.howSteps.map(({ title, desc }, step) => {
+              const Icon = HOW_ICONS[step];
+              return (
+                <div key={step} className="relative">
+                  {step < 3 && (
+                    <div className="absolute top-8 left-full z-0 hidden h-0.5 w-full bg-gradient-to-r from-orange-200 to-transparent lg:block" />
+                  )}
+                  <div className="group relative z-10 rounded-2xl border border-gray-100 bg-gray-50 p-6 transition-all duration-300 hover:border-orange-200 hover:shadow-lg">
+                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500 transition-transform duration-200 group-hover:scale-110">
+                      <Icon className="h-7 w-7 text-white" />
+                    </div>
+                    <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full bg-gray-900 text-xs font-black text-white">
+                      {step + 1}
+                    </div>
+                    <h3 className="mb-2 font-bold text-gray-900">{title}</h3>
+                    <p className="text-sm text-gray-500">{desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-12 text-center">
+            <Link
+              href="/client"
+              className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-10 py-4 text-lg font-bold text-white shadow-lg shadow-orange-500/20 transition-all duration-200 hover:scale-105 hover:bg-orange-600"
+            >
+              <ClipboardList className="h-5 w-5" />
+              {t.howBtn}
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+            <p className="mt-3 text-sm text-gray-400">{t.howBtnHint}</p>
+          </div>
         </div>
       </section>
 
-      {/* What's included */}
-      <section className="py-20">
-        <div className="mx-auto max-w-3xl px-6">
-          <SectionTitle eyebrow={t.features_label}>{t.features_title}</SectionTitle>
-          <ul className="mt-12 space-y-3">
-            {features.map((feature) => (
-              <li
-                key={feature}
-                className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white px-6 py-4 text-base font-medium text-slate-800 shadow-md shadow-slate-100 sm:text-lg"
-              >
-                <span
-                  aria-hidden
-                  className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"
-                >
-                  ✓
-                </span>
-                {feature}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      {/* FEATURES */}
+      <section className="bg-gray-50 py-20">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-14 text-center">
+            <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
+              {t.featuresEyebrow}
+            </p>
+            <h2 className="text-3xl font-black text-gray-900 lg:text-4xl">
+              {t.featuresTitle}
+            </h2>
+          </div>
 
-      {/* Niches */}
-      <section className="border-y border-slate-200 bg-slate-50 py-20">
-        <div className="mx-auto max-w-6xl px-6">
-          <SectionTitle eyebrow={t.niches_label}>{t.niches_title}</SectionTitle>
-          <div className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {niches.map((niche) => (
+          <div className="mx-auto grid max-w-2xl gap-3 sm:grid-cols-2">
+            {t.features.map((f) => (
               <div
-                key={niche.label}
-                className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-6 text-center shadow-lg shadow-slate-200/60 transition hover:border-slate-300 hover:shadow-xl"
+                key={f}
+                className="flex items-start gap-3 rounded-xl border border-gray-100 bg-white px-5 py-4 transition-all duration-200 hover:border-orange-200 hover:shadow-sm"
               >
-                <span aria-hidden className="text-4xl">
-                  {niche.icon}
-                </span>
-                <span className="text-sm font-semibold text-slate-800 sm:text-base">
-                  {niche.label}
+                <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
+                <span className="text-sm font-medium text-gray-700">{f}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* NICHES */}
+      <section className="bg-white py-20">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-14 text-center">
+            <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
+              {t.nichesEyebrow}
+            </p>
+            <h2 className="text-3xl font-black text-gray-900 lg:text-4xl">
+              {t.nichesTitle}
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
+            {niches.map(({ icon: Icon, label, color, bg }) => (
+              <div
+                key={label}
+                className="group flex cursor-pointer flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md"
+              >
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110 ${bg}`}
+                >
+                  <Icon className={`h-6 w-6 ${color}`} />
+                </div>
+                <span className="text-center text-xs leading-tight font-semibold text-gray-700 group-hover:text-gray-900">
+                  {label}
                 </span>
               </div>
             ))}
@@ -352,56 +447,137 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section className="py-20 sm:py-24">
-        <div className="mx-auto max-w-lg px-6">
-          <div className="rounded-2xl border-2 border-slate-200 bg-white p-10 text-center shadow-xl shadow-slate-200/80">
-            <SectionTitle eyebrow={t.price_label}>{t.price_title}</SectionTitle>
-            <p className="mt-8 text-6xl font-extrabold tracking-tight text-slate-900">
-              €99
+      {/* BENEFITS grid */}
+      <section className="bg-gray-950 py-20">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-14 text-center">
+            <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
+              {t.benefitsEyebrow}
             </p>
-            <div className="mt-4 space-y-1">
-              <p className="text-lg font-medium text-slate-600">{t.price_line1}</p>
-              <p className="text-lg font-medium text-slate-600">{t.price_line2}</p>
-              <p className="text-lg font-medium text-slate-600">{t.price_line3}</p>
+            <h2 className="text-3xl font-black text-white lg:text-4xl">
+              {t.benefitsTitle}
+            </h2>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {t.benefits.map(({ title, desc }, i) => {
+              const Icon = BENEFITS_ICONS[i];
+              return (
+                <div
+                  key={title}
+                  className="flex gap-4 rounded-2xl border border-gray-800 bg-gray-900 p-6 transition-all duration-300 hover:border-orange-500/30"
+                >
+                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-orange-500/10">
+                    <Icon className="h-5 w-5 text-orange-400" />
+                  </div>
+                  <div>
+                    <h3 className="mb-1 font-bold text-white">{title}</h3>
+                    <p className="text-sm text-gray-400">{desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section className="bg-white py-20">
+        <div className="mx-auto max-w-lg px-6">
+          <div className="mb-10 text-center">
+            <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
+              {t.pricingEyebrow}
+            </p>
+            <h2 className="text-3xl font-black text-gray-900 lg:text-4xl">
+              {t.pricingTitle}
+            </h2>
+          </div>
+
+          <div className="overflow-hidden rounded-3xl bg-gray-950 shadow-2xl">
+            <div className="relative bg-orange-500 px-8 pt-8 pb-12 text-center">
+              <div className="mb-1 text-sm font-semibold text-white/80">
+                {t.pricingMonthly}
+              </div>
+              <div className="text-8xl leading-none font-black text-white">
+                €99
+              </div>
+              <div className="mt-2 text-sm text-white/70">
+                {t.pricingPerMonth}
+              </div>
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-full border-4 border-orange-500 bg-gray-950 px-4 py-1.5 text-xs font-bold whitespace-nowrap text-orange-400">
+                {t.pricingDemoFree}
+              </div>
             </div>
-            <div className="mt-10">
-              <CtaButton href={POLAR_CHECKOUT_CRM_DEMO}>{t.price_button}</CtaButton>
-              <p className="mt-3 text-sm text-slate-500">{t.price_subline}</p>
+
+            <div className="px-8 pt-10 pb-8">
+              <div className="mb-8 space-y-3">
+                {t.pricingItems.map((item) => (
+                  <div key={item} className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-green-400" />
+                    <span className="text-sm text-gray-300">{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              <a
+                href={POLAR_CHECKOUT_CRM_DEMO}
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 py-5 text-xl font-black text-white shadow-lg shadow-orange-500/30 transition-all duration-200 hover:scale-[1.02] hover:bg-orange-600"
+              >
+                <Rocket className="h-6 w-6" />
+                {t.pricingBtn}
+              </a>
+              <p className="mt-3 text-center text-xs text-gray-500">
+                {t.pricingHint}
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-slate-900 py-12 text-slate-300">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-6 text-center text-sm sm:flex-row sm:justify-between sm:text-left">
-          <p>
-            <span className="font-semibold text-white">CRM Demo</span>
-            {" | "}
-            {t.footer_location}
-            {" | "}
-            <a
-              href="mailto:contact@mvpfactory.de"
-              className="text-amber-400 underline-offset-4 hover:underline"
-            >
-              contact@mvpfactory.de
-            </a>
-          </p>
-          <nav className="flex gap-8">
-            <Link
-              href="/agb"
-              className="text-slate-300 underline-offset-4 hover:text-white hover:underline"
-            >
-              {t.footer_agb}
-            </Link>
-            <Link
-              href="/datenschutz"
-              className="text-slate-300 underline-offset-4 hover:text-white hover:underline"
-            >
-              {t.footer_privacy}
-            </Link>
-          </nav>
+      {/* FINAL CTA */}
+      <section className="bg-orange-500 py-20">
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <h2 className="mb-4 text-4xl font-black text-white lg:text-5xl">
+            {t.ctaTitle1}
+            <br />
+            <span className="text-gray-900">{t.ctaTitle2}</span>
+          </h2>
+          <p className="mb-8 text-lg text-white/80">{t.ctaSubtitle}</p>
+          <Link
+            href="/client"
+            className="inline-flex items-center gap-3 rounded-2xl bg-gray-900 px-10 py-5 text-xl font-black text-white shadow-xl transition-all duration-200 hover:scale-105 hover:bg-gray-800"
+          >
+            <Rocket className="h-6 w-6 text-orange-400" />
+            {t.ctaBtn}
+            <ChevronRight className="h-5 w-5" />
+          </Link>
+          <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-white/80">
+            {t.ctaCheckmarks.map((text) => (
+              <div key={text} className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-white" />
+                {text}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-gray-800 bg-gray-950 py-8">
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
+          <div className="flex items-center gap-2">
+            <Rocket className="h-5 w-5 text-orange-500" />
+            <span className="text-sm font-bold text-white">CRM Demo</span>
+          </div>
+          <p className="text-xs text-gray-500">{t.footerTagline}</p>
+          <div className="flex gap-3 text-xs text-gray-500">
+            {LANGS.map((l, i) => (
+              <span key={l}>
+                {LANG_LABELS[l]}
+                {i < LANGS.length - 1 && <span> · </span>}
+              </span>
+            ))}
+          </div>
         </div>
       </footer>
     </div>
