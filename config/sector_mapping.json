@@ -4,15 +4,22 @@
     "health": "health_clinic",
     "dental": "dental_clinic",
     "beauty": "beauty_salon",
+    "barbershop": "barbershop",
     "massage": "massage_salon",
     "fitness": "fitness_club",
+    "yoga": "fitness_club",
     "car_service": "car_service",
+    "tire_service": "car_service",
+    "car_wash": "cleaning_service",
     "logistics": "logistics",
     "food": "restaurant",
+    "cafe": "restaurant",
     "education": "education",
     "tech": "technology",
     "shop": "ecommerce",
     "realestate": "real_estate",
+    "law_firm": "law_firm",
+    "accounting": "accounting",
     "cleaning": "cleaning_service",
     "veterinary": "veterinary_clinic",
     "hotel": "hotel_booking"
@@ -38,6 +45,8 @@
     "technology": "Технологии / Technology",
     "inventory_system": "Склад / Inventory",
     "cleaning_service": "Клининг / Cleaning Service",
-    "logistics": "Логистика / Logistics"
+    "logistics": "Логистика / Logistics",
+    "law_firm": "Юридическая фирма / Law Firm",
+    "accounting": "Бухгалтерия / Accounting"
   }
 }

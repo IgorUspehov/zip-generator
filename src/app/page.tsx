@@ -46,6 +46,7 @@ import {
 } from "@/lib/i18n/landing-copy";
 import { useTranslation } from "@/lib/i18n/context";
 import { POLAR_CHECKOUT_CRM_DEMO } from "@/lib/polar/constants";
+import { LANDING_NICHE_SLUGS } from "@/lib/niche-sectors";
 
 const NICHES_ICONS = [
   Scissors,
@@ -109,6 +110,7 @@ export default function Page() {
   const niches = t.niches.map((label, i) => ({
     icon: NICHES_ICONS[i],
     label,
+    slug: LANDING_NICHE_SLUGS[i] ?? null,
     color: NICHES_COLORS[i].color,
     bg: NICHES_COLORS[i].bg,
   }));
@@ -424,9 +426,10 @@ export default function Page() {
           </div>
 
           <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
-            {niches.map(({ icon: Icon, label, color, bg }) => (
-              <div
+            {niches.map(({ icon: Icon, label, slug, color, bg }) => (
+              <Link
                 key={label}
+                href={slug ? `/client?niche=${slug}` : "/client"}
                 className="group flex cursor-pointer flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md"
               >
                 <div
@@ -437,7 +440,7 @@ export default function Page() {
                 <span className="text-center text-xs leading-tight font-semibold text-gray-700 group-hover:text-gray-900">
                   {label}
                 </span>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

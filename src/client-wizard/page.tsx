@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import { markLandingReturnReload } from "@/lib/landing-navigation";
+import { isWizardSectorId } from "@/lib/niche-sectors";
 
 import {
   buildQuestionnairePayload,
@@ -558,6 +559,7 @@ export function ClientWizardPage() {
 }
 
 function ClientWizardFlow() {
+  const searchParams = useSearchParams();
   const { locale, setLocale } = useTranslation();
   const lang = locale as UiLang;
   const copy = getCopy(lang);
@@ -568,7 +570,10 @@ function ClientWizardFlow() {
   const [contactPhone, setContactPhone] = useState("");
   const [contactWhatsapp, setContactWhatsapp] = useState("");
   const [contactTelegram, setContactTelegram] = useState("");
-  const [selSector, setSelSector] = useState<string | null>(null);
+  const nicheFromUrl = searchParams?.get("niche")?.trim() ?? "";
+  const [selSector, setSelSector] = useState<string | null>(() =>
+    isWizardSectorId(nicheFromUrl) ? nicheFromUrl : null,
+  );
   const [isGenerating, setIsGenerating] = useState(false);
   const [pendingRedirectUrl, setPendingRedirectUrl] = useState<string | null>(null);
   const [deployMeta, setDeployMeta] = useState<{
