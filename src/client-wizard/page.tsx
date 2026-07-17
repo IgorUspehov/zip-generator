@@ -1261,9 +1261,14 @@ function ClientWizardFlow() {
                 {name.trim()}
               </div>
               {isGenerating ? (
-                <p className="step-sub" style={{ textAlign: "center", marginTop: 12 }}>
-                  {copy.s4_generating}
-                </p>
+                <>
+                  <p className="step-sub" style={{ textAlign: "center", marginTop: 12 }}>
+                    {copy.s4_generating}
+                  </p>
+                  <div className="build-progress" aria-hidden="true">
+                    <div className="build-progress-bar" />
+                  </div>
+                </>
               ) : pendingRedirectUrl ? (
                 <p className="step-sub" style={{ textAlign: "center", marginTop: 12, fontWeight: 600 }}>
                   {copy.s4_build_done}
