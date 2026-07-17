@@ -282,6 +282,39 @@ export default function Page() {
         </div>
       </section>
 
+      {/* NICHES */}
+      <section className="bg-white py-20">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-14 text-center">
+            <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
+              {t.nichesEyebrow}
+            </p>
+            <h2 className="text-3xl font-black text-gray-900 lg:text-4xl">
+              {t.nichesTitle}
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
+            {niches.map(({ icon: Icon, label, slug, color, bg }) => (
+              <Link
+                key={label}
+                href={slug ? `/client?niche=${slug}` : "/client"}
+                className="group flex cursor-pointer flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md"
+              >
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110 ${bg}`}
+                >
+                  <Icon className={`h-6 w-6 ${color}`} />
+                </div>
+                <span className="text-center text-xs leading-tight font-semibold text-gray-700 group-hover:text-gray-900">
+                  {label}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* PROBLEM SECTION */}
       <section className="bg-gray-950 py-20">
         <div className="mx-auto max-w-5xl px-6 text-center">
@@ -410,39 +443,6 @@ export default function Page() {
                 <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
                 <span className="text-sm font-medium text-gray-700">{f}</span>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* NICHES */}
-      <section className="bg-white py-20">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="mb-14 text-center">
-            <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
-              {t.nichesEyebrow}
-            </p>
-            <h2 className="text-3xl font-black text-gray-900 lg:text-4xl">
-              {t.nichesTitle}
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
-            {niches.map(({ icon: Icon, label, slug, color, bg }) => (
-              <Link
-                key={label}
-                href={slug ? `/client?niche=${slug}` : "/client"}
-                className="group flex cursor-pointer flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md"
-              >
-                <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110 ${bg}`}
-                >
-                  <Icon className={`h-6 w-6 ${color}`} />
-                </div>
-                <span className="text-center text-xs leading-tight font-semibold text-gray-700 group-hover:text-gray-900">
-                  {label}
-                </span>
-              </Link>
             ))}
           </div>
         </div>
