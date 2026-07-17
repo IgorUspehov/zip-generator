@@ -1,0 +1,39 @@
+{
+  "panel_title": {
+    "ru": "Панель фитнеса",
+    "de": "Fitness-Panel",
+    "en": "Fitness Panel"
+  },
+  "panel_tagline": {
+    "ru": "Тренировки, абонементы и тренеры",
+    "de": "Training, Mitgliedschaften und Trainer",
+    "en": "Workouts, memberships and trainers"
+  },
+  "tabs": {
+    "dashboard": {
+      "ru": "Дашборд",
+      "de": "Dashboard",
+      "en": "Dashboard"
+    },
+    "clients": {
+      "ru": "Клиенты",
+      "de": "Kunden",
+      "en": "Clients"
+    },
+    "memberships": {
+      "ru": "Абонементы",
+      "de": "Mitgliedschaften",
+      "en": "Memberships"
+    },
+    "trainers": {
+      "ru": "Тренеры",
+      "de": "Trainer",
+      "en": "Trainers"
+    },
+    "schedule": {
+      "ru": "Расписание",
+      "de": "Zeitplan",
+      "en": "Schedule"
+    }
+  }
+}

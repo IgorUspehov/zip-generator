@@ -1,0 +1,30 @@
+---
+description: Website + CRM image-library generation constraints (no text, one shot per file)
+globs: "**/image-library/**/*"
+alwaysApply: true
+---
+
+# Website + CRM image library
+
+Work only in `saas-mvp-funnel`. Never pull assets from Factory-Website-CRM.
+
+## Hard constraints
+
+- One file = one image (never multiple shots on one canvas)
+- 1920×1080, horizontal, photorealistic
+- No text, letters, numbers, captions, or file names inside the image
+- No logos, brands, signs, watermarks, slogans
+- No UI, interfaces, frames, collages, contact sheets, presentation boards
+- No labels such as `hero.jpg` / `gallery-1.jpg` rendered onto the image
+
+## Roles (each = separate generated file)
+
+| File | Role |
+|------|------|
+| `hero.jpg` | Facade or main selling exterior/hero shot |
+| `gallery-1.jpg` | Interior or primary workflow |
+| `gallery-2.jpg` | Second angle or additional service |
+| `gallery-3.jpg` | Details, equipment, atmosphere |
+| `og.jpg` | Strongest wide frame for social/site preview |
+
+Generate each role as its own image. Never combine roles into one canvas.

@@ -1,0 +1,39 @@
+{
+  "panel_title": {
+    "ru": "Панель магазина",
+    "de": "Shop-Panel",
+    "en": "Store Panel"
+  },
+  "panel_tagline": {
+    "ru": "Товары, заказы и клиенты",
+    "de": "Produkte, Bestellungen und Kunden",
+    "en": "Products, orders and customers"
+  },
+  "tabs": {
+    "dashboard": {
+      "ru": "Дашборд",
+      "de": "Dashboard",
+      "en": "Dashboard"
+    },
+    "products": {
+      "ru": "Товары",
+      "de": "Produkte",
+      "en": "Products"
+    },
+    "orders": {
+      "ru": "Заказы",
+      "de": "Aufträge",
+      "en": "Orders"
+    },
+    "customers": {
+      "ru": "Клиенты",
+      "de": "Kunden",
+      "en": "Customers"
+    },
+    "inventory": {
+      "ru": "Склад",
+      "de": "Lager",
+      "en": "Inventory"
+    }
+  }
+}

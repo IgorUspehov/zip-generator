@@ -1,0 +1,39 @@
+{
+  "panel_title": {
+    "ru": "Панель образования",
+    "de": "Bildungs-Panel",
+    "en": "Education Panel"
+  },
+  "panel_tagline": {
+    "ru": "Студенты, курсы и успеваемость",
+    "de": "Studenten, Kurse und Leistungen",
+    "en": "Students, courses and performance"
+  },
+  "tabs": {
+    "dashboard": {
+      "ru": "Дашборд",
+      "de": "Dashboard",
+      "en": "Dashboard"
+    },
+    "students": {
+      "ru": "Студенты",
+      "de": "Studenten",
+      "en": "Students"
+    },
+    "courses": {
+      "ru": "Курсы",
+      "de": "Kurse",
+      "en": "Courses"
+    },
+    "grades": {
+      "ru": "Успеваемость",
+      "de": "Noten",
+      "en": "Grades"
+    },
+    "teachers": {
+      "ru": "Преподаватели",
+      "de": "Lehrer",
+      "en": "Teachers"
+    }
+  }
+}

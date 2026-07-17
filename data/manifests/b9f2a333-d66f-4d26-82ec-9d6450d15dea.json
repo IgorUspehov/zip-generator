@@ -1,0 +1,347 @@
+{
+  "businessName": "Munich Express Logistics",
+  "niche": "logistics",
+  "businessType": "logistics_delivery",
+  "language": "de",
+  "primaryColor": "#bb7f25",
+  "theme": {
+    "primary": "#955823",
+    "secondary": "#c5a181",
+    "accent": "#bb7f25",
+    "hero_bg": "linear-gradient(135deg, #633b17 0%, #ae8f29 100%)",
+    "text": "#2a231d",
+    "border": "#e0dbd7"
+  },
+  "promotion": {
+    "ru": "Первая доставка в Мюнхене — бесплатно",
+    "de": "Erste Lieferung in München — kostenlos",
+    "en": "First delivery in Munich — free"
+  },
+  "scenario": {
+    "metrics": {
+      "ru": [
+        "Заказов в пути",
+        "Доставлено сегодня",
+        "Водителей на маршруте",
+        "Задержек"
+      ],
+      "de": [
+        "Aufträge unterwegs",
+        "Heute geliefert",
+        "Fahrer auf Route",
+        "Verzögerungen"
+      ],
+      "en": [
+        "Orders in Transit",
+        "Delivered Today",
+        "Drivers on Route",
+        "Delays"
+      ]
+    },
+    "metric_values": [
+      "67",
+      "34",
+      "12",
+      "3"
+    ],
+    "today_items": [
+      {
+        "name": {
+          "ru": "Водитель Ганс — Маршрут Север — 14 доставок",
+          "de": "Fahrer Hans — Route Nord — 14 Lieferungen",
+          "en": "Driver Hans — North Route — 14 deliveries"
+        },
+        "service": {
+          "ru": "14 доставок",
+          "de": "14 Lieferungen",
+          "en": "14 deliveries"
+        },
+        "time": "07:00"
+      },
+      {
+        "name": {
+          "ru": "Водитель Клаус — Маршрут Юг — 11 доставок",
+          "de": "Fahrer Klaus — Route Süd — 11 Lieferungen",
+          "en": "Driver Klaus — South Route — 11 deliveries"
+        },
+        "service": {
+          "ru": "11 доставок",
+          "de": "11 Lieferungen",
+          "en": "11 deliveries"
+        },
+        "time": "07:30"
+      },
+      {
+        "name": {
+          "ru": "Грузовик 3 — Центр Мюнхена — Срочная",
+          "de": "LKW 3 — München Zentrum — Express",
+          "en": "Truck 3 — Munich Center — Express"
+        },
+        "service": {
+          "ru": "Срочная доставка",
+          "de": "Expresslieferung",
+          "en": "Express Delivery"
+        },
+        "time": "09:00"
+      },
+      {
+        "name": {
+          "ru": "Экспресс — Аэропорт",
+          "de": "Express — Flughafen",
+          "en": "Express — Airport"
+        },
+        "service": {
+          "ru": "Аэропорт экспресс",
+          "de": "Flughafen-Express",
+          "en": "Airport Express"
+        },
+        "time": "11:00"
+      }
+    ],
+    "popular_services": {
+      "ru": [
+        "Стандартная доставка",
+        "Срочная доставка",
+        "Хрупкий груз",
+        "Холодовая цепь"
+      ],
+      "de": [
+        "Standardlieferung",
+        "Expresslieferung",
+        "Zerbrechliche Waren",
+        "Kühlkette"
+      ],
+      "en": [
+        "Standard Delivery",
+        "Express Delivery",
+        "Fragile Goods",
+        "Cold Chain"
+      ]
+    },
+    "records": {
+      "routes": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Центр Мюнхена",
+            "de": "München Zentrum",
+            "en": "Munich Center"
+          },
+          "stops": 12,
+          "status": {
+            "ru": "Активен",
+            "de": "Aktiv",
+            "en": "Active"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Северный район",
+            "de": "Nordbezirk",
+            "en": "North District"
+          },
+          "stops": 8,
+          "status": {
+            "ru": "Активен",
+            "de": "Aktiv",
+            "en": "Active"
+          }
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Аэропорт экспресс",
+            "de": "Flughafen-Express",
+            "en": "Airport Express"
+          },
+          "stops": 5,
+          "status": {
+            "ru": "Запланирован",
+            "de": "Geplant",
+            "en": "Planned"
+          }
+        }
+      ],
+      "drivers": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Игорь Драйв",
+            "de": "Igor Drive",
+            "en": "Igor Drive"
+          },
+          "role": {
+            "ru": "Водитель",
+            "de": "Fahrer",
+            "en": "Driver"
+          },
+          "status": {
+            "ru": "На маршруте",
+            "de": "Unterwegs",
+            "en": "On route"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Алекс Карго",
+            "de": "Alex Cargo",
+            "en": "Alex Cargo"
+          },
+          "role": {
+            "ru": "Водитель",
+            "de": "Fahrer",
+            "en": "Driver"
+          },
+          "status": {
+            "ru": "Доступен",
+            "de": "Verfügbar",
+            "en": "Available"
+          }
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Макс Флит",
+            "de": "Max Fleet",
+            "en": "Max Fleet"
+          },
+          "role": {
+            "ru": "Водитель",
+            "de": "Fahrer",
+            "en": "Driver"
+          },
+          "status": {
+            "ru": "На перерыве",
+            "de": "Pause",
+            "en": "On break"
+          }
+        }
+      ],
+      "deliveries": [
+        {
+          "id": "1",
+          "client": {
+            "ru": "Магазин A",
+            "de": "Shop A",
+            "en": "Shop A"
+          },
+          "service": {
+            "ru": "Экспресс",
+            "de": "Express",
+            "en": "Express"
+          },
+          "time": "2026-06-18 09:00",
+          "status": {
+            "ru": "Доставлено",
+            "de": "Geliefert",
+            "en": "Delivered"
+          }
+        },
+        {
+          "id": "2",
+          "client": {
+            "ru": "Офис B",
+            "de": "Office B",
+            "en": "Office B"
+          },
+          "service": {
+            "ru": "Стандарт",
+            "de": "Standard",
+            "en": "Standard"
+          },
+          "time": "2026-06-18 12:00",
+          "status": {
+            "ru": "В пути",
+            "de": "Unterwegs",
+            "en": "In transit"
+          }
+        },
+        {
+          "id": "3",
+          "client": {
+            "ru": "Клиент C",
+            "de": "Client C",
+            "en": "Client C"
+          },
+          "service": {
+            "ru": "В тот же день",
+            "de": "Same Day",
+            "en": "Same day"
+          },
+          "time": "2026-06-18 15:00",
+          "status": {
+            "ru": "Ожидает",
+            "de": "Ausstehend",
+            "en": "Pending"
+          }
+        }
+      ],
+      "vehicles": [
+        {
+          "id": "1",
+          "model": "Mercedes Sprinter",
+          "plate": "M-LG 100",
+          "status": {
+            "ru": "На маршруте",
+            "de": "Unterwegs",
+            "en": "On route"
+          }
+        },
+        {
+          "id": "2",
+          "model": "Ford Transit",
+          "plate": "M-LG 200",
+          "status": {
+            "ru": "Доступен",
+            "de": "Verfügbar",
+            "en": "Available"
+          }
+        },
+        {
+          "id": "3",
+          "model": "VW Crafter",
+          "plate": "M-LG 300",
+          "status": {
+            "ru": "На обслуживании",
+            "de": "Wartung",
+            "en": "Maintenance"
+          }
+        }
+      ]
+    }
+  },
+  "galleryPhotos": [
+    "/image-library/logistics/gallery-1.jpg",
+    "/image-library/logistics/gallery-2.jpg",
+    "/image-library/logistics/gallery-3.jpg"
+  ],
+  "heroPhoto": "/image-library/logistics/hero.jpg",
+  "phone": "+49 89 1234567",
+  "email": "hello@munich-express-logistics.example",
+  "city": "München",
+  "features": [
+    "booking",
+    "clients",
+    "analytics"
+  ],
+  "pages": [
+    "dashboard",
+    "routes",
+    "drivers",
+    "deliveries",
+    "vehicles",
+    "settings"
+  ],
+  "demoData": {},
+  "workingHours": {
+    "monday": "06:00-22:00",
+    "tuesday": "06:00-22:00",
+    "wednesday": "06:00-22:00",
+    "thursday": "06:00-22:00",
+    "friday": "06:00-22:00",
+    "saturday": "08:00-18:00",
+    "sunday": "closed"
+  }
+}

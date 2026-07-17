@@ -187,20 +187,14 @@ export default function Page() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex justify-center">
               <Link
                 href="/client"
-                className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-orange-500/30 transition-all duration-200 hover:scale-105 hover:bg-orange-600 hover:shadow-orange-500/50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-orange-500/30 transition-all duration-200 hover:scale-105 hover:bg-orange-600 hover:shadow-orange-500/50 sm:w-auto"
               >
                 <Rocket className="h-5 w-5" />
                 {t.heroBtnPrimary}
                 <ChevronRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/showcase"
-                className="flex items-center justify-center gap-2 rounded-xl border border-gray-600 px-6 py-4 font-semibold text-gray-300 transition-all duration-200 hover:border-gray-400 hover:text-white"
-              >
-                {t.heroBtnSecondary}
               </Link>
             </div>
 

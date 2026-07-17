@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Создать промокод
+Comment=Создание одноразового промокода
+Exec=bash /home/igor/Desktop/saas-mvp-funnel/create-promo-desktop.sh
+Icon=utilities-terminal
+Terminal=true
+Categories=Utility;

@@ -1,0 +1,39 @@
+{
+  "panel_title": {
+    "ru": "Панель стоматологии",
+    "de": "Zahnarzt-Panel",
+    "en": "Dental Panel"
+  },
+  "panel_tagline": {
+    "ru": "Пациенты, приёмы и лечение",
+    "de": "Patienten, Termine und Behandlung",
+    "en": "Patients, appointments and treatment"
+  },
+  "tabs": {
+    "dashboard": {
+      "ru": "Дашборд",
+      "de": "Dashboard",
+      "en": "Dashboard"
+    },
+    "patients": {
+      "ru": "Пациенты",
+      "de": "Patienten",
+      "en": "Patients"
+    },
+    "appointments": {
+      "ru": "Приёмы",
+      "de": "Termine",
+      "en": "Appointments"
+    },
+    "services": {
+      "ru": "Услуги",
+      "de": "Dienstleistungen",
+      "en": "Services"
+    },
+    "doctors": {
+      "ru": "Врачи",
+      "de": "Ärzte",
+      "en": "Doctors"
+    }
+  }
+}

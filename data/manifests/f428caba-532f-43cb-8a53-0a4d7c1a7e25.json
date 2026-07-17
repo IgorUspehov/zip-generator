@@ -1,0 +1,394 @@
+{
+  "businessName": "Отдел продаж",
+  "niche": "beauty",
+  "businessType": "beauty_salon",
+  "language": "en",
+  "primaryColor": "#cd606b",
+  "theme": {
+    "primary": "#bd4763",
+    "secondary": "#d5bec3",
+    "accent": "#cd606b",
+    "hero_bg": "linear-gradient(135deg, #92354b 0%, #c26856 100%)",
+    "text": "#2a1d20",
+    "border": "#e0d7d9"
+  },
+  "promotion": {
+    "ru": "Программа лояльности: каждый 5-й визит бесплатно",
+    "de": "Treueprogramm: Jeder 5. Besuch kostenlos",
+    "en": "Loyalty program: every 5th visit free"
+  },
+  "scenario": {
+    "metrics": {
+      "ru": [
+        "Активных клиентов",
+        "Записей сегодня",
+        "Выручка сегодня",
+        "Свободных слотов"
+      ],
+      "de": [
+        "Aktive Kunden",
+        "Termine heute",
+        "Umsatz heute",
+        "Freie Slots"
+      ],
+      "en": [
+        "Active Clients",
+        "Appointments Today",
+        "Revenue Today",
+        "Free Slots"
+      ]
+    },
+    "metric_values": [
+      "47",
+      "12",
+      "€840",
+      "5"
+    ],
+    "today_items": [
+      {
+        "name": {
+          "ru": "Анна Петрова",
+          "de": "Anna Schmidt",
+          "en": "Anna Smith"
+        },
+        "service": {
+          "ru": "Окрашивание волос",
+          "de": "Haare färben",
+          "en": "Hair Coloring"
+        },
+        "time": "09:00"
+      },
+      {
+        "name": {
+          "ru": "София Иванова",
+          "de": "Sofia Weber",
+          "en": "Sofia Johnson"
+        },
+        "service": {
+          "ru": "Маникюр",
+          "de": "Maniküre",
+          "en": "Manicure"
+        },
+        "time": "10:30"
+      },
+      {
+        "name": {
+          "ru": "Мария Сидорова",
+          "de": "Maria Müller",
+          "en": "Maria Brown"
+        },
+        "service": {
+          "ru": "Стрижка",
+          "de": "Haarschnitt",
+          "en": "Haircut"
+        },
+        "time": "12:00"
+      },
+      {
+        "name": {
+          "ru": "Юлия Козлова",
+          "de": "Julia Schneider",
+          "en": "Julia Davis"
+        },
+        "service": {
+          "ru": "Брови",
+          "de": "Augenbrauen",
+          "en": "Eyebrows"
+        },
+        "time": "14:00"
+      }
+    ],
+    "popular_services": {
+      "ru": [
+        "Окрашивание волос",
+        "Маникюр",
+        "Стрижка и укладка",
+        "Наращивание ресниц"
+      ],
+      "de": [
+        "Haare färben",
+        "Maniküre",
+        "Schnitt und Styling",
+        "Wimpernverlängerung"
+      ],
+      "en": [
+        "Hair Coloring",
+        "Manicure",
+        "Haircut & Styling",
+        "Lash Extension"
+      ]
+    },
+    "records": {
+      "clients": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Анна Петрова",
+            "de": "Anna Petrova",
+            "en": "Anna Petrova"
+          },
+          "phone": "+49 160 111 0001",
+          "note": {
+            "ru": "Постоянный клиент",
+            "de": "Stammkundin",
+            "en": "Regular client"
+          },
+          "visits": 5
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "София Вебер",
+            "de": "Sofia Weber",
+            "en": "Sofia Weber"
+          },
+          "phone": "+49 160 111 0002",
+          "note": {
+            "ru": "Окрашивание волос",
+            "de": "Haare färben",
+            "en": "Hair coloring"
+          },
+          "visits": 3
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Мария Мюллер",
+            "de": "Maria Müller",
+            "en": "Maria Müller"
+          },
+          "phone": "+49 160 111 0003",
+          "note": {
+            "ru": "Маникюр",
+            "de": "Maniküre",
+            "en": "Manicure"
+          },
+          "visits": 2
+        }
+      ],
+      "masters": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Елена Стайлс",
+            "de": "Elena Styles",
+            "en": "Elena Styles"
+          },
+          "role": {
+            "ru": "Стилист",
+            "de": "Stylistin",
+            "en": "Hair Stylist"
+          },
+          "status": {
+            "ru": "Доступен",
+            "de": "Verfügbar",
+            "en": "Available"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Юлия Колор",
+            "de": "Julia Color",
+            "en": "Julia Color"
+          },
+          "role": {
+            "ru": "Колорист",
+            "de": "Coloristin",
+            "en": "Colorist"
+          },
+          "status": {
+            "ru": "Занят",
+            "de": "Besetzt",
+            "en": "Busy"
+          }
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Нина Кэр",
+            "de": "Nina Care",
+            "en": "Nina Care"
+          },
+          "role": {
+            "ru": "Мастер ногтей",
+            "de": "Nageldesignerin",
+            "en": "Nail Artist"
+          },
+          "status": {
+            "ru": "Доступен",
+            "de": "Verfügbar",
+            "en": "Available"
+          }
+        }
+      ],
+      "services": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Стрижка",
+            "de": "Haarschnitt",
+            "en": "Haircut"
+          },
+          "duration": "45 min",
+          "price": "€45"
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Окрашивание волос",
+            "de": "Haare färben",
+            "en": "Hair Coloring"
+          },
+          "duration": "90 min",
+          "price": "€89"
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Маникюр",
+            "de": "Maniküre",
+            "en": "Manicure"
+          },
+          "duration": "60 min",
+          "price": "€35"
+        }
+      ],
+      "appointments": [
+        {
+          "id": "1",
+          "client": {
+            "ru": "Анна Петрова",
+            "de": "Anna Petrova",
+            "en": "Anna Petrova"
+          },
+          "service": {
+            "ru": "Окрашивание волос",
+            "de": "Haare färben",
+            "en": "Hair Coloring"
+          },
+          "time": "2026-06-18 09:00",
+          "status": {
+            "ru": "Подтверждён",
+            "de": "Bestätigt",
+            "en": "Confirmed"
+          }
+        },
+        {
+          "id": "2",
+          "client": {
+            "ru": "София Вебер",
+            "de": "Sofia Weber",
+            "en": "Sofia Weber"
+          },
+          "service": {
+            "ru": "Маникюр",
+            "de": "Maniküre",
+            "en": "Manicure"
+          },
+          "time": "2026-06-18 11:00",
+          "status": {
+            "ru": "Ожидает",
+            "de": "Ausstehend",
+            "en": "Pending"
+          }
+        },
+        {
+          "id": "3",
+          "client": {
+            "ru": "Мария Мюллер",
+            "de": "Maria Müller",
+            "en": "Maria Müller"
+          },
+          "service": {
+            "ru": "Стрижка",
+            "de": "Haarschnitt",
+            "en": "Haircut"
+          },
+          "time": "2026-06-18 14:00",
+          "status": {
+            "ru": "Подтверждён",
+            "de": "Bestätigt",
+            "en": "Confirmed"
+          }
+        }
+      ],
+      "payments": [
+        {
+          "id": "1",
+          "client": {
+            "ru": "Анна Петрова",
+            "de": "Anna Petrova",
+            "en": "Anna Petrova"
+          },
+          "amount": "€89",
+          "status": {
+            "ru": "Оплачено",
+            "de": "Bezahlt",
+            "en": "Paid"
+          }
+        },
+        {
+          "id": "2",
+          "client": {
+            "ru": "София Вебер",
+            "de": "Sofia Weber",
+            "en": "Sofia Weber"
+          },
+          "amount": "€35",
+          "status": {
+            "ru": "Оплачено",
+            "de": "Bezahlt",
+            "en": "Paid"
+          }
+        },
+        {
+          "id": "3",
+          "client": {
+            "ru": "Мария Мюллер",
+            "de": "Maria Müller",
+            "en": "Maria Müller"
+          },
+          "amount": "€45",
+          "status": {
+            "ru": "Ожидает",
+            "de": "Ausstehend",
+            "en": "Pending"
+          }
+        }
+      ]
+    }
+  },
+  "galleryPhotos": [
+    "/image-library/beauty_salon/gallery-1.jpg",
+    "/image-library/beauty_salon/gallery-2.jpg",
+    "/image-library/beauty_salon/gallery-3.jpg"
+  ],
+  "heroPhoto": "/image-library/beauty_salon/hero.jpg",
+  "phone": "+79881554136",
+  "email": "list.uspeh2022@gmail.com",
+  "city": "München",
+  "features": [
+    "booking",
+    "clients",
+    "analytics"
+  ],
+  "pages": [
+    "dashboard",
+    "clients",
+    "appointments",
+    "services",
+    "staff",
+    "settings"
+  ],
+  "demoData": {},
+  "workingHours": {
+    "monday": "09:00-18:00",
+    "tuesday": "09:00-18:00",
+    "wednesday": "09:00-18:00",
+    "thursday": "09:00-18:00",
+    "friday": "09:00-18:00",
+    "saturday": "10:00-15:00",
+    "sunday": "closed"
+  }
+}

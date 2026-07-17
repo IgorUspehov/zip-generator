@@ -1,0 +1,39 @@
+{
+  "panel_title": {
+    "ru": "Панель массажного салона",
+    "de": "Massage-Salon-Panel",
+    "en": "Massage Salon Panel"
+  },
+  "panel_tagline": {
+    "ru": "Сессии, клиенты и мастера",
+    "de": "Sitzungen, Kunden und Therapeuten",
+    "en": "Sessions, clients and therapists"
+  },
+  "tabs": {
+    "dashboard": {
+      "ru": "Дашборд",
+      "de": "Dashboard",
+      "en": "Dashboard"
+    },
+    "clients": {
+      "ru": "Клиенты",
+      "de": "Kunden",
+      "en": "Clients"
+    },
+    "appointments": {
+      "ru": "Приёмы",
+      "de": "Termine",
+      "en": "Appointments"
+    },
+    "services": {
+      "ru": "Услуги",
+      "de": "Dienstleistungen",
+      "en": "Services"
+    },
+    "therapists": {
+      "ru": "Мастера",
+      "de": "Therapeuten",
+      "en": "Therapists"
+    }
+  }
+}
