@@ -8,6 +8,16 @@ export type CopyBundle = {
   s1_sub: string;
   s1_motivation: string;
   s1_placeholder: string;
+  s1_headline1: string;
+  s1_headline2: string;
+  s1_headline3: string;
+  s1_what_you_get: string;
+  s1_ready_in: string;
+  s1_price: string;
+  s1_price_label: string;
+  s1_price_desc: string;
+  s1_flow_steps: { n: string; label: string; sub: string }[];
+  s1_benefits: { title: string; sub: string }[];
   s2_label: string;
   s2_h: string;
   s2_motivation: string;
@@ -77,6 +87,27 @@ const T: Record<UiLang, CopyBundle> = {
     s1_sub: "Select the sector that best describes your business.",
     s1_motivation: "Great! Almost there",
     s1_placeholder: "— Select sector —",
+    s1_headline1: "Your business.",
+    s1_headline2: "Your freedom.",
+    s1_headline3: "We take care of the rest.",
+    s1_what_you_get: "What you get",
+    s1_ready_in: "Ready in 3 minutes",
+    s1_price: "€99",
+    s1_price_label: "One-time",
+    s1_price_desc: "Website + CRM fully set up",
+    s1_flow_steps: [
+      { n: "1", label: "They find you", sub: "on Google & Maps" },
+      { n: "2", label: "They book online", sub: "in 1 click" },
+      { n: "3", label: "Auto reminders", sub: "stay in touch" },
+      { n: "4", label: "More revenue", sub: "more loyal clients" },
+    ],
+    s1_benefits: [
+      { title: "Professional website", sub: "modern & mobile optimized" },
+      { title: "CRM & client management", sub: "everything in one place" },
+      { title: "Online booking 24/7", sub: "for your clients" },
+      { title: "Automatic reminders", sub: "SMS, email or WhatsApp" },
+      { title: "Payments & reports", sub: "revenue always in view" },
+    ],
     s2_label: "Step 2 of 2",
     s2_h: "Your details",
     s2_motivation: "Last step — and your demo is ready",
@@ -172,6 +203,27 @@ const T: Record<UiLang, CopyBundle> = {
     s1_sub: "Wählen Sie die Branche, die Ihr Unternehmen am besten beschreibt.",
     s1_motivation: "Super! Fast geschafft",
     s1_placeholder: "— Branche auswählen —",
+    s1_headline1: "Ihr Business.",
+    s1_headline2: "Ihre Freiheit.",
+    s1_headline3: "Wir kümmern uns um den Rest.",
+    s1_what_you_get: "Das erhalten Sie",
+    s1_ready_in: "Fertig in 3 Minuten",
+    s1_price: "€99",
+    s1_price_label: "Einmalig",
+    s1_price_desc: "Website + CRM vollständig eingerichtet",
+    s1_flow_steps: [
+      { n: "1", label: "Sie finden Sie", sub: "bei Google & Maps" },
+      { n: "2", label: "Sie buchen online", sub: "in 1 Klick" },
+      { n: "3", label: "Auto. Erinnerungen", sub: "Sie bleiben in Kontakt" },
+      { n: "4", label: "Mehr Umsatz", sub: "mehr treue Kunden" },
+    ],
+    s1_benefits: [
+      { title: "Professionelle Website", sub: "modern & mobil optimiert" },
+      { title: "CRM & Kundenverwaltung", sub: "alles an einem Ort" },
+      { title: "Online-Buchung 24/7", sub: "für Ihre Kunden" },
+      { title: "Automatische Erinnerungen", sub: "SMS, E-Mail oder WhatsApp" },
+      { title: "Zahlungen & Reports", sub: "Umsatz immer im Blick" },
+    ],
     s2_label: "Schritt 2 von 2",
     s2_h: "Ihre Angaben",
     s2_motivation: "Letzter Schritt — und die Demo ist fertig",
@@ -267,6 +319,27 @@ const T: Record<UiLang, CopyBundle> = {
     s1_sub: "Выберите сферу, которая лучше всего описывает ваш бизнес.",
     s1_motivation: "Отлично! Почти готово",
     s1_placeholder: "— Выберите сферу —",
+    s1_headline1: "Твой бизнес.",
+    s1_headline2: "Твоя свобода.",
+    s1_headline3: "Мы позаботимся об остальном.",
+    s1_what_you_get: "Что вы получаете",
+    s1_ready_in: "Готово за 3 минуты",
+    s1_price: "€99",
+    s1_price_label: "Разово",
+    s1_price_desc: "Сайт + CRM полностью настроены",
+    s1_flow_steps: [
+      { n: "1", label: "Вас находят", sub: "в Google и Maps" },
+      { n: "2", label: "Записываются онлайн", sub: "в 1 клик" },
+      { n: "3", label: "Авто-напоминания", sub: "остаётесь на связи" },
+      { n: "4", label: "Больше дохода", sub: "постоянные клиенты" },
+    ],
+    s1_benefits: [
+      { title: "Профессиональный сайт", sub: "современный и мобильный" },
+      { title: "CRM и управление клиентами", sub: "всё в одном месте" },
+      { title: "Онлайн-запись 24/7", sub: "для ваших клиентов" },
+      { title: "Автоматические напоминания", sub: "SMS, email или WhatsApp" },
+      { title: "Платежи и отчёты", sub: "доход всегда под контролем" },
+    ],
     s2_label: "Шаг 2 из 2",
     s2_h: "Ваши данные",
     s2_motivation: "Последний шаг — и демо готово",

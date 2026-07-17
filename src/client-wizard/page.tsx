@@ -981,7 +981,7 @@ function ClientWizardFlow() {
   const canProceedStep1 = agbAccepted && Boolean(selSector);
 
   return (
-    <div className="mf-root">
+    <div className="mf-root" data-step={step}>
       <div className="shell">
         <div className="glow" />
 
@@ -999,69 +999,127 @@ function ClientWizardFlow() {
         </div>
 
         <div className="card">
-          {/* STEP 1 — Business sector */}
-          <div className={stepClass("s1")} id="s1">
-            <ProgressBar step="s1" />
-            <div className="step-label">{copy.s1_label}</div>
-            <div className="step-h">{copy.s1_h}</div>
-            <div className="step-motivation">{copy.s1_motivation}</div>
-            {confirmedSector ? (
-              <div className="niche-confirm">
-                <span className="niche-confirm-icon" aria-hidden>
-                  {confirmedSector.icon}
-                </span>
-                <span className="niche-confirm-label">{confirmedSector.label}</span>
-              </div>
-            ) : (
-              <>
-                <div className="step-sub">{copy.s1_sub}</div>
-                <select
-                  className={`inp ${sectorErr ? "err" : ""}`}
-                  id="sector-select"
-                  value={selSector ?? ""}
-                  onChange={(e) => setSelSector(e.target.value || null)}
-                  style={{ fontSize: 15, padding: "14px 16px", marginBottom: 8 }}
-                >
-                  <option value="">{copy.s1_placeholder}</option>
-                  {copy.sectors.map((sector) => (
-                    <option key={sector.id} value={sector.id}>
-                      {sector.icon} {sector.label}
-                    </option>
+          {/* STEP 1 — Business sector (two-column layout) */}
+          <div className={`${stepClass("s1")} s1-split`} id="s1">
+            <aside className="s1-panel s1-panel-left" aria-hidden={step !== "s1"}>
+              <div className="s1-left-inner">
+                <div className="s1-left-progress">
+                  <div className="s1-left-bars">
+                    <span className="s1-left-bar active" />
+                    <span className="s1-left-bar" />
+                  </div>
+                  <span className="s1-left-step-label">{copy.s1_label}</span>
+                </div>
+                <h2 className="s1-left-headline">
+                  <span className="s1-left-h1">{copy.s1_headline1}</span>
+                  <span className="s1-left-h2">{copy.s1_headline2}</span>
+                  <span className="s1-left-h3">{copy.s1_headline3}</span>
+                </h2>
+                <div className="s1-flow-grid">
+                  {copy.s1_flow_steps.map((item) => (
+                    <div key={item.n} className="s1-flow-card">
+                      <span className="s1-flow-num">{item.n}</span>
+                      <div>
+                        <div className="s1-flow-label">{item.label}</div>
+                        <div className="s1-flow-sub">{item.sub}</div>
+                      </div>
+                    </div>
                   ))}
-                </select>
-              </>
-            )}
-            <label className="agb-row">
-              <input
-                type="checkbox"
-                id="agb-checkbox"
-                checked={agbAccepted}
-                onChange={(e) => setAgbAccepted(e.target.checked)}
-              />
-              <span>
-                {copy.agb_accept}{" "}
-                <a href="/agb" target="_blank" rel="noreferrer" className="agb-link">
-                  {copy.agb_terms}
-                </a>{" "}
-                {copy.agb_and}{" "}
-                <a href="/datenschutz" target="_blank" rel="noreferrer" className="agb-link">
-                  {copy.agb_privacy}
-                </a>
-              </span>
-            </label>
-            <WizardStepNav>
-              <Link href="/" className="btn-back btn-nav-secondary">
-                <span>{copy.btn_back}</span>
-              </Link>
-              <button
-                type="button"
-                className="btn-primary btn-nav-primary"
-                onClick={go1}
-                disabled={!canProceedStep1}
-              >
-                <span>{copy.btn_next}</span>
-              </button>
-            </WizardStepNav>
+                </div>
+                <div className="s1-benefits-box">
+                  <div className="s1-benefits-title">{copy.s1_what_you_get}</div>
+                  <ul className="s1-benefits-list">
+                    {copy.s1_benefits.map((item) => (
+                      <li key={item.title}>
+                        <span className="s1-benefit-check" aria-hidden>
+                          ✓
+                        </span>
+                        <span>
+                          <strong>{item.title}</strong>
+                          <span className="s1-benefit-sub">{item.sub}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="s1-price-row">
+                    <div>
+                      <div className="s1-price-label">{copy.s1_price_label}</div>
+                      <div className="s1-price-value">{copy.s1_price}</div>
+                    </div>
+                    <div className="s1-price-aside">
+                      <div className="s1-ready">{copy.s1_ready_in}</div>
+                      <div className="s1-price-desc">{copy.s1_price_desc}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            <div className="s1-panel s1-panel-right">
+              <div className="s1-right-inner">
+                <ProgressBar step="s1" />
+                <div className="step-label">{copy.s1_label}</div>
+                <div className="step-h">{copy.s1_h}</div>
+                <div className="step-motivation">{copy.s1_motivation}</div>
+                {confirmedSector ? (
+                  <div className="niche-confirm">
+                    <span className="niche-confirm-icon" aria-hidden>
+                      {confirmedSector.icon}
+                    </span>
+                    <span className="niche-confirm-label">{confirmedSector.label}</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="step-sub">{copy.s1_sub}</div>
+                    <select
+                      className={`inp ${sectorErr ? "err" : ""}`}
+                      id="sector-select"
+                      value={selSector ?? ""}
+                      onChange={(e) => setSelSector(e.target.value || null)}
+                      style={{ fontSize: 15, padding: "14px 16px", marginBottom: 8 }}
+                    >
+                      <option value="">{copy.s1_placeholder}</option>
+                      {copy.sectors.map((sector) => (
+                        <option key={sector.id} value={sector.id}>
+                          {sector.icon} {sector.label}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                )}
+                <label className="agb-row">
+                  <input
+                    type="checkbox"
+                    id="agb-checkbox"
+                    checked={agbAccepted}
+                    onChange={(e) => setAgbAccepted(e.target.checked)}
+                  />
+                  <span>
+                    {copy.agb_accept}{" "}
+                    <a href="/agb" target="_blank" rel="noreferrer" className="agb-link">
+                      {copy.agb_terms}
+                    </a>{" "}
+                    {copy.agb_and}{" "}
+                    <a href="/datenschutz" target="_blank" rel="noreferrer" className="agb-link">
+                      {copy.agb_privacy}
+                    </a>
+                  </span>
+                </label>
+                <WizardStepNav>
+                  <Link href="/" className="btn-back btn-nav-secondary">
+                    <span>{copy.btn_back}</span>
+                  </Link>
+                  <button
+                    type="button"
+                    className="btn-primary btn-nav-primary"
+                    onClick={go1}
+                    disabled={!canProceedStep1}
+                  >
+                    <span>{copy.btn_next}</span>
+                  </button>
+                </WizardStepNav>
+              </div>
+            </div>
           </div>
 
           {/* STEP 2 — Personal details */}
