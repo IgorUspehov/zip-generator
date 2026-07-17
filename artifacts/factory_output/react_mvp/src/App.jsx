@@ -1196,6 +1196,9 @@ export default function App() {
   const [manifestPending, setManifestPending] = useState(Boolean(bootClientId));
   const [manifestLoaded, setManifestLoaded] = useState(false);
   const [manifestError, setManifestError] = useState(null);
+  const [demoPaid, setDemoPaid] = useState(() => !bootClientId);
+  const [demoCheckoutUrl, setDemoCheckoutUrl] = useState("");
+  const [demoAccessReady, setDemoAccessReady] = useState(() => !bootClientId);
 
   const effectiveBusinessType = useMemo(() => {
     if (businessType) {
@@ -1270,6 +1273,59 @@ export default function App() {
   useEffect(() => {
     setMvpUrl(window.location.href);
   }, []);
+
+  useEffect(() => {
+    if (!bootClientId) {
+      setDemoPaid(true);
+      setDemoAccessReady(true);
+      return undefined;
+    }
+
+    const manifestApiBase =
+      import.meta.env.VITE_MANIFEST_API_BASE ||
+      "https://saas-mvp-funnel-production.up.railway.app";
+    let cancelled = false;
+
+    const checkAccess = async () => {
+      try {
+        const response = await fetch(
+          `${manifestApiBase}/api/demo-access/${encodeURIComponent(bootClientId)}`,
+          { cache: "no-store" },
+        );
+        if (!response.ok) {
+          if (!cancelled) {
+            setDemoPaid(false);
+            setDemoAccessReady(true);
+          }
+          return;
+        }
+        const data = await response.json();
+        if (cancelled) {
+          return;
+        }
+        setDemoPaid(Boolean(data.paid));
+        if (typeof data.checkoutUrl === "string" && data.checkoutUrl) {
+          setDemoCheckoutUrl(data.checkoutUrl);
+        }
+        setDemoAccessReady(true);
+      } catch {
+        if (!cancelled) {
+          setDemoPaid(false);
+          setDemoAccessReady(true);
+        }
+      }
+    };
+
+    void checkAccess();
+    const intervalId = window.setInterval(() => {
+      void checkAccess();
+    }, 20000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [bootClientId]);
 
   useEffect(() => {
     const manifestApiBase =
@@ -1863,7 +1919,75 @@ export default function App() {
 
   return (
     <div className="app-shell" data-domain={effectiveBusinessType || domainUi.domain_key}>
-      <aside className="mvp-sidebar">
+      {demoAccessReady && !demoPaid ? (
+        <>
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 2147483646,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexWrap: "wrap",
+              gap: "0.75rem",
+              padding: "0.65rem 1rem",
+              background: "linear-gradient(90deg, #0f172a 0%, #1e3a5f 100%)",
+              color: "#f8fafc",
+              fontSize: "0.9rem",
+              boxShadow: "0 4px 20px rgba(15, 23, 42, 0.35)",
+            }}
+          >
+            <span style={{ textAlign: "center", maxWidth: "42rem" }}>{t.paywallText}</span>
+            <a
+              href={demoCheckoutUrl || mvpUrl}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                background: "#22c55e",
+                color: "#052e16",
+                fontWeight: 700,
+                textDecoration: "none",
+                borderRadius: "999px",
+                padding: "0.4rem 1rem",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {t.paywallCta}
+            </a>
+          </div>
+          <div
+            aria-hidden="true"
+            style={{
+              pointerEvents: "none",
+              position: "fixed",
+              inset: 0,
+              zIndex: 2147483645,
+              display: "grid",
+              placeItems: "center",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                transform: "rotate(-28deg)",
+                fontSize: "clamp(2.5rem, 8vw, 5rem)",
+                fontWeight: 800,
+                letterSpacing: "0.12em",
+                color: "rgba(15, 23, 42, 0.07)",
+                textTransform: "uppercase",
+                userSelect: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              DEMO · €99
+            </div>
+          </div>
+        </>
+      ) : null}
+      <aside className="mvp-sidebar" style={demoAccessReady && !demoPaid ? { paddingTop: "3.25rem" } : undefined}>
         <div className="sidebar-brand">
           {typeof businessIcon === "string" &&
           (businessIcon.startsWith("/") || businessIcon.startsWith("http") || businessIcon.endsWith(".png") || businessIcon.endsWith(".svg")) ? (
@@ -1897,7 +2021,7 @@ export default function App() {
         </nav>
       </aside>
 
-      <div className="mvp-content">
+      <div className="mvp-content" style={demoAccessReady && !demoPaid ? { paddingTop: "3.25rem" } : undefined}>
         {activeTab === "dashboard" && (
           <>
             <header className="hero-header" style={{ background: heroBackground }}>
@@ -2042,8 +2166,12 @@ export default function App() {
             )}
 
             <div className="mvp-ready-compact">
-              <a href={mvpUrl} target="_blank" rel="noreferrer">
-                {t.openMvpTab}
+              <a
+                href={!demoPaid && demoCheckoutUrl ? demoCheckoutUrl : mvpUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {!demoPaid ? t.paywallCta : t.openMvpTab}
               </a>
             </div>
           </>

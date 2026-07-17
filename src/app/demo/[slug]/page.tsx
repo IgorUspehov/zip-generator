@@ -1,3 +1,5 @@
+import { DemoUnpaidBanner } from "@/components/demo-unpaid-banner";
+import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
 import { findDemoBySlug } from "@/lib/cloudflare/demo-registry";
 
 type DemoPageProps = {
@@ -20,6 +22,9 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
   }
 
   const clientId = query.clientId || record.clientId;
+  const access = resolveDemoAccess(clientId);
+  const unpaid = !access.paid;
+
   const src = (() => {
     try {
       const url = new URL(record.deploymentUrl);
@@ -30,21 +35,29 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
     }
   })();
 
+  const bannerOffset = unpaid ? 52 : 0;
+
   return (
-    <iframe
-      title={`CRM Demo ${slug}`}
-      src={src}
-      style={{
-        position: "fixed",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        border: 0,
-        margin: 0,
-        padding: 0,
-      }}
-      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
-      allow="clipboard-write"
-    />
+    <>
+      {unpaid ? <DemoUnpaidBanner clientId={clientId} /> : null}
+      <iframe
+        title={`CRM Demo ${slug}`}
+        src={src}
+        style={{
+          position: "fixed",
+          top: bannerOffset,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: "100%",
+          height: `calc(100% - ${bannerOffset}px)`,
+          border: 0,
+          margin: 0,
+          padding: 0,
+        }}
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
+        allow="clipboard-write"
+      />
+    </>
   );
 }
