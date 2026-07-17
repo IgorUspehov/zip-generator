@@ -82,6 +82,7 @@ export type Translation = {
   pricingDemoFree: string;
   pricingItems: string[];
   pricingBtn: string;
+  pricingPayBtn: string;
   pricingHint: string;
 
   // final CTA
@@ -224,6 +225,7 @@ const de: Translation = {
     'Updates und Verbesserungen',
   ],
   pricingBtn: 'Demo kostenlos starten',
+  pricingPayBtn: '€99 bezahlen',
   pricingHint: 'Ohne Registrierung · Demo kostenlos · Zahlung €99/Monat erst nach Ansicht',
 
   ctaTitle1: 'FERTIG!',
@@ -370,6 +372,7 @@ const en: Translation = {
     'Updates and improvements',
   ],
   pricingBtn: 'Launch Demo for free',
+  pricingPayBtn: 'Pay €99',
   pricingHint: 'No registration · Demo free · Payment €99/month only after viewing',
 
   ctaTitle1: 'READY!',
@@ -516,6 +519,7 @@ const ru: Translation = {
     'Обновления и улучшения',
   ],
   pricingBtn: 'Запустить Демо бесплатно',
+  pricingPayBtn: 'Оплатить €99',
   pricingHint: 'Без регистрации · Демо бесплатно · Оплата €99/мес только после просмотра',
 
   ctaTitle1: 'ГОТОВО!',
