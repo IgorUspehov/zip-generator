@@ -44,7 +44,8 @@ export function resolveOgImageFilePath(businessType: string, projectRoot = proce
 
 /**
  * Copy only the niche image-library folder (+ generic fallback) into a staging dist.
- * Avoids duplicating the full ~24MB library into every client-dist / Pages deploy.
+ * Always replaces any pre-copied full library from client-template (otherwise every
+ * demo inherits all ~19 niches / ~24MB from the template cpSync).
  */
 export function ensureImageLibraryInDist(
   stagingDir: string,
@@ -61,6 +62,8 @@ export function ensureImageLibraryInDist(
   const nicheFolder = resolveImageLibraryFolder(businessType);
   const folders = new Set<string>([nicheFolder, "generic"]);
 
+  // Drop template's full image-library before staging the niche subset.
+  fs.rmSync(destinationRoot, { recursive: true, force: true });
   fs.mkdirSync(destinationRoot, { recursive: true });
 
   for (const folder of folders) {
@@ -68,9 +71,6 @@ export function ensureImageLibraryInDist(
     const destination = path.join(destinationRoot, folder);
     if (!fs.existsSync(source)) {
       console.warn("[image-library] niche folder missing:", source);
-      continue;
-    }
-    if (fs.existsSync(destination)) {
       continue;
     }
     fs.cpSync(source, destination, { recursive: true });
