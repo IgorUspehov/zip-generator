@@ -11,5 +11,14 @@ factory
 knowledge_library
 data/pending-deletions.json
 *.tar.gz
-client-template/dist/assets/niches
-mvp-template/dist/assets/niches
+client-template
+mvp-template/dist
+docs/ui-review-screenshots
+artifacts/ui-review-screenshots
+*.jpg
+*.jpeg
+*.png
+!public/**/*.png
+!public/**/*.jpg
+!src/**/*.png
+!src/**/*.jpg
