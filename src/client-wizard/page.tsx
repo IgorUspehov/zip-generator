@@ -16,11 +16,7 @@ import {
 import { getCopy, type UiLang } from "@/client-wizard/copy";
 import { getPayTranslations } from "@/client-wizard/pay-translations";
 import { getTierTranslations } from "@/client-wizard/tier-translations";
-import {
-  POLAR_CHECKOUT_99,
-  POLAR_CHECKOUT_CRM_FULL,
-  POLAR_CHECKOUT_RECURRING,
-} from "@/lib/polar/constants";
+import { buildFactoryBridgeApiPath, buildTariffsPagePath } from "@/lib/tariffs/urls";
 import { DEFAULT_BUSINESS_TYPE } from "@/lib/sector-mapping";
 import { useTranslation } from "@/lib/i18n/context";
 import { executeRecaptcha } from "@/lib/recaptcha/client";
@@ -328,24 +324,31 @@ function buildPayHref(input: {
     }
     if (input.clientId) {
       params.set("client_id", input.clientId);
+      params.set("clientId", input.clientId);
     }
     params.set("email", input.email);
     params.set("name", input.name);
-    return `/pay?${params.toString()}`;
+    params.set("ownerName", input.name);
+    return buildTariffsPagePath({
+      clientId: input.clientId,
+      email: input.email,
+      ownerName: input.name,
+      demoUrl: input.demoUrl,
+    });
   }
 
   if (variantId === LEMONSQUEEZY_VARIANT_MVP_PRO) {
-    const polarUrl = new URL(POLAR_CHECKOUT_RECURRING);
-    if (input.email) polarUrl.searchParams.set("prefilled_email", input.email);
-    if (input.clientId) polarUrl.searchParams.set("reference_id", input.clientId);
-    return polarUrl.toString();
+    return buildFactoryBridgeApiPath({
+      clientId: input.clientId,
+      tier: "factory_ready",
+    });
   }
 
   if (variantId === LEMONSQUEEZY_VARIANT_CRM_FULL) {
-    const polarUrl = new URL(POLAR_CHECKOUT_CRM_FULL);
-    if (input.email) polarUrl.searchParams.set("prefilled_email", input.email);
-    if (input.clientId) polarUrl.searchParams.set("reference_id", input.clientId);
-    return polarUrl.toString();
+    return buildFactoryBridgeApiPath({
+      clientId: input.clientId,
+      tier: "factory_custom",
+    });
   }
 
   const params = new URLSearchParams();
@@ -987,14 +990,19 @@ function ClientWizardFlow() {
       return;
     }
 
-    const polarUrl = new URL(POLAR_CHECKOUT_99);
-    if (email.trim()) {
-      polarUrl.searchParams.set("prefilled_email", email.trim());
-    }
-    if (deployMeta?.clientId) {
-      polarUrl.searchParams.set("reference_id", deployMeta.clientId);
-    }
-    window.location.href = polarUrl.toString();
+    const params = new URLSearchParams();
+    if (deployMeta?.clientId) params.set("clientId", deployMeta.clientId);
+    if (email.trim()) params.set("email", email.trim());
+    if (name.trim()) params.set("ownerName", name.trim());
+    if (businessName.trim()) params.set("businessName", businessName.trim());
+    if (city.trim()) params.set("city", city.trim());
+    if (contactPhone.trim()) params.set("phone", contactPhone.trim());
+    if (contactWhatsapp.trim()) params.set("whatsapp", contactWhatsapp.trim());
+    if (selSector) params.set("niche", selSector);
+    params.set("lang", lang);
+    params.set("language", lang);
+    if (deployMeta?.demoUrl) params.set("demo_url", deployMeta.demoUrl);
+    window.location.href = `/tariffs?${params.toString()}`;
   }
 
   const stepClass = (id: StepId) => (step === id ? "step active" : "step");

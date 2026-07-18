@@ -156,7 +156,7 @@ async function main() {
         if (seedName && body.includes(seedName)) {
           fails.push(`seed-leak "${seedName}"`);
         }
-        if (/Demo version\. Pay €99/.test(body)) {
+        if (/Demo version\\. Choose a plan/.test(body)) {
           fails.push("paywall-shown-on-paid");
         }
 

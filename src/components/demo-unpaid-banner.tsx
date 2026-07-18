@@ -11,16 +11,16 @@ type DemoUnpaidBannerProps = {
 
 const COPY = {
   en: {
-    text: "Demo version. Pay €99 to remove limits and keep your site.",
-    cta: "Pay €99",
+    text: "Demo version. Choose a plan to continue.",
+    cta: "Choose plan",
   },
   de: {
-    text: "Demo-Version. Zahlen Sie €99, um die Einschränkung zu entfernen und die Website zu behalten.",
-    cta: "€99 bezahlen",
+    text: "Demo-Version. Wählen Sie einen Plan, um fortzufahren.",
+    cta: "Plan wählen",
   },
   ru: {
-    text: "Демо-версия. Оплатите €99, чтобы убрать ограничение и сохранить сайт.",
-    cta: "Оплатить €99",
+    text: "Демо-версия. Выберите тариф, чтобы продолжить.",
+    cta: "Выбрать тариф",
   },
 } as const;
 

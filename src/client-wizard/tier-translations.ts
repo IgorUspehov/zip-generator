@@ -3,40 +3,40 @@ import type { UiLang } from "@/client-wizard/copy";
 export const tierTranslations = {
   ru: {
     choosePlan: "Выберите план:",
-    popular: "Popular",
+    popular: "Популярный",
     comingSoon: "Скоро доступно",
     downloadZip: "Скачать ZIP",
     mvpDemo: {
       name: "CRM Demo",
-      description: "Разовый платёж · без подписки",
+      description: "€99 / месяц · Polar checkout",
     },
     mvpPro: {
-      name: "CRM Pro",
-      description: "ZIP + README + i18n + ваш домен",
+      name: "Factory Website + CRM",
+      description: "€499 · готовый live-сайт + ZIP на email",
     },
     crmFull: {
-      name: "CRM Full",
-      description: "Firebase + домен + полная CRM",
-      contact: "Купить за €999",
+      name: "Индивидуальный Website + CRM",
+      description: "€999 · переход в Factory для индивидуальной сборки",
+      contact: "Перейти в Factory · €999",
     },
   },
   de: {
     choosePlan: "Plan wählen:",
-    popular: "Popular",
+    popular: "Beliebt",
     comingSoon: "Bald verfügbar",
     downloadZip: "ZIP herunterladen",
     mvpDemo: {
       name: "CRM Demo",
-      description: "Einmalzahlung · kein Abo",
+      description: "€99 / Monat · Polar-Checkout",
     },
     mvpPro: {
-      name: "CRM Pro",
-      description: "ZIP + README + i18n + Ihre Domain",
+      name: "Factory Website + CRM",
+      description: "€499 · fertige Live-Website + ZIP per E-Mail",
     },
     crmFull: {
-      name: "CRM Full",
-      description: "Firebase + Domain + volles CRM",
-      contact: "Für €999 kaufen",
+      name: "Individuelle Website + CRM",
+      description: "€999 · weiter zu Factory für Einzelanfertigung",
+      contact: "Weiter zu Factory · €999",
     },
   },
   en: {
@@ -46,16 +46,16 @@ export const tierTranslations = {
     downloadZip: "Download ZIP",
     mvpDemo: {
       name: "CRM Demo",
-      description: "One-time payment · no subscription",
+      description: "€99 / month · Polar checkout",
     },
     mvpPro: {
-      name: "CRM Pro",
-      description: "ZIP + README + i18n + your domain",
+      name: "Factory Website + CRM",
+      description: "€499 · ready live site + ZIP by email",
     },
     crmFull: {
-      name: "CRM Full",
-      description: "Firebase + domain + full CRM",
-      contact: "Buy for €999",
+      name: "Individual Website + CRM",
+      description: "€999 · continue in Factory for a custom build",
+      contact: "Continue to Factory · €999",
     },
   },
 } as const satisfies Record<

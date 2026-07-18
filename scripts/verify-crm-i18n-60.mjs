@@ -75,15 +75,15 @@ const EXPECTED_SECTOR = {
 };
 
 const BANNER = {
-  en: "Demo version. Pay €99 to remove limits and keep your site.",
-  de: "Demo-Version. Zahlen Sie €99, um die Einschränkung zu entfernen und die Website zu behalten.",
-  ru: "Демо-версия. Оплатите €99, чтобы убрать ограничение и сохранить сайт.",
+  en: "Demo version. Choose a plan to continue.",
+  de: "Demo-Version. Wählen Sie einen Plan, um fortzufahren.",
+  ru: "Демо-версия. Выберите тариф, чтобы продолжить.",
 };
 
 const BANNER_CTA = {
-  en: "Pay €99",
-  de: "€99 bezahlen",
-  ru: "Оплатить €99",
+  en: "Choose plan",
+  de: "Plan wählen",
+  ru: "Выбрать тариф",
 };
 
 const SETTINGS_LABEL = {

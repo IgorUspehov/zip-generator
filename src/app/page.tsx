@@ -45,7 +45,6 @@ import {
   type Lang,
 } from "@/lib/i18n/landing-copy";
 import { useTranslation } from "@/lib/i18n/context";
-import { POLAR_CHECKOUT_CRM_DEMO } from "@/lib/polar/constants";
 import { LANDING_NICHE_SLUGS } from "@/lib/niche-sectors";
 
 const NICHES_ICONS = [
@@ -526,14 +525,13 @@ export default function Page() {
                 <Rocket className="h-6 w-6" />
                 {t.pricingBtn}
               </Link>
-              <a
-                href={POLAR_CHECKOUT_CRM_DEMO}
-                rel="noopener noreferrer"
+              <Link
+                href="/tariffs"
                 className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-gray-700 py-4 text-base font-bold text-gray-200 transition-all duration-200 hover:border-orange-500/50 hover:bg-gray-900 hover:text-white"
               >
                 <CreditCard className="h-5 w-5" />
                 {t.pricingPayBtn}
-              </a>
+              </Link>
               <p className="mt-3 text-center text-sm text-gray-400">
                 {t.pricingHint}
               </p>

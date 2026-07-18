@@ -1,12 +1,16 @@
 import { findDemoByClientId } from "@/lib/cloudflare/demo-registry";
 import { findPendingByClientId } from "@/lib/cloudflare/scheduler";
 import { POLAR_CHECKOUT_CRM_DEMO } from "@/lib/polar/constants";
+import { buildTariffsPageUrl } from "@/lib/tariffs/urls";
 
 export type DemoAccessStatus = {
   clientId: string;
   paid: boolean;
   found: boolean;
+  /** Localized tariff chooser (not Polar directly). */
   checkoutUrl: string;
+  /** Direct Polar CRM Demo checkout (€99). */
+  polarCheckoutUrl: string;
 };
 
 export function buildCrmDemoCheckoutUrl(clientId: string): string {
@@ -22,13 +26,15 @@ export function buildCrmDemoCheckoutUrl(clientId: string): string {
  * `paid` is true only when registry or pending-deletion record is marked paid
  * (Polar/LemonSqueezy webhook via cancelDeletion / markDemoPaid).
  * Unknown clientId → unpaid (fail closed).
+ * Banner CTA opens the tariff chooser; €99 still uses Polar.
  */
 export function resolveDemoAccess(clientId: string): DemoAccessStatus {
   const id = String(clientId ?? "").trim();
-  const checkoutUrl = buildCrmDemoCheckoutUrl(id);
+  const polarCheckoutUrl = buildCrmDemoCheckoutUrl(id);
+  const checkoutUrl = buildTariffsPageUrl({ clientId: id });
 
   if (!id) {
-    return { clientId: "", paid: false, found: false, checkoutUrl };
+    return { clientId: "", paid: false, found: false, checkoutUrl, polarCheckoutUrl };
   }
 
   const demo = findDemoByClientId(id);
@@ -36,5 +42,5 @@ export function resolveDemoAccess(clientId: string): DemoAccessStatus {
   const found = Boolean(demo || pending);
   const paid = demo?.paid === true || pending?.paid === true;
 
-  return { clientId: id, paid, found, checkoutUrl };
+  return { clientId: id, paid, found, checkoutUrl, polarCheckoutUrl };
 }

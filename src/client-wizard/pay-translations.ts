@@ -2,21 +2,19 @@ import type { UiLang } from "@/client-wizard/copy";
 
 export const payTranslations = {
   ru: {
-    payButton: "€99 — разовый платёж",
-    paySubline: "Без подписки. Без ежемесячных платежей.",
-    demoInfo: "⏰ Демо CRM Demo активно 48 часов. После оплаты сайт остаётся онлайн навсегда.",
+    payButton: "Выбрать тариф",
+    paySubline: "€99 CRM Demo · €499 / €999 через Factory Website+CRM",
+    demoInfo: "⏰ Демо CRM Demo активно 48 часов. Выберите тариф, чтобы продолжить.",
   },
   de: {
-    payButton: "€99 — Einmalzahlung",
-    paySubline: "Kein Abo. Keine monatlichen Gebühren.",
-    demoInfo:
-      "⏰ Ihr CRM Demo ist 48 Stunden aktiv. Nach der Zahlung bleibt Ihre Website dauerhaft online.",
+    payButton: "Plan wählen",
+    paySubline: "€99 CRM Demo · €499 / €999 über Factory Website+CRM",
+    demoInfo: "⏰ Ihr CRM Demo ist 48 Stunden aktiv. Wählen Sie einen Plan, um fortzufahren.",
   },
   en: {
-    payButton: "€99 — one-time payment",
-    paySubline: "No subscription. No monthly fees.",
-    demoInfo:
-      "⏰ Your CRM Demo is active for 48 hours. After payment, your site stays online permanently.",
+    payButton: "Choose plan",
+    paySubline: "€99 CRM Demo · €499 / €999 via Factory Website+CRM",
+    demoInfo: "⏰ Your CRM Demo is active for 48 hours. Choose a plan to continue.",
   },
 } as const satisfies Record<UiLang, { payButton: string; paySubline: string; demoInfo: string }>;
 

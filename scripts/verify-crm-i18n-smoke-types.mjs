@@ -25,9 +25,9 @@ const CASES = [
 ];
 
 const BANNER = {
-  en: "Demo version. Pay €99",
-  de: "Demo-Version. Zahlen Sie €99",
-  ru: "Демо-версия. Оплатите €99",
+  en: "Demo version. Choose a plan",
+  de: "Demo-Version. Wählen Sie einen Plan",
+  ru: "Демо-версия. Выберите тариф",
 };
 
 function mime(filePath) {

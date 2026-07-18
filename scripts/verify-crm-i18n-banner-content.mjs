@@ -26,9 +26,9 @@ const CASES = [
 ];
 
 const BANNER = {
-  en: "Demo version. Pay €99",
-  de: "Demo-Version. Zahlen Sie €99",
-  ru: "Демо-версия. Оплатите €99",
+  en: "Demo version. Choose a plan",
+  de: "Demo-Version. Wählen Sie einen Plan",
+  ru: "Демо-версия. Выберите тариф",
 };
 
 const EXPECTED_CONTENT = {
@@ -208,9 +208,9 @@ async function main() {
         await page.evaluate((lang) => {
           // Reveal paywall by dispatching custom — fallback: inject banner DOM from known strings
           const map = {
-            en: "Demo version. Pay €99 to remove limits and keep your site.",
-            de: "Demo-Version. Zahlen Sie €99, um die Einschränkung zu entfernen und die Website zu behalten.",
-            ru: "Демо-версия. Оплатите €99, чтобы убрать ограничение и сохранить сайт.",
+            en: "Demo version. Choose a plan to continue.",
+            de: "Demo-Version. Wählen Sie einen Plan, um fortzufahren.",
+            ru: "Демо-версия. Выберите тариф, чтобы продолжить.",
           };
           let el = document.querySelector("[data-test-paywall]");
           if (!el) {
@@ -271,9 +271,9 @@ async function main() {
     .find((f) => f.startsWith("index-") && f.endsWith(".js"));
   const js = fs.readFileSync(path.join(dist, "assets", bundle), "utf8");
   const bannerStringsOk =
-    js.includes("Demo version. Pay €99") &&
-    js.includes("Demo-Version. Zahlen Sie €99") &&
-    js.includes("Демо-версия. Оплатите €99");
+    js.includes("Demo version. Choose a plan") &&
+    js.includes("Demo-Version. Wählen Sie einen Plan") &&
+    js.includes("Демо-версия. Выберите тариф");
   console.log("\nbundle paywall strings:", bannerStringsOk ? "OK" : "FAIL");
 
   console.log("\n| niche | lang | banner | content |");

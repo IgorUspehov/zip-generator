@@ -9,8 +9,6 @@ declare global {
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-import { POLAR_CHECKOUT_99 } from "@/lib/polar/constants";
-
 const PROMO_CODE = "serafim01";
 
 type PayLang = "en" | "de" | "ru";
@@ -19,8 +17,8 @@ const translations = {
   de: {
     demoReady: "Ihr CRM Demo ist fertig!",
     promoButton: "Promo-Code",
-    payButton: "€99 — Einmalzahlung",
-    paySubline: "Kein Abo. Keine monatlichen Gebühren.",
+    payButton: "Plan wählen",
+    paySubline: "€99 · €499 · €999 — Plan auswählen",
     freeButton: "Kostenlos erhalten →",
     redirecting: "Weiterleitung…",
     missingParams: "Geben Sie demo_url, email und name in der URL an.",
@@ -32,8 +30,8 @@ const translations = {
   en: {
     demoReady: "Your CRM Demo is ready!",
     promoButton: "Promo code",
-    payButton: "€99 — one-time payment",
-    paySubline: "No subscription. No monthly fees.",
+    payButton: "Choose plan",
+    paySubline: "€99 · €499 · €999 — pick a plan",
     freeButton: "Get for free →",
     redirecting: "Redirecting…",
     missingParams: "Add demo_url, email and name to the URL.",
@@ -45,8 +43,8 @@ const translations = {
   ru: {
     demoReady: "Ваш CRM Demo готов!",
     promoButton: "Промокод",
-    payButton: "€99 — разовый платёж",
-    paySubline: "Без подписки. Без ежемесячных платежей.",
+    payButton: "Выбрать тариф",
+    paySubline: "€99 · €499 · €999 — выберите план",
     freeButton: "Получить бесплатно →",
     redirecting: "Перенаправляем…",
     missingParams: "Укажите demo_url, email и name в ссылке.",
@@ -132,10 +130,13 @@ export function PayPageContent() {
       return;
     }
 
-    const polarUrl = new URL(POLAR_CHECKOUT_99);
-    if (email) polarUrl.searchParams.set("prefilled_email", email);
-    if (clientId) polarUrl.searchParams.set("reference_id", clientId);
-    window.location.href = polarUrl.toString();
+    const params = new URLSearchParams();
+    if (clientId) params.set("clientId", clientId);
+    if (email) params.set("email", email);
+    if (name) params.set("ownerName", name);
+    if (demoUrl) params.set("demo_url", demoUrl);
+    params.set("lang", lang);
+    window.location.href = `/tariffs?${params.toString()}`;
   }
 
   return (

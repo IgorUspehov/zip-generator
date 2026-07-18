@@ -225,7 +225,7 @@ const de: Translation = {
     'Updates und Verbesserungen',
   ],
   pricingBtn: 'Demo kostenlos starten',
-  pricingPayBtn: '€99 bezahlen',
+  pricingPayBtn: 'Plan wählen',
   pricingHint: 'Ohne Registrierung · Demo kostenlos · Zahlung €99/Monat erst nach Ansicht',
 
   ctaTitle1: 'FERTIG!',
@@ -372,7 +372,7 @@ const en: Translation = {
     'Updates and improvements',
   ],
   pricingBtn: 'Launch Demo for free',
-  pricingPayBtn: 'Pay €99',
+  pricingPayBtn: 'Choose plan',
   pricingHint: 'No registration · Demo free · Payment €99/month only after viewing',
 
   ctaTitle1: 'READY!',
@@ -519,7 +519,7 @@ const ru: Translation = {
     'Обновления и улучшения',
   ],
   pricingBtn: 'Запустить Демо бесплатно',
-  pricingPayBtn: 'Оплатить €99',
+  pricingPayBtn: 'Выбрать тариф',
   pricingHint: 'Без регистрации · Демо бесплатно · Оплата €99/мес только после просмотра',
 
   ctaTitle1: 'ГОТОВО!',
