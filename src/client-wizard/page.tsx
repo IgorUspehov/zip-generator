@@ -525,6 +525,7 @@ function buildQuestionnairePayloadFromWizard(input: {
   whatsapp: string;
   telegram: string;
   postalCode: string;
+  city: string;
   address: string;
   sectorId: string | null;
 }) {
@@ -534,6 +535,7 @@ function buildQuestionnairePayloadFromWizard(input: {
     whatsapp: input.whatsapp,
     telegram: input.telegram,
     postal_code: input.postalCode,
+    city: input.city,
     address: input.address,
     sector_id: input.sectorId ?? "",
   };
@@ -570,11 +572,13 @@ function ClientWizardFlow() {
 
   const [step, setStep] = useState<StepId>("s1");
   const [name, setName] = useState("");
+  const [businessName, setBusinessName] = useState("");
   const [email, setEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactWhatsapp, setContactWhatsapp] = useState("");
   const [contactTelegram, setContactTelegram] = useState("");
   const [postalCode, setPostalCode] = useState("");
+  const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const nicheFromUrl = searchParams?.get("niche")?.trim() ?? "";
   const nicheLocked = isWizardSectorId(nicheFromUrl);
@@ -739,11 +743,13 @@ function ClientWizardFlow() {
   }, [autoAdvancedToPreview, goTo, isGenerating, pendingRedirectUrl, step]);
 
   const [nameErr, setNameErr] = useState(false);
+  const [businessNameErr, setBusinessNameErr] = useState(false);
   const [emailErr, setEmailErr] = useState(false);
   const [phoneErr, setPhoneErr] = useState(false);
   const [whatsappErr, setWhatsappErr] = useState(false);
   const [telegramErr, setTelegramErr] = useState(false);
   const [postalErr, setPostalErr] = useState(false);
+  const [cityErr, setCityErr] = useState(false);
   const [addressErr, setAddressErr] = useState(false);
   const [sectorErr, setSectorErr] = useState(false);
   const [agbAccepted, setAgbAccepted] = useState(false);
@@ -751,12 +757,14 @@ function ClientWizardFlow() {
   const runBuild = useCallback(
     async (
       contactName: string,
+      companyName: string,
       selectedSector: string,
       contacts: {
         phone: string;
         whatsapp: string;
         telegram: string;
         postalCode: string;
+        city: string;
         address: string;
       },
     ) => {
@@ -767,7 +775,7 @@ function ClientWizardFlow() {
       const payload = {
         ...buildQuestionnairePayloadFromWizard({
           name: contactName,
-          businessName: contactName,
+          businessName: companyName,
           email: email.trim(),
           businessType,
           language: languageCode,
@@ -775,6 +783,7 @@ function ClientWizardFlow() {
           whatsapp: contacts.whatsapp,
           telegram: contacts.telegram,
           postalCode: contacts.postalCode,
+          city: contacts.city,
           address: contacts.address,
           sectorId: selectedSector,
         }),
@@ -813,11 +822,13 @@ function ClientWizardFlow() {
     setDeployMeta(null);
     setSelSector(null);
     setName("");
+    setBusinessName("");
     setEmail("");
     setContactPhone("");
     setContactWhatsapp("");
     setContactTelegram("");
     setPostalCode("");
+    setCity("");
     setAddress("");
     for (const id of ["f-phone", "f-whatsapp", "f-telegram"]) {
       const el = document.getElementById(id) as HTMLInputElement | null;
@@ -825,11 +836,13 @@ function ClientWizardFlow() {
     }
     setAgbAccepted(false);
     setNameErr(false);
+    setBusinessNameErr(false);
     setEmailErr(false);
     setPhoneErr(false);
     setWhatsappErr(false);
     setTelegramErr(false);
     setPostalErr(false);
+    setCityErr(false);
     setAddressErr(false);
     setPublishCountdown(null);
     setAutoAdvancedToPreview(false);
@@ -865,36 +878,44 @@ function ClientWizardFlow() {
 
   function go2() {
     const trimmedName = name.trim();
+    const trimmedBusinessName = businessName.trim();
     const trimmedEmail = email.trim();
     const phone = (document.getElementById("f-phone") as HTMLInputElement | null)?.value.trim() ?? "";
     const whatsapp = (document.getElementById("f-whatsapp") as HTMLInputElement | null)?.value.trim() ?? "";
     const telegram = (document.getElementById("f-telegram") as HTMLInputElement | null)?.value.trim() ?? "";
     const trimmedPostal = postalCode.trim();
+    const trimmedCity = city.trim();
     const trimmedAddress = address.trim();
 
     const nameInvalid = !trimmedName;
+    const businessInvalid = !trimmedBusinessName;
     const emailInvalid = !trimmedEmail || !EMAIL_RE.test(trimmedEmail);
     const phoneInvalid = !phone;
     const whatsappInvalid = !whatsapp;
     const telegramInvalid = !telegram;
     const postalInvalid = !trimmedPostal;
+    const cityInvalid = !trimmedCity;
     const addressInvalid = !trimmedAddress;
 
     setNameErr(nameInvalid);
+    setBusinessNameErr(businessInvalid);
     setEmailErr(emailInvalid);
     setPhoneErr(phoneInvalid);
     setWhatsappErr(whatsappInvalid);
     setTelegramErr(telegramInvalid);
     setPostalErr(postalInvalid);
+    setCityErr(cityInvalid);
     setAddressErr(addressInvalid);
 
     if (
       nameInvalid ||
+      businessInvalid ||
       emailInvalid ||
       phoneInvalid ||
       whatsappInvalid ||
       telegramInvalid ||
       postalInvalid ||
+      cityInvalid ||
       addressInvalid
     ) {
       return;
@@ -912,6 +933,7 @@ function ClientWizardFlow() {
     setContactWhatsapp(whatsapp);
     setContactTelegram(telegram);
     setPostalCode(trimmedPostal);
+    setCity(trimmedCity);
     setAddress(trimmedAddress);
 
     console.log("[wizard] selectedSector:", selectedSector);
@@ -919,11 +941,12 @@ function ClientWizardFlow() {
     console.log("[wizard] navigation target:", "s4");
     void executeRecaptcha("wizard_step_2");
     goTo("s4");
-    void runBuild(trimmedName, selectedSector, {
+    void runBuild(trimmedName, trimmedBusinessName, selectedSector, {
       phone,
       whatsapp,
       telegram,
       postalCode: trimmedPostal,
+      city: trimmedCity,
       address: trimmedAddress,
     });
   }
@@ -1142,8 +1165,27 @@ function ClientWizardFlow() {
                   setNameErr(false);
                 }}
                 placeholder={copy.ph_name}
+                autoComplete="name"
               />
               {nameErr ? <p className="field-err">{copy.err_name}</p> : null}
+            </div>
+            <div className="field">
+              <label className="inp-label" htmlFor="f-biz">
+                {copy.lbl_biz}
+              </label>
+              <input
+                id="f-biz"
+                className={`inp ${businessNameErr ? "err shake" : ""}`}
+                type="text"
+                value={businessName}
+                onChange={(e) => {
+                  setBusinessName(e.target.value);
+                  setBusinessNameErr(false);
+                }}
+                placeholder={copy.ph_biz}
+                autoComplete="organization"
+              />
+              {businessNameErr ? <p className="field-err">{copy.err_biz}</p> : null}
             </div>
             <div className="field">
               <label className="inp-label" htmlFor="f-email">
@@ -1205,6 +1247,24 @@ function ClientWizardFlow() {
                 autoComplete="postal-code"
               />
               {postalErr ? <p className="field-err">{copy.err_postal}</p> : null}
+            </div>
+            <div className="field">
+              <label className="inp-label" htmlFor="f-city">
+                {copy.lbl_city}
+              </label>
+              <input
+                id="f-city"
+                className={`inp ${cityErr ? "err shake" : ""}`}
+                type="text"
+                value={city}
+                onChange={(e) => {
+                  setCity(e.target.value);
+                  setCityErr(false);
+                }}
+                placeholder={copy.ph_city}
+                autoComplete="address-level2"
+              />
+              {cityErr ? <p className="field-err">{copy.err_city}</p> : null}
             </div>
             <div className="field">
               <label className="inp-label" htmlFor="f-address">

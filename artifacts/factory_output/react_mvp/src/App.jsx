@@ -609,6 +609,7 @@ function normalizeManifestConfig(raw) {
 
   return {
     businessName: payload.businessName ?? payload.business_name ?? null,
+    ownerName: payload.ownerName ?? payload.owner_name ?? payload.name ?? null,
     businessType,
     sectorId,
     phone: payload.phone ?? null,
@@ -652,6 +653,10 @@ function applyManifestPatch(config, handlers) {
 
   if (normalized.businessName) {
     handlers.setBusinessName(normalized.businessName);
+    applied = true;
+  }
+  if (normalized.ownerName && handlers.setOwnerName) {
+    handlers.setOwnerName(normalized.ownerName);
     applied = true;
   }
   if (normalized.businessType) {
@@ -1287,6 +1292,7 @@ export default function App() {
   const [businessName, setBusinessName] = useState(
     bootClientId ? "" : (clientData.business_name || formatPageLabel(DEFAULT_BUSINESS_TYPE)),
   );
+  const [ownerName, setOwnerName] = useState("");
   const [businessType, setBusinessType] = useState(
     bootClientId ? null : (clientData.business_type || domainUi?.business_type || DEFAULT_BUSINESS_TYPE),
   );
@@ -1332,6 +1338,7 @@ export default function App() {
   const applyManifestFromConfig = useCallback((config) => {
     const applied = applyManifestPatch(config, {
       setBusinessName,
+      setOwnerName,
       setBusinessType,
       setSectorId,
       setPhone,
@@ -1380,6 +1387,7 @@ export default function App() {
       if (normalized?.address) setAddress(normalized.address);
       if (normalized?.city) setCity(normalized.city);
       if (normalized?.businessName) setBusinessName(normalized.businessName);
+      if (normalized?.ownerName) setOwnerName(normalized.ownerName);
       setManifestLoaded(true);
       setManifestPending(false);
       setManifestError(null);
@@ -1754,9 +1762,9 @@ export default function App() {
   const businessIcon = NICHE_ICONS[effectiveBusinessType] ?? theme.icon;
 
   const i18n = {
-    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", addService: "Add Service", addStaff: "Add Staff", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", phone: "Phone", mvpReadyTitle: "Your CRM Demo is ready", mvpReadySubtitle: "Save the link — this is your working CRM Demo", copyLink: "Copy link", openMvpTab: "Open CRM Demo in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", settingsSubtitle: "Basic settings for your CRM.", settingsNiche: "Niche", settingsCity: "City", settingsWhatsapp: "WhatsApp", settingsPostal: "Postal code", settingsAddress: "Address", deleteConfirm: "Delete this record?", paywallText: "Demo version. Pay €99 to remove limits and keep your site.", paywallCta: "Pay €99" },
-    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", addService: "Leistung hinzufügen", addStaff: "Mitarbeiter hinzufügen", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", phone: "Telefon", mvpReadyTitle: "Ihre CRM Demo ist bereit", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihre CRM Demo", copyLink: "Link kopieren", openMvpTab: "CRM Demo in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", settingsSubtitle: "Grundeinstellungen für Ihr CRM.", settingsNiche: "Branche", settingsCity: "Stadt", settingsWhatsapp: "WhatsApp", settingsPostal: "Postleitzahl", settingsAddress: "Adresse", deleteConfirm: "Diesen Eintrag löschen?", paywallText: "Demo-Version. Zahlen Sie €99, um die Einschränkung zu entfernen und die Website zu behalten.", paywallCta: "€99 bezahlen" },
-    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", addService: "Добавить услугу", addStaff: "Добавить сотрудника", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", phone: "Телефон", mvpReadyTitle: "Ваша CRM Demo готова", mvpReadySubtitle: "Сохраните ссылку — это ваша рабочая CRM Demo", copyLink: "Копировать ссылку", openMvpTab: "Открыть CRM Demo в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", settingsSubtitle: "Базовые настройки вашей CRM.", settingsNiche: "Ниша", settingsCity: "Город", settingsWhatsapp: "WhatsApp", settingsPostal: "Индекс", settingsAddress: "Адрес", deleteConfirm: "Удалить эту запись?", paywallText: "Демо-версия. Оплатите €99, чтобы убрать ограничение и сохранить сайт.", paywallCta: "Оплатить €99" },
+    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", addService: "Add Service", addStaff: "Add Staff", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", phone: "Phone", mvpReadyTitle: "Your CRM Demo is ready", mvpReadySubtitle: "Save the link — this is your working CRM Demo", copyLink: "Copy link", openMvpTab: "Open CRM Demo in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", settingsSubtitle: "Basic settings for your CRM.", settingsBusiness: "Company name", settingsOwner: "Owner", settingsNiche: "Niche", settingsCity: "City", settingsWhatsapp: "WhatsApp", settingsPostal: "Postal code", settingsAddress: "Address", deleteConfirm: "Delete this record?", paywallText: "Demo version. Pay €99 to remove limits and keep your site.", paywallCta: "Pay €99" },
+    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", addService: "Leistung hinzufügen", addStaff: "Mitarbeiter hinzufügen", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", phone: "Telefon", mvpReadyTitle: "Ihre CRM Demo ist bereit", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihre CRM Demo", copyLink: "Link kopieren", openMvpTab: "CRM Demo in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", settingsSubtitle: "Grundeinstellungen für Ihr CRM.", settingsBusiness: "Firmenname", settingsOwner: "Inhaber", settingsNiche: "Branche", settingsCity: "Stadt", settingsWhatsapp: "WhatsApp", settingsPostal: "Postleitzahl", settingsAddress: "Adresse", deleteConfirm: "Diesen Eintrag löschen?", paywallText: "Demo-Version. Zahlen Sie €99, um die Einschränkung zu entfernen und die Website zu behalten.", paywallCta: "€99 bezahlen" },
+    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", addService: "Добавить услугу", addStaff: "Добавить сотрудника", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", phone: "Телефон", mvpReadyTitle: "Ваша CRM Demo готова", mvpReadySubtitle: "Сохраните ссылку — это ваша рабочая CRM Demo", copyLink: "Копировать ссылку", openMvpTab: "Открыть CRM Demo в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", settingsSubtitle: "Базовые настройки вашей CRM.", settingsBusiness: "Название компании", settingsOwner: "Владелец", settingsNiche: "Ниша", settingsCity: "Город", settingsWhatsapp: "WhatsApp", settingsPostal: "Индекс", settingsAddress: "Адрес", deleteConfirm: "Удалить эту запись?", paywallText: "Демо-версия. Оплатите €99, чтобы убрать ограничение и сохранить сайт.", paywallCta: "Оплатить €99" },
   };
   const sectionLabels = uiSections ?? {};
   const baseT = i18n[language] || i18n.en;
@@ -2644,13 +2652,24 @@ export default function App() {
             <p style={{ color: "#64748b", margin: "0 0 1rem" }}>{t.settingsSubtitle}</p>
             <div style={{ maxWidth: 480 }}>
               <label style={settingsFieldStyle}>
-                <span style={settingsLabelStyle}>{t.name}</span>
+                <span style={settingsLabelStyle}>{t.settingsBusiness}</span>
                 <input
                   style={settingsInputStyle}
                   value={businessName}
                   onChange={(e) => persistCompanySettings({ businessName: e.target.value })}
                 />
               </label>
+              {ownerName ? (
+                <label style={settingsFieldStyle}>
+                  <span style={settingsLabelStyle}>{t.settingsOwner}</span>
+                  <input
+                    style={{ ...settingsInputStyle, opacity: 0.85, cursor: "default" }}
+                    value={ownerName}
+                    readOnly
+                    aria-readonly="true"
+                  />
+                </label>
+              ) : null}
               <label style={settingsFieldStyle}>
                 <span style={settingsLabelStyle}>{t.settingsNiche}</span>
                 <input

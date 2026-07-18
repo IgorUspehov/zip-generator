@@ -25,6 +25,7 @@ export type CopyBundle = {
   ph_name: string;
   lbl_biz: string;
   ph_biz: string;
+  err_biz: string;
   lbl_email: string;
   err_name: string;
   err_email: string;
@@ -34,6 +35,9 @@ export type CopyBundle = {
   lbl_postal: string;
   ph_postal: string;
   err_postal: string;
+  lbl_city: string;
+  ph_city: string;
+  err_city: string;
   lbl_address: string;
   ph_address: string;
   err_address: string;
@@ -113,8 +117,9 @@ const T: Record<UiLang, CopyBundle> = {
     s2_motivation: "Last step — and your demo is ready",
     lbl_name: "Your name",
     ph_name: "Anna Müller",
-    lbl_biz: "Business name",
-    ph_biz: "Munich Dental Clinic",
+    lbl_biz: "Company / business name",
+    ph_biz: "Sunrise Dental",
+    err_biz: "Enter your company name",
     lbl_email: "Email",
     err_name: "Enter your name",
     err_email: "Enter a valid email",
@@ -124,6 +129,9 @@ const T: Record<UiLang, CopyBundle> = {
     lbl_postal: "Postal code",
     ph_postal: "80331",
     err_postal: "Enter your postal code",
+    lbl_city: "City",
+    ph_city: "Berlin",
+    err_city: "Enter your city",
     lbl_address: "Address (street, building)",
     ph_address: "Maximilianstraße 1",
     err_address: "Enter your address",
@@ -229,8 +237,9 @@ const T: Record<UiLang, CopyBundle> = {
     s2_motivation: "Letzter Schritt — und die Demo ist fertig",
     lbl_name: "Ihr Name",
     ph_name: "Anna Müller",
-    lbl_biz: "Unternehmensname",
-    ph_biz: "Münchner Zahnklinik",
+    lbl_biz: "Firmen- / Unternehmensname",
+    ph_biz: "Zahnarztpraxis Sonne",
+    err_biz: "Firmennamen eingeben",
     lbl_email: "E-Mail",
     err_name: "Namen eingeben",
     err_email: "Gültige E-Mail eingeben",
@@ -240,6 +249,9 @@ const T: Record<UiLang, CopyBundle> = {
     lbl_postal: "Postleitzahl",
     ph_postal: "80331",
     err_postal: "Postleitzahl eingeben",
+    lbl_city: "Stadt",
+    ph_city: "Berlin",
+    err_city: "Stadt eingeben",
     lbl_address: "Adresse (Straße, Hausnummer)",
     ph_address: "Maximilianstraße 1",
     err_address: "Adresse eingeben",
@@ -345,8 +357,9 @@ const T: Record<UiLang, CopyBundle> = {
     s2_motivation: "Последний шаг — и демо готово",
     lbl_name: "Ваше имя",
     ph_name: "Анна Мюллер",
-    lbl_biz: "Название бизнеса",
-    ph_biz: "Стоматология Мюнхен",
+    lbl_biz: "Название компании / бизнеса",
+    ph_biz: "Клиника Солнце",
+    err_biz: "Введите название компании",
     lbl_email: "Email",
     err_name: "Введите имя",
     err_email: "Введите корректный email",
@@ -356,6 +369,9 @@ const T: Record<UiLang, CopyBundle> = {
     lbl_postal: "Индекс",
     ph_postal: "80331",
     err_postal: "Введите индекс",
+    lbl_city: "Город",
+    ph_city: "Берлин",
+    err_city: "Введите город",
     lbl_address: "Адрес (улица, дом)",
     ph_address: "Maximilianstraße 1",
     err_address: "Введите адрес",

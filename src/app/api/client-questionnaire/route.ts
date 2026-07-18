@@ -200,12 +200,14 @@ const DEFAULT_SOCIAL_LINKS = {
 };
 
 const REQUIRED_FIELDS = [
+  "name",
   "business_name",
   "business_type",
   "email",
   "phone",
   "telegram",
   "whatsapp",
+  "city",
   "address",
   "working_hours",
   "language",
@@ -253,6 +255,7 @@ function normalizePayload(body: Record<string, unknown>) {
       : {};
 
   const payload = {
+    name: String(body.name ?? "").trim(),
     business_name: String(body.business_name ?? "").trim(),
     business_type: resolveBusinessType(body),
     sector_id: String(body.sector_id ?? "").trim().toLowerCase(),
@@ -261,6 +264,7 @@ function normalizePayload(body: Record<string, unknown>) {
     telegram: String(body.telegram ?? "").trim(),
     whatsapp: String(body.whatsapp ?? "").trim(),
     postal_code: String(body.postal_code ?? body.postalCode ?? "").trim(),
+    city: String(body.city ?? "").trim(),
     address: String(body.address ?? "").trim(),
     working_hours:
       typeof body.working_hours === "object" && body.working_hours !== null
@@ -352,7 +356,7 @@ function pickRandomTheme(businessType: string): MvpTheme {
 
 function buildMvpManifest(payload: Record<string, unknown>) {
   const businessType = String(payload.business_type ?? DEFAULT_BUSINESS_TYPE);
-  const city = String(payload.city ?? "").trim() || "München";
+  const city = String(payload.city ?? "").trim();
   const defaultPages =
     BUSINESS_TYPE_DEFAULT_PAGES[businessType] ?? [
       "dashboard",
@@ -369,7 +373,8 @@ function buildMvpManifest(payload: Record<string, unknown>) {
   const scenario = pickNicheScenario(businessType);
 
   return {
-    businessName: String(payload.business_name ?? "MVP Business"),
+    businessName: String(payload.business_name ?? "").trim(),
+    ownerName: String(payload.name ?? "").trim(),
     niche: BUSINESS_TYPE_TO_NICHE[businessType] ?? "beauty",
     businessType,
     sectorId: String(payload.sector_id ?? "").trim().toLowerCase() || null,
@@ -410,6 +415,9 @@ function normalizeManifestForTemplate(
     ...fallback,
     ...manifest,
     businessName: String(manifest.businessName ?? fallback.businessName),
+    ownerName: String(
+      manifest.ownerName ?? payload.name ?? (fallback as { ownerName?: string }).ownerName ?? "",
+    ),
     niche: BUSINESS_TYPE_TO_NICHE[businessType] ?? String(manifest.niche ?? fallback.niche),
     businessType,
     sectorId:
@@ -430,7 +438,7 @@ function normalizeManifestForTemplate(
     whatsapp: String(manifest.whatsapp ?? fallback.whatsapp),
     postalCode: String(manifest.postalCode ?? manifest.postal_code ?? fallback.postalCode),
     address: String(manifest.address ?? fallback.address),
-    city: String(manifest.city ?? fallback.city),
+    city: String(manifest.city ?? payload.city ?? fallback.city ?? "").trim(),
     features: Array.isArray(manifest.features) ? manifest.features : fallback.features,
     pages: BUSINESS_TYPE_DEFAULT_PAGES[businessType] ?? fallback.pages,
     demoData:
@@ -509,7 +517,7 @@ ${demoData}
   "whatsapp": "whatsapp из опросника",
   "postalCode": "индекс из опросника",
   "address": "адрес (улица, дом) из опросника",
-  "city": "город (München если не указан отдельно)",
+  "city": "город из опросника (только если указан; без дефолта München)",
   "features": ["модули из паттерна"],
   "pages": ["страницы из паттерна"],
   "workingHours": "часы работы из опросника"
@@ -520,7 +528,8 @@ ${demoData}
 
 ОБЯЗАТЕЛЬНО верни поля:
 - niche: точно одно из: beauty, dental, fitness, massage, car_service, health_clinic
-- city: использовать payload.city если есть, иначе München. НЕ извлекать city из address (address = улица и дом)
+- city: использовать payload.city если есть, иначе пустая строка. НЕ подставлять München. НЕ извлекать city из address (address = улица и дом)
+- businessName: использовать payload.business_name (название компании), НЕ имя владельца (payload.name)
 - whatsapp, postalCode, address: скопировать из опросника
 - businessType: скопировать из опросника без изменений
 `;
@@ -549,7 +558,13 @@ ${demoData}
       manifest.sector_id = sectorId;
     }
     if (!manifest.city) {
-      manifest.city = String(payload.city ?? "").trim() || "München";
+      manifest.city = String(payload.city ?? "").trim();
+    }
+    if (!manifest.businessName) {
+      manifest.businessName = String(payload.business_name ?? "").trim();
+    }
+    if (!manifest.ownerName) {
+      manifest.ownerName = String(payload.name ?? "").trim();
     }
     if (!manifest.whatsapp) {
       manifest.whatsapp = String(payload.whatsapp ?? "").trim();
@@ -592,9 +607,11 @@ export async function POST(request: Request) {
 
     const payload = normalizePayload(body);
     console.log("[client-questionnaire] payload normalized:", {
+      name: payload.name,
       business_name: payload.business_name,
       business_type: payload.business_type,
       sector_id: payload.sector_id,
+      city: payload.city,
       email: payload.email,
     });
 
@@ -602,6 +619,13 @@ export async function POST(request: Request) {
       if (!(field in payload)) {
         console.error("[client-questionnaire] missing required field:", field);
         return NextResponse.json({ ok: false, error: `Missing field: ${field}` }, { status: 400 });
+      }
+    }
+
+    for (const field of ["name", "business_name", "email", "phone", "city", "address"] as const) {
+      if (!String(payload[field] ?? "").trim()) {
+        console.error("[client-questionnaire] empty required field:", field);
+        return NextResponse.json({ ok: false, error: `Empty field: ${field}` }, { status: 400 });
       }
     }
 

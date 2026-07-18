@@ -103,6 +103,7 @@ export function buildQuestionnairePayload(input: {
   businessType: string;
   language: string;
   postalCode?: string;
+  city?: string;
   address?: string;
 }) {
   return {
@@ -115,6 +116,7 @@ export function buildQuestionnairePayload(input: {
     telegram: "",
     whatsapp: "",
     postal_code: input.postalCode ?? "",
+    city: input.city ?? "",
     address: input.address ?? "",
     website: "",
     logo: "assets/logo.png",
