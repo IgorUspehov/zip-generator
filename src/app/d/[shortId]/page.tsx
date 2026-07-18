@@ -1,11 +1,19 @@
 import { DemoUnpaidBanner } from "@/components/demo-unpaid-banner";
-import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
+import { buildCrmDemoCheckoutUrl, resolveDemoAccess } from "@/lib/cloudflare/demo-access";
 import { buildDemoEmbedSrc } from "@/lib/cloudflare/demo-embed";
 import { findDemoByShortId } from "@/lib/cloudflare/demo-registry";
+import { loadClientManifest } from "@/lib/manifest/storage";
 
 type ShortDemoPageProps = {
   params: Promise<{ shortId: string }>;
 };
+
+function resolveManifestLanguage(clientId: string): string | undefined {
+  const manifest = loadClientManifest(clientId);
+  if (!manifest) return undefined;
+  const raw = manifest.language ?? manifest.lang;
+  return typeof raw === "string" ? raw : undefined;
+}
 
 export default async function ShortDemoPage({ params }: ShortDemoPageProps) {
   const { shortId } = await params;
@@ -22,12 +30,20 @@ export default async function ShortDemoPage({ params }: ShortDemoPageProps) {
 
   const access = resolveDemoAccess(record.clientId);
   const unpaid = !access.paid;
+  const language = resolveManifestLanguage(record.clientId);
+  const checkoutUrl = buildCrmDemoCheckoutUrl(record.clientId);
   const src = buildDemoEmbedSrc(record);
   const bannerOffset = unpaid ? 52 : 0;
 
   return (
     <>
-      {unpaid ? <DemoUnpaidBanner clientId={record.clientId} /> : null}
+      {unpaid ? (
+        <DemoUnpaidBanner
+          clientId={record.clientId}
+          checkoutUrl={checkoutUrl}
+          language={language}
+        />
+      ) : null}
       <iframe
         title={`CRM Demo ${shortId}`}
         src={src}

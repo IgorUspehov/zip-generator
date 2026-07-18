@@ -7,6 +7,10 @@ function normalizeDefaults(defaultRecords = []) {
   }));
 }
 
+function isUserRecord(record) {
+  return String(record?.id || "").startsWith("rec-");
+}
+
 function readStorage(key) {
   try {
     const raw = localStorage.getItem(key);
@@ -24,6 +28,11 @@ function writeStorage(key, records) {
   localStorage.setItem(key, JSON.stringify(records));
 }
 
+/**
+ * Demo CRM rows are seeded from localized scenario defaults.
+ * When the UI language changes, defaults change — re-seed `seed-*` rows so
+ * names/statuses follow EN/DE/RU, while keeping user-added `rec-*` rows.
+ */
 export function useCrmRecords(clientId, section, defaultRecords = []) {
   const storageKey = clientId && section ? `mvp_crm:${clientId}:${section}` : null;
   const defaultsKey = useMemo(() => JSON.stringify(defaultRecords), [defaultRecords]);
@@ -32,21 +41,24 @@ export function useCrmRecords(clientId, section, defaultRecords = []) {
 
   useEffect(() => {
     const parsedDefaults = JSON.parse(defaultsKey);
+    const seeded = normalizeDefaults(parsedDefaults);
 
     if (!storageKey) {
-      setRecords(normalizeDefaults(parsedDefaults));
+      setRecords(seeded);
       setLoading(false);
       return;
     }
 
     const stored = readStorage(storageKey);
     if (stored !== null) {
-      setRecords(stored);
+      const userAdded = stored.filter(isUserRecord);
+      const next = [...seeded, ...userAdded];
+      setRecords(next);
+      writeStorage(storageKey, next);
       setLoading(false);
       return;
     }
 
-    const seeded = normalizeDefaults(parsedDefaults);
     setRecords(seeded);
     if (seeded.length > 0) {
       writeStorage(storageKey, seeded);
@@ -109,5 +121,5 @@ export function useCrmRecords(clientId, section, defaultRecords = []) {
     [storageKey],
   );
 
-  return { records, loading, addRecord, updateRecord, deleteRecord, reload: () => {} };
+  return { records, loading, addRecord, updateRecord, deleteRecord, reload: () => {}, persist };
 }

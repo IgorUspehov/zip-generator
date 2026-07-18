@@ -1,11 +1,19 @@
 import { DemoUnpaidBanner } from "@/components/demo-unpaid-banner";
-import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
+import { buildCrmDemoCheckoutUrl, resolveDemoAccess } from "@/lib/cloudflare/demo-access";
 import { findDemoBySlug } from "@/lib/cloudflare/demo-registry";
+import { loadClientManifest } from "@/lib/manifest/storage";
 
 type DemoPageProps = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ clientId?: string }>;
 };
+
+function resolveManifestLanguage(clientId: string): string | undefined {
+  const manifest = loadClientManifest(clientId);
+  if (!manifest) return undefined;
+  const raw = manifest.language ?? manifest.lang;
+  return typeof raw === "string" ? raw : undefined;
+}
 
 export default async function DemoPage({ params, searchParams }: DemoPageProps) {
   const { slug } = await params;
@@ -24,6 +32,8 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
   const clientId = query.clientId || record.clientId;
   const access = resolveDemoAccess(clientId);
   const unpaid = !access.paid;
+  const language = resolveManifestLanguage(clientId);
+  const checkoutUrl = buildCrmDemoCheckoutUrl(clientId);
 
   const src = (() => {
     try {
@@ -39,7 +49,9 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
 
   return (
     <>
-      {unpaid ? <DemoUnpaidBanner clientId={clientId} /> : null}
+      {unpaid ? (
+        <DemoUnpaidBanner clientId={clientId} checkoutUrl={checkoutUrl} language={language} />
+      ) : null}
       <iframe
         title={`CRM Demo ${slug}`}
         src={src}

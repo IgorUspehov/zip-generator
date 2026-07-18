@@ -1,34 +1,57 @@
-import { buildCrmDemoCheckoutUrl } from "@/lib/cloudflare/demo-access";
+"use client";
+
+import { useEffect, useState } from "react";
 
 type DemoUnpaidBannerProps = {
   clientId: string;
+  checkoutUrl: string;
+  /** Initial language from client manifest (overridden by CRM iframe postMessage). */
   language?: string;
 };
 
-function copyFor(language: string | undefined) {
-  const lang = (language || "de").toLowerCase();
-  if (lang.startsWith("ru")) {
-    return {
-      text: "Демо-версия. Оплатите €99, чтобы убрать ограничение и сохранить сайт.",
-      cta: "Оплатить €99",
-    };
-  }
-  if (lang.startsWith("en")) {
-    return {
-      text: "Demo version. Pay €99 to remove limits and keep your site.",
-      cta: "Pay €99",
-    };
-  }
-  return {
+const COPY = {
+  en: {
+    text: "Demo version. Pay €99 to remove limits and keep your site.",
+    cta: "Pay €99",
+  },
+  de: {
     text: "Demo-Version. Zahlen Sie €99, um die Einschränkung zu entfernen und die Website zu behalten.",
     cta: "€99 bezahlen",
-  };
+  },
+  ru: {
+    text: "Демо-версия. Оплатите €99, чтобы убрать ограничение и сохранить сайт.",
+    cta: "Оплатить €99",
+  },
+} as const;
+
+function normalizeLang(language: string | undefined): keyof typeof COPY {
+  const lang = (language || "de").toLowerCase();
+  if (lang.startsWith("ru")) return "ru";
+  if (lang.startsWith("en")) return "en";
+  return "de";
 }
 
 /** Top bar for unpaid CRM demos on Railway /demo and /d routes. */
-export function DemoUnpaidBanner({ clientId, language }: DemoUnpaidBannerProps) {
-  const copy = copyFor(language);
-  const href = buildCrmDemoCheckoutUrl(clientId);
+export function DemoUnpaidBanner({ checkoutUrl, language }: DemoUnpaidBannerProps) {
+  const [lang, setLang] = useState(() => normalizeLang(language));
+  const copy = COPY[lang];
+
+  useEffect(() => {
+    setLang(normalizeLang(language));
+  }, [language]);
+
+  useEffect(() => {
+    function onMessage(event: MessageEvent) {
+      const data = event.data;
+      if (!data || typeof data !== "object") return;
+      if ((data as { type?: string }).type !== "crm-demo-language") return;
+      const next = (data as { language?: string }).language;
+      if (typeof next !== "string") return;
+      setLang(normalizeLang(next));
+    }
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
 
   return (
     <div
@@ -53,7 +76,7 @@ export function DemoUnpaidBanner({ clientId, language }: DemoUnpaidBannerProps) 
     >
       <span style={{ textAlign: "center", maxWidth: "42rem" }}>{copy.text}</span>
       <a
-        href={href}
+        href={checkoutUrl}
         target="_blank"
         rel="noreferrer"
         style={{
