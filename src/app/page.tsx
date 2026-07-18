@@ -116,7 +116,7 @@ export default function Page() {
   }));
 
   return (
-    <div className="bg-white font-sans text-gray-900">
+    <div className="bg-white font-sans text-[var(--color-fg,#0f172a)]">
       {/* Language switcher — bottom-right on mobile so it doesn't cover hero/problem text */}
       <div
         className="fixed right-3 bottom-3 z-50 flex gap-0.5 rounded-full border border-gray-200 bg-white/95 px-2 py-1 shadow-md backdrop-blur sm:top-4 sm:right-4 sm:bottom-auto sm:gap-1 sm:px-3 sm:py-1.5"
@@ -128,10 +128,10 @@ export default function Page() {
             key={l}
             type="button"
             onClick={() => setLocale(l)}
-            className={`rounded-full px-1.5 py-0.5 text-[11px] font-semibold transition-all sm:px-2 sm:text-xs ${
+            className={`rounded-full px-2 py-1 text-xs font-semibold transition-all sm:px-2.5 sm:text-sm ${
               lang === l
                 ? "bg-orange-500 text-white"
-                : "text-gray-500 hover:text-gray-800"
+                : "text-gray-600 hover:text-gray-900"
             }`}
           >
             {LANG_LABELS[l]}
@@ -149,13 +149,13 @@ export default function Page() {
           {/* Left */}
           <div>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/20 px-4 py-1.5">
-              <Zap className="h-3.5 w-3.5 text-orange-400" />
-              <span className="text-xs font-semibold tracking-widest text-orange-300 uppercase">
+              <Zap className="h-4 w-4 text-orange-400" />
+              <span className="text-sm font-semibold tracking-widest text-orange-300 uppercase">
                 {t.heroBadge}
               </span>
             </div>
 
-            <h1 className="mb-4 text-5xl leading-tight font-black text-white lg:text-6xl">
+            <h1 className="mb-4 text-6xl leading-tight font-black text-white lg:text-7xl">
               {t.heroTitle1}
               <br />
               <span className="text-orange-500">{t.heroTitle2}</span>
@@ -163,40 +163,40 @@ export default function Page() {
               {t.heroTitle3}
             </h1>
 
-            <p className="mb-3 text-lg font-medium text-gray-300">
+            <p className="mb-3 text-xl font-medium text-gray-200 lg:text-2xl">
               {t.heroSubtitle}{" "}
               <span className="font-bold text-orange-400">
                 {t.heroSubtitleHighlight}
               </span>
             </p>
-            <p className="mb-8 text-sm text-gray-400">{t.heroDescription}</p>
+            <p className="mb-8 text-base text-gray-300 lg:text-lg">{t.heroDescription}</p>
 
             {/* Price badge */}
             <div className="mb-8 inline-flex items-center gap-4 rounded-2xl bg-orange-500 px-6 py-4 shadow-xl shadow-orange-500/30">
               <div>
-                <div className="text-xs font-semibold tracking-wider text-white/80 uppercase">
+                <div className="text-sm font-semibold tracking-wider text-white/90 uppercase">
                   {t.priceMonthly}
                 </div>
-                <div className="text-4xl leading-none font-black text-white">
+                <div className="text-5xl leading-none font-black text-white">
                   {t.priceValue}
                 </div>
               </div>
               <div className="border-l border-white/30 pl-4">
-                <div className="text-sm font-semibold text-white">
+                <div className="text-base font-semibold text-white">
                   {t.priceSiteCrm}
                 </div>
-                <div className="text-xs text-white/70">{t.priceConfigured}</div>
+                <div className="text-sm text-white/80">{t.priceConfigured}</div>
               </div>
             </div>
 
             <div className="flex justify-center">
               <Link
                 href="/client"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-orange-500/30 transition-all duration-200 hover:scale-105 hover:bg-orange-600 hover:shadow-orange-500/50 sm:w-auto"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-8 py-4 text-xl font-bold text-white shadow-lg shadow-orange-500/30 transition-all duration-200 hover:scale-105 hover:bg-orange-600 hover:shadow-orange-500/50 sm:w-auto"
               >
-                <Rocket className="h-5 w-5" />
+                <Rocket className="h-6 w-6" />
                 {t.heroBtnPrimary}
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-5 w-5" />
               </Link>
             </div>
 
@@ -204,9 +204,9 @@ export default function Page() {
               {t.heroCheckmarks.map((text) => (
                 <div
                   key={text}
-                  className="flex items-center gap-1.5 text-sm text-gray-400"
+                  className="flex items-center gap-1.5 text-base text-gray-300"
                 >
-                  <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-green-400" />
+                  <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-green-400" />
                   {text}
                 </div>
               ))}
@@ -221,10 +221,10 @@ export default function Page() {
                 <div className="overflow-hidden rounded-[2rem] bg-white">
                   {/* status bar */}
                   <div className="bg-amber-400 px-5 py-3">
-                    <div className="text-xs font-black text-gray-900">
+                    <div className="text-sm font-black text-gray-900">
                       {t.mockTitle}
                     </div>
-                    <div className="text-[10px] text-gray-900/70">
+                    <div className="text-xs text-gray-900/80">
                       {t.mockSubtitle}
                     </div>
                   </div>
@@ -235,10 +235,10 @@ export default function Page() {
                           key={l}
                           className="rounded-xl bg-gray-50 p-3 text-center"
                         >
-                          <div className="text-xl font-black text-gray-900">
+                          <div className="text-2xl font-black text-gray-900">
                             {v}
                           </div>
-                          <div className="text-[10px] text-gray-500">{l}</div>
+                          <div className="text-xs text-gray-600">{l}</div>
                         </div>
                       ))}
                     </div>
@@ -246,13 +246,13 @@ export default function Page() {
                       {t.mockEvents.map(([time, event, status]) => (
                         <div
                           key={time}
-                          className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 text-[11px]"
+                          className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 text-xs"
                         >
-                          <span className="w-10 text-gray-400">{time}</span>
-                          <span className="flex-1 px-2 text-gray-700">
+                          <span className="w-10 text-gray-500">{time}</span>
+                          <span className="flex-1 px-2 text-gray-800">
                             {event}
                           </span>
-                          <span className="rounded bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-700">
+                          <span className="rounded bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-800">
                             {status}
                           </span>
                         </div>
@@ -262,12 +262,12 @@ export default function Page() {
                 </div>
               </div>
               {/* badges */}
-              <div className="-left-8 top-16 absolute flex -rotate-3 items-center gap-1.5 rounded-2xl border border-gray-100 bg-white px-3 py-2 text-xs font-bold text-gray-800 shadow-xl">
-                <Zap className="h-3.5 w-3.5 text-orange-500" /> 3{" "}
+              <div className="-left-8 top-16 absolute flex -rotate-3 items-center gap-1.5 rounded-2xl border border-gray-100 bg-white px-4 py-2.5 text-sm font-bold text-gray-900 shadow-xl">
+                <Zap className="h-4 w-4 text-orange-500" />
                 {t.heroSubtitleHighlight}
               </div>
-              <div className="-right-6 bottom-24 absolute flex rotate-2 items-center gap-1.5 rounded-2xl bg-orange-500 px-3 py-2 text-xs font-bold text-white shadow-xl">
-                <CheckCircle2 className="h-3.5 w-3.5" /> {t.ctaTitle1}
+              <div className="-right-6 bottom-24 absolute flex rotate-2 items-center gap-1.5 rounded-2xl bg-orange-500 px-4 py-2.5 text-sm font-bold text-white shadow-xl">
+                <CheckCircle2 className="h-4 w-4" /> {t.ctaTitle1}
               </div>
             </div>
           </div>
@@ -286,10 +286,10 @@ export default function Page() {
       <section className="bg-white py-20">
         <div className="mx-auto max-w-5xl px-6">
           <div className="mb-14 text-center">
-            <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
+            <p className="mb-3 text-sm font-bold tracking-widest text-orange-500 uppercase">
               {t.nichesEyebrow}
             </p>
-            <h2 className="text-3xl font-black text-gray-900 lg:text-4xl">
+            <h2 className="text-4xl font-black text-gray-900 lg:text-5xl">
               {t.nichesTitle}
             </h2>
           </div>
@@ -302,11 +302,11 @@ export default function Page() {
                 className="group flex cursor-pointer flex-col items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md"
               >
                 <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110 ${bg}`}
+                  className={`flex h-14 w-14 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110 ${bg}`}
                 >
-                  <Icon className={`h-6 w-6 ${color}`} />
+                  <Icon className={`h-7 w-7 ${color}`} />
                 </div>
-                <span className="text-center text-xs leading-tight font-semibold text-gray-700 group-hover:text-gray-900">
+                <span className="text-center text-sm leading-tight font-semibold text-gray-800 group-hover:text-gray-950 lg:text-base">
                   {label}
                 </span>
               </Link>
@@ -318,10 +318,10 @@ export default function Page() {
       {/* PROBLEM SECTION */}
       <section className="bg-gray-950 py-20">
         <div className="mx-auto max-w-5xl px-6 text-center">
-          <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
+          <p className="mb-3 text-sm font-bold tracking-widest text-orange-500 uppercase">
             {t.problemEyebrow}
           </p>
-          <h2 className="mb-12 text-3xl font-black text-white lg:text-5xl">
+          <h2 className="mb-12 text-4xl font-black text-white lg:text-6xl">
             {t.problemTitle1}
             <br />
             <span className="text-orange-500">{t.problemTitle2}</span>
@@ -338,7 +338,7 @@ export default function Page() {
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10">
                     <Icon className="h-5 w-5 text-orange-400" />
                   </div>
-                  <p className="text-left text-sm font-medium text-gray-300">
+                  <p className="text-left text-base font-medium text-gray-200">
                     {text}
                   </p>
                 </div>
@@ -353,10 +353,10 @@ export default function Page() {
                 return (
                   <div key={label} className="min-w-0 text-center">
                     <Icon className="mx-auto mb-1 h-6 w-6 text-orange-400" />
-                    <div className="text-3xl font-black tracking-tight text-white sm:text-4xl">
+                    <div className="text-4xl font-black tracking-tight text-white sm:text-5xl">
                       {value}
                     </div>
-                    <div className="text-sm text-gray-400">{label}</div>
+                    <div className="text-base text-gray-300">{label}</div>
                   </div>
                 );
               })}
@@ -367,7 +367,7 @@ export default function Page() {
                 {t.problemQuestionHighlight}
               </span>
             </p>
-            <p className="mt-2 text-sm text-gray-400">{t.problemAnswer}</p>
+            <p className="mt-2 text-base text-gray-300">{t.problemAnswer}</p>
           </div>
         </div>
       </section>
@@ -376,13 +376,13 @@ export default function Page() {
       <section className="bg-white py-20">
         <div className="mx-auto max-w-5xl px-6">
           <div className="mb-14 text-center">
-            <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
+            <p className="mb-3 text-sm font-bold tracking-widest text-orange-500 uppercase">
               {t.howEyebrow}
             </p>
-            <h2 className="text-3xl font-black text-gray-900 lg:text-4xl">
+            <h2 className="text-4xl font-black text-gray-900 lg:text-5xl">
               {t.howTitle}
             </h2>
-            <p className="mx-auto mt-3 max-w-xl text-gray-500">{t.howSubtitle}</p>
+            <p className="mx-auto mt-3 max-w-xl text-lg text-gray-600">{t.howSubtitle}</p>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -397,11 +397,11 @@ export default function Page() {
                     <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500 transition-transform duration-200 group-hover:scale-110">
                       <Icon className="h-7 w-7 text-white" />
                     </div>
-                    <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full bg-gray-900 text-xs font-black text-white">
+                    <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full bg-gray-900 text-sm font-black text-white">
                       {step + 1}
                     </div>
-                    <h3 className="mb-2 font-bold text-gray-900">{title}</h3>
-                    <p className="text-sm text-gray-500">{desc}</p>
+                    <h3 className="mb-2 text-lg font-bold text-gray-900">{title}</h3>
+                    <p className="text-base text-gray-600">{desc}</p>
                   </div>
                 </div>
               );
@@ -411,13 +411,13 @@ export default function Page() {
           <div className="mt-12 text-center">
             <Link
               href="/client"
-              className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-10 py-4 text-lg font-bold text-white shadow-lg shadow-orange-500/20 transition-all duration-200 hover:scale-105 hover:bg-orange-600"
+              className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-10 py-4 text-xl font-bold text-white shadow-lg shadow-orange-500/20 transition-all duration-200 hover:scale-105 hover:bg-orange-600"
             >
-              <ClipboardList className="h-5 w-5" />
+              <ClipboardList className="h-6 w-6" />
               {t.howBtn}
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5" />
             </Link>
-            <p className="mt-3 text-sm text-gray-400">{t.howBtnHint}</p>
+            <p className="mt-3 text-base text-gray-500">{t.howBtnHint}</p>
           </div>
         </div>
       </section>
@@ -426,10 +426,10 @@ export default function Page() {
       <section className="bg-gray-50 py-20">
         <div className="mx-auto max-w-5xl px-6">
           <div className="mb-14 text-center">
-            <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
+            <p className="mb-3 text-sm font-bold tracking-widest text-orange-500 uppercase">
               {t.featuresEyebrow}
             </p>
-            <h2 className="text-3xl font-black text-gray-900 lg:text-4xl">
+            <h2 className="text-4xl font-black text-gray-900 lg:text-5xl">
               {t.featuresTitle}
             </h2>
           </div>
@@ -441,7 +441,7 @@ export default function Page() {
                 className="flex items-start gap-3 rounded-xl border border-gray-100 bg-white px-5 py-4 transition-all duration-200 hover:border-orange-200 hover:shadow-sm"
               >
                 <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
-                <span className="text-sm font-medium text-gray-700">{f}</span>
+                <span className="text-base font-medium text-gray-800">{f}</span>
               </div>
             ))}
           </div>
@@ -452,10 +452,10 @@ export default function Page() {
       <section className="bg-gray-950 py-20">
         <div className="mx-auto max-w-5xl px-6">
           <div className="mb-14 text-center">
-            <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
+            <p className="mb-3 text-sm font-bold tracking-widest text-orange-500 uppercase">
               {t.benefitsEyebrow}
             </p>
-            <h2 className="text-3xl font-black text-white lg:text-4xl">
+            <h2 className="text-4xl font-black text-white lg:text-5xl">
               {t.benefitsTitle}
             </h2>
           </div>
@@ -471,8 +471,8 @@ export default function Page() {
                     <Icon className="h-5 w-5 text-orange-400" />
                   </div>
                   <div>
-                    <h3 className="mb-1 font-bold text-white">{title}</h3>
-                    <p className="text-sm text-gray-400">{desc}</p>
+                    <h3 className="mb-1 text-lg font-bold text-white">{title}</h3>
+                    <p className="text-base text-gray-300">{desc}</p>
                   </div>
                 </div>
               );
@@ -485,26 +485,26 @@ export default function Page() {
       <section className="bg-white py-20">
         <div className="mx-auto max-w-lg px-6">
           <div className="mb-10 text-center">
-            <p className="mb-3 text-xs font-bold tracking-widest text-orange-500 uppercase">
+            <p className="mb-3 text-sm font-bold tracking-widest text-orange-500 uppercase">
               {t.pricingEyebrow}
             </p>
-            <h2 className="text-3xl font-black text-gray-900 lg:text-4xl">
+            <h2 className="text-4xl font-black text-gray-900 lg:text-5xl">
               {t.pricingTitle}
             </h2>
           </div>
 
           <div className="overflow-hidden rounded-3xl bg-gray-950 shadow-2xl">
             <div className="relative bg-orange-500 px-8 pt-8 pb-12 text-center">
-              <div className="mb-1 text-sm font-semibold text-white/80">
+              <div className="mb-1 text-base font-semibold text-white/90">
                 {t.pricingMonthly}
               </div>
               <div className="text-8xl leading-none font-black text-white">
                 €99
               </div>
-              <div className="mt-2 text-sm text-white/70">
+              <div className="mt-2 text-base text-white/80">
                 {t.pricingPerMonth}
               </div>
-              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-full border-4 border-orange-500 bg-gray-950 px-4 py-1.5 text-xs font-bold whitespace-nowrap text-orange-400">
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-full border-4 border-orange-500 bg-gray-950 px-4 py-1.5 text-sm font-bold whitespace-nowrap text-orange-400">
                 {t.pricingDemoFree}
               </div>
             </div>
@@ -514,7 +514,7 @@ export default function Page() {
                 {t.pricingItems.map((item) => (
                   <div key={item} className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-green-400" />
-                    <span className="text-sm text-gray-300">{item}</span>
+                    <span className="text-base text-gray-200">{item}</span>
                   </div>
                 ))}
               </div>
@@ -534,7 +534,7 @@ export default function Page() {
                 <CreditCard className="h-5 w-5" />
                 {t.pricingPayBtn}
               </a>
-              <p className="mt-3 text-center text-xs text-gray-500">
+              <p className="mt-3 text-center text-sm text-gray-400">
                 {t.pricingHint}
               </p>
             </div>

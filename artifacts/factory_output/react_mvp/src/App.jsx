@@ -17,6 +17,7 @@ import {
   paymentStatusLabel,
   buildLiveDashboard,
 } from "./lib/crm-matrix.js";
+import { resolveContrastTokens } from "./lib/contrast.js";
 
 const DEFAULT_THEME = {
   primary: "#8a271e",
@@ -33,13 +34,22 @@ function applyThemeToDocument(theme) {
     ...merged,
     hero_bg: merged.hero_bg ?? merged.header_bg ?? DEFAULT_THEME.hero_bg,
   };
+  const contrast = resolveContrastTokens(resolved);
   const root = document.documentElement.style;
   root.setProperty("--color-primary", resolved.primary);
   root.setProperty("--color-secondary", resolved.secondary);
   root.setProperty("--color-accent", resolved.accent);
   root.setProperty("--color-hero-bg", resolved.hero_bg);
+  root.setProperty("--color-fg", contrast.fg);
+  root.setProperty("--color-fg-muted", contrast.fgMuted);
+  root.setProperty("--color-border", contrast.border);
+  root.setProperty("--color-on-primary", contrast.onPrimary);
+  root.setProperty("--color-on-secondary", contrast.onSecondary);
+  root.setProperty("--color-on-accent", contrast.onAccent);
+  root.setProperty("--color-on-hero", contrast.onHero);
   root.setProperty("--accent", resolved.accent);
   root.setProperty("--accent-soft", resolved.secondary);
+  root.setProperty("--accent-foreground", contrast.onAccent);
 }
 
 function formatPageLabel(pageKey) {
@@ -2126,7 +2136,7 @@ export default function App() {
     border: "1px solid #cbd5e1",
     borderRadius: "8px",
     padding: "0.55rem 0.75rem",
-    fontSize: "0.92rem",
+    fontSize: "1.05rem",
     width: "100%",
     boxSizing: "border-box",
   };
@@ -2191,10 +2201,10 @@ export default function App() {
     borderRadius: "10px",
     cursor: "pointer",
     textAlign: "left",
-    fontSize: "0.9rem",
+    fontSize: "1.05rem",
     fontWeight: activeTab === tabId ? 700 : 500,
     background: activeTab === tabId ? "var(--color-secondary, #dbeafe)" : "transparent",
-    color: activeTab === tabId ? "var(--color-accent, #1d4ed8)" : "#334155",
+    color: activeTab === tabId ? "var(--color-on-secondary, #0f172a)" : "var(--color-fg, #334155)",
     transition: "background 0.15s ease, color 0.15s ease",
   });
 
@@ -2233,7 +2243,7 @@ export default function App() {
   const tableStyle = {
     width: "100%",
     borderCollapse: "collapse",
-    fontSize: "0.92rem",
+    fontSize: "1.05rem",
   };
 
   const thStyle = {
@@ -2308,7 +2318,7 @@ export default function App() {
               padding: "0.65rem 1rem",
               background: "linear-gradient(90deg, #0f172a 0%, #1e3a5f 100%)",
               color: "#f8fafc",
-              fontSize: "0.9rem",
+              fontSize: "1.05rem",
               boxShadow: "0 4px 20px rgba(15, 23, 42, 0.35)",
             }}
           >
@@ -2374,9 +2384,9 @@ export default function App() {
           </div>
         </div>
         <div style={{ display: "flex", gap: "8px", marginBottom: "16px", marginTop: "8px" }}>
-          <button type="button" onClick={() => setLanguage("en")} style={{ flex: 1, padding: "6px 0", borderRadius: "8px", border: "2px solid var(--accent)", cursor: "pointer", fontWeight: 700, fontSize: "12px", background: language === "en" ? "var(--accent)" : "#fff", color: language === "en" ? "#fff" : "var(--accent)" }}>EN</button>
-          <button type="button" onClick={() => setLanguage("de")} style={{ flex: 1, padding: "6px 0", borderRadius: "8px", border: "2px solid var(--accent)", cursor: "pointer", fontWeight: 700, fontSize: "12px", background: language === "de" ? "var(--accent)" : "#fff", color: language === "de" ? "#fff" : "var(--accent)" }}>DE</button>
-          <button type="button" onClick={() => setLanguage("ru")} style={{ flex: 1, padding: "6px 0", borderRadius: "8px", border: "2px solid var(--accent)", cursor: "pointer", fontWeight: 700, fontSize: "12px", background: language === "ru" ? "var(--accent)" : "#fff", color: language === "ru" ? "#fff" : "var(--accent)" }}>RU</button>
+          <button type="button" onClick={() => setLanguage("en")} style={{ flex: 1, padding: "8px 0", borderRadius: "8px", border: "2px solid var(--accent)", cursor: "pointer", fontWeight: 700, fontSize: "14px", background: language === "en" ? "var(--accent)" : "#fff", color: language === "en" ? "var(--color-on-accent, #ffffff)" : "var(--accent)" }}>EN</button>
+          <button type="button" onClick={() => setLanguage("de")} style={{ flex: 1, padding: "8px 0", borderRadius: "8px", border: "2px solid var(--accent)", cursor: "pointer", fontWeight: 700, fontSize: "14px", background: language === "de" ? "var(--accent)" : "#fff", color: language === "de" ? "var(--color-on-accent, #ffffff)" : "var(--accent)" }}>DE</button>
+          <button type="button" onClick={() => setLanguage("ru")} style={{ flex: 1, padding: "8px 0", borderRadius: "8px", border: "2px solid var(--accent)", cursor: "pointer", fontWeight: 700, fontSize: "14px", background: language === "ru" ? "var(--accent)" : "#fff", color: language === "ru" ? "var(--color-on-accent, #ffffff)" : "var(--accent)" }}>RU</button>
         </div>
         <nav className="sidebar-nav">
           <span className="sidebar-nav-label">{t.menu}</span>
@@ -2466,7 +2476,7 @@ export default function App() {
               <section
                 style={{
                   background: "var(--color-accent, #f59e0b)",
-                  color: "#ffffff",
+                  color: "var(--color-on-accent, #ffffff)",
                   borderRadius: "16px",
                   padding: "1.25rem 1.5rem",
                   marginBottom: "1rem",
@@ -2476,7 +2486,7 @@ export default function App() {
                 <h3
                   style={{
                     margin: "0 0 0.5rem",
-                    fontSize: "1.05rem",
+                    fontSize: "1.2rem",
                     fontWeight: 800,
                     display: "flex",
                     alignItems: "center",
@@ -2487,7 +2497,7 @@ export default function App() {
                   {DASHBOARD_SECTION_LABELS.specialOffer[language] ??
                     DASHBOARD_SECTION_LABELS.specialOffer.en}
                 </h3>
-                <p style={{ margin: 0, fontSize: "0.98rem", lineHeight: 1.5, fontWeight: 600 }}>
+                <p style={{ margin: 0, fontSize: "1.1rem", lineHeight: 1.5, fontWeight: 600 }}>
                   {promotionText}
                 </p>
               </section>
@@ -2553,19 +2563,19 @@ export default function App() {
           <section className="panel domain-section">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <h3 style={{ margin: 0 }}>{getPageLabel(activeTab, language, effectiveBusinessType)}</h3>
-              <button type="button" onClick={() => setCrmShowAddAppointment(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "#ffffff", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.12)" }}>
+              <button type="button" onClick={() => setCrmShowAddAppointment(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "var(--color-on-accent, #ffffff)", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "1rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.12)" }}>
                 {t.addAppointment}
               </button>
             </div>
             {crmShowAddAppointment && (
               <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#f8fafc" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.5rem", marginBottom: "0.75rem" }}>
-                  <input placeholder={t.client} value={crmAppointmentForm.client} onChange={(e) => setCrmAppointmentForm((f) => ({ ...f, client: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
-                  <input placeholder={t.service} value={crmAppointmentForm.service} onChange={(e) => setCrmAppointmentForm((f) => ({ ...f, service: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
-                  <input placeholder={t.time} value={crmAppointmentForm.time} onChange={(e) => setCrmAppointmentForm((f) => ({ ...f, time: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
-                  <input placeholder={t.status} value={crmAppointmentForm.status} onChange={(e) => setCrmAppointmentForm((f) => ({ ...f, status: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                  <input placeholder={t.client} value={crmAppointmentForm.client} onChange={(e) => setCrmAppointmentForm((f) => ({ ...f, client: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
+                  <input placeholder={t.service} value={crmAppointmentForm.service} onChange={(e) => setCrmAppointmentForm((f) => ({ ...f, service: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
+                  <input placeholder={t.time} value={crmAppointmentForm.time} onChange={(e) => setCrmAppointmentForm((f) => ({ ...f, time: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
+                  <input placeholder={t.status} value={crmAppointmentForm.status} onChange={(e) => setCrmAppointmentForm((f) => ({ ...f, status: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
                 </div>
-                <button type="button" onClick={handleAddCrmAppointment} style={{ background: "var(--color-accent, #1d4ed8)", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>{t.save}</button>
+                <button type="button" onClick={handleAddCrmAppointment} style={{ background: "var(--color-accent, #1d4ed8)", color: "var(--color-on-accent, #ffffff)", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>{t.save}</button>
                 <button type="button" onClick={() => setCrmShowAddAppointment(false)} style={{ background: "transparent", color: "#64748b", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", cursor: "pointer" }}>{t.cancel}</button>
               </div>
             )}
@@ -2629,12 +2639,12 @@ export default function App() {
                 onClick={() => setCrmShowAddClient(true)}
                 style={{
                   background: "var(--color-accent, #1d4ed8)",
-                  color: "#ffffff",
+                  color: "var(--color-on-accent, #ffffff)",
                   border: "none",
                   borderRadius: "10px",
                   padding: "0.55rem 1rem",
                   fontWeight: 700,
-                  fontSize: "0.88rem",
+                  fontSize: "1rem",
                   cursor: "pointer",
                   boxShadow: "0 4px 12px rgba(15, 23, 42, 0.12)",
                 }}
@@ -2649,22 +2659,22 @@ export default function App() {
                     placeholder={t.name}
                     value={crmClientForm.name}
                     onChange={(e) => setCrmClientForm((f) => ({ ...f, name: e.target.value }))}
-                    style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }}
+                    style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }}
                   />
                   <input
                     placeholder={t.phone}
                     value={crmClientForm.phone}
                     onChange={(e) => setCrmClientForm((f) => ({ ...f, phone: e.target.value }))}
-                    style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }}
+                    style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }}
                   />
                   <input
                     placeholder={t.note}
                     value={crmClientForm.note}
                     onChange={(e) => setCrmClientForm((f) => ({ ...f, note: e.target.value }))}
-                    style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }}
+                    style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }}
                   />
                 </div>
-                <button type="button" onClick={handleAddCrmClient} style={{ background: "var(--color-accent, #1d4ed8)", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>
+                <button type="button" onClick={handleAddCrmClient} style={{ background: "var(--color-accent, #1d4ed8)", color: "var(--color-on-accent, #ffffff)", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>
                   {t.save}
                 </button>
                 <button type="button" onClick={() => setCrmShowAddClient(false)} style={{ background: "transparent", color: "#64748b", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", cursor: "pointer" }}>
@@ -2700,7 +2710,7 @@ export default function App() {
                           <td style={{ ...tdStyle, fontWeight: 600, color: "#0f172a" }}>{item.name}</td>
                           <td style={tdStyle}>{translateNote(item.note)}</td>
                           <td style={tdStyle}>
-                            <span style={{ ...statusBadgeBase, background: "var(--color-secondary, #dbeafe)", color: "var(--color-accent, #1d4ed8)", border: "1px solid transparent" }}>
+                            <span style={{ ...statusBadgeBase, background: "var(--color-secondary, #dbeafe)", color: "var(--color-on-secondary, #0f172a)", border: "1px solid transparent" }}>
                               {item.visits} {t.visitsBadge ?? t.visits}
                             </span>
                           </td>
@@ -2726,18 +2736,18 @@ export default function App() {
           <section className="panel domain-section">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <h3 style={{ margin: 0 }}>{getPageLabel(activeTab, language, effectiveBusinessType)}</h3>
-              <button type="button" onClick={() => setCrmShowAddService(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "#ffffff", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.12)" }}>
+              <button type="button" onClick={() => setCrmShowAddService(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "var(--color-on-accent, #ffffff)", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "1rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.12)" }}>
                 {t.addService}
               </button>
             </div>
             {crmShowAddService && (
               <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#f8fafc" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.5rem", marginBottom: "0.75rem" }}>
-                  <input placeholder={t.name} value={crmServiceForm.name} onChange={(e) => setCrmServiceForm((f) => ({ ...f, name: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
-                  <input placeholder="€80" value={crmServiceForm.price} onChange={(e) => setCrmServiceForm((f) => ({ ...f, price: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
-                  <input placeholder="30 min" value={crmServiceForm.duration} onChange={(e) => setCrmServiceForm((f) => ({ ...f, duration: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                  <input placeholder={t.name} value={crmServiceForm.name} onChange={(e) => setCrmServiceForm((f) => ({ ...f, name: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
+                  <input placeholder="€80" value={crmServiceForm.price} onChange={(e) => setCrmServiceForm((f) => ({ ...f, price: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
+                  <input placeholder="30 min" value={crmServiceForm.duration} onChange={(e) => setCrmServiceForm((f) => ({ ...f, duration: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
                 </div>
-                <button type="button" onClick={handleAddCrmService} style={{ background: "var(--color-accent, #1d4ed8)", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>
+                <button type="button" onClick={handleAddCrmService} style={{ background: "var(--color-accent, #1d4ed8)", color: "var(--color-on-accent, #ffffff)", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>
                   {t.save}
                 </button>
                 <button type="button" onClick={() => setCrmShowAddService(false)} style={{ background: "transparent", color: "#64748b", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", cursor: "pointer" }}>
@@ -2760,7 +2770,7 @@ export default function App() {
                     <>
                       <strong style={{ fontSize: "1rem", color: "#0f172a" }}>{item.name}</strong>
                       <span style={{ display: "block", marginTop: "0.35rem", color: "var(--color-accent, #1d4ed8)", fontWeight: 700 }}>{item.price}</span>
-                      <em style={{ display: "block", marginTop: "0.25rem", color: "#64748b", fontStyle: "normal", fontSize: "0.88rem" }}>{activeTab === "menu" ? translateMenuCategory(item.duration, language) : item.duration}</em>
+                      <em style={{ display: "block", marginTop: "0.25rem", color: "#64748b", fontStyle: "normal", fontSize: "1rem" }}>{activeTab === "menu" ? translateMenuCategory(item.duration, language) : item.duration}</em>
                       {item.id && (
                         <div style={{ marginTop: "0.75rem" }}>
                           <button type="button" style={crmActionBtnStyle} onClick={() => startEditService(item)}>{t.edit}</button>
@@ -2779,18 +2789,18 @@ export default function App() {
           <section className="panel domain-section">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <h3 style={{ margin: 0 }}>{getPageLabel(activeTab, language, effectiveBusinessType)}</h3>
-              <button type="button" onClick={() => setCrmShowAddStaff(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "#ffffff", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.12)" }}>
+              <button type="button" onClick={() => setCrmShowAddStaff(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "var(--color-on-accent, #ffffff)", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "1rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.12)" }}>
                 {t.addStaff}
               </button>
             </div>
             {crmShowAddStaff && (
               <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#f8fafc" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.5rem", marginBottom: "0.75rem" }}>
-                  <input placeholder={t.name} value={crmStaffForm.name} onChange={(e) => setCrmStaffForm((f) => ({ ...f, name: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
-                  <input placeholder={t.role} value={crmStaffForm.role} onChange={(e) => setCrmStaffForm((f) => ({ ...f, role: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
-                  <input placeholder={t.available} value={crmStaffForm.status} onChange={(e) => setCrmStaffForm((f) => ({ ...f, status: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                  <input placeholder={t.name} value={crmStaffForm.name} onChange={(e) => setCrmStaffForm((f) => ({ ...f, name: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
+                  <input placeholder={t.role} value={crmStaffForm.role} onChange={(e) => setCrmStaffForm((f) => ({ ...f, role: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
+                  <input placeholder={t.available} value={crmStaffForm.status} onChange={(e) => setCrmStaffForm((f) => ({ ...f, status: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
                 </div>
-                <button type="button" onClick={handleAddCrmStaff} style={{ background: "var(--color-accent, #1d4ed8)", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>
+                <button type="button" onClick={handleAddCrmStaff} style={{ background: "var(--color-accent, #1d4ed8)", color: "var(--color-on-accent, #ffffff)", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>
                   {t.save}
                 </button>
                 <button type="button" onClick={() => setCrmShowAddStaff(false)} style={{ background: "transparent", color: "#64748b", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", cursor: "pointer" }}>
@@ -2812,7 +2822,7 @@ export default function App() {
                   ) : (
                     <>
                       <strong style={{ fontSize: "1rem", color: "#0f172a" }}>{person.name}</strong>
-                      <span style={{ color: "#475569", fontSize: "0.92rem" }}>{person.role}</span>
+                      <span style={{ color: "#475569", fontSize: "1.05rem" }}>{person.role}</span>
                       <span style={{ ...statusBadgeBase, ...getStatusBadgeStyle(person.status), width: "fit-content" }}>{translateStaffStatus(person.status, language)}</span>
                       {person.id && (
                         <div style={{ marginTop: "0.75rem" }}>
@@ -2832,18 +2842,18 @@ export default function App() {
           <section className="panel domain-section">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <h3 style={{ margin: 0 }}>{getPageLabel(activeTab, language, effectiveBusinessType)}</h3>
-              <button type="button" onClick={() => setCrmShowAddPayment(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "#ffffff", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer" }}>
+              <button type="button" onClick={() => setCrmShowAddPayment(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "var(--color-on-accent, #ffffff)", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "1rem", cursor: "pointer" }}>
                 {t.addPayment}
               </button>
             </div>
             {crmShowAddPayment && (
               <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#f8fafc" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.5rem", marginBottom: "0.75rem" }}>
-                  <input placeholder={t.client} value={crmPaymentForm.client} onChange={(e) => setCrmPaymentForm((f) => ({ ...f, client: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
-                  <input placeholder={t.amount} value={crmPaymentForm.amount} onChange={(e) => setCrmPaymentForm((f) => ({ ...f, amount: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
-                  <input placeholder={t.linkedBooking} value={crmPaymentForm.bookingId} onChange={(e) => setCrmPaymentForm((f) => ({ ...f, bookingId: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                  <input placeholder={t.client} value={crmPaymentForm.client} onChange={(e) => setCrmPaymentForm((f) => ({ ...f, client: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
+                  <input placeholder={t.amount} value={crmPaymentForm.amount} onChange={(e) => setCrmPaymentForm((f) => ({ ...f, amount: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
+                  <input placeholder={t.linkedBooking} value={crmPaymentForm.bookingId} onChange={(e) => setCrmPaymentForm((f) => ({ ...f, bookingId: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
                 </div>
-                <button type="button" onClick={handleAddCrmPayment} style={{ background: "var(--color-accent, #1d4ed8)", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>{t.save}</button>
+                <button type="button" onClick={handleAddCrmPayment} style={{ background: "var(--color-accent, #1d4ed8)", color: "var(--color-on-accent, #ffffff)", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>{t.save}</button>
                 <button type="button" onClick={() => setCrmShowAddPayment(false)} style={{ background: "transparent", color: "#64748b", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", cursor: "pointer" }}>{t.cancel}</button>
               </div>
             )}
@@ -2883,18 +2893,18 @@ export default function App() {
           <section className="panel domain-section">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <h3 style={{ margin: 0 }}>{getPageLabel(activeTab, language, effectiveBusinessType)}</h3>
-              <button type="button" onClick={() => setCrmShowAddAsset(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "#ffffff", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer" }}>
+              <button type="button" onClick={() => setCrmShowAddAsset(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "var(--color-on-accent, #ffffff)", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "1rem", cursor: "pointer" }}>
                 {t.addAsset}
               </button>
             </div>
             {crmShowAddAsset && (
               <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#f8fafc" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.5rem", marginBottom: "0.75rem" }}>
-                  <input placeholder={t.name} value={crmAssetForm.name} onChange={(e) => setCrmAssetForm((f) => ({ ...f, name: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
-                  <input placeholder={t.status} value={crmAssetForm.status} onChange={(e) => setCrmAssetForm((f) => ({ ...f, status: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
-                  <input placeholder="ID / seats" value={crmAssetForm.seats} onChange={(e) => setCrmAssetForm((f) => ({ ...f, seats: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                  <input placeholder={t.name} value={crmAssetForm.name} onChange={(e) => setCrmAssetForm((f) => ({ ...f, name: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
+                  <input placeholder={t.status} value={crmAssetForm.status} onChange={(e) => setCrmAssetForm((f) => ({ ...f, status: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
+                  <input placeholder="ID / seats" value={crmAssetForm.seats} onChange={(e) => setCrmAssetForm((f) => ({ ...f, seats: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }} />
                 </div>
-                <button type="button" onClick={handleAddCrmAsset} style={{ background: "var(--color-accent, #1d4ed8)", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>{t.save}</button>
+                <button type="button" onClick={handleAddCrmAsset} style={{ background: "var(--color-accent, #1d4ed8)", color: "var(--color-on-accent, #ffffff)", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>{t.save}</button>
                 <button type="button" onClick={() => setCrmShowAddAsset(false)} style={{ background: "transparent", color: "#64748b", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", cursor: "pointer" }}>{t.cancel}</button>
               </div>
             )}

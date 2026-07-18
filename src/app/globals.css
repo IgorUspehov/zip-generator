@@ -44,6 +44,12 @@
 :root {
   --background: oklch(0.984 0.003 247.858);
   --foreground: oklch(0.129 0.042 264.695);
+  /* Shared contrast tokens: body text dark; text on brand/colored surfaces light */
+  --color-fg: #0f172a;
+  --color-fg-muted: #475569;
+  --color-on-brand: #ffffff;
+  --color-on-accent: #ffffff;
+  --color-on-surface: #0f172a;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
