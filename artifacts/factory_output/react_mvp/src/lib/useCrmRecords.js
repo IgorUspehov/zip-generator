@@ -11,6 +11,10 @@ function isUserRecord(record) {
   return String(record?.id || "").startsWith("rec-");
 }
 
+function isSeedRecord(record) {
+  return String(record?.id || "").startsWith("seed-");
+}
+
 function readStorage(key) {
   try {
     const raw = localStorage.getItem(key);
@@ -29,19 +33,19 @@ function writeStorage(key, records) {
 }
 
 /**
- * Demo CRM rows are seeded from localized scenario defaults.
- * When the UI language changes, defaults change — re-seed `seed-*` rows so
- * names/statuses follow EN/DE/RU, while keeping user-added `rec-*` rows.
+ * Demo CRM rows are seeded from localized scenario defaults only when allowSeed=true
+ * (unpaid demo). Paid CRM keeps only user `rec-*` rows — never scenario seeds.
  */
-export function useCrmRecords(clientId, section, defaultRecords = []) {
+export function useCrmRecords(clientId, section, defaultRecords = [], options = {}) {
+  const allowSeed = options.allowSeed !== false;
   const storageKey = clientId && section ? `mvp_crm:${clientId}:${section}` : null;
   const defaultsKey = useMemo(() => JSON.stringify(defaultRecords), [defaultRecords]);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const parsedDefaults = JSON.parse(defaultsKey);
-    const seeded = normalizeDefaults(parsedDefaults);
+    const parsedDefaults = allowSeed ? JSON.parse(defaultsKey) : [];
+    const seeded = allowSeed ? normalizeDefaults(parsedDefaults) : [];
 
     if (!storageKey) {
       setRecords(seeded);
@@ -52,7 +56,7 @@ export function useCrmRecords(clientId, section, defaultRecords = []) {
     const stored = readStorage(storageKey);
     if (stored !== null) {
       const userAdded = stored.filter(isUserRecord);
-      const next = [...seeded, ...userAdded];
+      const next = allowSeed ? [...seeded, ...userAdded] : userAdded;
       setRecords(next);
       writeStorage(storageKey, next);
       setLoading(false);
@@ -62,9 +66,11 @@ export function useCrmRecords(clientId, section, defaultRecords = []) {
     setRecords(seeded);
     if (seeded.length > 0) {
       writeStorage(storageKey, seeded);
+    } else if (!allowSeed) {
+      writeStorage(storageKey, []);
     }
     setLoading(false);
-  }, [storageKey, defaultsKey]);
+  }, [storageKey, defaultsKey, allowSeed]);
 
   const persist = useCallback(
     (next) => {
@@ -121,5 +127,36 @@ export function useCrmRecords(clientId, section, defaultRecords = []) {
     [storageKey],
   );
 
-  return { records, loading, addRecord, updateRecord, deleteRecord, reload: () => {}, persist };
+  return {
+    records,
+    loading,
+    addRecord,
+    updateRecord,
+    deleteRecord,
+    reload: () => {},
+    persist,
+    isSeedRecord,
+  };
 }
+
+/** Remove seed-* rows from all known CRM sections for a client (paid transition). */
+export function purgeSeedRecords(clientId, sections = []) {
+  if (!clientId) return;
+  for (const section of sections) {
+    const key = `mvp_crm:${clientId}:${section}`;
+    const stored = readStorage(key);
+    if (!stored) continue;
+    const userOnly = stored.filter(isUserRecord);
+    writeStorage(key, userOnly);
+  }
+}
+
+export const CRM_STORAGE_SECTIONS = [
+  "clients",
+  "appointments",
+  "services",
+  "staff",
+  "payments",
+  "assets",
+  "orders",
+];

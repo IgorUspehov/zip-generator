@@ -163,6 +163,11 @@
         "ru": "Тренеры",
         "de": "Trainer",
         "en": "Trainers"
+      },
+      "payments": {
+        "en": "Payments",
+        "de": "Zahlungen",
+        "ru": "Платежи"
       }
     },
     "panel_tagline": {
@@ -355,6 +360,11 @@
         "ru": "Терапевты",
         "de": "Therapeuten",
         "en": "Therapists"
+      },
+      "payments": {
+        "en": "Payments",
+        "de": "Zahlungen",
+        "ru": "Платежи"
       }
     },
     "panel_tagline": {
@@ -527,6 +537,11 @@
         "ru": "Занятия",
         "de": "Termine",
         "en": "Classes"
+      },
+      "payments": {
+        "en": "Payments",
+        "de": "Zahlungen",
+        "ru": "Платежи"
       }
     },
     "panel_tagline": {
@@ -738,6 +753,11 @@
         "ru": "Настройки",
         "de": "Einstellungen",
         "en": "Settings"
+      },
+      "payments": {
+        "en": "Payments",
+        "de": "Zahlungen",
+        "ru": "Платежи"
       }
     },
     "panel_tagline": {
@@ -983,6 +1003,16 @@
         "ru": "Настройки",
         "de": "Einstellungen",
         "en": "Settings"
+      },
+      "payments": {
+        "en": "Payments",
+        "de": "Zahlungen",
+        "ru": "Платежи"
+      },
+      "staff": {
+        "en": "Staff",
+        "de": "Mitarbeiter",
+        "ru": "Сотрудники"
       }
     },
     "panel_tagline": {
@@ -1032,6 +1062,16 @@
         "ru": "Настройки",
         "de": "Einstellungen",
         "en": "Settings"
+      },
+      "payments": {
+        "en": "Payments",
+        "de": "Zahlungen",
+        "ru": "Платежи"
+      },
+      "staff": {
+        "en": "Staff",
+        "de": "Mitarbeiter",
+        "ru": "Сотрудники"
       }
     },
     "panel_tagline": {
@@ -1081,6 +1121,11 @@
         "ru": "Настройки",
         "de": "Einstellungen",
         "en": "Settings"
+      },
+      "payments": {
+        "en": "Payments",
+        "de": "Zahlungen",
+        "ru": "Платежи"
       }
     },
     "panel_tagline": {
@@ -1125,6 +1170,11 @@
         "ru": "Настройки",
         "de": "Einstellungen",
         "en": "Settings"
+      },
+      "payments": {
+        "en": "Payments",
+        "de": "Zahlungen",
+        "ru": "Платежи"
       }
     },
     "panel_tagline": {

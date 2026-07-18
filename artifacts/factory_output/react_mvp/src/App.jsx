@@ -5,7 +5,18 @@ import nicheLabelsData from "./data/niche-labels.json";
 import nicheScenariosData from "./data/niche-scenarios.json";
 import nichePromotionsData from "./data/niche-promotions.json";
 import { getGalleryImagePaths, getHeroImagePath } from "./lib/image-library.js";
-import { useCrmRecords } from "./lib/useCrmRecords.js";
+import { useCrmRecords, purgeSeedRecords, CRM_STORAGE_SECTIONS } from "./lib/useCrmRecords.js";
+import {
+  NICHE_CRM_PAGES,
+  CLIENT_TABS,
+  BOOKING_TABS,
+  CATALOG_TABS,
+  STAFF_TABS,
+  ASSET_TABS,
+  PAYMENT_TABS,
+  paymentStatusLabel,
+  buildLiveDashboard,
+} from "./lib/crm-matrix.js";
 
 const DEFAULT_THEME = {
   primary: "#8a271e",
@@ -523,6 +534,7 @@ function getNicheLabelsKey(businessType) {
 }
 
 function getTodayItemName(item, language) {
+  if (typeof item === "string") return item;
   if (item?.name && typeof item.name === "object") {
     return pickLocalized(item.name, language) || "—";
   }
@@ -530,6 +542,7 @@ function getTodayItemName(item, language) {
 }
 
 function getTodayItemService(item, language) {
+  if (typeof item?.service === "string") return item.service;
   if (item?.service && typeof item.service === "object") {
     return pickLocalized(item.service, language) || "—";
   }
@@ -1099,13 +1112,25 @@ const PAGE_TAB_ICONS = {
 };
 
 const TAB_FALLBACK_LABELS = {
-  ru: {
-    clients: "Клиенты",
-    staff: "Персонал",
-    notifications: "Уведомления",
-    patients: "Пациенты",
-    doctors: "Врачи",
-    masters: "Мастера",
+  en: {
+    clients: "Clients",
+    staff: "Staff",
+    notifications: "Notifications",
+    patients: "Patients",
+    doctors: "Doctors",
+    masters: "Masters",
+    payments: "Payments",
+    invoices: "Invoices",
+    orders: "Orders",
+    properties: "Properties",
+    vehicles: "Vehicles",
+    tables: "Tables",
+    rooms: "Rooms",
+    routes: "Routes",
+    amount: "Amount",
+    addPayment: "Add Payment",
+    markPaid: "Mark paid",
+    linkedBooking: "Linked booking",
   },
   de: {
     clients: "Kunden",
@@ -1114,39 +1139,47 @@ const TAB_FALLBACK_LABELS = {
     patients: "Patienten",
     doctors: "Ärzte",
     masters: "Meister",
+    payments: "Zahlungen",
+    invoices: "Rechnungen",
+    orders: "Bestellungen",
+    properties: "Objekte",
+    vehicles: "Fahrzeuge",
+    tables: "Tische",
+    rooms: "Zimmer",
+    routes: "Routen",
+    amount: "Betrag",
+    addPayment: "Zahlung hinzufügen",
+    markPaid: "Als bezahlt markieren",
+    linkedBooking: "Verknüpfter Termin",
   },
-  en: {
-    clients: "Clients",
-    staff: "Staff",
-    notifications: "Notifications",
-    patients: "Patients",
-    doctors: "Doctors",
-    masters: "Masters",
+  ru: {
+    clients: "Клиенты",
+    staff: "Персонал",
+    notifications: "Уведомления",
+    patients: "Пациенты",
+    doctors: "Врачи",
+    masters: "Мастера",
+    payments: "Платежи",
+    invoices: "Счета",
+    orders: "Заказы",
+    properties: "Объекты",
+    vehicles: "Авто",
+    tables: "Столы",
+    rooms: "Номера",
+    routes: "Маршруты",
+    amount: "Сумма",
+    addPayment: "Добавить платёж",
+    markPaid: "Отметить оплаченным",
+    linkedBooking: "Связанная запись",
   },
 };
 
 const DEFAULT_PAGES_BY_NICHE = {
-  health_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments", "settings"],
-  dental_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments", "settings"],
-  beauty_salon: ["dashboard", "clients", "appointments", "services", "staff", "settings"],
-  fitness_club: ["dashboard", "clients", "appointments", "services", "staff", "settings"],
-  massage_salon: ["dashboard", "clients", "appointments", "services", "staff", "settings"],
-  restaurant: ["dashboard", "reservations", "tables", "menu", "staff", "settings"],
-  car_service: ["dashboard", "clients", "work_orders", "vehicles", "mechanics", "settings"],
-  hotel_booking: ["dashboard", "guests", "rooms", "reservations", "housekeeping", "settings"],
-  real_estate: ["dashboard", "properties", "agents", "clients", "viewings", "contracts", "settings"],
-  veterinary_clinic: ["dashboard", "pets", "owners", "appointments", "treatments", "vaccinations", "settings"],
-  school_management: ["dashboard", "students", "teachers", "classes", "attendance", "grades", "settings"],
-  course_platform: ["dashboard", "courses", "lessons", "students", "progress", "certificates", "settings"],
-  inventory_system: ["dashboard", "products", "warehouses", "suppliers", "stock", "orders", "settings"],
-  education: ["dashboard", "students", "courses", "teachers", "appointments", "settings"],
-  logistics: ["dashboard", "routes", "drivers", "deliveries", "vehicles", "settings"],
-  ecommerce: ["dashboard", "products", "orders", "clients", "payments", "settings"],
-  technology: ["dashboard", "products", "clients", "projects", "developers", "settings"],
-  law_firm: ["dashboard", "clients", "matters", "appointments", "services", "invoices", "settings"],
-  accounting: ["dashboard", "clients", "invoices", "appointments", "services", "reports", "settings"],
-  construction: ["dashboard", "clients", "projects", "appointments", "services", "staff", "settings"],
-  cleaning_service: ["dashboard", "clients", "appointments", "services", "staff", "settings"],
+  ...NICHE_CRM_PAGES,
+  veterinary_clinic: ["dashboard", "pets", "owners", "appointments", "treatments", "vaccinations", "payments", "settings"],
+  school_management: ["dashboard", "students", "teachers", "classes", "attendance", "grades", "payments", "settings"],
+  course_platform: ["dashboard", "courses", "lessons", "students", "progress", "certificates", "payments", "settings"],
+  inventory_system: ["dashboard", "products", "warehouses", "suppliers", "stock", "orders", "payments", "settings"],
 };
 
 const LANDING_DASHBOARD_NICHES = new Set([
@@ -1416,6 +1449,13 @@ export default function App() {
       return undefined;
     }
 
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("paid") === "1" || params.get("paid") === "true") {
+      setDemoPaid(true);
+      setDemoAccessReady(true);
+      return undefined;
+    }
+
     const manifestApiBase =
       import.meta.env.VITE_MANIFEST_API_BASE ||
       "https://saas-mvp-funnel-production.up.railway.app";
@@ -1578,13 +1618,19 @@ export default function App() {
   const clients = demoSource.clients || [];
   const appointments = demoSource.appointments || [];
   const services = demoSource.services || [];
+  const allowSeed = !demoPaid;
+
+  useEffect(() => {
+    if (!demoPaid || !crmStorageId) return;
+    purgeSeedRecords(crmStorageId, CRM_STORAGE_SECTIONS);
+  }, [demoPaid, crmStorageId]);
 
   const {
     records: crmClientRecords,
     addRecord: addCrmClient,
     updateRecord: updateCrmClient,
     deleteRecord: deleteCrmClient,
-  } = useCrmRecords(crmStorageId, "clients", clients);
+  } = useCrmRecords(crmStorageId, "clients", clients, { allowSeed });
   const [crmShowAddClient, setCrmShowAddClient] = useState(false);
   const [crmClientForm, setCrmClientForm] = useState({ name: "", note: "", phone: "" });
   const [editingClientId, setEditingClientId] = useState(null);
@@ -1629,20 +1675,102 @@ export default function App() {
     addRecord: addCrmAppointment,
     updateRecord: updateCrmAppointment,
     deleteRecord: deleteCrmAppointment,
-  } = useCrmRecords(crmStorageId, "appointments", appointments);
+  } = useCrmRecords(crmStorageId, "appointments", appointments, { allowSeed });
   const [crmShowAddAppointment, setCrmShowAddAppointment] = useState(false);
   const [crmAppointmentForm, setCrmAppointmentForm] = useState({ client: "", service: "", time: "", status: "Pending" });
   const [editingAppointmentId, setEditingAppointmentId] = useState(null);
   const [editAppointmentForm, setEditAppointmentForm] = useState({ client: "", service: "", time: "", status: "" });
   const displayAppointments = crmAppointmentRecords;
 
+  const {
+    records: crmPaymentRecords,
+    addRecord: addCrmPayment,
+    updateRecord: updateCrmPayment,
+    deleteRecord: deleteCrmPayment,
+  } = useCrmRecords(
+    crmStorageId,
+    "payments",
+    allowSeed
+      ? (getNicheScenario(effectiveBusinessType)?.records?.payments ||
+          getNicheScenario(effectiveBusinessType)?.records?.invoices ||
+          []
+        ).map((item) => ({
+          client: pickLocalized(item.client || item.name, language) || "—",
+          amount: pickLocalized(item.amount, language) || item.amount || "—",
+          status: String(pickLocalized(item.status, language) || item.status || "pending").toLowerCase().includes("paid")
+            || String(pickLocalized(item.status, language) || "").toLowerCase().includes("bezahlt")
+            || String(pickLocalized(item.status, language) || "").includes("Оплач")
+            ? "paid"
+            : "pending",
+          bookingId: item.bookingId || "",
+          source: "seed",
+        }))
+      : [],
+    { allowSeed },
+  );
+
+  const assetSeedSource = getNicheScenario(effectiveBusinessType)?.records || {};
+  const {
+    records: crmAssetRecords,
+    addRecord: addCrmAsset,
+    updateRecord: updateCrmAsset,
+    deleteRecord: deleteCrmAsset,
+  } = useCrmRecords(
+    crmStorageId,
+    "assets",
+    allowSeed
+      ? (
+          assetSeedSource.tables ||
+          assetSeedSource.rooms ||
+          assetSeedSource.vehicles ||
+          assetSeedSource.properties ||
+          assetSeedSource.routes ||
+          []
+        ).map((item) => ({
+          name: pickLocalized(item.name || item.model || item.title, language) || "—",
+          status: pickLocalized(item.status, language) || "free",
+          seats: item.seats || item.plate || "",
+          kind: assetSeedSource.tables
+            ? "tables"
+            : assetSeedSource.rooms
+              ? "rooms"
+              : assetSeedSource.vehicles
+                ? "vehicles"
+                : assetSeedSource.properties
+                  ? "properties"
+                  : "routes",
+        }))
+      : [],
+    { allowSeed },
+  );
+
+  function createPendingPayment({ client, amount, bookingId, source }) {
+    if (!client) return null;
+    return addCrmPayment({
+      client: String(client).trim(),
+      amount: amount || "—",
+      status: "pending",
+      bookingId: bookingId || "",
+      source: source || "booking",
+    });
+  }
+
   function handleAddCrmAppointment() {
     if (!crmAppointmentForm.client.trim() || !crmAppointmentForm.time.trim()) return;
-    addCrmAppointment({
+    const booking = addCrmAppointment({
       client: crmAppointmentForm.client.trim(),
       service: crmAppointmentForm.service.trim() || "—",
       time: crmAppointmentForm.time.trim(),
       status: crmAppointmentForm.status.trim() || "Pending",
+    });
+    const matchedService = displayServices.find(
+      (s) => String(s.name || "").toLowerCase() === String(crmAppointmentForm.service || "").toLowerCase(),
+    );
+    createPendingPayment({
+      client: booking.client,
+      amount: matchedService?.price || "—",
+      bookingId: booking.id,
+      source: "booking",
     });
     setCrmAppointmentForm({ client: "", service: "", time: "", status: "Pending" });
     setCrmShowAddAppointment(false);
@@ -1674,7 +1802,7 @@ export default function App() {
     addRecord: addCrmService,
     updateRecord: updateCrmService,
     deleteRecord: deleteCrmService,
-  } = useCrmRecords(crmStorageId, "services", services);
+  } = useCrmRecords(crmStorageId, "services", services, { allowSeed });
   const [crmShowAddService, setCrmShowAddService] = useState(false);
   const [crmServiceForm, setCrmServiceForm] = useState({ name: "", price: "", duration: "" });
   const [editingServiceId, setEditingServiceId] = useState(null);
@@ -1715,9 +1843,13 @@ export default function App() {
   const {
     records: crmStaffRecords,
     addRecord: addCrmStaff,
-  } = useCrmRecords(crmStorageId, "staff", staff);
+    updateRecord: updateCrmStaff,
+    deleteRecord: deleteCrmStaff,
+  } = useCrmRecords(crmStorageId, "staff", staff, { allowSeed });
   const [crmShowAddStaff, setCrmShowAddStaff] = useState(false);
   const [crmStaffForm, setCrmStaffForm] = useState({ name: "", role: "", status: "" });
+  const [editingStaffId, setEditingStaffId] = useState(null);
+  const [editStaffForm, setEditStaffForm] = useState({ name: "", role: "", status: "" });
   const displayStaff = crmStaffRecords;
 
   function handleAddCrmStaff() {
@@ -1730,6 +1862,56 @@ export default function App() {
     setCrmStaffForm({ name: "", role: "", status: "" });
     setCrmShowAddStaff(false);
   }
+
+  function startEditStaff(item) {
+    setEditingStaffId(item.id);
+    setEditStaffForm({
+      name: item.name || "",
+      role: item.role || "",
+      status: item.status || "",
+    });
+  }
+
+  function saveEditStaff() {
+    if (!editingStaffId || !editStaffForm.name.trim()) return;
+    updateCrmStaff(editingStaffId, {
+      name: editStaffForm.name.trim(),
+      role: editStaffForm.role.trim(),
+      status: editStaffForm.status.trim() || "available",
+    });
+    setEditingStaffId(null);
+  }
+
+  const [crmShowAddPayment, setCrmShowAddPayment] = useState(false);
+  const [crmPaymentForm, setCrmPaymentForm] = useState({ client: "", amount: "", bookingId: "" });
+
+  function handleAddCrmPayment() {
+    if (!crmPaymentForm.client.trim()) return;
+    createPendingPayment({
+      client: crmPaymentForm.client.trim(),
+      amount: crmPaymentForm.amount.trim() || "—",
+      bookingId: crmPaymentForm.bookingId.trim(),
+      source: crmPaymentForm.bookingId.trim() ? "booking" : "manual",
+    });
+    setCrmPaymentForm({ client: "", amount: "", bookingId: "" });
+    setCrmShowAddPayment(false);
+  }
+
+  const [crmShowAddAsset, setCrmShowAddAsset] = useState(false);
+  const [crmAssetForm, setCrmAssetForm] = useState({ name: "", status: "", seats: "" });
+
+  function handleAddCrmAsset() {
+    if (!crmAssetForm.name.trim()) return;
+    addCrmAsset({
+      name: crmAssetForm.name.trim(),
+      status: crmAssetForm.status.trim() || "free",
+      seats: crmAssetForm.seats.trim(),
+      kind: activeTab,
+    });
+    setCrmAssetForm({ name: "", status: "", seats: "" });
+    setCrmShowAddAsset(false);
+  }
+
   const notifications = demoSource.notifications || [];
   const sectorLabel = getSectorLabel(effectiveBusinessType, language, sectorId);
   const heroPhotoSrc = heroPhoto ?? getHeroImagePath(effectiveBusinessType);
@@ -1754,17 +1936,35 @@ export default function App() {
   }, [scenario, effectiveBusinessType]);
   const fallbackPromotion = useMemo(() => pickRandomPromotion(effectiveBusinessType), [effectiveBusinessType]);
   const activePromotion = promotion ?? fallbackPromotion;
-  const metricLabels = nicheScenario?.metrics?.[language] ?? [];
-  const metricValues = nicheScenario?.metric_values ?? [];
-  const todayItems = nicheScenario?.today_items ?? [];
-  const popularServices = nicheScenario?.popular_services?.[language] ?? [];
-  const promotionText = getPromotionText(activePromotion, language);
+  const liveDashboard = buildLiveDashboard(
+    language,
+    {
+      clients: displayClients.length,
+      bookings: displayAppointments.length,
+      catalog: displayServices.length,
+      staff: displayStaff.length,
+    },
+    getCounterLabels(effectiveBusinessType, language),
+  );
+  const metricLabels = liveDashboard.metricLabels;
+  const metricValues = liveDashboard.metricValues;
+  const todayItems = demoPaid
+    ? displayAppointments.slice(0, 6).map((item) => ({
+        name: item.client,
+        service: item.service,
+        time: item.time,
+      }))
+    : nicheScenario?.today_items ?? [];
+  const popularServices = demoPaid
+    ? displayServices.slice(0, 6).map((item) => item.name)
+    : nicheScenario?.popular_services?.[language] ?? [];
+  const promotionText = demoPaid ? "" : getPromotionText(activePromotion, language);
   const businessIcon = NICHE_ICONS[effectiveBusinessType] ?? theme.icon;
 
   const i18n = {
-    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", addService: "Add Service", addStaff: "Add Staff", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", phone: "Phone", mvpReadyTitle: "Your CRM Demo is ready", mvpReadySubtitle: "Save the link — this is your working CRM Demo", copyLink: "Copy link", openMvpTab: "Open CRM Demo in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", settingsSubtitle: "Basic settings for your CRM.", settingsBusiness: "Company name", settingsOwner: "Owner", settingsNiche: "Niche", settingsCity: "City", settingsWhatsapp: "WhatsApp", settingsPostal: "Postal code", settingsAddress: "Address", deleteConfirm: "Delete this record?", paywallText: "Demo version. Pay €99 to remove limits and keep your site.", paywallCta: "Pay €99" },
-    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", addService: "Leistung hinzufügen", addStaff: "Mitarbeiter hinzufügen", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", phone: "Telefon", mvpReadyTitle: "Ihre CRM Demo ist bereit", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihre CRM Demo", copyLink: "Link kopieren", openMvpTab: "CRM Demo in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", settingsSubtitle: "Grundeinstellungen für Ihr CRM.", settingsBusiness: "Firmenname", settingsOwner: "Inhaber", settingsNiche: "Branche", settingsCity: "Stadt", settingsWhatsapp: "WhatsApp", settingsPostal: "Postleitzahl", settingsAddress: "Adresse", deleteConfirm: "Diesen Eintrag löschen?", paywallText: "Demo-Version. Zahlen Sie €99, um die Einschränkung zu entfernen und die Website zu behalten.", paywallCta: "€99 bezahlen" },
-    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", addService: "Добавить услугу", addStaff: "Добавить сотрудника", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", phone: "Телефон", mvpReadyTitle: "Ваша CRM Demo готова", mvpReadySubtitle: "Сохраните ссылку — это ваша рабочая CRM Demo", copyLink: "Копировать ссылку", openMvpTab: "Открыть CRM Demo в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", settingsSubtitle: "Базовые настройки вашей CRM.", settingsBusiness: "Название компании", settingsOwner: "Владелец", settingsNiche: "Ниша", settingsCity: "Город", settingsWhatsapp: "WhatsApp", settingsPostal: "Индекс", settingsAddress: "Адрес", deleteConfirm: "Удалить эту запись?", paywallText: "Демо-версия. Оплатите €99, чтобы убрать ограничение и сохранить сайт.", paywallCta: "Оплатить €99" },
+    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", addService: "Add Service", addStaff: "Add Staff", addPayment: "Add Payment", addAsset: "Add Item", markPaid: "Mark paid", amount: "Amount", linkedBooking: "Linked booking", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", paid: "Paid", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", phone: "Phone", mvpReadyTitle: "Your CRM Demo is ready", mvpReadySubtitle: "Save the link — this is your working CRM Demo", copyLink: "Copy link", openMvpTab: "Open CRM Demo in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", settingsSubtitle: "Basic settings for your CRM.", settingsBusiness: "Company name", settingsOwner: "Owner", settingsNiche: "Niche", settingsCity: "City", settingsWhatsapp: "WhatsApp", settingsPostal: "Postal code", settingsAddress: "Address", deleteConfirm: "Delete this record?", paywallText: "Demo version. Pay €99 to remove limits and keep your site.", paywallCta: "Pay €99" },
+    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", addService: "Leistung hinzufügen", addStaff: "Mitarbeiter hinzufügen", addPayment: "Zahlung hinzufügen", addAsset: "Eintrag hinzufügen", markPaid: "Als bezahlt markieren", amount: "Betrag", linkedBooking: "Verknüpfter Termin", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", paid: "Bezahlt", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", phone: "Telefon", mvpReadyTitle: "Ihre CRM Demo ist bereit", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihre CRM Demo", copyLink: "Link kopieren", openMvpTab: "CRM Demo in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", settingsSubtitle: "Grundeinstellungen für Ihr CRM.", settingsBusiness: "Firmenname", settingsOwner: "Inhaber", settingsNiche: "Branche", settingsCity: "Stadt", settingsWhatsapp: "WhatsApp", settingsPostal: "Postleitzahl", settingsAddress: "Adresse", deleteConfirm: "Diesen Eintrag löschen?", paywallText: "Demo-Version. Zahlen Sie €99, um die Einschränkung zu entfernen und die Website zu behalten.", paywallCta: "€99 bezahlen" },
+    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", addService: "Добавить услугу", addStaff: "Добавить сотрудника", addPayment: "Добавить платёж", addAsset: "Добавить объект", markPaid: "Отметить оплаченным", amount: "Сумма", linkedBooking: "Связанная запись", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", paid: "Оплачено", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", phone: "Телефон", mvpReadyTitle: "Ваша CRM Demo готова", mvpReadySubtitle: "Сохраните ссылку — это ваша рабочая CRM Demo", copyLink: "Копировать ссылку", openMvpTab: "Открыть CRM Demo в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", settingsSubtitle: "Базовые настройки вашей CRM.", settingsBusiness: "Название компании", settingsOwner: "Владелец", settingsNiche: "Ниша", settingsCity: "Город", settingsWhatsapp: "WhatsApp", settingsPostal: "Индекс", settingsAddress: "Адрес", deleteConfirm: "Удалить эту запись?", paywallText: "Демо-версия. Оплатите €99, чтобы убрать ограничение и сохранить сайт.", paywallCta: "Оплатить €99" },
   };
   const sectionLabels = uiSections ?? {};
   const baseT = i18n[language] || i18n.en;
@@ -1821,36 +2021,33 @@ export default function App() {
   const useCrmDashboardLayout = isCrmDashboardNiche(effectiveBusinessType);
   const showDashboardHeroGallery = showsDashboardHeroGallery(effectiveBusinessType);
 
-  const appointmentTabs = new Set(["appointments", "reservations", "viewings", "work_orders"]);
-  const clientTabs = new Set(["clients", "patients", "members", "guests", "students", "customers", "owners"]);
-  const serviceTabs = new Set(["services", "menu", "classes", "courses", "subscriptions", "products"]);
-  const staffTabs = new Set([
-    "staff",
-    "doctors",
-    "masters",
-    "therapists",
-    "agents",
-    "mechanics",
-    "developers",
-    "teachers",
-    "drivers",
-  ]);
+  const appointmentTabs = BOOKING_TABS;
+  const clientTabs = CLIENT_TABS;
+  const serviceTabs = CATALOG_TABS;
+  const staffTabs = STAFF_TABS;
+  const paymentTabs = PAYMENT_TABS;
+  const assetTabs = ASSET_TABS;
 
-  const genericPageRecords = getPageRecords(
-    {
-      ...(demoData ?? {}),
-      records: {
-        ...(demoData?.records ?? {}),
-        ...(getNicheScenario(effectiveBusinessType)?.records ?? {}),
-      },
-    },
-    activeTab,
+  const genericPageRecords = (!demoPaid
+    ? getPageRecords(
+        {
+          ...(demoData ?? {}),
+          records: {
+            ...(demoData?.records ?? {}),
+            ...(getNicheScenario(effectiveBusinessType)?.records ?? {}),
+          },
+        },
+        activeTab,
+      )
+    : []
   ).map((item) => localizeRecord(item, language));
   const showGenericRecords =
+    !demoPaid &&
     genericPageRecords.length > 0 &&
     activeTab !== "dashboard" &&
     activeTab !== "settings" &&
-    activeTab !== "tables" &&
+    !assetTabs.has(activeTab) &&
+    !paymentTabs.has(activeTab) &&
     !appointmentTabs.has(activeTab) &&
     !clientTabs.has(activeTab) &&
     !serviceTabs.has(activeTab) &&
@@ -2604,42 +2801,126 @@ export default function App() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem" }}>
               {displayStaff.map((person) => (
                 <article key={person.id || person.name} style={staffCardStyle}>
-                  <strong style={{ fontSize: "1rem", color: "#0f172a" }}>{person.name}</strong>
-                  <span style={{ color: "#475569", fontSize: "0.92rem" }}>{person.role}</span>
-                  <span style={{ ...statusBadgeBase, ...getStatusBadgeStyle(person.status), width: "fit-content" }}>{person.status}</span>
+                  {editingStaffId === person.id ? (
+                    <>
+                      <input value={editStaffForm.name} onChange={(e) => setEditStaffForm((f) => ({ ...f, name: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.4rem", marginBottom: "0.35rem" }} />
+                      <input value={editStaffForm.role} onChange={(e) => setEditStaffForm((f) => ({ ...f, role: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.4rem", marginBottom: "0.35rem" }} />
+                      <input value={editStaffForm.status} onChange={(e) => setEditStaffForm((f) => ({ ...f, status: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.4rem", marginBottom: "0.5rem" }} />
+                      <button type="button" style={crmActionBtnStyle} onClick={saveEditStaff}>{t.save}</button>
+                      <button type="button" style={crmActionBtnStyle} onClick={() => setEditingStaffId(null)}>{t.cancel}</button>
+                    </>
+                  ) : (
+                    <>
+                      <strong style={{ fontSize: "1rem", color: "#0f172a" }}>{person.name}</strong>
+                      <span style={{ color: "#475569", fontSize: "0.92rem" }}>{person.role}</span>
+                      <span style={{ ...statusBadgeBase, ...getStatusBadgeStyle(person.status), width: "fit-content" }}>{translateStaffStatus(person.status, language)}</span>
+                      {person.id && (
+                        <div style={{ marginTop: "0.75rem" }}>
+                          <button type="button" style={crmActionBtnStyle} onClick={() => startEditStaff(person)}>{t.edit}</button>
+                          <button type="button" style={crmDangerBtnStyle} onClick={() => { if (window.confirm(t.deleteConfirm)) deleteCrmStaff(person.id); }}>{t.delete}</button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </article>
               ))}
             </div>
           </section>
         )}
 
-        {activeTab === "tables" && (
+        {paymentTabs.has(activeTab) && (
           <section className="panel domain-section">
-            <h3>{t.tables}</h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
+              <h3 style={{ margin: 0 }}>{getPageLabel(activeTab, language, effectiveBusinessType)}</h3>
+              <button type="button" onClick={() => setCrmShowAddPayment(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "#ffffff", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer" }}>
+                {t.addPayment}
+              </button>
+            </div>
+            {crmShowAddPayment && (
+              <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#f8fafc" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                  <input placeholder={t.client} value={crmPaymentForm.client} onChange={(e) => setCrmPaymentForm((f) => ({ ...f, client: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                  <input placeholder={t.amount} value={crmPaymentForm.amount} onChange={(e) => setCrmPaymentForm((f) => ({ ...f, amount: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                  <input placeholder={t.linkedBooking} value={crmPaymentForm.bookingId} onChange={(e) => setCrmPaymentForm((f) => ({ ...f, bookingId: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                </div>
+                <button type="button" onClick={handleAddCrmPayment} style={{ background: "var(--color-accent, #1d4ed8)", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>{t.save}</button>
+                <button type="button" onClick={() => setCrmShowAddPayment(false)} style={{ background: "transparent", color: "#64748b", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", cursor: "pointer" }}>{t.cancel}</button>
+              </div>
+            )}
             <div style={{ overflowX: "auto" }}>
               <table style={tableStyle}>
                 <thead>
                   <tr>
-                    {tableRows[0]
-                      ? Object.keys(tableRows[0]).map((key) => (
-                          <th key={key} style={thStyle}>{translateTableColumnHeader(key, language).toUpperCase()}</th>
-                        ))
-                      : (
-                        <>
-                          <th style={thStyle}>{t.name.toUpperCase()}</th>
-                          <th style={thStyle}>{tableHeaders.status.toUpperCase()}</th>
-                        </>
-                      )}
+                    <th style={thStyle}>{t.client}</th>
+                    <th style={thStyle}>{t.amount}</th>
+                    <th style={thStyle}>{t.status}</th>
+                    <th style={thStyle}>{t.linkedBooking}</th>
+                    <th style={thStyle}>{t.actions}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {tableRows.map((item, index) => (
-                    <tr key={item.id || index}>
-                      {Object.entries(item).map(([key, value]) => (
-                        <td key={key} style={tdStyle}>{String(translateTableCellValue(key, value, language))}</td>
-                      ))}
+                  {crmPaymentRecords.map((item) => (
+                    <tr key={item.id}>
+                      <td style={tdStyle}>{item.client}</td>
+                      <td style={tdStyle}>{item.amount}</td>
+                      <td style={tdStyle}>{paymentStatusLabel(item.status, language)}</td>
+                      <td style={tdStyle}>{item.bookingId || "—"}</td>
+                      <td style={tdStyle}>
+                        {String(item.status).toLowerCase() !== "paid" && (
+                          <button type="button" style={crmActionBtnStyle} onClick={() => updateCrmPayment(item.id, { status: "paid" })}>{t.markPaid}</button>
+                        )}
+                        <button type="button" style={crmDangerBtnStyle} onClick={() => { if (window.confirm(t.deleteConfirm)) deleteCrmPayment(item.id); }}>{t.delete}</button>
+                      </td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {assetTabs.has(activeTab) && (
+          <section className="panel domain-section">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
+              <h3 style={{ margin: 0 }}>{getPageLabel(activeTab, language, effectiveBusinessType)}</h3>
+              <button type="button" onClick={() => setCrmShowAddAsset(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "#ffffff", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer" }}>
+                {t.addAsset}
+              </button>
+            </div>
+            {crmShowAddAsset && (
+              <div style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#f8fafc" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                  <input placeholder={t.name} value={crmAssetForm.name} onChange={(e) => setCrmAssetForm((f) => ({ ...f, name: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                  <input placeholder={t.status} value={crmAssetForm.status} onChange={(e) => setCrmAssetForm((f) => ({ ...f, status: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                  <input placeholder="ID / seats" value={crmAssetForm.seats} onChange={(e) => setCrmAssetForm((f) => ({ ...f, seats: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                </div>
+                <button type="button" onClick={handleAddCrmAsset} style={{ background: "var(--color-accent, #1d4ed8)", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>{t.save}</button>
+                <button type="button" onClick={() => setCrmShowAddAsset(false)} style={{ background: "transparent", color: "#64748b", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", cursor: "pointer" }}>{t.cancel}</button>
+              </div>
+            )}
+            <div style={{ overflowX: "auto" }}>
+              <table style={tableStyle}>
+                <thead>
+                  <tr>
+                    <th style={thStyle}>{t.name}</th>
+                    <th style={thStyle}>{t.status}</th>
+                    <th style={thStyle}>Info</th>
+                    <th style={thStyle}>{t.actions}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {crmAssetRecords
+                    .filter((item) => !item.kind || item.kind === activeTab)
+                    .map((item) => (
+                      <tr key={item.id}>
+                        <td style={tdStyle}>{item.name}</td>
+                        <td style={tdStyle}>{item.status}</td>
+                        <td style={tdStyle}>{item.seats || "—"}</td>
+                        <td style={tdStyle}>
+                          <button type="button" style={crmDangerBtnStyle} onClick={() => { if (window.confirm(t.deleteConfirm)) deleteCrmAsset(item.id); }}>{t.delete}</button>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
