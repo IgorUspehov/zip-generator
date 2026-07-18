@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-07-18T23:31:04.000Z",
+  "base": "http://127.0.0.1:3010",
+  "note": "i18n-60 education/en flaked once then PASS on rerun (60/60)",
+  "passed": 3,
+  "failed": 0,
+  "rows": [
+    { "id": "tariffs", "status": "PASS", "exit": 0 },
+    { "id": "paid-20", "status": "PASS", "exit": 0 },
+    { "id": "i18n-60", "status": "PASS", "exit": 0 }
+  ],
+  "deploy": {
+    "id": "5314169d-e67b-4124-b863-2c95e6a70b85",
+    "url": "https://saas-mvp-funnel-production.up.railway.app",
+    "tariffs": 200,
+    "health": 200
+  }
+}
