@@ -141,10 +141,13 @@ const DENTAL_SERVICE_NAMES = {
 
 const DENTAL_NICHES = new Set(["dental_clinic", "health_clinic"]);
 
+/** Pick a localized string for the active UI language only — never fall back to another language. */
 function pickLocalized(value, language) {
   if (value != null && typeof value === "object" && !Array.isArray(value)) {
     if ("ru" in value || "de" in value || "en" in value) {
-      return value[language] ?? value.ru ?? value.de ?? value.en ?? "";
+      const lang = language || "en";
+      const hit = value[lang];
+      return typeof hit === "string" ? hit : hit == null ? "" : String(hit);
     }
   }
   return value ?? "";
@@ -192,7 +195,7 @@ function translateStatus(status, lang) {
     },
   };
 
-  const t = labels[lang] || labels.ru;
+  const t = labels[lang] || labels.en;
 
   if (
     value.includes("confirm") ||
@@ -245,16 +248,16 @@ function translateServiceName(name, businessType, lang) {
 
   if (DENTAL_NICHES.has(businessType)) {
     for (const [key, translations] of Object.entries(DENTAL_SERVICE_NAMES)) {
-      if (value.includes(key)) {
-        return translations[lang] || translations.en;
+      if (value.includes(key) && translations[lang]) {
+        return translations[lang];
       }
     }
   }
 
   for (const map of Object.values(NICHE_SERVICE_TRANSLATIONS)) {
     for (const [key, translations] of Object.entries(map)) {
-      if (value.includes(key)) {
-        return translations[lang] || translations.en;
+      if (value.includes(key) && translations[lang]) {
+        return translations[lang];
       }
     }
   }
@@ -270,7 +273,7 @@ function translateServiceName(name, businessType, lang) {
 }
 
 function getTableHeaders(lang) {
-  return TABLE_HEADERS[lang] || TABLE_HEADERS.ru;
+  return TABLE_HEADERS[lang] || TABLE_HEADERS.en;
 }
 
 const RESTAURANT_TABLE_COLUMNS = {
@@ -351,8 +354,8 @@ function lookupTranslation(map, value, lang) {
     return map[normalized][lang];
   }
   for (const [key, translations] of Object.entries(map)) {
-    if (normalized.includes(key)) {
-      return translations[lang] || translations.en;
+    if (normalized.includes(key) && translations[lang]) {
+      return translations[lang];
     }
   }
   return null;
@@ -410,9 +413,11 @@ function translateTableCellValue(key, value, lang) {
   return localized;
 }
 
-function normalizeDemoData(data, language = "ru") {
+function normalizeDemoData(data, language = "en") {
   if (!data || typeof data !== "object") return null;
   const records = data.records || {};
+  const pendingFallback = { en: "Pending", de: "Ausstehend", ru: "Ожидает" };
+  const availableFallback = { en: "Available", de: "Verfügbar", ru: "Доступен" };
 
   return {
     clients: (data.clients || records.clients || records.patients || records.members || records.guests || records.students || records.customers || []).map((item) => ({
@@ -424,17 +429,25 @@ function normalizeDemoData(data, language = "ru") {
       client: pickLocalized(item.client || item.name, language) || "—",
       service: pickLocalized(item.service || item.property || item.title, language) || "—",
       time: item.time || item.date || "—",
-      status: pickLocalized(item.status, language) || "Pending",
+      status: pickLocalized(item.status, language) || pendingFallback[language] || pendingFallback.en,
     })),
-    services: (data.services || records.classes || records.courses || records.subscriptions || records.products || records.properties || records.services || []).map((item) => ({
-      name: pickLocalized(item.name || item.title, language) || "—",
-      price: item.price || item.value || "—",
-      duration: pickLocalized(item.duration, language) || "",
-    })),
+    services: (data.services || records.menu || records.products || records.subscriptions || records.classes || records.courses || records.properties || records.services || []).map((item) => {
+      const rawPrice = item.price ?? item.value;
+      const price =
+        rawPrice != null && typeof rawPrice === "object"
+          ? pickLocalized(rawPrice, language) || "—"
+          : rawPrice || "—";
+      return {
+        name: pickLocalized(item.name || item.title, language) || "—",
+        price,
+        duration: pickLocalized(item.duration || item.category, language) || "",
+        status: pickLocalized(item.status, language) || "",
+      };
+    }),
     staff: (data.staff || records.staff || records.masters || records.doctors || records.therapists || records.trainers || records.mechanics || records.developers || records.teachers || records.drivers || records.agents || []).map((item) => ({
       name: pickLocalized(item.name, language) || "—",
       role: pickLocalized(item.role || item.interest, language) || "—",
-      status: pickLocalized(item.status, language) || "Available",
+      status: pickLocalized(item.status, language) || availableFallback[language] || availableFallback.en,
     })),
     notifications: Array.isArray(data.notifications) ? data.notifications : [],
   };
@@ -511,14 +524,14 @@ function getNicheLabelsKey(businessType) {
 
 function getTodayItemName(item, language) {
   if (item?.name && typeof item.name === "object") {
-    return item.name[language] ?? item.name.en ?? item.name.ru ?? "—";
+    return pickLocalized(item.name, language) || "—";
   }
   return item?.name ?? "—";
 }
 
 function getTodayItemService(item, language) {
   if (item?.service && typeof item.service === "object") {
-    return item.service[language] ?? item.service.en ?? item.service.ru ?? "—";
+    return pickLocalized(item.service, language) || "—";
   }
   return item?.service ?? "—";
 }
@@ -757,7 +770,7 @@ function getPromotionText(promotion, language) {
   if (!promotion) {
     return "";
   }
-  return promotion[language] ?? promotion.en ?? promotion.ru ?? "";
+  return pickLocalized(promotion, language) || "";
 }
 
 const DASHBOARD_SECTION_LABELS = {
@@ -1014,7 +1027,7 @@ function getSectorLabel(businessType, language, sectorId = null) {
   const lang = language || "en";
   if (sectorId && WIZARD_SECTOR_LABELS[sectorId]) {
     const bySector = WIZARD_SECTOR_LABELS[sectorId];
-    return bySector[lang] || bySector.en || bySector.de || bySector.ru || "";
+    return bySector[lang] || "";
   }
   const key = normalizeBusinessType(businessType) || businessType;
   if (!key) {
@@ -1022,7 +1035,7 @@ function getSectorLabel(businessType, language, sectorId = null) {
   }
   const labels = NICHE_SECTOR_LABELS[key];
   if (labels) {
-    return labels[lang] || labels.en || labels.de || labels.ru || formatPageLabel(key);
+    return labels[lang] || "";
   }
   return formatPageLabel(key);
 }
@@ -1150,11 +1163,7 @@ function showsDashboardHeroGallery(_businessType) {
 function getPageLabel(pageId, language, businessType, sectionLabels = {}) {
   const normalized = String(pageId || "").toLowerCase();
   const tabs = getNicheLabelsConfig(businessType).tabs ?? {};
-  const nicheLabel =
-    tabs[normalized]?.[language] ??
-    tabs[normalized]?.ru ??
-    tabs[normalized]?.de ??
-    tabs[normalized]?.en;
+  const nicheLabel = tabs[normalized]?.[language];
   if (nicheLabel) {
     return nicheLabel;
   }
@@ -1163,7 +1172,6 @@ function getPageLabel(pageId, language, businessType, sectionLabels = {}) {
   }
   return (
     TAB_FALLBACK_LABELS[language]?.[normalized] ??
-    TAB_FALLBACK_LABELS.ru?.[normalized] ??
     formatPageLabel(normalized)
   );
 }
@@ -1173,12 +1181,20 @@ function translateFeatureLabel(feature, language, businessType) {
   return getPageLabel(key, language, businessType);
 }
 
+const DEFAULT_COUNTER_LABELS = {
+  en: ["Clients", "Appointments", "Services", "Staff"],
+  de: ["Kunden", "Termine", "Leistungen", "Mitarbeiter"],
+  ru: ["Клиентов", "Записей", "Услуг", "Сотрудников"],
+};
+
 function getCounterLabels(businessType, language) {
+  const lang = language || "en";
+  const nicheKey = getNicheLabelsKey(businessType) || businessType;
   return (
-    COUNTER_LABELS_I18N[businessType]?.[language] ??
-    COUNTER_LABELS_I18N[businessType]?.ru ??
-    COUNTER_LABELS[businessType] ??
-  ["Клиентов", "Записей", "Услуг", "Сотрудников"]
+    COUNTER_LABELS_I18N[businessType]?.[lang] ??
+    COUNTER_LABELS_I18N[nicheKey]?.[lang] ??
+    DEFAULT_COUNTER_LABELS[lang] ??
+    DEFAULT_COUNTER_LABELS.en
   );
 }
 
@@ -1513,7 +1529,9 @@ export default function App() {
   const demoSource = useMemo(() => {
     const staticFallback = manifestLoaded ? null : demo;
     const base = normalizeDemoData(demoData, language) || staticFallback;
-    const scenarioRecords = scenario?.records ?? getNicheScenario(effectiveBusinessType)?.records;
+    // Always prefer local multilingual niche-scenarios over manifest/OpenAI blobs.
+    const localScenario = getNicheScenario(effectiveBusinessType);
+    const scenarioRecords = localScenario?.records ?? null;
     if (!scenarioRecords) {
       return base;
     }
@@ -1540,14 +1558,15 @@ export default function App() {
         demoData?.staff,
       services:
         mergedRecords.services ??
-        mergedRecords.classes ??
-        mergedRecords.courses ??
+        mergedRecords.menu ??
         mergedRecords.products ??
         mergedRecords.subscriptions ??
+        mergedRecords.classes ??
+        mergedRecords.courses ??
         demoData?.services,
       appointments: mergedRecords.appointments ?? mergedRecords.work_orders ?? demoData?.appointments,
     }, language) || base;
-  }, [demoData, demo, scenario, effectiveBusinessType, language, manifestLoaded]);
+  }, [demoData, demo, effectiveBusinessType, language, manifestLoaded]);
   const clients = demoSource.clients || [];
   const appointments = demoSource.appointments || [];
   const services = demoSource.services || [];
@@ -1712,36 +1731,35 @@ export default function App() {
     [effectiveBusinessType],
   );
   const displayPanelTitle = sectorLabel;
-  const displayPanelTagline =
-    subtitle ||
-    nicheLabelsConfig.panel_tagline?.[language] ||
-    nicheLabelsConfig.panel_tagline?.en ||
-    "";
+  // Prefer niche i18n tagline for the active language only (no foreign subtitle leftover).
+  const displayPanelTagline = nicheLabelsConfig.panel_tagline?.[language] || "";
+  // Always use local multilingual niche-scenarios — never OpenAI/manifest one-language blobs.
   const nicheScenario = useMemo(() => {
+    const local = getNicheScenario(effectiveBusinessType);
+    if (isPopulatedScenario(local)) {
+      return local;
+    }
     if (isPopulatedScenario(scenario)) {
       return scenario;
     }
-    return getNicheScenario(effectiveBusinessType);
+    return local;
   }, [scenario, effectiveBusinessType]);
   const fallbackPromotion = useMemo(() => pickRandomPromotion(effectiveBusinessType), [effectiveBusinessType]);
   const activePromotion = promotion ?? fallbackPromotion;
-  const metricLabels = nicheScenario?.metrics?.[language] ?? nicheScenario?.metrics?.ru ?? [];
+  const metricLabels = nicheScenario?.metrics?.[language] ?? [];
   const metricValues = nicheScenario?.metric_values ?? [];
   const todayItems = nicheScenario?.today_items ?? [];
-  const popularServices =
-    nicheScenario?.popular_services?.[language] ??
-    nicheScenario?.popular_services?.ru ??
-    [];
+  const popularServices = nicheScenario?.popular_services?.[language] ?? [];
   const promotionText = getPromotionText(activePromotion, language);
   const businessIcon = NICHE_ICONS[effectiveBusinessType] ?? theme.icon;
 
   const i18n = {
-    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", mvpReadyTitle: "Your CRM Demo is ready", mvpReadySubtitle: "Save the link — this is your working CRM Demo", copyLink: "Copy link", openMvpTab: "Open CRM Demo in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", settingsSubtitle: "Basic settings for your CRM.", settingsNiche: "Niche", settingsCity: "City", settingsWhatsapp: "WhatsApp", settingsPostal: "Postal code", settingsAddress: "Address", deleteConfirm: "Delete this record?", paywallText: "Demo version. Pay €99 to remove limits and keep your site.", paywallCta: "Pay €99" },
-    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", mvpReadyTitle: "Ihre CRM Demo ist bereit", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihre CRM Demo", copyLink: "Link kopieren", openMvpTab: "CRM Demo in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", settingsSubtitle: "Grundeinstellungen für Ihr CRM.", settingsNiche: "Branche", settingsCity: "Stadt", settingsWhatsapp: "WhatsApp", settingsPostal: "Postleitzahl", settingsAddress: "Adresse", deleteConfirm: "Diesen Eintrag löschen?", paywallText: "Demo-Version. Zahlen Sie €99, um die Einschränkung zu entfernen und die Website zu behalten.", paywallCta: "€99 bezahlen" },
-    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", mvpReadyTitle: "Ваша CRM Demo готова", mvpReadySubtitle: "Сохраните ссылку — это ваша рабочая CRM Demo", copyLink: "Копировать ссылку", openMvpTab: "Открыть CRM Demo в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", settingsSubtitle: "Базовые настройки вашей CRM.", settingsNiche: "Ниша", settingsCity: "Город", settingsWhatsapp: "WhatsApp", settingsPostal: "Индекс", settingsAddress: "Адрес", deleteConfirm: "Удалить эту запись?", paywallText: "Демо-версия. Оплатите €99, чтобы убрать ограничение и сохранить сайт.", paywallCta: "Оплатить €99" },
+    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", addService: "Add Service", addStaff: "Add Staff", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", phone: "Phone", mvpReadyTitle: "Your CRM Demo is ready", mvpReadySubtitle: "Save the link — this is your working CRM Demo", copyLink: "Copy link", openMvpTab: "Open CRM Demo in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", settingsSubtitle: "Basic settings for your CRM.", settingsNiche: "Niche", settingsCity: "City", settingsWhatsapp: "WhatsApp", settingsPostal: "Postal code", settingsAddress: "Address", deleteConfirm: "Delete this record?", paywallText: "Demo version. Pay €99 to remove limits and keep your site.", paywallCta: "Pay €99" },
+    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", addService: "Leistung hinzufügen", addStaff: "Mitarbeiter hinzufügen", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", phone: "Telefon", mvpReadyTitle: "Ihre CRM Demo ist bereit", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihre CRM Demo", copyLink: "Link kopieren", openMvpTab: "CRM Demo in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", settingsSubtitle: "Grundeinstellungen für Ihr CRM.", settingsNiche: "Branche", settingsCity: "Stadt", settingsWhatsapp: "WhatsApp", settingsPostal: "Postleitzahl", settingsAddress: "Adresse", deleteConfirm: "Diesen Eintrag löschen?", paywallText: "Demo-Version. Zahlen Sie €99, um die Einschränkung zu entfernen und die Website zu behalten.", paywallCta: "€99 bezahlen" },
+    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", addService: "Добавить услугу", addStaff: "Добавить сотрудника", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", phone: "Телефон", mvpReadyTitle: "Ваша CRM Demo готова", mvpReadySubtitle: "Сохраните ссылку — это ваша рабочая CRM Demo", copyLink: "Копировать ссылку", openMvpTab: "Открыть CRM Demo в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", settingsSubtitle: "Базовые настройки вашей CRM.", settingsNiche: "Ниша", settingsCity: "Город", settingsWhatsapp: "WhatsApp", settingsPostal: "Индекс", settingsAddress: "Адрес", deleteConfirm: "Удалить эту запись?", paywallText: "Демо-версия. Оплатите €99, чтобы убрать ограничение и сохранить сайт.", paywallCta: "Оплатить €99" },
   };
   const sectionLabels = uiSections ?? {};
-  const baseT = i18n[language] || i18n.ru;
+  const baseT = i18n[language] || i18n.en;
   const t = {
     ...baseT,
     dashboard: getPageLabel("dashboard", language, effectiveBusinessType, sectionLabels),
@@ -1815,7 +1833,7 @@ export default function App() {
       ...(demoData ?? {}),
       records: {
         ...(demoData?.records ?? {}),
-        ...(scenario?.records ?? getNicheScenario(effectiveBusinessType)?.records ?? {}),
+        ...(getNicheScenario(effectiveBusinessType)?.records ?? {}),
       },
     },
     activeTab,
@@ -1913,7 +1931,16 @@ export default function App() {
     color: "#475569",
   };
 
-  const tableRows = getPageRecords(demoData, "tables").map((item) => localizeRecord(item, language));
+  const tableRows = getPageRecords(
+    {
+      ...(demoData ?? {}),
+      records: {
+        ...(demoData?.records ?? {}),
+        ...(getNicheScenario(effectiveBusinessType)?.records ?? {}),
+      },
+    },
+    "tables",
+  ).map((item) => localizeRecord(item, language));
 
   const tableHeaders = getTableHeaders(language);
 
@@ -2420,7 +2447,7 @@ export default function App() {
                     style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }}
                   />
                   <input
-                    placeholder={language === "de" ? "Telefon" : language === "en" ? "Phone" : "Телефон"}
+                    placeholder={t.phone}
                     value={crmClientForm.phone}
                     onChange={(e) => setCrmClientForm((f) => ({ ...f, phone: e.target.value }))}
                     style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }}
@@ -2495,7 +2522,7 @@ export default function App() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <h3 style={{ margin: 0 }}>{getPageLabel(activeTab, language, effectiveBusinessType)}</h3>
               <button type="button" onClick={() => setCrmShowAddService(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "#ffffff", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.12)" }}>
-                {language === "de" ? "Leistung hinzufügen" : language === "en" ? "Add Service" : "Добавить услугу"}
+                {t.addService}
               </button>
             </div>
             {crmShowAddService && (
@@ -2548,7 +2575,7 @@ export default function App() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <h3 style={{ margin: 0 }}>{getPageLabel(activeTab, language, effectiveBusinessType)}</h3>
               <button type="button" onClick={() => setCrmShowAddStaff(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "#ffffff", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.12)" }}>
-                {language === "de" ? "Mitarbeiter hinzufügen" : language === "en" ? "Add Staff" : "Добавить сотрудника"}
+                {t.addStaff}
               </button>
             </div>
             {crmShowAddStaff && (
@@ -2556,13 +2583,13 @@ export default function App() {
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "0.5rem", marginBottom: "0.75rem" }}>
                   <input placeholder={t.name} value={crmStaffForm.name} onChange={(e) => setCrmStaffForm((f) => ({ ...f, name: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
                   <input placeholder={t.role} value={crmStaffForm.role} onChange={(e) => setCrmStaffForm((f) => ({ ...f, role: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
-                  <input placeholder={language === "de" ? "Verfügbar" : language === "en" ? "Available" : "Доступен"} value={crmStaffForm.status} onChange={(e) => setCrmStaffForm((f) => ({ ...f, status: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
+                  <input placeholder={t.available} value={crmStaffForm.status} onChange={(e) => setCrmStaffForm((f) => ({ ...f, status: e.target.value }))} style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "0.88rem" }} />
                 </div>
                 <button type="button" onClick={handleAddCrmStaff} style={{ background: "var(--color-accent, #1d4ed8)", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 600, cursor: "pointer", marginRight: "0.5rem" }}>
-                  {language === "de" ? "Speichern" : language === "en" ? "Save" : "Сохранить"}
+                  {t.save}
                 </button>
                 <button type="button" onClick={() => setCrmShowAddStaff(false)} style={{ background: "transparent", color: "#64748b", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", cursor: "pointer" }}>
-                  {language === "de" ? "Abbrechen" : language === "en" ? "Cancel" : "Отмена"}
+                  {t.cancel}
                 </button>
               </div>
             )}
