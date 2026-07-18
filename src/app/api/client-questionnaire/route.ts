@@ -121,8 +121,8 @@ const BUSINESS_TYPE_TO_NICHE: Record<string, string> = {
 };
 
 const BUSINESS_TYPE_DEFAULT_PAGES: Record<string, string[]> = {
-  health_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments"],
-  dental_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments"],
+  health_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments", "settings"],
+  dental_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments", "settings"],
   beauty_salon: ["dashboard", "clients", "appointments", "services", "staff", "settings"],
   fitness_club: ["dashboard", "clients", "appointments", "services", "staff", "settings"],
   massage_salon: ["dashboard", "clients", "appointments", "services", "staff", "settings"],
@@ -255,6 +255,7 @@ function normalizePayload(body: Record<string, unknown>) {
   const payload = {
     business_name: String(body.business_name ?? "").trim(),
     business_type: resolveBusinessType(body),
+    sector_id: String(body.sector_id ?? "").trim().toLowerCase(),
     email: String(body.email ?? "").trim(),
     phone: String(body.phone ?? "").trim(),
     telegram: String(body.telegram ?? "").trim(),
@@ -371,6 +372,8 @@ function buildMvpManifest(payload: Record<string, unknown>) {
     businessName: String(payload.business_name ?? "MVP Business"),
     niche: BUSINESS_TYPE_TO_NICHE[businessType] ?? "beauty",
     businessType,
+    sectorId: String(payload.sector_id ?? "").trim().toLowerCase() || null,
+    sector_id: String(payload.sector_id ?? "").trim().toLowerCase() || null,
     language: String(payload.language ?? "ru"),
     primaryColor: theme.accent,
     theme,
@@ -409,6 +412,12 @@ function normalizeManifestForTemplate(
     businessName: String(manifest.businessName ?? fallback.businessName),
     niche: BUSINESS_TYPE_TO_NICHE[businessType] ?? String(manifest.niche ?? fallback.niche),
     businessType,
+    sectorId:
+      String(payload.sector_id ?? manifest.sectorId ?? manifest.sector_id ?? "").trim().toLowerCase() ||
+      null,
+    sector_id:
+      String(payload.sector_id ?? manifest.sector_id ?? manifest.sectorId ?? "").trim().toLowerCase() ||
+      null,
     language: String(manifest.language ?? payload.language ?? fallback.language),
     primaryColor: theme.accent,
     theme,
@@ -534,6 +543,11 @@ ${demoData}
     manifest.businessType = businessTypeKey;
     delete manifest.demoData;
     manifest.niche = BUSINESS_TYPE_TO_NICHE[businessTypeKey] ?? "beauty";
+    const sectorId = String(payload.sector_id ?? "").trim().toLowerCase();
+    if (sectorId) {
+      manifest.sectorId = sectorId;
+      manifest.sector_id = sectorId;
+    }
     if (!manifest.city) {
       manifest.city = String(payload.city ?? "").trim() || "München";
     }
@@ -580,6 +594,7 @@ export async function POST(request: Request) {
     console.log("[client-questionnaire] payload normalized:", {
       business_name: payload.business_name,
       business_type: payload.business_type,
+      sector_id: payload.sector_id,
       email: payload.email,
     });
 

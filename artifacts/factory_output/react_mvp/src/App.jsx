@@ -574,6 +574,11 @@ function normalizeManifestConfig(raw) {
   const businessType = normalizeBusinessType(
     payload.businessType ?? payload.business_type ?? payload.niche,
   );
+  const sectorIdRaw = payload.sectorId ?? payload.sector_id ?? null;
+  const sectorId =
+    typeof sectorIdRaw === "string" && sectorIdRaw.trim()
+      ? sectorIdRaw.trim().toLowerCase()
+      : null;
   const themeSource =
     payload.theme && typeof payload.theme === "object" ? payload.theme : {};
   const theme = {
@@ -586,6 +591,7 @@ function normalizeManifestConfig(raw) {
   return {
     businessName: payload.businessName ?? payload.business_name ?? null,
     businessType,
+    sectorId,
     phone: payload.phone ?? null,
     email: payload.email ?? null,
     whatsapp: payload.whatsapp ?? null,
@@ -638,6 +644,10 @@ function applyManifestPatch(config, handlers) {
     if (!normalized.labels) {
       handlers.setUiLabels({});
     }
+  }
+  if (normalized.sectorId && handlers.setSectorId) {
+    handlers.setSectorId(normalized.sectorId);
+    applied = true;
   }
   if (normalized.phone) {
     handlers.setPhone(normalized.phone);
@@ -940,30 +950,76 @@ const NICHE_SECTOR_LABELS = {
   restaurant: { ru: "Ресторан", de: "Restaurant", en: "Restaurant" },
   restaurant_crm: { ru: "Ресторан", de: "Restaurant", en: "Restaurant" },
   beauty_salon: { ru: "Салон красоты", de: "Beauty-Salon", en: "Beauty Salon" },
-  fitness_club: { ru: "Фитнес-клуб", de: "Fitnessclub", en: "Fitness Club" },
-  fitness: { ru: "Фитнес-клуб", de: "Fitnessclub", en: "Fitness Club" },
-  massage_salon: { ru: "Массажный салон", de: "Massagesalon", en: "Massage Salon" },
-  massage_salon_crm: { ru: "Массажный салон", de: "Massagesalon", en: "Massage Salon" },
-  car_service: { ru: "Автосервис", de: "Autowerkstatt", en: "Car Service" },
-  car_service_crm: { ru: "Автосервис", de: "Autowerkstatt", en: "Car Service" },
-  health_clinic: { ru: "Клиника", de: "Klinik", en: "Health Clinic" },
-  dental_clinic: { ru: "Стоматология", de: "Zahnarztpraxis", en: "Dental Clinic" },
+  barbershop: { ru: "Барбершоп", de: "Barbershop", en: "Barbershop" },
+  fitness_club: { ru: "Фитнес-клуб", de: "Fitnessstudio", en: "Fitness Club" },
+  fitness: { ru: "Фитнес-клуб", de: "Fitnessstudio", en: "Fitness Club" },
+  massage_salon: { ru: "Массажный салон", de: "Massagestudio", en: "Massage Studio" },
+  massage_salon_crm: { ru: "Массажный салон", de: "Massagestudio", en: "Massage Studio" },
+  car_service: { ru: "Автосервис", de: "Autowerkstatt", en: "Auto Repair" },
+  car_service_crm: { ru: "Автосервис", de: "Autowerkstatt", en: "Auto Repair" },
+  health_clinic: { ru: "Медицинская клиника", de: "Medizinische Klinik", en: "Medical Clinic" },
+  dental_clinic: { ru: "Стоматология", de: "Zahnarztpraxis", en: "Dentistry" },
   hotel_booking: { ru: "Отель", de: "Hotel", en: "Hotel" },
-  education: { ru: "Образование", de: "Bildung", en: "Education" },
-  logistics: { ru: "Логистика", de: "Logistik", en: "Logistics" },
-  logistics_crm: { ru: "Логистика", de: "Logistik", en: "Logistics" },
-  delivery: { ru: "Доставка", de: "Lieferung", en: "Delivery" },
-  ecommerce: { ru: "E-commerce", de: "E-Commerce", en: "E-commerce" },
-  ecommerce_crm: { ru: "E-commerce", de: "E-Commerce", en: "E-commerce" },
-  technology: { ru: "IT", de: "Technologie", en: "Technology" },
-  real_estate: { ru: "Недвижимость", de: "Immobilien", en: "Real Estate" },
-  real_estate_crm: { ru: "Недвижимость", de: "Immobilien", en: "Real Estate" },
+  education: { ru: "Образовательный центр", de: "Bildungszentrum", en: "Education Center" },
+  logistics: { ru: "Логистика и транспорт", de: "Logistik & Transport", en: "Logistics & Transport" },
+  logistics_crm: { ru: "Логистика и транспорт", de: "Logistik & Transport", en: "Logistics & Transport" },
+  delivery: { ru: "Логистика и транспорт", de: "Logistik & Transport", en: "Logistics & Transport" },
+  ecommerce: { ru: "Интернет-магазин", de: "Online-Shop", en: "Online Store" },
+  ecommerce_crm: { ru: "Интернет-магазин", de: "Online-Shop", en: "Online Store" },
+  technology: { ru: "IT и технологии", de: "IT & Technologie", en: "IT & Technology" },
+  real_estate: { ru: "Агентство недвижимости", de: "Immobilienagentur", en: "Real Estate Agency" },
+  real_estate_crm: { ru: "Агентство недвижимости", de: "Immobilienagentur", en: "Real Estate Agency" },
   law_firm: { ru: "Юридическая фирма", de: "Anwaltskanzlei", en: "Law Firm" },
-  accounting: { ru: "Бухгалтерские услуги", de: "Buchhaltung", en: "Accounting" },
+  accounting: { ru: "Бухгалтерские услуги", de: "Buchhaltungsservice", en: "Accounting Services" },
   construction: { ru: "Строительство", de: "Bauunternehmen", en: "Construction" },
   cleaning_service: { ru: "Клининг", de: "Reinigungsservice", en: "Cleaning Service" },
   veterinary_clinic: { ru: "Ветеринарная клиника", de: "Tierklinik", en: "Veterinary Clinic" },
 };
+
+/** Wizard sector id → localized Branche (matches client-wizard copy.sectors). */
+const WIZARD_SECTOR_LABELS = {
+  beauty: { ru: "Салон красоты", de: "Beauty-Salon", en: "Beauty Salon" },
+  barbershop: { ru: "Барбершоп", de: "Barbershop", en: "Barbershop" },
+  massage: { ru: "Массажный салон", de: "Massagestudio", en: "Massage Studio" },
+  fitness: { ru: "Фитнес-клуб", de: "Fitnessstudio", en: "Fitness Club" },
+  yoga: { ru: "Йога-студия", de: "Yoga-Studio", en: "Yoga Studio" },
+  dental: { ru: "Стоматология", de: "Zahnarztpraxis", en: "Dentistry" },
+  health: { ru: "Медицинская клиника", de: "Medizinische Klinik", en: "Medical Clinic" },
+  food: { ru: "Ресторан", de: "Restaurant", en: "Restaurant" },
+  cafe: { ru: "Кафе", de: "Café", en: "Café" },
+  hotel: { ru: "Отель", de: "Hotel", en: "Hotel" },
+  car_service: { ru: "Автосервис", de: "Autowerkstatt", en: "Auto Repair" },
+  tire_service: { ru: "Шиномонтаж", de: "Reifendienst", en: "Tire Service" },
+  car_wash: { ru: "Автомойка", de: "Autowäsche", en: "Car Wash" },
+  realestate: { ru: "Агентство недвижимости", de: "Immobilienagentur", en: "Real Estate Agency" },
+  law_firm: { ru: "Юридическая фирма", de: "Anwaltskanzlei", en: "Law Firm" },
+  accounting: { ru: "Бухгалтерские услуги", de: "Buchhaltungsservice", en: "Accounting Services" },
+  education: { ru: "Образовательный центр", de: "Bildungszentrum", en: "Education Center" },
+  logistics: { ru: "Логистика и транспорт", de: "Logistik & Transport", en: "Logistics & Transport" },
+  shop: { ru: "Интернет-магазин", de: "Online-Shop", en: "Online Store" },
+  tech: { ru: "IT и технологии", de: "IT & Technologie", en: "IT & Technology" },
+};
+
+/**
+ * Canonical Branche/Niche for Settings, sidebar, footer.
+ * Prefer wizard sector_id when present (yoga/cafe/etc.), else businessType.
+ */
+function getSectorLabel(businessType, language, sectorId = null) {
+  const lang = language || "en";
+  if (sectorId && WIZARD_SECTOR_LABELS[sectorId]) {
+    const bySector = WIZARD_SECTOR_LABELS[sectorId];
+    return bySector[lang] || bySector.en || bySector.de || bySector.ru || "";
+  }
+  const key = normalizeBusinessType(businessType) || businessType;
+  if (!key) {
+    return "";
+  }
+  const labels = NICHE_SECTOR_LABELS[key];
+  if (labels) {
+    return labels[lang] || labels.en || labels.de || labels.ru || formatPageLabel(key);
+  }
+  return formatPageLabel(key);
+}
 
 const PAGE_ALIASES = {
   patients: "clients",
@@ -1046,8 +1102,8 @@ const TAB_FALLBACK_LABELS = {
 };
 
 const DEFAULT_PAGES_BY_NICHE = {
-  health_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments"],
-  dental_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments"],
+  health_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments", "settings"],
+  dental_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments", "settings"],
   beauty_salon: ["dashboard", "clients", "appointments", "services", "staff", "settings"],
   fitness_club: ["dashboard", "clients", "appointments", "services", "staff", "settings"],
   massage_salon: ["dashboard", "clients", "appointments", "services", "staff", "settings"],
@@ -1167,33 +1223,34 @@ function writeCompanySettings(clientId, settings) {
   }
 }
 
-function applyStoredCompanySettings(stored, handlers) {
+function applyStoredCompanySettings(stored, handlers, options = {}) {
   if (!stored) {
     return;
   }
   if (typeof stored.businessName === "string") {
     handlers.setBusinessName(stored.businessName);
   }
-  if (typeof stored.nicheLabel === "string") {
-    handlers.setNicheLabel(stored.nicheLabel);
-  }
-  if (typeof stored.phone === "string") {
-    handlers.setPhone(stored.phone);
-  }
-  if (typeof stored.email === "string") {
-    handlers.setEmail(stored.email);
-  }
-  if (typeof stored.whatsapp === "string") {
-    handlers.setWhatsapp(stored.whatsapp);
-  }
-  if (typeof stored.postalCode === "string") {
-    handlers.setPostalCode(stored.postalCode);
-  }
-  if (typeof stored.address === "string") {
-    handlers.setAddress(stored.address);
-  }
-  if (typeof stored.city === "string") {
-    handlers.setCity(stored.city);
+  // Never restore nicheLabel from localStorage — Branche/Niche always follows
+  // manifest businessType via getSectorLabel (avoids sticky "Beauty Salon").
+  if (!options.skipContactFields) {
+    if (typeof stored.phone === "string") {
+      handlers.setPhone(stored.phone);
+    }
+    if (typeof stored.email === "string") {
+      handlers.setEmail(stored.email);
+    }
+    if (typeof stored.whatsapp === "string") {
+      handlers.setWhatsapp(stored.whatsapp);
+    }
+    if (typeof stored.postalCode === "string") {
+      handlers.setPostalCode(stored.postalCode);
+    }
+    if (typeof stored.address === "string") {
+      handlers.setAddress(stored.address);
+    }
+    if (typeof stored.city === "string") {
+      handlers.setCity(stored.city);
+    }
   }
 }
 
@@ -1211,6 +1268,7 @@ export default function App() {
   const [businessType, setBusinessType] = useState(
     bootClientId ? null : (clientData.business_type || domainUi?.business_type || DEFAULT_BUSINESS_TYPE),
   );
+  const [sectorId, setSectorId] = useState(null);
   const [phone, setPhone] = useState(clientData.phone || "");
   const [email, setEmail] = useState(clientData.email || "");
   const [whatsapp, setWhatsapp] = useState("");
@@ -1253,6 +1311,7 @@ export default function App() {
     const applied = applyManifestPatch(config, {
       setBusinessName,
       setBusinessType,
+      setSectorId,
       setPhone,
       setEmail,
       setWhatsapp,
@@ -1274,27 +1333,16 @@ export default function App() {
     });
     if (applied) {
       const normalized = normalizeManifestConfig(config);
-      if (normalized?.businessType) {
+      if (normalized?.businessType || normalized?.sectorId) {
         const lang = normalized.language || "ru";
-        const seedNiche =
-          NICHE_SECTOR_LABELS[normalized.businessType]?.[lang] ||
-          NICHE_SECTOR_LABELS[normalized.businessType]?.en ||
-          formatPageLabel(normalized.businessType);
-        // Always prefer niche seed from manifest over a premature Beauty Salon fallback.
-        setNicheLabel((prev) => {
-          const beautyFallback =
-            NICHE_SECTOR_LABELS.beauty_salon?.[lang] ||
-            NICHE_SECTOR_LABELS.beauty_salon?.en ||
-            "Beauty Salon";
-          if (!prev || prev === beautyFallback) {
-            return seedNiche;
-          }
-          return prev;
-        });
+        // Always set Branche from the demo's sector/businessType — never keep a prior niche.
+        setNicheLabel(
+          getSectorLabel(normalized.businessType, lang, normalized.sectorId),
+        );
       }
+      // Contact fields from localStorage may refine empty gaps, but never niche/Branche.
       applyStoredCompanySettings(readCompanySettings(crmStorageId), {
         setBusinessName,
-        setNicheLabel,
         setPhone,
         setEmail,
         setWhatsapp,
@@ -1302,6 +1350,14 @@ export default function App() {
         setAddress,
         setCity,
       });
+      // Manifest contact fields win over stale localStorage when present.
+      if (normalized?.phone) setPhone(normalized.phone);
+      if (normalized?.email) setEmail(normalized.email);
+      if (normalized?.whatsapp) setWhatsapp(normalized.whatsapp);
+      if (normalized?.postalCode) setPostalCode(normalized.postalCode);
+      if (normalized?.address) setAddress(normalized.address);
+      if (normalized?.city) setCity(normalized.city);
+      if (normalized?.businessName) setBusinessName(normalized.businessName);
       setManifestLoaded(true);
       setManifestPending(false);
       setManifestError(null);
@@ -1636,8 +1692,7 @@ export default function App() {
     setCrmShowAddStaff(false);
   }
   const notifications = demoSource.notifications || [];
-  const sectorLabel =
-    NICHE_SECTOR_LABELS[effectiveBusinessType]?.[language] ?? formatPageLabel(effectiveBusinessType || DEFAULT_BUSINESS_TYPE);
+  const sectorLabel = getSectorLabel(effectiveBusinessType, language, sectorId);
   const heroPhotoSrc = heroPhoto ?? getHeroImagePath(effectiveBusinessType);
   const galleryPhotoList = galleryPhotos ?? getGalleryImagePaths(effectiveBusinessType);
   const nicheLabelsConfig = useMemo(
@@ -1701,11 +1756,22 @@ export default function App() {
   }, [businessName, language, displayPanelTitle, manifestPending, manifestLoaded]);
 
   const effectivePages = useMemo(() => {
+    let resolved;
     if (Array.isArray(pages) && pages.length > 0) {
-      return pages;
+      resolved = [...pages];
+    } else {
+      const nicheKey = getNicheLabelsKey(effectiveBusinessType);
+      resolved = [
+        ...(DEFAULT_PAGES_BY_NICHE[nicheKey] ??
+          DEFAULT_PAGES_BY_NICHE[effectiveBusinessType] ??
+          DEFAULT_GENERIC_PAGES),
+      ];
     }
-    const nicheKey = getNicheLabelsKey(effectiveBusinessType);
-    return DEFAULT_PAGES_BY_NICHE[nicheKey] ?? DEFAULT_PAGES_BY_NICHE[effectiveBusinessType] ?? DEFAULT_GENERIC_PAGES;
+    // Settings must always be available so Branche/Niche reflects the client niche.
+    if (!resolved.includes("settings")) {
+      resolved.push("settings");
+    }
+    return resolved;
   }, [pages, effectiveBusinessType]);
 
   const navItems = effectivePages.map((pageId) => ({
@@ -1772,7 +1838,6 @@ export default function App() {
   const persistCompanySettings = (patch) => {
     const next = {
       businessName,
-      nicheLabel,
       phone,
       email,
       whatsapp,
@@ -1780,9 +1845,10 @@ export default function App() {
       address,
       city,
       ...patch,
+      // Always persist canonical sector label — never a free-text / stale Beauty Salon.
+      nicheLabel: sectorLabel,
     };
     if (patch.businessName !== undefined) setBusinessName(patch.businessName);
-    if (patch.nicheLabel !== undefined) setNicheLabel(patch.nicheLabel);
     if (patch.phone !== undefined) setPhone(patch.phone);
     if (patch.email !== undefined) setEmail(patch.email);
     if (patch.whatsapp !== undefined) setWhatsapp(patch.whatsapp);
@@ -1792,19 +1858,16 @@ export default function App() {
     writeCompanySettings(crmStorageId, next);
   };
 
+  // Keep Settings Branche/Niche in sync with businessType + sector + UI language.
   useEffect(() => {
-    if (nicheLabel) {
+    if (!effectiveBusinessType && !sectorId) {
       return;
     }
-    if (!sectorLabel) {
-      return;
+    const next = getSectorLabel(effectiveBusinessType, language, sectorId);
+    if (next && next !== nicheLabel) {
+      setNicheLabel(next);
     }
-    // Do not seed from DEFAULT beauty_salon while the client manifest is still loading.
-    if (manifestPending && !manifestLoaded) {
-      return;
-    }
-    setNicheLabel(sectorLabel);
-  }, [nicheLabel, sectorLabel, manifestPending, manifestLoaded]);
+  }, [effectiveBusinessType, sectorId, language, nicheLabel]);
 
   const settingsFieldStyle = {
     display: "flex",
@@ -2540,9 +2603,10 @@ export default function App() {
               <label style={settingsFieldStyle}>
                 <span style={settingsLabelStyle}>{t.settingsNiche}</span>
                 <input
-                  style={settingsInputStyle}
-                  value={nicheLabel}
-                  onChange={(e) => persistCompanySettings({ nicheLabel: e.target.value })}
+                  style={{ ...settingsInputStyle, opacity: 0.85, cursor: "default" }}
+                  value={sectorLabel || nicheLabel}
+                  readOnly
+                  aria-readonly="true"
                 />
               </label>
               <label style={settingsFieldStyle}>
