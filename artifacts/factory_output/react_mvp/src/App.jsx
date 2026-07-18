@@ -856,6 +856,31 @@ const COUNTER_LABELS_I18N = {
     de: ["Kunden", "Objekte", "Besichtigungen", "Makler"],
     en: ["Clients", "Properties", "Viewings", "Agents"],
   },
+  law_firm: {
+    ru: ["Клиентов", "Встреч", "Дел", "Юристов"],
+    de: ["Mandanten", "Termine", "Mandate", "Anwälte"],
+    en: ["Clients", "Meetings", "Matters", "Lawyers"],
+  },
+  accounting: {
+    ru: ["Клиентов", "Встреч", "Счетов", "Бухгалтеров"],
+    de: ["Mandanten", "Termine", "Rechnungen", "Buchhalter"],
+    en: ["Clients", "Meetings", "Invoices", "Accountants"],
+  },
+  construction: {
+    ru: ["Клиентов", "Выездов", "Проектов", "Бригад"],
+    de: ["Kunden", "Termine", "Projekte", "Teams"],
+    en: ["Clients", "Site visits", "Projects", "Crews"],
+  },
+  cleaning_service: {
+    ru: ["Клиентов", "Уборок", "Объектов", "Сотрудников"],
+    de: ["Kunden", "Einsätze", "Objekte", "Mitarbeiter"],
+    en: ["Clients", "Jobs", "Locations", "Staff"],
+  },
+  veterinary_clinic: {
+    ru: ["Питомцев", "Приёмов", "Владельцев", "Врачей"],
+    de: ["Haustiere", "Termine", "Besitzer", "Tierärzte"],
+    en: ["Pets", "Appointments", "Owners", "Vets"],
+  },
 };
 
 const COUNTER_LABELS = {
@@ -904,6 +929,11 @@ const NICHE_ICONS = {
   technology: "💻",
   real_estate: "/image-library/real_estate/logo.png",
   real_estate_crm: "/image-library/real_estate/logo.png",
+  law_firm: "⚖️",
+  accounting: "📊",
+  construction: "🏗️",
+  cleaning_service: "🧹",
+  veterinary_clinic: "🐾",
 };
 
 const NICHE_SECTOR_LABELS = {
@@ -928,6 +958,11 @@ const NICHE_SECTOR_LABELS = {
   technology: { ru: "IT", de: "Technologie", en: "Technology" },
   real_estate: { ru: "Недвижимость", de: "Immobilien", en: "Real Estate" },
   real_estate_crm: { ru: "Недвижимость", de: "Immobilien", en: "Real Estate" },
+  law_firm: { ru: "Юридическая фирма", de: "Anwaltskanzlei", en: "Law Firm" },
+  accounting: { ru: "Бухгалтерские услуги", de: "Buchhaltung", en: "Accounting" },
+  construction: { ru: "Строительство", de: "Bauunternehmen", en: "Construction" },
+  cleaning_service: { ru: "Клининг", de: "Reinigungsservice", en: "Cleaning Service" },
+  veterinary_clinic: { ru: "Ветеринарная клиника", de: "Tierklinik", en: "Veterinary Clinic" },
 };
 
 const PAGE_ALIASES = {
@@ -985,7 +1020,7 @@ const PAGE_TAB_ICONS = {
 
 const TAB_FALLBACK_LABELS = {
   ru: {
-    clients: "Пациенты",
+    clients: "Клиенты",
     staff: "Персонал",
     notifications: "Уведомления",
     patients: "Пациенты",
@@ -1028,6 +1063,10 @@ const DEFAULT_PAGES_BY_NICHE = {
   logistics: ["dashboard", "routes", "drivers", "deliveries", "vehicles", "settings"],
   ecommerce: ["dashboard", "products", "orders", "clients", "payments", "settings"],
   technology: ["dashboard", "products", "clients", "projects", "developers", "settings"],
+  law_firm: ["dashboard", "clients", "matters", "appointments", "services", "invoices", "settings"],
+  accounting: ["dashboard", "clients", "invoices", "appointments", "services", "reports", "settings"],
+  construction: ["dashboard", "clients", "projects", "appointments", "services", "staff", "settings"],
+  cleaning_service: ["dashboard", "clients", "appointments", "services", "staff", "settings"],
 };
 
 const LANDING_DASHBOARD_NICHES = new Set([
@@ -1241,7 +1280,17 @@ export default function App() {
           NICHE_SECTOR_LABELS[normalized.businessType]?.[lang] ||
           NICHE_SECTOR_LABELS[normalized.businessType]?.en ||
           formatPageLabel(normalized.businessType);
-        setNicheLabel((prev) => prev || seedNiche);
+        // Always prefer niche seed from manifest over a premature Beauty Salon fallback.
+        setNicheLabel((prev) => {
+          const beautyFallback =
+            NICHE_SECTOR_LABELS.beauty_salon?.[lang] ||
+            NICHE_SECTOR_LABELS.beauty_salon?.en ||
+            "Beauty Salon";
+          if (!prev || prev === beautyFallback) {
+            return seedNiche;
+          }
+          return prev;
+        });
       }
       applyStoredCompanySettings(readCompanySettings(crmStorageId), {
         setBusinessName,
@@ -1669,7 +1718,7 @@ export default function App() {
   const showDashboardHeroGallery = showsDashboardHeroGallery(effectiveBusinessType);
 
   const appointmentTabs = new Set(["appointments", "reservations", "viewings", "work_orders"]);
-  const clientTabs = new Set(["clients", "patients", "members", "guests", "students", "customers"]);
+  const clientTabs = new Set(["clients", "patients", "members", "guests", "students", "customers", "owners"]);
   const serviceTabs = new Set(["services", "menu", "classes", "courses", "subscriptions", "products"]);
   const staffTabs = new Set([
     "staff",
@@ -1750,8 +1799,12 @@ export default function App() {
     if (!sectorLabel) {
       return;
     }
+    // Do not seed from DEFAULT beauty_salon while the client manifest is still loading.
+    if (manifestPending && !manifestLoaded) {
+      return;
+    }
     setNicheLabel(sectorLabel);
-  }, [nicheLabel, sectorLabel]);
+  }, [nicheLabel, sectorLabel, manifestPending, manifestLoaded]);
 
   const settingsFieldStyle = {
     display: "flex",

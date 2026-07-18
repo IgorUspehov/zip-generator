@@ -37,11 +37,11 @@ const LIBRARY_SOURCES = {
   health_clinic: { niche: "health_clinic", heroIndex: 1, galleryIndices: [2, 3, 4], ogIndex: 5 },
   ecommerce: { niche: "ecommerce", heroIndex: 1, galleryIndices: [2, 3, 4], ogIndex: 5 },
   education: { niche: "education", heroIndex: 1, galleryIndices: [2, 3, 4], ogIndex: 5 },
-  cleaning_service: { niche: "logistics", heroIndex: 3, galleryIndices: [4, 5, 6], ogIndex: 7 },
-  veterinary_clinic: { niche: "health_clinic", heroIndex: 3, galleryIndices: [4, 5, 6], ogIndex: 7 },
-  law_firm: { placeholder: true, palette: { from: [26, 35, 58], to: [52, 73, 118] } },
-  accounting: { placeholder: true, palette: { from: [12, 58, 48], to: [24, 110, 92] } },
-  construction: { placeholder: true, palette: { from: [92, 48, 20], to: [168, 98, 32] } },
+  cleaning_service: { niche: "cleaning", heroIndex: 1, galleryIndices: [2, 3, 4], ogIndex: 5 },
+  veterinary_clinic: { niche: "veterinary", heroIndex: 1, galleryIndices: [2, 3, 4], ogIndex: 5 },
+  law_firm: { niche: "law_firm", heroIndex: 1, galleryIndices: [2, 3, 4], ogIndex: 5 },
+  accounting: { niche: "accounting", heroIndex: 1, galleryIndices: [2, 3, 4], ogIndex: 5 },
+  construction: { niche: "construction", heroIndex: 1, galleryIndices: [2, 3, 4], ogIndex: 5 },
 };
 
 const PLACEHOLDER_MARKERS = [];
@@ -76,7 +76,7 @@ function sourcePhoto(nicheFolder, index) {
   );
 }
 
-async function writeJpegUnderLimit(input, outputPath, width, height) {
+async function writeJpegUnderLimit(input, outputPath, width, height, maxBytes = OG_MAX_BYTES) {
   let quality = 88;
   let buffer = Buffer.alloc(0);
   while (quality >= 45) {
@@ -84,7 +84,7 @@ async function writeJpegUnderLimit(input, outputPath, width, height) {
       .resize(width, height, { fit: "cover", position: "centre" })
       .jpeg({ quality, mozjpeg: true })
       .toBuffer();
-    if (buffer.length <= OG_MAX_BYTES) {
+    if (!maxBytes || buffer.length <= maxBytes) {
       break;
     }
     quality -= 5;
@@ -300,9 +300,15 @@ async function bootstrapFolder(libraryFolder, source) {
       }
     }
 
-    await fs.promises.copyFile(heroSrc, path.join(outDir, "hero.jpg"));
+    await writeJpegUnderLimit(heroSrc, path.join(outDir, "hero.jpg"), 1920, 1080, null);
     for (let i = 0; i < gallerySources.length; i += 1) {
-      await fs.promises.copyFile(gallerySources[i], path.join(outDir, `gallery-${i + 1}.jpg`));
+      await writeJpegUnderLimit(
+        gallerySources[i],
+        path.join(outDir, `gallery-${i + 1}.jpg`),
+        1920,
+        1080,
+        null,
+      );
     }
 
     const ogPath = path.join(outDir, "og.jpg");

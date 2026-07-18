@@ -21,6 +21,7 @@
     "law_firm": "law_firm",
     "accounting": "accounting",
     "cleaning": "cleaning_service",
+    "construction": "construction",
     "veterinary": "veterinary_clinic",
     "hotel": "hotel_booking"
   },
@@ -47,6 +48,7 @@
     "cleaning_service": "Клининг / Cleaning Service",
     "logistics": "Логистика / Logistics",
     "law_firm": "Юридическая фирма / Law Firm",
-    "accounting": "Бухгалтерия / Accounting"
+    "accounting": "Бухгалтерия / Accounting",
+    "construction": "Строительство / Construction"
   }
 }

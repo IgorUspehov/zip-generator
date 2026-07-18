@@ -113,6 +113,11 @@ const BUSINESS_TYPE_TO_NICHE: Record<string, string> = {
   logistics_delivery: "logistics",
   delivery: "logistics",
   technology: "technology",
+  law_firm: "law_firm",
+  accounting: "accounting",
+  construction: "construction",
+  cleaning_service: "cleaning",
+  veterinary_clinic: "veterinary",
 };
 
 const BUSINESS_TYPE_DEFAULT_PAGES: Record<string, string[]> = {
@@ -136,6 +141,11 @@ const BUSINESS_TYPE_DEFAULT_PAGES: Record<string, string[]> = {
   ecommerce: ["dashboard", "products", "orders", "clients", "payments", "settings"],
   ecommerce_crm: ["dashboard", "products", "orders", "clients", "payments", "settings"],
   technology: ["dashboard", "products", "clients", "projects", "developers", "settings"],
+  law_firm: ["dashboard", "clients", "matters", "appointments", "services", "invoices", "settings"],
+  accounting: ["dashboard", "clients", "invoices", "appointments", "services", "reports", "settings"],
+  construction: ["dashboard", "clients", "projects", "appointments", "services", "staff", "settings"],
+  cleaning_service: ["dashboard", "clients", "appointments", "services", "staff", "settings"],
+  veterinary_clinic: ["dashboard", "pets", "owners", "appointments", "treatments", "vaccinations", "settings"],
 };
 
 const BUSINESS_TYPE_TO_PATTERN_DIR: Record<string, string> = {

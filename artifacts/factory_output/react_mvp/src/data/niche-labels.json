@@ -941,5 +941,196 @@
       "de": "Produkte, Lager und Bestellungen",
       "en": "Products, warehouses and orders"
     }
+  },
+  "law_firm": {
+    "panel_title": {
+      "ru": "Панель юрфирмы",
+      "de": "Kanzlei-Panel",
+      "en": "Law Firm Panel"
+    },
+    "tabs": {
+      "dashboard": {
+        "ru": "Дашборд",
+        "de": "Dashboard",
+        "en": "Dashboard"
+      },
+      "clients": {
+        "ru": "Клиенты",
+        "de": "Mandanten",
+        "en": "Clients"
+      },
+      "matters": {
+        "ru": "Дела",
+        "de": "Mandate",
+        "en": "Matters"
+      },
+      "appointments": {
+        "ru": "Встречи",
+        "de": "Termine",
+        "en": "Appointments"
+      },
+      "services": {
+        "ru": "Услуги",
+        "de": "Leistungen",
+        "en": "Services"
+      },
+      "invoices": {
+        "ru": "Счета",
+        "de": "Rechnungen",
+        "en": "Invoices"
+      },
+      "settings": {
+        "ru": "Настройки",
+        "de": "Einstellungen",
+        "en": "Settings"
+      }
+    },
+    "panel_tagline": {
+      "ru": "Клиенты, дела и встречи",
+      "de": "Mandanten, Mandate und Termine",
+      "en": "Clients, matters and appointments"
+    }
+  },
+  "accounting": {
+    "panel_title": {
+      "ru": "Панель бухгалтерии",
+      "de": "Buchhaltungs-Panel",
+      "en": "Accounting Panel"
+    },
+    "tabs": {
+      "dashboard": {
+        "ru": "Дашборд",
+        "de": "Dashboard",
+        "en": "Dashboard"
+      },
+      "clients": {
+        "ru": "Клиенты",
+        "de": "Mandanten",
+        "en": "Clients"
+      },
+      "invoices": {
+        "ru": "Счета",
+        "de": "Rechnungen",
+        "en": "Invoices"
+      },
+      "appointments": {
+        "ru": "Встречи",
+        "de": "Termine",
+        "en": "Appointments"
+      },
+      "services": {
+        "ru": "Услуги",
+        "de": "Leistungen",
+        "en": "Services"
+      },
+      "reports": {
+        "ru": "Отчёты",
+        "de": "Berichte",
+        "en": "Reports"
+      },
+      "settings": {
+        "ru": "Настройки",
+        "de": "Einstellungen",
+        "en": "Settings"
+      }
+    },
+    "panel_tagline": {
+      "ru": "Клиенты, счета и отчёты",
+      "de": "Mandanten, Rechnungen und Berichte",
+      "en": "Clients, invoices and reports"
+    }
+  },
+  "construction": {
+    "panel_title": {
+      "ru": "Панель строительства",
+      "de": "Bau-Panel",
+      "en": "Construction Panel"
+    },
+    "tabs": {
+      "dashboard": {
+        "ru": "Дашборд",
+        "de": "Dashboard",
+        "en": "Dashboard"
+      },
+      "clients": {
+        "ru": "Клиенты",
+        "de": "Kunden",
+        "en": "Clients"
+      },
+      "projects": {
+        "ru": "Проекты",
+        "de": "Projekte",
+        "en": "Projects"
+      },
+      "appointments": {
+        "ru": "Выезды",
+        "de": "Termine",
+        "en": "Site visits"
+      },
+      "services": {
+        "ru": "Услуги",
+        "de": "Leistungen",
+        "en": "Services"
+      },
+      "staff": {
+        "ru": "Бригада",
+        "de": "Team",
+        "en": "Crew"
+      },
+      "settings": {
+        "ru": "Настройки",
+        "de": "Einstellungen",
+        "en": "Settings"
+      }
+    },
+    "panel_tagline": {
+      "ru": "Клиенты, проекты и выезды",
+      "de": "Kunden, Projekte und Termine",
+      "en": "Clients, projects and site visits"
+    }
+  },
+  "cleaning_service": {
+    "panel_title": {
+      "ru": "Панель клининга",
+      "de": "Reinigungs-Panel",
+      "en": "Cleaning Panel"
+    },
+    "tabs": {
+      "dashboard": {
+        "ru": "Дашборд",
+        "de": "Dashboard",
+        "en": "Dashboard"
+      },
+      "clients": {
+        "ru": "Клиенты",
+        "de": "Kunden",
+        "en": "Clients"
+      },
+      "appointments": {
+        "ru": "Уборки",
+        "de": "Einsätze",
+        "en": "Jobs"
+      },
+      "services": {
+        "ru": "Услуги",
+        "de": "Leistungen",
+        "en": "Services"
+      },
+      "staff": {
+        "ru": "Сотрудники",
+        "de": "Mitarbeiter",
+        "en": "Staff"
+      },
+      "settings": {
+        "ru": "Настройки",
+        "de": "Einstellungen",
+        "en": "Settings"
+      }
+    },
+    "panel_tagline": {
+      "ru": "Клиенты, уборки и услуги",
+      "de": "Kunden, Einsätze und Leistungen",
+      "en": "Clients, jobs and services"
+    }
   }
 }

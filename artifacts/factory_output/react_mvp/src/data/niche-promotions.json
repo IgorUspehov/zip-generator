@@ -322,5 +322,152 @@
       "de": "24/7 Support — erste 3 Monate kostenlos",
       "en": "24/7 support — first 3 months free"
     }
+  ],
+  "real_estate": [
+    {
+      "ru": "Бесплатная консультация по подбору объекта недвижимости!",
+      "de": "Kostenlose Beratung zur Immobilienauswahl!",
+      "en": "Free consultation on property selection!"
+    },
+    {
+      "ru": "Скидка 2% при заключении договора в этом месяце",
+      "de": "2% Rabatt bei Vertragsabschluss diesen Monat",
+      "en": "2% discount when signing a contract this month"
+    },
+    {
+      "ru": "Эксклюзивные объекты — только у нас. Смотрите каталог!",
+      "de": "Exklusive Objekte — nur bei uns. Katalog ansehen!",
+      "en": "Exclusive properties — only with us. View the catalogue!"
+    },
+    {
+      "ru": "Виртуальный тур по объекту — бесплатно для всех клиентов",
+      "de": "Virtuelle Besichtigung — kostenlos für alle Kunden",
+      "en": "Virtual property tour — free for all clients"
+    }
+  ],
+  "accounting": [
+    {
+      "ru": "Бесплатная консультация при первом обращении",
+      "de": "Kostenlose Erstberatung",
+      "en": "Free first consultation"
+    },
+    {
+      "ru": "Налоговая декларация — от €99",
+      "de": "Steuererklärung — ab €99",
+      "en": "Tax return — from €99"
+    },
+    {
+      "ru": "Регистрация ООО под ключ — €299",
+      "de": "GmbH-Gründung Komplettpaket — €299",
+      "en": "Full company registration — €299"
+    },
+    {
+      "ru": "Расчёт зарплаты для малого бизнеса — скидка 15%",
+      "de": "Lohnabrechnung für Kleinunternehmen −15%",
+      "en": "Payroll for small business −15%"
+    },
+    {
+      "ru": "Годовой отчёт без доплат при заключении договора до конца месяца",
+      "de": "Jahresabschluss ohne Aufpreis bei Vertragsabschluss bis Monatsende",
+      "en": "Annual report at no extra cost if signed before month-end"
+    }
+  ],
+  "construction": [
+    {
+      "ru": "Бесплатный замер и смета",
+      "de": "Kostenloses Aufmaß und Kostenvoranschlag",
+      "en": "Free measurement and estimate"
+    },
+    {
+      "ru": "Ремонт под ключ — от €2500",
+      "de": "Komplettrenovierung — ab €2500",
+      "en": "Full renovation — from €2500"
+    },
+    {
+      "ru": "Кровельные работы со скидкой 10% до конца месяца",
+      "de": "Dacharbeiten −10% bis Monatsende",
+      "en": "Roofing works −10% until month-end"
+    },
+    {
+      "ru": "Гарантия на все работы — 5 лет",
+      "de": "5 Jahre Garantie auf alle Arbeiten",
+      "en": "5-year warranty on all work"
+    },
+    {
+      "ru": "Рассрочка без переплат на ремонт",
+      "de": "Ratenzahlung ohne Aufpreis für Renovierungen",
+      "en": "Interest-free installments for renovations"
+    }
+  ],
+  "law_firm": [
+    {
+      "ru": "Первая консультация бесплатно",
+      "de": "Erstberatung kostenlos",
+      "en": "First consultation free"
+    },
+    {
+      "ru": "Регистрация компании под ключ — €590",
+      "de": "Firmengründung Komplettpaket — €590",
+      "en": "Full company registration — €590"
+    },
+    {
+      "ru": "Составление договора — от €150",
+      "de": "Vertragserstellung — ab €150",
+      "en": "Contract drafting — from €150"
+    },
+    {
+      "ru": "Скидка 15% при заключении абонентского обслуживания",
+      "de": "−15% bei Abschluss eines Servicevertrags",
+      "en": "−15% with a service subscription agreement"
+    },
+    {
+      "ru": "Бесплатная вторая консультация по трудовым спорам",
+      "de": "Kostenlose Zweitberatung bei Arbeitsrechtsstreitigkeiten",
+      "en": "Free second consultation for labor disputes"
+    }
+  ],
+  "cleaning_service": [
+    {
+      "ru": "Первая уборка со скидкой 20%",
+      "de": "Erste Reinigung −20%",
+      "en": "First cleaning −20%"
+    },
+    {
+      "ru": "Генеральная уборка квартиры — от €120",
+      "de": "Grundreinigung der Wohnung — ab €120",
+      "en": "Apartment deep cleaning — from €120"
+    },
+    {
+      "ru": "Уборка офиса по абонементу со скидкой",
+      "de": "Büroreinigung im Abo mit Rabatt",
+      "en": "Office cleaning subscription with discount"
+    },
+    {
+      "ru": "Мытьё окон в подарок при заказе генеральной уборки",
+      "de": "Fensterreinigung gratis bei Grundreinigung",
+      "en": "Free window cleaning with deep cleaning order"
+    },
+    {
+      "ru": "Эко-средства без доплаты",
+      "de": "Ökologische Reinigungsmittel ohne Aufpreis",
+      "en": "Eco-friendly products at no extra cost"
+    }
+  ],
+  "veterinary_clinic": [
+    {
+      "ru": "Бесплатный первичный осмотр для новых пациентов",
+      "de": "Kostenlose Erstuntersuchung für neue Patienten",
+      "en": "Free first exam for new patients"
+    },
+    {
+      "ru": "Вакцинация со скидкой 15% в этом месяце",
+      "de": "Impfung diesen Monat −15%",
+      "en": "Vaccinations −15% this month"
+    },
+    {
+      "ru": "Чипирование питомца — €25",
+      "de": "Chippen Ihres Haustiers — €25",
+      "en": "Pet microchipping — €25"
+    }
   ]
 }

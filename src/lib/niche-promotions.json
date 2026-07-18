@@ -452,5 +452,22 @@
       "de": "Ökologische Reinigungsmittel ohne Aufpreis",
       "en": "Eco-friendly products at no extra cost"
     }
+  ],
+  "veterinary_clinic": [
+    {
+      "ru": "Бесплатный первичный осмотр для новых пациентов",
+      "de": "Kostenlose Erstuntersuchung für neue Patienten",
+      "en": "Free first exam for new patients"
+    },
+    {
+      "ru": "Вакцинация со скидкой 15% в этом месяце",
+      "de": "Impfung diesen Monat −15%",
+      "en": "Vaccinations −15% this month"
+    },
+    {
+      "ru": "Чипирование питомца — €25",
+      "de": "Chippen Ihres Haustiers — €25",
+      "en": "Pet microchipping — €25"
+    }
   ]
 }

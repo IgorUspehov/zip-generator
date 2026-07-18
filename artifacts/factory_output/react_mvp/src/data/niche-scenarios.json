@@ -4798,5 +4798,516 @@
         }
       ]
     }
+  },
+  "law_firm": {
+    "metrics": {
+      "ru": [
+        "Активных клиентов",
+        "Встреч сегодня",
+        "Открытых дел",
+        "Счетов к оплате"
+      ],
+      "de": [
+        "Aktive Mandanten",
+        "Termine heute",
+        "Offene Mandate",
+        "Offene Rechnungen"
+      ],
+      "en": [
+        "Active clients",
+        "Meetings today",
+        "Open matters",
+        "Unpaid invoices"
+      ]
+    },
+    "metric_values": [
+      "28",
+      "6",
+      "14",
+      "9"
+    ],
+    "today_items": [
+      {
+        "name": {
+          "ru": "Ханс Мюллер",
+          "de": "Hans Müller",
+          "en": "Hans Mueller"
+        },
+        "service": {
+          "ru": "Консультация по договору",
+          "de": "Vertragsberatung",
+          "en": "Contract consultation"
+        },
+        "time": "09:30"
+      },
+      {
+        "name": {
+          "ru": "Анна Беккер",
+          "de": "Anna Becker",
+          "en": "Anna Becker"
+        },
+        "service": {
+          "ru": "Трудовое право",
+          "de": "Arbeitsrecht",
+          "en": "Employment law"
+        },
+        "time": "11:00"
+      },
+      {
+        "name": {
+          "ru": "Томас Фишер",
+          "de": "Thomas Fischer",
+          "en": "Thomas Fisher"
+        },
+        "service": {
+          "ru": "Корпоративное право",
+          "de": "Gesellschaftsrecht",
+          "en": "Corporate law"
+        },
+        "time": "14:00"
+      },
+      {
+        "name": {
+          "ru": "Лиза Вагнер",
+          "de": "Lisa Wagner",
+          "en": "Lisa Wagner"
+        },
+        "service": {
+          "ru": "Семейное право",
+          "de": "Familienrecht",
+          "en": "Family law"
+        },
+        "time": "16:00"
+      }
+    ],
+    "services": {
+      "ru": [
+        "Консультация",
+        "Договорное право",
+        "Трудовое право",
+        "Корпоративное право"
+      ],
+      "de": [
+        "Beratung",
+        "Vertragsrecht",
+        "Arbeitsrecht",
+        "Gesellschaftsrecht"
+      ],
+      "en": [
+        "Consultation",
+        "Contract law",
+        "Employment law",
+        "Corporate law"
+      ]
+    },
+    "records": {
+      "clients": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Ханс Мюллер",
+            "de": "Hans Müller",
+            "en": "Hans Mueller"
+          },
+          "phone": "+49 170 111 0001",
+          "note": {
+            "ru": "Корп. клиент",
+            "de": "Firmenmandant",
+            "en": "Corporate client"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Анна Беккер",
+            "de": "Anna Becker",
+            "en": "Anna Becker"
+          },
+          "phone": "+49 170 111 0002",
+          "note": {
+            "ru": "Трудовой спор",
+            "de": "Arbeitsstreit",
+            "en": "Employment case"
+          }
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Томас Фишер",
+            "de": "Thomas Fischer",
+            "en": "Thomas Fisher"
+          },
+          "phone": "+49 170 111 0003",
+          "note": {
+            "ru": "Учреждение GmbH",
+            "de": "GmbH-Gründung",
+            "en": "GmbH formation"
+          }
+        }
+      ]
+    }
+  },
+  "accounting": {
+    "metrics": {
+      "ru": [
+        "Активных клиентов",
+        "Встреч сегодня",
+        "Счетов выставлено",
+        "Дедлайнов"
+      ],
+      "de": [
+        "Aktive Mandanten",
+        "Termine heute",
+        "Rechnungen gestellt",
+        "Fristen"
+      ],
+      "en": [
+        "Active clients",
+        "Meetings today",
+        "Invoices issued",
+        "Deadlines"
+      ]
+    },
+    "metric_values": [
+      "36",
+      "5",
+      "18",
+      "7"
+    ],
+    "today_items": [
+      {
+        "name": {
+          "ru": "ООО Норд",
+          "de": "Nord GmbH",
+          "en": "Nord Ltd"
+        },
+        "service": {
+          "ru": "Квартальный отчёт",
+          "de": "Quartalsabschluss",
+          "en": "Quarterly closing"
+        },
+        "time": "10:00"
+      },
+      {
+        "name": {
+          "ru": "Мария Шульц",
+          "de": "Maria Schulz",
+          "en": "Maria Schulz"
+        },
+        "service": {
+          "ru": "Налоговая декларация",
+          "de": "Steuererklärung",
+          "en": "Tax return"
+        },
+        "time": "12:30"
+      },
+      {
+        "name": {
+          "ru": "Петер Кляйн",
+          "de": "Peter Klein",
+          "en": "Peter Klein"
+        },
+        "service": {
+          "ru": "Бухгалтерский учёт",
+          "de": "Buchführung",
+          "en": "Bookkeeping"
+        },
+        "time": "15:00"
+      }
+    ],
+    "services": {
+      "ru": [
+        "Бухучёт",
+        "Налоговая декларация",
+        "Зарплата",
+        "Консультация"
+      ],
+      "de": [
+        "Buchführung",
+        "Steuererklärung",
+        "Lohnbuchhaltung",
+        "Beratung"
+      ],
+      "en": [
+        "Bookkeeping",
+        "Tax return",
+        "Payroll",
+        "Advisory"
+      ]
+    },
+    "records": {
+      "clients": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Nord GmbH",
+            "de": "Nord GmbH",
+            "en": "Nord Ltd"
+          },
+          "phone": "+49 170 222 0001",
+          "note": {
+            "ru": "Ежемесячный учёт",
+            "de": "Monatsbuchhaltung",
+            "en": "Monthly books"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Мария Шульц",
+            "de": "Maria Schulz",
+            "en": "Maria Schulz"
+          },
+          "phone": "+49 170 222 0002",
+          "note": {
+            "ru": "ИП",
+            "de": "Einzelunternehmen",
+            "en": "Sole trader"
+          }
+        }
+      ]
+    }
+  },
+  "construction": {
+    "metrics": {
+      "ru": [
+        "Активных клиентов",
+        "Выездов сегодня",
+        "Проектов",
+        "Бригад"
+      ],
+      "de": [
+        "Aktive Kunden",
+        "Termine heute",
+        "Projekte",
+        "Teams"
+      ],
+      "en": [
+        "Active clients",
+        "Site visits today",
+        "Projects",
+        "Crews"
+      ]
+    },
+    "metric_values": [
+      "19",
+      "4",
+      "8",
+      "3"
+    ],
+    "today_items": [
+      {
+        "name": {
+          "ru": "Семья Хофманн",
+          "de": "Familie Hofmann",
+          "en": "Hofmann family"
+        },
+        "service": {
+          "ru": "Ремонт кухни",
+          "de": "Küchenrenovierung",
+          "en": "Kitchen renovation"
+        },
+        "time": "08:00"
+      },
+      {
+        "name": {
+          "ru": "Баухаус АГ",
+          "de": "Bauhaus AG",
+          "en": "Bauhaus AG"
+        },
+        "service": {
+          "ru": "Отделка офиса",
+          "de": "Büroausbau",
+          "en": "Office fit-out"
+        },
+        "time": "11:30"
+      },
+      {
+        "name": {
+          "ru": "Ян Рихтер",
+          "de": "Jan Richter",
+          "en": "Jan Richter"
+        },
+        "service": {
+          "ru": "Кровля",
+          "de": "Dacharbeiten",
+          "en": "Roofing"
+        },
+        "time": "14:30"
+      }
+    ],
+    "services": {
+      "ru": [
+        "Ремонт",
+        "Отделка",
+        "Кровля",
+        "Сантехника"
+      ],
+      "de": [
+        "Renovierung",
+        "Ausbau",
+        "Dach",
+        "Sanitär"
+      ],
+      "en": [
+        "Renovation",
+        "Fit-out",
+        "Roofing",
+        "Plumbing"
+      ]
+    },
+    "records": {
+      "clients": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Семья Хофманн",
+            "de": "Familie Hofmann",
+            "en": "Hofmann family"
+          },
+          "phone": "+49 170 333 0001",
+          "note": {
+            "ru": "Кухня",
+            "de": "Küche",
+            "en": "Kitchen"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Баухаус АГ",
+            "de": "Bauhaus AG",
+            "en": "Bauhaus AG"
+          },
+          "phone": "+49 170 333 0002",
+          "note": {
+            "ru": "Офис 240 м²",
+            "de": "Büro 240 m²",
+            "en": "Office 240 m²"
+          }
+        }
+      ]
+    }
+  },
+  "cleaning_service": {
+    "metrics": {
+      "ru": [
+        "Активных клиентов",
+        "Уборок сегодня",
+        "Объектов",
+        "Сотрудников"
+      ],
+      "de": [
+        "Aktive Kunden",
+        "Einsätze heute",
+        "Objekte",
+        "Mitarbeiter"
+      ],
+      "en": [
+        "Active clients",
+        "Jobs today",
+        "Locations",
+        "Staff"
+      ]
+    },
+    "metric_values": [
+      "52",
+      "11",
+      "34",
+      "8"
+    ],
+    "today_items": [
+      {
+        "name": {
+          "ru": "Офис Альфа",
+          "de": "Büro Alpha",
+          "en": "Alpha Office"
+        },
+        "service": {
+          "ru": "Ежедневная уборка",
+          "de": "Unterhaltsreinigung",
+          "en": "Daily cleaning"
+        },
+        "time": "07:00"
+      },
+      {
+        "name": {
+          "ru": "Семья Браун",
+          "de": "Familie Braun",
+          "en": "Braun family"
+        },
+        "service": {
+          "ru": "Генеральная уборка",
+          "de": "Grundreinigung",
+          "en": "Deep cleaning"
+        },
+        "time": "10:00"
+      },
+      {
+        "name": {
+          "ru": "Кафе Юг",
+          "de": "Café Süd",
+          "en": "South Café"
+        },
+        "service": {
+          "ru": "Уборка после закрытия",
+          "de": "Abschlussreinigung",
+          "en": "Closing clean"
+        },
+        "time": "21:00"
+      }
+    ],
+    "services": {
+      "ru": [
+        "Ежедневная уборка",
+        "Генеральная",
+        "Окна",
+        "После ремонта"
+      ],
+      "de": [
+        "Unterhalt",
+        "Grundreinigung",
+        "Fenster",
+        "Baureinigung"
+      ],
+      "en": [
+        "Daily cleaning",
+        "Deep clean",
+        "Windows",
+        "Post-renovation"
+      ]
+    },
+    "records": {
+      "clients": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Офис Альфа",
+            "de": "Büro Alpha",
+            "en": "Alpha Office"
+          },
+          "phone": "+49 170 444 0001",
+          "note": {
+            "ru": "Пн–Пт",
+            "de": "Mo–Fr",
+            "en": "Mon–Fri"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Семья Браун",
+            "de": "Familie Braun",
+            "en": "Braun family"
+          },
+          "phone": "+49 170 444 0002",
+          "note": {
+            "ru": "Раз в месяц",
+            "de": "1× monatlich",
+            "en": "Monthly"
+          }
+        }
+      ]
+    }
   }
 }
