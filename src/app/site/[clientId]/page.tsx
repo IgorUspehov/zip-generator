@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { PublicBookingForm } from "@/components/public-site/booking-form";
 import { findDemoByClientId } from "@/lib/cloudflare/demo-registry";
+import { resolveSiteCrmHref } from "@/lib/cloudflare/resolve-site-crm-href";
 import {
   leadFormCopy,
   normalizeLeadLang,
@@ -53,9 +54,12 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
   const services = loadNicheServiceOptions(businessType, lang);
   const nicheLabel = getBusinessTypeDisplayName(businessType);
   const t = leadFormCopy[lang];
-  const crmHref = demo?.deploymentUrl
-    ? `${demo.deploymentUrl.replace(/\/$/, "")}/?clientId=${encodeURIComponent(clientId)}`
-    : `/demo?clientId=${encodeURIComponent(clientId)}`;
+  const crmHref = resolveSiteCrmHref({
+    clientId,
+    demo,
+    businessName,
+    businessType,
+  });
   const gallery = Array.isArray(manifest?.galleryPhotos)
     ? (manifest?.galleryPhotos as string[]).slice(0, 3)
     : [];
@@ -121,11 +125,13 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
         </section>
       ) : null}
 
-      <footer className="border-t border-white/10 px-6 py-8 text-center text-sm text-slate-400">
-        <Link href={crmHref} className="font-semibold text-orange-300 hover:text-orange-200">
-          {t.openCrm}
-        </Link>
-      </footer>
+      {crmHref ? (
+        <footer className="border-t border-white/10 px-6 py-8 text-center text-sm text-slate-400">
+          <Link href={crmHref} className="font-semibold text-orange-300 hover:text-orange-200">
+            {t.openCrm}
+          </Link>
+        </footer>
+      ) : null}
     </main>
   );
 }
