@@ -25,7 +25,10 @@ import {
   scheduleDeletion,
   startDeletionScheduler,
 } from "@/lib/cloudflare/scheduler";
-import { buildReadableDemoUrl } from "@/lib/cloudflare/shared-project";
+import {
+  buildReadableDemoUrl,
+  buildReadablePublicSiteUrl,
+} from "@/lib/cloudflare/shared-project";
 import {
   buildMvpRedirectUrl,
   saveClientManifest,
@@ -36,6 +39,10 @@ import palettesData from "@/lib/palettes.json";
 import promotionsData from "@/lib/niche-promotions.json";
 import { pickRandomGalleryPhotos, pickRandomHeroPhoto } from "@/lib/manifest/niche-media";
 import { pickNicheScenario } from "@/lib/manifest/niche-scenario";
+import {
+  assertValidClientManifest,
+  validateManifestWithOptionalCorrection,
+} from "@/lib/manifest/validate-and-correct";
 import { persistClientDistSnapshot } from "@/lib/site-delivery/dist-store";
 
 const sectorMapping = { sector_id_to_business_type: SECTOR_ID_TO_BUSINESS_TYPE };
@@ -633,9 +640,49 @@ export async function POST(request: Request) {
     fs.writeFileSync(QUESTIONNAIRE_PATH, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
     console.log("[client-questionnaire] questionnaire saved");
 
-    const manifest = normalizeManifestMedia(
+    const draft = normalizeManifestMedia(
       (await buildMvpManifestWithOpenAI(payload)) as Record<string, unknown>,
-    );
+    ) as Record<string, unknown>;
+
+    let manifest: Record<string, unknown>;
+    try {
+      const validated = await validateManifestWithOptionalCorrection({
+        manifest: draft,
+        payload,
+        openai: getOpenAIClient(),
+        normalize: (candidate, sourcePayload) =>
+          normalizeManifestMedia(
+            normalizeManifestForTemplate(candidate, sourcePayload) as Record<string, unknown>,
+          ) as Record<string, unknown>,
+      });
+      manifest = validated as Record<string, unknown>;
+    } catch (validationError) {
+      console.error("[client-questionnaire] manifest validation failed — trying deterministic fallback", {
+        message:
+          validationError instanceof Error ? validationError.message : String(validationError),
+      });
+      try {
+        const fallback = normalizeManifestMedia(
+          buildMvpManifest(payload) as Record<string, unknown>,
+        ) as Record<string, unknown>;
+        manifest = assertValidClientManifest(fallback) as Record<string, unknown>;
+      } catch (fallbackError) {
+        console.error("[client-questionnaire] fallback manifest also invalid", {
+          message: fallbackError instanceof Error ? fallbackError.message : String(fallbackError),
+        });
+        return NextResponse.json(
+          {
+            ok: false,
+            error:
+              fallbackError instanceof Error
+                ? fallbackError.message
+                : "manifest_validation_failed",
+          },
+          { status: 422 },
+        );
+      }
+    }
+
     const clientId = randomUUID();
     saveClientManifest(clientId, manifest);
     const { ensureLeadsReadSecret } = await import("@/lib/leads/read-secret");
@@ -659,6 +706,7 @@ export async function POST(request: Request) {
     let deployId: string | undefined;
     let redirectUrl: string | undefined;
     let demoSlug: string | undefined;
+    let publicSiteUrl: string | undefined;
 
     logCloudflareEnvPresence("client-questionnaire");
     if (!isCloudflareDeployConfigured()) {
@@ -714,6 +762,7 @@ export async function POST(request: Request) {
       siteUrl = deployResult.deploymentUrl;
       deployId = deployResult.deploymentId;
       redirectUrl = buildReadableDemoUrl(demoSlug, clientId);
+      publicSiteUrl = buildReadablePublicSiteUrl(demoSlug);
 
       const deployedAt = new Date().toISOString();
       const deleteAt = new Date(Date.now() + getCrmDemoTtlMs()).toISOString();
@@ -786,6 +835,7 @@ export async function POST(request: Request) {
       ok: true,
       success: true,
       redirectUrl,
+      publicSiteUrl: publicSiteUrl ?? (demoSlug ? buildReadablePublicSiteUrl(demoSlug) : undefined),
       clientId,
       siteId,
       siteUrl: redirectUrl,
