@@ -8,6 +8,7 @@ import { resolveLeadFormMode } from "@/lib/leads/niche-mode";
 import { notifyNewLead } from "@/lib/leads/notify-site-lead";
 import { assertLeadRateLimit } from "@/lib/leads/rate-limit";
 import { ensureLeadsReadSecret } from "@/lib/leads/read-secret";
+import { withRetries } from "@/lib/leads/retry";
 import { createSiteLead } from "@/lib/leads/store";
 import { validateLeadPayload } from "@/lib/leads/validate";
 import { loadClientManifest } from "@/lib/manifest/storage";
@@ -151,24 +152,51 @@ export async function POST(
     // Ensure CRM sync secret exists for this tenant (not returned publicly).
     ensureLeadsReadSecret(clientId);
 
-    const result = await createSiteLead({
-      clientId,
-      businessType: meta.businessType,
-      payload,
-      mode,
-    });
+    const result = await withRetries(
+      async (attempt) => {
+        try {
+          return await createSiteLead({
+            clientId,
+            businessType: meta.businessType,
+            payload,
+            mode,
+          });
+        } catch (error) {
+          console.warn("[leads] createSiteLead attempt failed", {
+            clientId,
+            attempt,
+            message: error instanceof Error ? error.message : String(error),
+          });
+          throw error;
+        }
+      },
+      {
+        attempts: 3,
+        baseDelayMs: 250,
+        maxDelayMs: 1_500,
+      },
+    );
 
-    await notifyNewLead({
-      clientId,
-      businessName: meta.businessName,
-      businessType: meta.businessType,
-      name: payload.name,
-      phone: payload.phone,
-      service: payload.service,
-      mode,
-      bookingId: result.booking?.id,
-      orderId: result.order?.id,
-    });
+    // Notify is best-effort — a lead already persisted must not become a false failure
+    // (that would trigger client retries and duplicate bookings).
+    try {
+      await notifyNewLead({
+        clientId,
+        businessName: meta.businessName,
+        businessType: meta.businessType,
+        name: payload.name,
+        phone: payload.phone,
+        service: payload.service,
+        mode,
+        bookingId: result.booking?.id,
+        orderId: result.order?.id,
+      });
+    } catch (notifyError) {
+      console.error("[leads] notify failed after successful write", {
+        clientId,
+        message: notifyError instanceof Error ? notifyError.message : String(notifyError),
+      });
+    }
 
     // Public response: no names, phones, or record payloads.
     return NextResponse.json(
@@ -180,7 +208,7 @@ export async function POST(
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to create lead";
-    console.error("[leads] POST failed", { clientId, message });
+    console.error("[leads] POST failed after retries", { clientId, message });
     return NextResponse.json({ error: message }, { status: 500, headers: CORS_HEADERS });
   }
 }

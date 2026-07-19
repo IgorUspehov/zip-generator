@@ -8,6 +8,11 @@ import {
   normalizeLeadLang,
   titleForMode,
 } from "@/lib/leads/niche-mode";
+import {
+  isRetryableLeadError,
+  LeadRequestError,
+  withRetries,
+} from "@/lib/leads/retry";
 import type { LeadFormMode } from "@/lib/leads/types";
 
 type BookingFormProps = {
@@ -17,6 +22,49 @@ type BookingFormProps = {
   services: string[];
   accent?: string;
 };
+
+const FETCH_TIMEOUT_MS = 12_000;
+const FRONT_RETRY_ATTEMPTS = 3;
+const FRONT_BASE_DELAY_MS = 400;
+
+async function postLeadOnce(
+  clientId: string,
+  body: Record<string, unknown>,
+): Promise<void> {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(`/api/leads/${encodeURIComponent(clientId)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    const data = (await res.json().catch(() => ({}))) as { error?: string; ok?: boolean };
+    if (!res.ok) {
+      throw new LeadRequestError(
+        data.error || `HTTP ${res.status}`,
+        res.status,
+        data,
+      );
+    }
+    if (data.ok !== true) {
+      // Defensive: never treat ambiguous bodies as success.
+      throw new LeadRequestError("invalid_success_payload", 502, data);
+    }
+  } catch (error) {
+    if (error instanceof LeadRequestError) throw error;
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new LeadRequestError("timeout", 408);
+    }
+    throw new LeadRequestError(
+      error instanceof Error ? error.message : "network_error",
+      0,
+    );
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
 
 export function PublicBookingForm({
   clientId,
@@ -43,6 +91,18 @@ export function PublicBookingForm({
   const showPreferred = mode === "appointment";
   const serviceOptions = useMemo(() => services.filter(Boolean), [services]);
 
+  function mapError(err: unknown): string {
+    if (err instanceof LeadRequestError) {
+      if (err.status === 429) return t.errorGeneric;
+      if (err.status === 0 || err.status === 408) return t.errorNetwork;
+      const body = err.body as { error?: string } | undefined;
+      if (body?.error === "invalid phone") return t.errorPhone;
+      if (body?.error?.includes("required")) return t.errorRequired;
+      return t.errorGeneric;
+    }
+    return t.errorNetwork;
+  }
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError("");
@@ -52,35 +112,31 @@ export function PublicBookingForm({
       return;
     }
     setSending(true);
+    const payload = {
+      name: name.trim(),
+      phone: phone.trim(),
+      service: service || undefined,
+      comment: comment.trim() || undefined,
+      preferredAt: preferredAt || undefined,
+      language: lang,
+    };
     try {
-      const res = await fetch(`/api/leads/${encodeURIComponent(clientId)}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          phone: phone.trim(),
-          service: service || undefined,
-          comment: comment.trim() || undefined,
-          preferredAt: preferredAt || undefined,
-          language: lang,
-        }),
+      await withRetries(() => postLeadOnce(clientId, payload), {
+        attempts: FRONT_RETRY_ATTEMPTS,
+        baseDelayMs: FRONT_BASE_DELAY_MS,
+        maxDelayMs: 2_000,
+        shouldRetry: (err) => isRetryableLeadError(err),
       });
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        if (res.status === 429) setError(t.errorGeneric);
-        else if (data.error === "invalid phone") setError(t.errorPhone);
-        else if (data.error?.includes("required")) setError(t.errorRequired);
-        else setError(t.errorGeneric);
-        return;
-      }
       setSuccess(true);
       setName("");
       setPhone("");
       setService("");
       setComment("");
       setPreferredAt("");
-    } catch {
-      setError(t.errorGeneric);
+    } catch (err) {
+      // Final failure only — never show success for a failed / timed-out request.
+      setSuccess(false);
+      setError(mapError(err));
     } finally {
       setSending(false);
     }
@@ -164,8 +220,16 @@ export function PublicBookingForm({
               />
             </label>
           </div>
-          {error ? <p className="mt-3 text-sm font-semibold text-rose-300">{error}</p> : null}
-          {success ? <p className="mt-3 text-sm font-semibold text-emerald-300">{t.success}</p> : null}
+          {error ? (
+            <p className="mt-3 text-sm font-semibold text-rose-300" role="alert">
+              {error}
+            </p>
+          ) : null}
+          {success ? (
+            <p className="mt-3 text-sm font-semibold text-emerald-300" role="status">
+              {t.success}
+            </p>
+          ) : null}
           <div className="mt-5 flex flex-wrap gap-3">
             <button
               type="submit"
