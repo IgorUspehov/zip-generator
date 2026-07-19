@@ -135,6 +135,23 @@ export function useCrmRecords(clientId, section, defaultRecords = [], options = 
     [storageKey],
   );
 
+  const mergeRemoteRecords = useCallback(
+    (remoteRecords = []) => {
+      if (!Array.isArray(remoteRecords) || remoteRecords.length === 0) return 0;
+      const baseline = storageKey ? readStorage(storageKey) || [] : [];
+      const existingIds = new Set(baseline.map((item) => String(item?.id || "")));
+      const incoming = remoteRecords.filter(
+        (item) => item && isUserRecord(item) && !existingIds.has(String(item.id)),
+      );
+      if (incoming.length === 0) return 0;
+      const next = [...incoming, ...baseline];
+      if (storageKey) writeStorage(storageKey, next);
+      setRecords(next);
+      return incoming.length;
+    },
+    [storageKey],
+  );
+
   return {
     records,
     loading,
@@ -143,8 +160,26 @@ export function useCrmRecords(clientId, section, defaultRecords = [], options = 
     deleteRecord,
     reload: () => {},
     persist,
+    mergeRemoteRecords,
     isSeedRecord,
   };
+}
+
+/** Merge remote `rec-*` rows (e.g. site leads from API) without touching seeds. */
+export function mergeRemoteIntoStorage(clientId, section, remoteRecords = []) {
+  if (!clientId || !section || !Array.isArray(remoteRecords) || remoteRecords.length === 0) {
+    return [];
+  }
+  const storageKey = `mvp_crm:${clientId}:${section}`;
+  const stored = readStorage(storageKey) || [];
+  const existingIds = new Set(stored.map((item) => String(item?.id || "")));
+  const incoming = remoteRecords.filter(
+    (item) => item && isUserRecord(item) && !existingIds.has(String(item.id)),
+  );
+  if (incoming.length === 0) return [];
+  const next = [...incoming, ...stored];
+  writeStorage(storageKey, next);
+  return incoming;
 }
 
 /** Remove seed-* rows from all known CRM sections for a client (paid transition). */

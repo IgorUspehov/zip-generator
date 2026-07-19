@@ -1,0 +1,71 @@
+{
+  "base": "http://127.0.0.1:3011",
+  "generatedAt": "2026-07-19T08:40:39.807Z",
+  "rows": [
+    {
+      "niche": "reject-missing-client",
+      "status": "PASS",
+      "detail": "HTTP 404"
+    },
+    {
+      "niche": "reject-empty-fields",
+      "status": "PASS",
+      "detail": "HTTP 400"
+    },
+    {
+      "niche": "shop/en",
+      "status": "PASS",
+      "detail": "mode=order client=true booking=true recId=true"
+    },
+    {
+      "niche": "site-page-shop",
+      "status": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "niche": "dental/de",
+      "status": "PASS",
+      "detail": "mode=appointment client=true booking=true recId=true"
+    },
+    {
+      "niche": "site-page-dental",
+      "status": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "niche": "beauty/ru",
+      "status": "PASS",
+      "detail": "mode=appointment client=true booking=true recId=true"
+    },
+    {
+      "niche": "site-page-beauty",
+      "status": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "niche": "accounting/en",
+      "status": "PASS",
+      "detail": "mode=inquiry client=true booking=true recId=true"
+    },
+    {
+      "niche": "site-page-accounting",
+      "status": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "niche": "logistics/ru",
+      "status": "PASS",
+      "detail": "mode=inquiry client=true booking=true recId=true"
+    },
+    {
+      "niche": "site-page-logistics",
+      "status": "PASS",
+      "detail": "HTTP 200"
+    },
+    {
+      "niche": "rate-limit",
+      "status": "PASS",
+      "detail": "429 received"
+    }
+  ]
+}

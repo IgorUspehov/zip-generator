@@ -1646,11 +1646,13 @@ export default function App() {
     addRecord: addCrmClient,
     updateRecord: updateCrmClient,
     deleteRecord: deleteCrmClient,
+    mergeRemoteRecords: mergeRemoteClients,
   } = useCrmRecords(crmStorageId, "clients", clients, { allowSeed, hold: holdCrmRecords });
   const [crmShowAddClient, setCrmShowAddClient] = useState(false);
   const [crmClientForm, setCrmClientForm] = useState({ name: "", note: "", phone: "" });
   const [editingClientId, setEditingClientId] = useState(null);
   const [editClientForm, setEditClientForm] = useState({ name: "", note: "", phone: "", visits: 0 });
+  const [siteLeadBadge, setSiteLeadBadge] = useState(0);
   const displayClients = crmClientRecords;
 
   function handleAddCrmClient() {
@@ -1691,6 +1693,7 @@ export default function App() {
     addRecord: addCrmAppointment,
     updateRecord: updateCrmAppointment,
     deleteRecord: deleteCrmAppointment,
+    mergeRemoteRecords: mergeRemoteAppointments,
   } = useCrmRecords(crmStorageId, "appointments", appointments, { allowSeed, hold: holdCrmRecords });
   const [crmShowAddAppointment, setCrmShowAddAppointment] = useState(false);
   const [crmAppointmentForm, setCrmAppointmentForm] = useState({ client: "", service: "", time: "", status: "Pending" });
@@ -1724,6 +1727,51 @@ export default function App() {
       : [],
     { allowSeed, hold: holdCrmRecords },
   );
+
+  // Pull public-site leads from Railway API → merge into local CRM (rec-* only).
+  useEffect(() => {
+    if (!bootClientId || holdCrmRecords) return undefined;
+    const manifestApiBase =
+      import.meta.env.VITE_MANIFEST_API_BASE ||
+      "https://saas-mvp-funnel-production.up.railway.app";
+    let cancelled = false;
+
+    const syncLeads = async () => {
+      try {
+        const response = await fetch(
+          `${manifestApiBase}/api/leads/${encodeURIComponent(bootClientId)}`,
+          { cache: "no-store" },
+        );
+        if (!response.ok || cancelled) return;
+        const data = await response.json();
+        if (cancelled) return;
+        const remoteClients = Array.isArray(data.clients) ? data.clients : [];
+        const remoteAppointments = Array.isArray(data.appointments) ? data.appointments : [];
+        const addedClients = mergeRemoteClients(remoteClients) || 0;
+        const addedAppointments = mergeRemoteAppointments(remoteAppointments) || 0;
+        const added = Number(addedClients) + Number(addedAppointments);
+        if (added > 0) {
+          setSiteLeadBadge((prev) => prev + added);
+        }
+      } catch {
+        /* ignore offline / CORS during local static preview */
+      }
+    };
+
+    void syncLeads();
+    const intervalId = window.setInterval(() => {
+      void syncLeads();
+    }, 8000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [
+    bootClientId,
+    holdCrmRecords,
+    mergeRemoteClients,
+    mergeRemoteAppointments,
+  ]);
 
   const assetSeedSource = getNicheScenario(effectiveBusinessType)?.records || {};
   const {
@@ -2430,9 +2478,33 @@ export default function App() {
           <ul className="module-list sidebar-module-list" style={{ listStyle: "none", padding: 0, margin: 0 }}>
             {navItems.map((item) => (
               <li key={item.id} style={{ display: "block" }}>
-                <button type="button" style={navButtonStyle(item.id)} onClick={() => setActiveTab(item.id)}>
+                <button
+                  type="button"
+                  style={navButtonStyle(item.id)}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    if (clientTabs.has(item.id) || appointmentTabs.has(item.id)) {
+                      setSiteLeadBadge(0);
+                    }
+                  }}
+                >
                   <span aria-hidden="true">{item.icon}</span>
                   <span>{item.label}</span>
+                  {siteLeadBadge > 0 && (clientTabs.has(item.id) || appointmentTabs.has(item.id)) ? (
+                    <span
+                      style={{
+                        marginLeft: "auto",
+                        background: "#ea580c",
+                        color: "#fff",
+                        borderRadius: "999px",
+                        fontSize: "0.7rem",
+                        fontWeight: 800,
+                        padding: "0.1rem 0.45rem",
+                      }}
+                    >
+                      {language === "ru" ? "новая" : language === "de" ? "neu" : "new"}
+                    </span>
+                  ) : null}
                 </button>
               </li>
             ))}
