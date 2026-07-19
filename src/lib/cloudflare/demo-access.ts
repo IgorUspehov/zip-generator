@@ -1,5 +1,6 @@
 import { findDemoByClientId } from "@/lib/cloudflare/demo-registry";
 import { findPendingByClientId } from "@/lib/cloudflare/scheduler";
+import { buildReadableDemoUrl } from "@/lib/cloudflare/shared-project";
 import { POLAR_CHECKOUT_CRM_DEMO } from "@/lib/polar/constants";
 import { buildTariffsPageUrl } from "@/lib/tariffs/urls";
 
@@ -11,6 +12,8 @@ export type DemoAccessStatus = {
   checkoutUrl: string;
   /** Direct Polar CRM Demo checkout (€99). */
   polarCheckoutUrl: string;
+  /** Canonical Railway CRM entry for this tenant (never a foreign pages.dev bake). */
+  crmUrl: string | null;
 };
 
 export function buildCrmDemoCheckoutUrl(clientId: string): string {
@@ -34,13 +37,21 @@ export function resolveDemoAccess(clientId: string): DemoAccessStatus {
   const checkoutUrl = buildTariffsPageUrl({ clientId: id });
 
   if (!id) {
-    return { clientId: "", paid: false, found: false, checkoutUrl, polarCheckoutUrl };
+    return {
+      clientId: "",
+      paid: false,
+      found: false,
+      checkoutUrl,
+      polarCheckoutUrl,
+      crmUrl: null,
+    };
   }
 
   const demo = findDemoByClientId(id);
   const pending = findPendingByClientId(id);
   const found = Boolean(demo || pending);
   const paid = demo?.paid === true || pending?.paid === true;
+  const crmUrl = demo?.slug ? buildReadableDemoUrl(demo.slug, id) : null;
 
-  return { clientId: id, paid, found, checkoutUrl, polarCheckoutUrl };
+  return { clientId: id, paid, found, checkoutUrl, polarCheckoutUrl, crmUrl };
 }

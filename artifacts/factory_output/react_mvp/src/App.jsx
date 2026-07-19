@@ -1451,6 +1451,7 @@ export default function App() {
   }, [manifestLoaded, manifestPending]);
 
   useEffect(() => {
+    // Default to current href; demo-access may replace with canonical Railway /demo/{slug}.
     setMvpUrl(window.location.href);
     setIsTopFrame(window.self === window.top);
   }, []);
@@ -1494,6 +1495,10 @@ export default function App() {
         setDemoPaid(Boolean(data.paid));
         if (typeof data.checkoutUrl === "string" && data.checkoutUrl) {
           setDemoCheckoutUrl(data.checkoutUrl);
+        }
+        // Never keep a foreign pages.dev URL on the "open in new tab" button.
+        if (typeof data.crmUrl === "string" && data.crmUrl) {
+          setMvpUrl(data.crmUrl);
         }
         setDemoAccessReady(true);
       } catch {

@@ -35,6 +35,7 @@ export async function GET(
       paid: access.paid,
       found: access.found,
       checkoutUrl: access.checkoutUrl,
+      crmUrl: access.crmUrl,
     },
     {
       headers: {

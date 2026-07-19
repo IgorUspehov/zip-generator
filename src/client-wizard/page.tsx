@@ -573,6 +573,8 @@ function ClientWizardFlow() {
   const lang = locale as UiLang;
   const copy = getCopy(lang);
 
+  const urlClientId = searchParams?.get("clientId")?.trim() ?? "";
+
   const [step, setStep] = useState<StepId>("s1");
   const [name, setName] = useState("");
   const [businessName, setBusinessName] = useState("");
@@ -608,6 +610,17 @@ function ClientWizardFlow() {
   const [promoChecking, setPromoChecking] = useState(false);
   const [livePreviewIframeSrc, setLivePreviewIframeSrc] = useState<string | null>(null);
   const [livePreviewWarming, setLivePreviewWarming] = useState(false);
+
+  // Drop stale deploy preview if the URL clientId does not match this session's build.
+  useEffect(() => {
+    if (!urlClientId || !deployMeta?.clientId) return;
+    if (deployMeta.clientId === urlClientId) return;
+    setPendingRedirectUrl(null);
+    setDeployMeta(null);
+    setLivePreviewIframeSrc(null);
+    setSiteAccessGranted(false);
+    setStep("s1");
+  }, [urlClientId, deployMeta?.clientId]);
 
   const livePreviewUrl = pendingRedirectUrl ?? deployMeta?.demoUrl ?? previewUrl;
   const hasPromoInput = promoInput.trim().length > 0;
