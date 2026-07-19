@@ -638,6 +638,8 @@ export async function POST(request: Request) {
     );
     const clientId = randomUUID();
     saveClientManifest(clientId, manifest);
+    const { ensureLeadsReadSecret } = await import("@/lib/leads/read-secret");
+    ensureLeadsReadSecret(clientId);
     console.log("[client-questionnaire] manifest saved, clientId:", clientId);
 
     void notifyNewLead({

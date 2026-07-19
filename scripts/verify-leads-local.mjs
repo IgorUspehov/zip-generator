@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Local verification: public site form → /api/leads → Firestore → CRM sync payload.
+ * Local verification: public site form → POST /api/leads → Firestore → protected CRM GET.
  *
  * Usage (from repo root, with Firebase env loaded):
  *   node scripts/verify-leads-local.mjs [baseUrl]
@@ -49,10 +49,36 @@ function writeManifest(clientId, c) {
   fs.writeFileSync(path.join(dir, `${clientId}.json`), `${JSON.stringify(manifest, null, 2)}\n`);
 }
 
-async function postLead(clientId, lang, name, phone) {
+function readLeadsSecret(clientId) {
+  const file = path.join(dataDir(), "manifests", `${clientId}.json`);
+  if (!fs.existsSync(file)) return "";
+  try {
+    const manifest = JSON.parse(fs.readFileSync(file, "utf8"));
+    return typeof manifest.leadsReadSecret === "string" ? manifest.leadsReadSecret : "";
+  } catch {
+    return "";
+  }
+}
+
+function hasPiiLeak(body) {
+  const raw = JSON.stringify(body || {});
+  return /name|phone|email|clients|appointments|orders|rec-/i.test(raw) &&
+    (Array.isArray(body?.clients) ||
+      Array.isArray(body?.appointments) ||
+      body?.client ||
+      body?.booking ||
+      body?.name ||
+      body?.phone);
+}
+
+async function postLead(clientId, lang, name, phone, ipSuffix = Math.floor(Math.random() * 200)) {
   const res = await fetch(`${base}/api/leads/${encodeURIComponent(clientId)}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "x-forwarded-for": `203.0.113.${Math.floor(Math.random() * 200)}` },
+    headers: {
+      "Content-Type": "application/json",
+      "x-forwarded-for": `203.0.113.${ipSuffix}`,
+      "x-real-ip": `203.0.113.${ipSuffix}`,
+    },
     body: JSON.stringify({
       name,
       phone,
@@ -65,9 +91,18 @@ async function postLead(clientId, lang, name, phone) {
   return { status: res.status, body };
 }
 
-async function getLeads(clientId) {
+async function getPublicLeads(clientId) {
   const res = await fetch(`${base}/api/leads/${encodeURIComponent(clientId)}`, {
     cache: "no-store",
+  });
+  const body = await res.json().catch(() => ({}));
+  return { status: res.status, body };
+}
+
+async function getCrmLeads(clientId, token) {
+  const res = await fetch(`${base}/api/crm/leads/${encodeURIComponent(clientId)}`, {
+    cache: "no-store",
+    headers: token ? { "x-crm-leads-token": token } : {},
   });
   const body = await res.json().catch(() => ({}));
   return { status: res.status, body };
@@ -77,6 +112,27 @@ async function main() {
   const rows = [];
   console.log(`Base: ${base}`);
   console.log(`Data: ${dataDir()}`);
+
+  // Public GET must not list leads
+  {
+    writeManifest(CASES[0].id, CASES[0]);
+    const res = await getPublicLeads(CASES[0].id);
+    rows.push({
+      niche: "public-get-blocked",
+      status: res.status === 405 ? "PASS" : "FAIL",
+      detail: `HTTP ${res.status} ${JSON.stringify(res.body).slice(0, 120)}`,
+    });
+  }
+
+  // CRM GET without token
+  {
+    const res = await getCrmLeads(CASES[0].id, "");
+    rows.push({
+      niche: "crm-get-unauthorized",
+      status: res.status === 401 ? "PASS" : "FAIL",
+      detail: `HTTP ${res.status}`,
+    });
+  }
 
   // Rejection: missing client
   {
@@ -104,6 +160,8 @@ async function main() {
     });
   }
 
+  const secrets = {};
+
   for (const c of CASES) {
     writeManifest(c.id, c);
     const phone = `+49170${String(Date.now()).slice(-8)}`;
@@ -116,26 +174,57 @@ async function main() {
       });
       continue;
     }
-    const listed = await getLeads(c.id);
+
+    const postClean = posted.body?.ok === true &&
+      posted.body?.mode === c.mode &&
+      !hasPiiLeak(posted.body);
+    rows.push({
+      niche: `post-no-pii-${c.sectorId}`,
+      status: postClean ? "PASS" : "FAIL",
+      detail: JSON.stringify(posted.body),
+    });
+
+    const secret = readLeadsSecret(c.id);
+    secrets[c.id] = secret;
+    const listed = await getCrmLeads(c.id, secret);
     const clients = listed.body?.clients || [];
     const appointments = listed.body?.appointments || [];
     const hasClient = clients.some((x) => String(x.phone).includes(phone.slice(-6)));
     const hasBooking = appointments.some((x) => String(x.phone).includes(phone.slice(-6)));
-    const modeOk = listed.body?.mode === c.mode;
-    const idIsRec = String(posted.body?.client?.id || "").startsWith("rec-");
-    const pass = listed.status === 200 && hasClient && hasBooking && modeOk && idIsRec;
+    const idIsRec = clients.some((x) => String(x.id || "").startsWith("rec-"));
+    const pass = listed.status === 200 && Boolean(secret) && hasClient && hasBooking && idIsRec;
     rows.push({
       niche: `${c.sectorId}/${c.lang}`,
       status: pass ? "PASS" : "FAIL",
-      detail: `mode=${listed.body?.mode} client=${hasClient} booking=${hasBooking} recId=${idIsRec}`,
+      detail: `crm=${listed.status} client=${hasClient} booking=${hasBooking} recId=${idIsRec} secret=${Boolean(secret)}`,
     });
 
-    // Site page renders
     const site = await fetch(`${base}/site/${c.id}?lang=${c.lang}`);
+    const html = await site.text();
+    const noSeedClients =
+      !/Водитель Ганс|Driver Hans|seed|demo.?client/i.test(html) ||
+      /popular|service|appointment|order|inquiry/i.test(html);
     rows.push({
       niche: `site-page-${c.sectorId}`,
       status: site.status === 200 ? "PASS" : "FAIL",
       detail: `HTTP ${site.status}`,
+    });
+    rows.push({
+      niche: `site-no-seed-${c.sectorId}`,
+      status: site.status === 200 && !html.includes("Водитель Ганс") ? "PASS" : "FAIL",
+      detail: noSeedClients ? "no seed names" : "seed leakage?",
+    });
+  }
+
+  // Cross-tenant: secret A must not read client B
+  {
+    const a = CASES[0];
+    const b = CASES[1];
+    const wrong = await getCrmLeads(b.id, secrets[a.id] || "x".repeat(64));
+    rows.push({
+      niche: "cross-tenant-isolation",
+      status: wrong.status === 401 ? "PASS" : "FAIL",
+      detail: `HTTP ${wrong.status}`,
     });
   }
 
@@ -149,7 +238,8 @@ async function main() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-forwarded-for": "198.51.100.77",
+          "x-forwarded-for": "198.51.100.77, 10.0.0.1",
+          "x-real-ip": "198.51.100.77",
         },
         body: JSON.stringify({
           name: `Rate ${i}`,

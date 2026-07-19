@@ -1,7 +1,17 @@
 {
   "base": "http://127.0.0.1:3011",
-  "generatedAt": "2026-07-19T08:40:39.807Z",
+  "generatedAt": "2026-07-19T09:10:47.334Z",
   "rows": [
+    {
+      "niche": "public-get-blocked",
+      "status": "PASS",
+      "detail": "HTTP 405 {\"error\":\"method_not_allowed\"}"
+    },
+    {
+      "niche": "crm-get-unauthorized",
+      "status": "PASS",
+      "detail": "HTTP 401"
+    },
     {
       "niche": "reject-missing-client",
       "status": "PASS",
@@ -13,9 +23,14 @@
       "detail": "HTTP 400"
     },
     {
+      "niche": "post-no-pii-shop",
+      "status": "PASS",
+      "detail": "{\"ok\":true,\"mode\":\"order\"}"
+    },
+    {
       "niche": "shop/en",
       "status": "PASS",
-      "detail": "mode=order client=true booking=true recId=true"
+      "detail": "crm=200 client=true booking=true recId=true secret=true"
     },
     {
       "niche": "site-page-shop",
@@ -23,9 +38,19 @@
       "detail": "HTTP 200"
     },
     {
+      "niche": "site-no-seed-shop",
+      "status": "PASS",
+      "detail": "no seed names"
+    },
+    {
+      "niche": "post-no-pii-dental",
+      "status": "PASS",
+      "detail": "{\"ok\":true,\"mode\":\"appointment\"}"
+    },
+    {
       "niche": "dental/de",
       "status": "PASS",
-      "detail": "mode=appointment client=true booking=true recId=true"
+      "detail": "crm=200 client=true booking=true recId=true secret=true"
     },
     {
       "niche": "site-page-dental",
@@ -33,9 +58,19 @@
       "detail": "HTTP 200"
     },
     {
+      "niche": "site-no-seed-dental",
+      "status": "PASS",
+      "detail": "no seed names"
+    },
+    {
+      "niche": "post-no-pii-beauty",
+      "status": "PASS",
+      "detail": "{\"ok\":true,\"mode\":\"appointment\"}"
+    },
+    {
       "niche": "beauty/ru",
       "status": "PASS",
-      "detail": "mode=appointment client=true booking=true recId=true"
+      "detail": "crm=200 client=true booking=true recId=true secret=true"
     },
     {
       "niche": "site-page-beauty",
@@ -43,9 +78,19 @@
       "detail": "HTTP 200"
     },
     {
+      "niche": "site-no-seed-beauty",
+      "status": "PASS",
+      "detail": "no seed names"
+    },
+    {
+      "niche": "post-no-pii-accounting",
+      "status": "PASS",
+      "detail": "{\"ok\":true,\"mode\":\"inquiry\"}"
+    },
+    {
       "niche": "accounting/en",
       "status": "PASS",
-      "detail": "mode=inquiry client=true booking=true recId=true"
+      "detail": "crm=200 client=true booking=true recId=true secret=true"
     },
     {
       "niche": "site-page-accounting",
@@ -53,14 +98,34 @@
       "detail": "HTTP 200"
     },
     {
+      "niche": "site-no-seed-accounting",
+      "status": "PASS",
+      "detail": "no seed names"
+    },
+    {
+      "niche": "post-no-pii-logistics",
+      "status": "PASS",
+      "detail": "{\"ok\":true,\"mode\":\"inquiry\"}"
+    },
+    {
       "niche": "logistics/ru",
       "status": "PASS",
-      "detail": "mode=inquiry client=true booking=true recId=true"
+      "detail": "crm=200 client=true booking=true recId=true secret=true"
     },
     {
       "niche": "site-page-logistics",
       "status": "PASS",
       "detail": "HTTP 200"
+    },
+    {
+      "niche": "site-no-seed-logistics",
+      "status": "PASS",
+      "detail": "no seed names"
+    },
+    {
+      "niche": "cross-tenant-isolation",
+      "status": "PASS",
+      "detail": "HTTP 401"
     },
     {
       "niche": "rate-limit",

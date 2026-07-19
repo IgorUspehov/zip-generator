@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { normalizeManifestMedia } from "@/lib/manifest/normalize-manifest-media";
 import { loadClientManifest } from "@/lib/manifest/storage";
+import { stripLeadsSecrets } from "@/lib/leads/read-secret";
 
 export const runtime = "nodejs";
 
@@ -29,5 +30,7 @@ export async function GET(
     );
   }
 
-  return NextResponse.json(normalizeManifestMedia(manifest), { headers: CORS_HEADERS });
+  return NextResponse.json(stripLeadsSecrets(normalizeManifestMedia(manifest)), {
+    headers: CORS_HEADERS,
+  });
 }

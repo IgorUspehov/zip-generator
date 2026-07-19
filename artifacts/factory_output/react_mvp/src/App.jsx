@@ -1728,19 +1728,27 @@ export default function App() {
     { allowSeed, hold: holdCrmRecords },
   );
 
-  // Pull public-site leads from Railway API → merge into local CRM (rec-* only).
+  // Pull site leads via protected CRM API (per-client read secret).
   useEffect(() => {
     if (!bootClientId || holdCrmRecords) return undefined;
     const manifestApiBase =
       import.meta.env.VITE_MANIFEST_API_BASE ||
       "https://saas-mvp-funnel-production.up.railway.app";
+    const leadsToken =
+      typeof window !== "undefined" && typeof window.__CRM_LEADS_READ_SECRET__ === "string"
+        ? window.__CRM_LEADS_READ_SECRET__
+        : "";
+    if (!leadsToken) return undefined;
     let cancelled = false;
 
     const syncLeads = async () => {
       try {
         const response = await fetch(
-          `${manifestApiBase}/api/leads/${encodeURIComponent(bootClientId)}`,
-          { cache: "no-store" },
+          `${manifestApiBase}/api/crm/leads/${encodeURIComponent(bootClientId)}`,
+          {
+            cache: "no-store",
+            headers: { "x-crm-leads-token": leadsToken },
+          },
         );
         if (!response.ok || cancelled) return;
         const data = await response.json();

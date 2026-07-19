@@ -1,24 +1,24 @@
+import { isIP } from "net";
+
 import { NextResponse } from "next/server";
 
 import { findDemoByClientId } from "@/lib/cloudflare/demo-registry";
 import { findPendingByClientId } from "@/lib/cloudflare/scheduler";
-import { resolveLeadFormMode, normalizeLeadLang } from "@/lib/leads/niche-mode";
+import { resolveLeadFormMode } from "@/lib/leads/niche-mode";
 import { notifyNewLead } from "@/lib/leads/notify-site-lead";
 import { assertLeadRateLimit } from "@/lib/leads/rate-limit";
-import {
-  createSiteLead,
-  listSiteLeads,
-  loadNicheServiceOptions,
-} from "@/lib/leads/store";
+import { ensureLeadsReadSecret } from "@/lib/leads/read-secret";
+import { createSiteLead } from "@/lib/leads/store";
 import { validateLeadPayload } from "@/lib/leads/validate";
 import { loadClientManifest } from "@/lib/manifest/storage";
 import { DEFAULT_BUSINESS_TYPE } from "@/lib/sector-mapping";
 
 export const runtime = "nodejs";
 
+/** Public form endpoint — POST only. No lead listing. */
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
@@ -45,53 +45,37 @@ function resolveBusinessMeta(clientId: string): {
   return { businessType, businessName, language };
 }
 
-function readClientIp(request: Request): string {
+/**
+ * Client IP behind Railway: prefer platform x-real-ip; otherwise the
+ * rightmost X-Forwarded-For hop (appended by the trusted proxy), never
+ * the leftmost spoofable value alone when a chain is present.
+ */
+export function readClientIp(request: Request): string {
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp && isIP(realIp)) return realIp;
+
   const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0]?.trim() || "unknown";
-  return request.headers.get("x-real-ip")?.trim() || "unknown";
+  if (forwarded) {
+    const parts = forwarded
+      .split(",")
+      .map((part) => part.trim())
+      .filter((part) => part && isIP(part));
+    if (parts.length === 1) return parts[0]!;
+    if (parts.length > 1) return parts[parts.length - 1]!;
+  }
+
+  return "unknown";
 }
 
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
 }
 
-export async function GET(
-  request: Request,
-  context: { params: Promise<{ clientId: string }> },
-) {
-  const { clientId: raw } = await context.params;
-  const clientId = decodeURIComponent(raw || "").trim();
-  if (!clientId || !clientIdExists(clientId)) {
-    return NextResponse.json(
-      { error: "clientId not found" },
-      { status: 404, headers: CORS_HEADERS },
-    );
-  }
-
-  const url = new URL(request.url);
-  const lang = normalizeLeadLang(url.searchParams.get("lang") || undefined);
-  const meta = resolveBusinessMeta(clientId);
-  const mode = resolveLeadFormMode(meta.businessType);
-
-  try {
-    const leads = await listSiteLeads(clientId);
-    const services = loadNicheServiceOptions(meta.businessType, lang);
-    return NextResponse.json(
-      {
-        clientId,
-        mode,
-        businessType: meta.businessType,
-        businessName: meta.businessName,
-        services,
-        ...leads,
-      },
-      { headers: { ...CORS_HEADERS, "Cache-Control": "no-store" } },
-    );
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to list leads";
-    console.error("[leads] GET failed", { clientId, message });
-    return NextResponse.json({ error: message }, { status: 500, headers: CORS_HEADERS });
-  }
+export async function GET() {
+  return NextResponse.json(
+    { error: "method_not_allowed" },
+    { status: 405, headers: { ...CORS_HEADERS, Allow: "POST, OPTIONS" } },
+  );
 }
 
 export async function POST(
@@ -164,6 +148,9 @@ export async function POST(
   };
 
   try {
+    // Ensure CRM sync secret exists for this tenant (not returned publicly).
+    ensureLeadsReadSecret(clientId);
+
     const result = await createSiteLead({
       clientId,
       businessType: meta.businessType,
@@ -183,15 +170,11 @@ export async function POST(
       orderId: result.order?.id,
     });
 
+    // Public response: no names, phones, or record payloads.
     return NextResponse.json(
       {
         ok: true,
-        clientId,
         mode,
-        createdClient: result.createdClient,
-        client: result.client,
-        booking: result.booking || null,
-        order: result.order || null,
       },
       { status: 201, headers: CORS_HEADERS },
     );

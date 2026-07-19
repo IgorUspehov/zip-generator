@@ -8,6 +8,7 @@ import {
 } from "@/lib/image-library";
 
 import { RAILWAY_FRAME_ANCESTOR } from "@/lib/cloudflare/iframe-ready";
+import { ensureLeadsReadSecret, stripLeadsSecrets } from "@/lib/leads/read-secret";
 
 /** Cloudflare Pages _headers — allow Live Preview iframe from Railway only. */
 export const CLIENT_DIST_HEADERS = `/*
@@ -51,9 +52,10 @@ function writeClientDistHeaders(stagingDir: string): void {
 
 function patchClientIndexHtml(
   stagingDir: string,
-  manifest: ManifestLike,
-  siteUrl?: string,
-  clientId?: string,
+  publicManifest: ManifestLike,
+  siteUrl: string | undefined,
+  clientId: string | undefined,
+  leadsReadSecret: string | undefined,
 ): void {
   const indexPath = path.join(stagingDir, "index.html");
   if (!fs.existsSync(indexPath)) {
@@ -61,8 +63,8 @@ function patchClientIndexHtml(
     return;
   }
 
-  const businessName = String(manifest.businessName ?? "CRM Demo");
-  const businessType = String(manifest.businessType ?? "generic");
+  const businessName = String(publicManifest.businessName ?? "CRM Demo");
+  const businessType = String(publicManifest.businessType ?? "generic");
   const typeLabel = formatBusinessTypeLabel(businessType);
   const title = `${businessName} — ${typeLabel}`;
   const ogTitle = businessName;
@@ -103,8 +105,13 @@ function patchClientIndexHtml(
   if (clientId) {
     const bootstrapParts = [
       `window.__CRM_DEMO_CLIENT_ID__=${JSON.stringify(clientId)};`,
-      `window.__CRM_DEMO_MANIFEST__=${JSON.stringify(manifest)};`,
+      `window.__CRM_DEMO_MANIFEST__=${JSON.stringify(publicManifest)};`,
     ];
+    if (leadsReadSecret) {
+      bootstrapParts.push(
+        `window.__CRM_LEADS_READ_SECRET__=${JSON.stringify(leadsReadSecret)};`,
+      );
+    }
     const bootstrapScript = `<script>${bootstrapParts.join("")}</script>`;
     const rootDiv = html.indexOf('<div id="root">');
     if (rootDiv !== -1) {
@@ -115,13 +122,13 @@ function patchClientIndexHtml(
   fs.writeFileSync(indexPath, html, "utf8");
 }
 
-function writeClientManifestArtifact(stagingDir: string, manifest: ManifestLike): void {
+function writeClientManifestArtifact(stagingDir: string, publicManifest: ManifestLike): void {
   const artifactPath = path.join(stagingDir, CLIENT_MANIFEST_ARTIFACT);
-  fs.writeFileSync(artifactPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  fs.writeFileSync(artifactPath, `${JSON.stringify(publicManifest, null, 2)}\n`, "utf8");
   console.log("[og-image] wrote client manifest artifact", {
     artifactPath,
-    businessName: String(manifest.businessName ?? ""),
-    businessType: String(manifest.businessType ?? ""),
+    businessName: String(publicManifest.businessName ?? ""),
+    businessType: String(publicManifest.businessType ?? ""),
   });
 }
 
@@ -156,9 +163,12 @@ export async function prepareClientDistWithOgImage(
     bytes: ogBytes,
   });
 
+  const leadsReadSecret = ensureLeadsReadSecret(clientId);
+  const publicManifest = stripLeadsSecrets({ ...manifest }) as ManifestLike;
+
   writeClientDistHeaders(stagingDir);
-  writeClientManifestArtifact(stagingDir, manifest);
-  patchClientIndexHtml(stagingDir, manifest, siteUrl, clientId);
+  writeClientManifestArtifact(stagingDir, publicManifest);
+  patchClientIndexHtml(stagingDir, publicManifest, siteUrl, clientId, leadsReadSecret);
   return stagingDir;
 }
 
