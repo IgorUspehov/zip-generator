@@ -1,3 +1,4 @@
+import { CrmLeadsBridge } from "@/components/crm-leads-bridge";
 import { DemoUnpaidBanner } from "@/components/demo-unpaid-banner";
 import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
 import { buildDemoEmbedSrc } from "@/lib/cloudflare/demo-embed";
@@ -36,6 +37,8 @@ export default async function ShortDemoPage({ params }: ShortDemoPageProps) {
   const src = buildDemoEmbedSrc(record);
   const bannerOffset = unpaid ? 52 : 0;
 
+  const iframeTitle = `CRM Demo ${shortId}`;
+
   return (
     <>
       {unpaid ? (
@@ -45,8 +48,13 @@ export default async function ShortDemoPage({ params }: ShortDemoPageProps) {
           language={language}
         />
       ) : null}
+      <CrmLeadsBridge
+        clientId={record.clientId}
+        shortId={shortId}
+        iframeTitle={iframeTitle}
+      />
       <iframe
-        title={`CRM Demo ${shortId}`}
+        title={iframeTitle}
         src={src}
         style={{
           position: "fixed",

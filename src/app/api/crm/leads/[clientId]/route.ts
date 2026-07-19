@@ -17,9 +17,8 @@ const CORS_HEADERS = {
 };
 
 /**
- * Protected CRM sync — requires per-client leadsReadSecret
- * (injected into CRM dist as window.__CRM_LEADS_READ_SECRET__).
- * Never expose this route without the secret header.
+ * Protected CRM sync — requires per-client leadsReadSecret header.
+ * Secret stays server-side (manifest on disk); never bake into HTML/JS.
  */
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: CORS_HEADERS });

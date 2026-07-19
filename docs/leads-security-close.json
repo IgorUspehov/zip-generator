@@ -1,0 +1,107 @@
+{
+  "base": "http://127.0.0.1:3011",
+  "generatedAt": "2026-07-19T09:44:16.335Z",
+  "secretLeakFails": [],
+  "rows": [
+    {
+      "niche": "_public_get",
+      "lang": "-",
+      "post": "-",
+      "crm": "-",
+      "getPublic": "405",
+      "protectedGet": "-",
+      "rateLimit": "-",
+      "status": "PASS"
+    },
+    {
+      "niche": "dedupe-phone",
+      "lang": "ru",
+      "post": "201x2",
+      "crm": "clients=1;apt=2;seed=false",
+      "getPublic": "-",
+      "protectedGet": "200",
+      "rateLimit": "-",
+      "status": "PASS"
+    },
+    {
+      "niche": "auth-matrix",
+      "lang": "-",
+      "post": "-",
+      "crm": "scoped",
+      "getPublic": "-",
+      "protectedGet": "none=401;bad=401;ok=200",
+      "rateLimit": "-",
+      "status": "PASS"
+    },
+    {
+      "niche": "cross-tenant",
+      "lang": "-",
+      "post": "-",
+      "crm": "isolated",
+      "getPublic": "-",
+      "protectedGet": "wrong=401;right=200",
+      "rateLimit": "-",
+      "status": "PASS"
+    },
+    {
+      "niche": "beauty",
+      "lang": "ru",
+      "post": "201/appointment",
+      "crm": "appointments+client",
+      "getPublic": "405",
+      "protectedGet": "200",
+      "rateLimit": "-",
+      "status": "PASS"
+    },
+    {
+      "niche": "dental",
+      "lang": "de",
+      "post": "201/appointment",
+      "crm": "appointments+client",
+      "getPublic": "405",
+      "protectedGet": "200",
+      "rateLimit": "-",
+      "status": "PASS"
+    },
+    {
+      "niche": "shop",
+      "lang": "en",
+      "post": "201/order",
+      "crm": "orders+client",
+      "getPublic": "405",
+      "protectedGet": "200",
+      "rateLimit": "-",
+      "status": "PASS"
+    },
+    {
+      "niche": "accounting",
+      "lang": "de",
+      "post": "201/inquiry",
+      "crm": "appointments+client",
+      "getPublic": "405",
+      "protectedGet": "200",
+      "rateLimit": "-",
+      "status": "PASS"
+    },
+    {
+      "niche": "logistics",
+      "lang": "ru",
+      "post": "201/inquiry",
+      "crm": "appointments+client",
+      "getPublic": "405",
+      "protectedGet": "200",
+      "rateLimit": "-",
+      "status": "PASS"
+    },
+    {
+      "niche": "rate-limit",
+      "lang": "-",
+      "post": "201,201,201,201,201,429",
+      "crm": "-",
+      "getPublic": "-",
+      "protectedGet": "-",
+      "rateLimit": "5ok+429",
+      "status": "PASS"
+    }
+  ]
+}

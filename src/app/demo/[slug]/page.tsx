@@ -1,3 +1,4 @@
+import { CrmLeadsBridge } from "@/components/crm-leads-bridge";
 import { DemoUnpaidBanner } from "@/components/demo-unpaid-banner";
 import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
 import { findDemoBySlug } from "@/lib/cloudflare/demo-registry";
@@ -48,13 +49,16 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
 
   const bannerOffset = unpaid ? 52 : 0;
 
+  const iframeTitle = `CRM Demo ${slug}`;
+
   return (
     <>
       {unpaid ? (
         <DemoUnpaidBanner clientId={clientId} checkoutUrl={checkoutUrl} language={language} />
       ) : null}
+      <CrmLeadsBridge clientId={clientId} slug={slug} iframeTitle={iframeTitle} />
       <iframe
-        title={`CRM Demo ${slug}`}
+        title={iframeTitle}
         src={src}
         style={{
           position: "fixed",

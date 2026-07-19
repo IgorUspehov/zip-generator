@@ -1728,51 +1728,62 @@ export default function App() {
     { allowSeed, hold: holdCrmRecords },
   );
 
-  // Pull site leads via protected CRM API (per-client read secret).
+  // Site leads: Railway parent postMessage (no secret in HTML/JS) and optional token header.
   useEffect(() => {
     if (!bootClientId || holdCrmRecords) return undefined;
-    const manifestApiBase =
-      import.meta.env.VITE_MANIFEST_API_BASE ||
-      "https://saas-mvp-funnel-production.up.railway.app";
+    let cancelled = false;
+
+    const applyPayload = (data) => {
+      if (cancelled || !data || data.clientId !== bootClientId) return;
+      const remoteClients = Array.isArray(data.clients) ? data.clients : [];
+      const remoteAppointments = Array.isArray(data.appointments) ? data.appointments : [];
+      const addedClients = mergeRemoteClients(remoteClients) || 0;
+      const addedAppointments = mergeRemoteAppointments(remoteAppointments) || 0;
+      const added = Number(addedClients) + Number(addedAppointments);
+      if (added > 0) setSiteLeadBadge((prev) => prev + added);
+    };
+
+    const onMessage = (event) => {
+      const data = event?.data;
+      if (!data || data.type !== "SITE_LEADS_SYNC") return;
+      applyPayload(data);
+    };
+    window.addEventListener("message", onMessage);
+
     const leadsToken =
       typeof window !== "undefined" && typeof window.__CRM_LEADS_READ_SECRET__ === "string"
         ? window.__CRM_LEADS_READ_SECRET__
         : "";
-    if (!leadsToken) return undefined;
-    let cancelled = false;
-
-    const syncLeads = async () => {
-      try {
-        const response = await fetch(
-          `${manifestApiBase}/api/crm/leads/${encodeURIComponent(bootClientId)}`,
-          {
-            cache: "no-store",
-            headers: { "x-crm-leads-token": leadsToken },
-          },
-        );
-        if (!response.ok || cancelled) return;
-        const data = await response.json();
-        if (cancelled) return;
-        const remoteClients = Array.isArray(data.clients) ? data.clients : [];
-        const remoteAppointments = Array.isArray(data.appointments) ? data.appointments : [];
-        const addedClients = mergeRemoteClients(remoteClients) || 0;
-        const addedAppointments = mergeRemoteAppointments(remoteAppointments) || 0;
-        const added = Number(addedClients) + Number(addedAppointments);
-        if (added > 0) {
-          setSiteLeadBadge((prev) => prev + added);
+    let intervalId = 0;
+    if (leadsToken) {
+      const manifestApiBase =
+        import.meta.env.VITE_MANIFEST_API_BASE ||
+        "https://saas-mvp-funnel-production.up.railway.app";
+      const syncLeads = async () => {
+        try {
+          const response = await fetch(
+            `${manifestApiBase}/api/crm/leads/${encodeURIComponent(bootClientId)}`,
+            {
+              cache: "no-store",
+              headers: { "x-crm-leads-token": leadsToken },
+            },
+          );
+          if (!response.ok || cancelled) return;
+          applyPayload({ ...(await response.json()), clientId: bootClientId });
+        } catch {
+          /* ignore */
         }
-      } catch {
-        /* ignore offline / CORS during local static preview */
-      }
-    };
-
-    void syncLeads();
-    const intervalId = window.setInterval(() => {
+      };
       void syncLeads();
-    }, 8000);
+      intervalId = window.setInterval(() => {
+        void syncLeads();
+      }, 8000);
+    }
+
     return () => {
       cancelled = true;
-      window.clearInterval(intervalId);
+      window.removeEventListener("message", onMessage);
+      if (intervalId) window.clearInterval(intervalId);
     };
   }, [
     bootClientId,

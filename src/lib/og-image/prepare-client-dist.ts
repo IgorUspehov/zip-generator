@@ -55,7 +55,6 @@ function patchClientIndexHtml(
   publicManifest: ManifestLike,
   siteUrl: string | undefined,
   clientId: string | undefined,
-  leadsReadSecret: string | undefined,
 ): void {
   const indexPath = path.join(stagingDir, "index.html");
   if (!fs.existsSync(indexPath)) {
@@ -103,16 +102,8 @@ function patchClientIndexHtml(
   upsertMeta("twitter:image", ogImageUrl, "name");
 
   if (clientId) {
-    const bootstrapParts = [
-      `window.__CRM_DEMO_CLIENT_ID__=${JSON.stringify(clientId)};`,
-      `window.__CRM_DEMO_MANIFEST__=${JSON.stringify(publicManifest)};`,
-    ];
-    if (leadsReadSecret) {
-      bootstrapParts.push(
-        `window.__CRM_LEADS_READ_SECRET__=${JSON.stringify(leadsReadSecret)};`,
-      );
-    }
-    const bootstrapScript = `<script>${bootstrapParts.join("")}</script>`;
+    // Never bake leadsReadSecret into HTML/JS — CRM sync uses Railway session bridge / token header.
+    const bootstrapScript = `<script>window.__CRM_DEMO_CLIENT_ID__=${JSON.stringify(clientId)};window.__CRM_DEMO_MANIFEST__=${JSON.stringify(publicManifest)};</script>`;
     const rootDiv = html.indexOf('<div id="root">');
     if (rootDiv !== -1) {
       html = `${html.slice(0, rootDiv)}${bootstrapScript}\n    ${html.slice(rootDiv)}`;
@@ -163,12 +154,12 @@ export async function prepareClientDistWithOgImage(
     bytes: ogBytes,
   });
 
-  const leadsReadSecret = ensureLeadsReadSecret(clientId);
+  ensureLeadsReadSecret(clientId);
   const publicManifest = stripLeadsSecrets({ ...manifest }) as ManifestLike;
 
   writeClientDistHeaders(stagingDir);
   writeClientManifestArtifact(stagingDir, publicManifest);
-  patchClientIndexHtml(stagingDir, publicManifest, siteUrl, clientId, leadsReadSecret);
+  patchClientIndexHtml(stagingDir, publicManifest, siteUrl, clientId);
   return stagingDir;
 }
 
