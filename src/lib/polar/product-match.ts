@@ -30,7 +30,11 @@ export function resolvePolarProductKind(order: Record<string, unknown>): {
   }
 
   const nameLower = productName.toLowerCase();
-  if (nameLower.includes("crm demo")) {
+  if (
+    nameLower.includes("crm demo") ||
+    nameLower === "crm demo monthly" ||
+    (nameLower.includes("crm") && nameLower.includes("demo") && nameLower.includes("month"))
+  ) {
     return { kind: "crm_demo", productId, productName };
   }
   if (nameLower.includes("crm full")) {

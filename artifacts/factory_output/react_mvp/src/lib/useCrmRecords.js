@@ -35,15 +35,23 @@ function writeStorage(key, records) {
 /**
  * Demo CRM rows are seeded from localized scenario defaults only when allowSeed=true
  * (unpaid demo). Paid CRM keeps only user `rec-*` rows — never scenario seeds.
+ * When hold=true (payment status still loading), keep empty and do not touch storage.
  */
 export function useCrmRecords(clientId, section, defaultRecords = [], options = {}) {
-  const allowSeed = options.allowSeed !== false;
+  const allowSeed = options.allowSeed === true;
+  const hold = options.hold === true;
   const storageKey = clientId && section ? `mvp_crm:${clientId}:${section}` : null;
   const defaultsKey = useMemo(() => JSON.stringify(defaultRecords), [defaultRecords]);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (hold) {
+      setRecords([]);
+      setLoading(true);
+      return;
+    }
+
     const parsedDefaults = allowSeed ? JSON.parse(defaultsKey) : [];
     const seeded = allowSeed ? normalizeDefaults(parsedDefaults) : [];
 
@@ -70,7 +78,7 @@ export function useCrmRecords(clientId, section, defaultRecords = [], options = 
       writeStorage(storageKey, []);
     }
     setLoading(false);
-  }, [storageKey, defaultsKey, allowSeed]);
+  }, [storageKey, defaultsKey, allowSeed, hold]);
 
   const persist = useCallback(
     (next) => {

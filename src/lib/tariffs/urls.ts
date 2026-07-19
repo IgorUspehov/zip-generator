@@ -27,10 +27,19 @@ export function buildTariffsPageUrl(
   return origin ? `${origin}${path}` : path;
 }
 
-export function buildCrmDemoPolarUrl(clientId: string, email?: string): string {
+export function buildCrmDemoPolarUrl(
+  clientId: string,
+  email?: string,
+  locale?: string,
+): string {
   const url = new URL(POLAR_CHECKOUT_CRM_DEMO);
   if (clientId) url.searchParams.set("reference_id", clientId);
+  if (email?.trim()) url.searchParams.set("customer_email", email.trim());
   if (email?.trim()) url.searchParams.set("prefilled_email", email.trim());
+  const lang = (locale || "").toLowerCase();
+  if (lang.startsWith("ru")) url.searchParams.set("locale", "ru");
+  else if (lang.startsWith("de")) url.searchParams.set("locale", "de");
+  else if (lang.startsWith("en")) url.searchParams.set("locale", "en");
   return url.toString();
 }
 

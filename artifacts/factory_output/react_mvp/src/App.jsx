@@ -1364,9 +1364,11 @@ export default function App() {
   const [manifestPending, setManifestPending] = useState(Boolean(bootClientId));
   const [manifestLoaded, setManifestLoaded] = useState(false);
   const [manifestError, setManifestError] = useState(null);
-  const [demoPaid, setDemoPaid] = useState(() => !bootClientId);
+  /** null = access unknown (hold seeds); true = paid empty CRM; false = unpaid demo */
+  const [demoPaid, setDemoPaid] = useState(() => (bootClientId ? null : true));
   const [demoCheckoutUrl, setDemoCheckoutUrl] = useState("");
   const [demoAccessReady, setDemoAccessReady] = useState(() => !bootClientId);
+  const [isTopFrame, setIsTopFrame] = useState(true);
 
   const effectiveBusinessType = useMemo(() => {
     if (businessType) {
@@ -1450,6 +1452,7 @@ export default function App() {
 
   useEffect(() => {
     setMvpUrl(window.location.href);
+    setIsTopFrame(window.self === window.top);
   }, []);
 
   useEffect(() => {
@@ -1628,19 +1631,22 @@ export default function App() {
   const clients = demoSource.clients || [];
   const appointments = demoSource.appointments || [];
   const services = demoSource.services || [];
-  const allowSeed = !demoPaid;
+  const isPaidCrm = demoPaid === true;
+  const isUnpaidDemo = demoPaid === false;
+  const holdCrmRecords = Boolean(bootClientId) && demoPaid === null;
+  const allowSeed = isUnpaidDemo;
 
   useEffect(() => {
-    if (!demoPaid || !crmStorageId) return;
+    if (!isPaidCrm || !crmStorageId) return;
     purgeSeedRecords(crmStorageId, CRM_STORAGE_SECTIONS);
-  }, [demoPaid, crmStorageId]);
+  }, [isPaidCrm, crmStorageId]);
 
   const {
     records: crmClientRecords,
     addRecord: addCrmClient,
     updateRecord: updateCrmClient,
     deleteRecord: deleteCrmClient,
-  } = useCrmRecords(crmStorageId, "clients", clients, { allowSeed });
+  } = useCrmRecords(crmStorageId, "clients", clients, { allowSeed, hold: holdCrmRecords });
   const [crmShowAddClient, setCrmShowAddClient] = useState(false);
   const [crmClientForm, setCrmClientForm] = useState({ name: "", note: "", phone: "" });
   const [editingClientId, setEditingClientId] = useState(null);
@@ -1685,7 +1691,7 @@ export default function App() {
     addRecord: addCrmAppointment,
     updateRecord: updateCrmAppointment,
     deleteRecord: deleteCrmAppointment,
-  } = useCrmRecords(crmStorageId, "appointments", appointments, { allowSeed });
+  } = useCrmRecords(crmStorageId, "appointments", appointments, { allowSeed, hold: holdCrmRecords });
   const [crmShowAddAppointment, setCrmShowAddAppointment] = useState(false);
   const [crmAppointmentForm, setCrmAppointmentForm] = useState({ client: "", service: "", time: "", status: "Pending" });
   const [editingAppointmentId, setEditingAppointmentId] = useState(null);
@@ -1716,7 +1722,7 @@ export default function App() {
           source: "seed",
         }))
       : [],
-    { allowSeed },
+    { allowSeed, hold: holdCrmRecords },
   );
 
   const assetSeedSource = getNicheScenario(effectiveBusinessType)?.records || {};
@@ -1751,7 +1757,7 @@ export default function App() {
                   : "routes",
         }))
       : [],
-    { allowSeed },
+    { allowSeed, hold: holdCrmRecords },
   );
 
   function createPendingPayment({ client, amount, bookingId, source }) {
@@ -1812,7 +1818,7 @@ export default function App() {
     addRecord: addCrmService,
     updateRecord: updateCrmService,
     deleteRecord: deleteCrmService,
-  } = useCrmRecords(crmStorageId, "services", services, { allowSeed });
+  } = useCrmRecords(crmStorageId, "services", services, { allowSeed, hold: holdCrmRecords });
   const [crmShowAddService, setCrmShowAddService] = useState(false);
   const [crmServiceForm, setCrmServiceForm] = useState({ name: "", price: "", duration: "" });
   const [editingServiceId, setEditingServiceId] = useState(null);
@@ -1855,7 +1861,7 @@ export default function App() {
     addRecord: addCrmStaff,
     updateRecord: updateCrmStaff,
     deleteRecord: deleteCrmStaff,
-  } = useCrmRecords(crmStorageId, "staff", staff, { allowSeed });
+  } = useCrmRecords(crmStorageId, "staff", staff, { allowSeed, hold: holdCrmRecords });
   const [crmShowAddStaff, setCrmShowAddStaff] = useState(false);
   const [crmStaffForm, setCrmStaffForm] = useState({ name: "", role: "", status: "" });
   const [editingStaffId, setEditingStaffId] = useState(null);
@@ -1946,29 +1952,58 @@ export default function App() {
   }, [scenario, effectiveBusinessType]);
   const fallbackPromotion = useMemo(() => pickRandomPromotion(effectiveBusinessType), [effectiveBusinessType]);
   const activePromotion = promotion ?? fallbackPromotion;
-  const liveDashboard = buildLiveDashboard(
-    language,
-    {
-      clients: displayClients.length,
-      bookings: displayAppointments.length,
-      catalog: displayServices.length,
-      staff: displayStaff.length,
-    },
-    getCounterLabels(effectiveBusinessType, language),
-  );
+  const counterLabels = getCounterLabels(effectiveBusinessType, language);
+  const liveCounts = {
+    clients: displayClients.length,
+    bookings: displayAppointments.length,
+    catalog: displayServices.length,
+    staff: displayStaff.length,
+  };
+  // Unpaid: scenario metrics + today_items together (never live zeros beside seed copy).
+  // Paid: live empty/real counts only — no scenario dashboard content.
+  const liveDashboard = (() => {
+    if (isPaidCrm) {
+      return buildLiveDashboard(language, liveCounts, counterLabels);
+    }
+    if (isUnpaidDemo) {
+      const scenarioLabels = nicheScenario?.metric_labels?.[language];
+      const scenarioValues = Array.isArray(nicheScenario?.metric_values)
+        ? nicheScenario.metric_values.map((v) => String(v))
+        : null;
+      if (scenarioValues?.length) {
+        return {
+          metricLabels: (
+            Array.isArray(scenarioLabels) && scenarioLabels.length
+              ? scenarioLabels
+              : counterLabels
+          ).slice(0, 4),
+          metricValues: scenarioValues.slice(0, 4),
+        };
+      }
+      return buildLiveDashboard(language, liveCounts, counterLabels);
+    }
+    return {
+      metricLabels: (counterLabels || []).slice(0, 4),
+      metricValues: [0, 0, 0, 0],
+    };
+  })();
   const metricLabels = liveDashboard.metricLabels;
   const metricValues = liveDashboard.metricValues;
-  const todayItems = demoPaid
+  const todayItems = isPaidCrm
     ? displayAppointments.slice(0, 6).map((item) => ({
         name: item.client,
         service: item.service,
         time: item.time,
       }))
-    : nicheScenario?.today_items ?? [];
-  const popularServices = demoPaid
+    : isUnpaidDemo
+      ? nicheScenario?.today_items ?? []
+      : [];
+  const popularServices = isPaidCrm
     ? displayServices.slice(0, 6).map((item) => item.name)
-    : nicheScenario?.popular_services?.[language] ?? [];
-  const promotionText = demoPaid ? "" : getPromotionText(activePromotion, language);
+    : isUnpaidDemo
+      ? nicheScenario?.popular_services?.[language] ?? []
+      : [];
+  const promotionText = isUnpaidDemo ? getPromotionText(activePromotion, language) : "";
   const businessIcon = NICHE_ICONS[effectiveBusinessType] ?? theme.icon;
 
   const i18n = {
@@ -2038,7 +2073,7 @@ export default function App() {
   const paymentTabs = PAYMENT_TABS;
   const assetTabs = ASSET_TABS;
 
-  const genericPageRecords = (!demoPaid
+  const genericPageRecords = (isUnpaidDemo
     ? getPageRecords(
         {
           ...(demoData ?? {}),
@@ -2052,7 +2087,7 @@ export default function App() {
     : []
   ).map((item) => localizeRecord(item, language));
   const showGenericRecords =
-    !demoPaid &&
+    isUnpaidDemo &&
     genericPageRecords.length > 0 &&
     activeTab !== "dashboard" &&
     activeTab !== "settings" &&
@@ -2301,7 +2336,7 @@ export default function App() {
 
   return (
     <div className="app-shell" data-domain={effectiveBusinessType || domainUi.domain_key}>
-      {demoAccessReady && !demoPaid ? (
+      {demoAccessReady && isUnpaidDemo && isTopFrame ? (
         <>
           <div
             style={{
@@ -2340,6 +2375,9 @@ export default function App() {
               {t.paywallCta}
             </a>
           </div>
+        </>
+      ) : null}
+      {demoAccessReady && isUnpaidDemo ? (
           <div
             aria-hidden="true"
             style={{
@@ -2367,9 +2405,8 @@ export default function App() {
               DEMO · €99
             </div>
           </div>
-        </>
       ) : null}
-      <aside className="mvp-sidebar" style={demoAccessReady && !demoPaid ? { paddingTop: "3.25rem" } : undefined}>
+      <aside className="mvp-sidebar" style={demoAccessReady && isUnpaidDemo && isTopFrame ? { paddingTop: "3.25rem" } : undefined}>
         <div className="sidebar-brand">
           {typeof businessIcon === "string" &&
           (businessIcon.startsWith("/") || businessIcon.startsWith("http") || businessIcon.endsWith(".png") || businessIcon.endsWith(".svg")) ? (
@@ -2403,7 +2440,7 @@ export default function App() {
         </nav>
       </aside>
 
-      <div className="mvp-content" style={demoAccessReady && !demoPaid ? { paddingTop: "3.25rem" } : undefined}>
+      <div className="mvp-content" style={demoAccessReady && isUnpaidDemo && isTopFrame ? { paddingTop: "3.25rem" } : undefined}>
         {activeTab === "dashboard" && (
           <>
             <header className="hero-header" style={{ background: heroBackground }}>
@@ -2549,11 +2586,11 @@ export default function App() {
 
             <div className="mvp-ready-compact">
               <a
-                href={!demoPaid && demoCheckoutUrl ? demoCheckoutUrl : mvpUrl}
+                href={isUnpaidDemo && demoCheckoutUrl ? demoCheckoutUrl : mvpUrl}
                 target="_blank"
                 rel="noreferrer"
               >
-                {!demoPaid ? t.paywallCta : t.openMvpTab}
+                {isUnpaidDemo ? t.paywallCta : t.openMvpTab}
               </a>
             </div>
           </>

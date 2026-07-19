@@ -1,5 +1,5 @@
 import { DemoUnpaidBanner } from "@/components/demo-unpaid-banner";
-import { buildCrmDemoCheckoutUrl, resolveDemoAccess } from "@/lib/cloudflare/demo-access";
+import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
 import { buildDemoEmbedSrc } from "@/lib/cloudflare/demo-embed";
 import { findDemoByShortId } from "@/lib/cloudflare/demo-registry";
 import { loadClientManifest } from "@/lib/manifest/storage";
@@ -31,7 +31,8 @@ export default async function ShortDemoPage({ params }: ShortDemoPageProps) {
   const access = resolveDemoAccess(record.clientId);
   const unpaid = !access.paid;
   const language = resolveManifestLanguage(record.clientId);
-  const checkoutUrl = buildCrmDemoCheckoutUrl(record.clientId);
+  /** Outer banner → tariff chooser (not Polar directly). */
+  const checkoutUrl = access.checkoutUrl;
   const src = buildDemoEmbedSrc(record);
   const bannerOffset = unpaid ? 52 : 0;
 
