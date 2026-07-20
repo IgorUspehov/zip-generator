@@ -103,6 +103,28 @@ function readClientIdFromLocation() {
   return null;
 }
 
+/** Local/preview override: ?niche=dental_clinic&lang=de (ignored when clientId is set). */
+function readPreviewNicheFromLocation() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  const searchParams = new URLSearchParams(window.location.search);
+  const niche = searchParams.get("niche") || searchParams.get("businessType");
+  return niche && niche.trim() ? niche.trim() : null;
+}
+
+function readPreviewLangFromLocation() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  const searchParams = new URLSearchParams(window.location.search);
+  const lang = (searchParams.get("lang") || searchParams.get("language") || "").toLowerCase();
+  if (lang === "en" || lang === "de" || lang === "ru") {
+    return lang;
+  }
+  return null;
+}
+
 function unwrapManifestPayload(raw) {
   if (!raw || typeof raw !== "object" || raw.error) {
     return null;
@@ -1335,17 +1357,239 @@ const TAB_FALLBACK_LABELS = {
 
 const DEFAULT_PAGES_BY_NICHE = {
   ...NICHE_CRM_PAGES,
-  veterinary_clinic: ["dashboard", "pets", "owners", "appointments", "treatments", "vaccinations", "payments", "integrations", "settings"],
-  school_management: ["dashboard", "students", "teachers", "classes", "attendance", "grades", "payments", "integrations", "settings"],
-  course_platform: ["dashboard", "courses", "lessons", "students", "progress", "certificates", "payments", "integrations", "settings"],
-  inventory_system: ["dashboard", "products", "warehouses", "suppliers", "stock", "orders", "payments", "integrations", "settings"],
+  veterinary_clinic: [
+    "dashboard",
+    "pets",
+    "owners",
+    "appointments",
+    "treatments",
+    "vaccinations",
+    "payments",
+    "integrations",
+    "settings",
+  ],
+  school_management: [
+    "dashboard",
+    "students",
+    "teachers",
+    "classes",
+    "attendance",
+    "grades",
+    "payments",
+    "integrations",
+    "settings",
+  ],
+  course_platform: [
+    "dashboard",
+    "courses",
+    "lessons",
+    "students",
+    "progress",
+    "certificates",
+    "payments",
+    "integrations",
+    "settings",
+  ],
+  inventory_system: [
+    "dashboard",
+    "products",
+    "warehouses",
+    "suppliers",
+    "stock",
+    "orders",
+    "payments",
+    "integrations",
+    "settings",
+  ],
 };
 
-const OPEN_INTEGRATIONS_LABEL = {
-  en: "Integrations",
-  de: "Integrationen",
-  ru: "Интеграции",
+const INTEGRATION_STUB_CARDS = [
+  {
+    id: "google_calendar",
+    status: "soon",
+    title: {
+      en: "Google Calendar",
+      de: "Google Calendar",
+      ru: "Google Calendar",
+    },
+    description: {
+      en: "Sync appointments and bookings to Google Calendar.",
+      de: "Termine und Buchungen mit Google Calendar synchronisieren.",
+      ru: "Синхронизация записей и приёмов с Google Calendar.",
+    },
+  },
+  {
+    id: "google_maps",
+    status: "soon",
+    title: {
+      en: "Google Maps / Google Business Profile",
+      de: "Google Maps / Google Business Profile",
+      ru: "Google Maps / Google Business Profile",
+    },
+    description: {
+      en: "Opening hours and reviews via Google Business Profile.",
+      de: "Öffnungszeiten und Bewertungen über Google Business Profile.",
+      ru: "Часы работы и отзывы через Google Business Profile.",
+    },
+  },
+  {
+    id: "telegram",
+    status: "connect",
+    title: {
+      en: "Telegram",
+      de: "Telegram",
+      ru: "Telegram",
+    },
+    description: {
+      en: "New-lead alerts (future hook for notifyNewLead in the API).",
+      de: "Benachrichtigungen zu neuen Anfragen (künftiger Hook für notifyNewLead in der API).",
+      ru: "Уведомления о новых заявках (будущая точка подключения к notifyNewLead() в API).",
+    },
+  },
+  {
+    id: "whatsapp",
+    status: "not_configured",
+    title: {
+      en: "WhatsApp Business",
+      de: "WhatsApp Business",
+      ru: "WhatsApp Business",
+    },
+    description: {
+      en: "New-lead notifications via WhatsApp Business.",
+      de: "Benachrichtigungen zu neuen Anfragen über WhatsApp Business.",
+      ru: "Уведомления о новых заявках через WhatsApp Business.",
+    },
+  },
+  {
+    id: "email_smtp",
+    status: "soon",
+    title: {
+      en: "Email (SMTP)",
+      de: "E-Mail (SMTP)",
+      ru: "Email (SMTP)",
+    },
+    description: {
+      en: "Auto-confirm bookings to the customer by email.",
+      de: "Automatische Buchungsbestätigung per E-Mail an den Kunden.",
+      ru: "Автоподтверждение клиенту после записи по email.",
+    },
+  },
+  {
+    id: "payments_stripe_polar",
+    status: "not_configured",
+    title: {
+      en: "Payments (Stripe / Polar)",
+      de: "Zahlungen (Stripe / Polar)",
+      ru: "Платежи (Stripe / Polar)",
+    },
+    description: {
+      en: "Online prepayment when booking.",
+      de: "Online-Vorauszahlung bei der Buchung.",
+      ru: "Онлайн-предоплата при бронировании.",
+    },
+  },
+  {
+    id: "google_reviews",
+    status: "soon",
+    title: {
+      en: "Google Reviews",
+      de: "Google Reviews",
+      ru: "Google Reviews",
+    },
+    description: {
+      en: "Automatic review request after a visit.",
+      de: "Automatische Bewertungsanfrage nach dem Besuch.",
+      ru: "Автозапрос отзыва после визита.",
+    },
+  },
+  {
+    id: "datev",
+    status: "soon",
+    title: {
+      en: "Accounting (DATEV)",
+      de: "Buchhaltung (DATEV)",
+      ru: "Бухгалтерия (DATEV)",
+    },
+    description: {
+      en: "Export payments for DACH accounting workflows.",
+      de: "Zahlungs-Export für DACH-Buchhaltung.",
+      ru: "Экспорт платежей (релевантно для DACH-рынка).",
+    },
+  },
+];
+
+const INTEGRATIONS_UI_COPY = {
+  en: {
+    openIntegrations: "Integrations",
+    subtitle: "Connect tools when you are ready. Cards below are placeholders — not live integrations yet.",
+    statusSoon: "Soon",
+    statusConnect: "Connect",
+    statusNotConfigured: "Not configured",
+    stubHint: "Not available yet",
+    factoryTitle: "Factory Website+CRM",
+    factoryBody:
+      "Need more capabilities? Move to Factory Website+CRM with the Studio SDK.",
+    factoryCta: "Open Factory Website+CRM",
+  },
+  de: {
+    openIntegrations: "Integrationen",
+    subtitle:
+      "Verbinden Sie Tools, wenn Sie bereit sind. Die Karten unten sind Platzhalter — noch keine Live-Integrationen.",
+    statusSoon: "Bald",
+    statusConnect: "Verbinden",
+    statusNotConfigured: "Nicht eingerichtet",
+    stubHint: "Noch nicht verfügbar",
+    factoryTitle: "Factory Website+CRM",
+    factoryBody:
+      "Mehr Funktionen nötig? Wechseln Sie zu Factory Website+CRM mit dem Studio SDK.",
+    factoryCta: "Factory Website+CRM öffnen",
+  },
+  ru: {
+    openIntegrations: "Интеграции",
+    subtitle:
+      "Подключайте сервисы, когда будете готовы. Карточки ниже — заглушки, не рабочие интеграции.",
+    statusSoon: "Скоро",
+    statusConnect: "Подключить",
+    statusNotConfigured: "Не настроено",
+    stubHint: "Пока недоступно",
+    factoryTitle: "Factory Website+CRM",
+    factoryBody:
+      "Нужно больше возможностей? Перейдите в Factory Website+CRM со Studio SDK.",
+    factoryCta: "Перейти в Factory Website+CRM",
+  },
 };
+
+function integrationStatusLabel(status, language) {
+  const copy = INTEGRATIONS_UI_COPY[language] || INTEGRATIONS_UI_COPY.en;
+  if (status === "connect") return copy.statusConnect;
+  if (status === "not_configured") return copy.statusNotConfigured;
+  return copy.statusSoon;
+}
+
+function buildFactoryBridgeHref({
+  apiBase,
+  clientId,
+  language,
+  businessName,
+  niche,
+  city,
+  phone,
+  email,
+  whatsapp,
+}) {
+  const base = String(apiBase || "").replace(/\/$/, "");
+  const params = new URLSearchParams();
+  if (clientId) params.set("clientId", String(clientId));
+  params.set("tier", "factory_ready");
+  if (language) params.set("language", String(language));
+  if (businessName) params.set("businessName", String(businessName));
+  if (niche) params.set("niche", String(niche));
+  if (city) params.set("city", String(city));
+  if (phone) params.set("phone", String(phone));
+  if (email) params.set("email", String(email));
+  if (whatsapp) params.set("whatsapp", String(whatsapp));
+  return `${base}/api/factory-bridge?${params.toString()}`;
+}
 
 const LANDING_DASHBOARD_NICHES = new Set([
   "beauty_salon",
@@ -1485,15 +1729,27 @@ export default function App() {
   const { theme, labels, demo, module_flags: flags, sections, dashboard_title, business_type_label, accent_tagline, hero_images: heroImages = [], gallery_images: galleryImages = [], gif_assets: gifAssets = [] } = domainUi;
   const [activeTab, setActiveTab] = useState("dashboard");
   const [language, setLanguage] = useState(
-    clientData?.language || domainUi?.language || "ru"
+    () =>
+      readPreviewLangFromLocation() ||
+      clientData?.language ||
+      domainUi?.language ||
+      "ru",
   );
   const [businessName, setBusinessName] = useState(
     bootClientId ? "" : (clientData.business_name || formatPageLabel(DEFAULT_BUSINESS_TYPE)),
   );
   const [ownerName, setOwnerName] = useState("");
-  const [businessType, setBusinessType] = useState(
-    bootClientId ? null : (clientData.business_type || domainUi?.business_type || DEFAULT_BUSINESS_TYPE),
-  );
+  const [businessType, setBusinessType] = useState(() => {
+    if (bootClientId) {
+      return null;
+    }
+    return (
+      readPreviewNicheFromLocation() ||
+      clientData.business_type ||
+      domainUi?.business_type ||
+      DEFAULT_BUSINESS_TYPE
+    );
+  });
   const [sectorId, setSectorId] = useState(null);
   const [phone, setPhone] = useState(clientData.phone || "");
   const [email, setEmail] = useState(clientData.email || "");
@@ -2342,8 +2598,25 @@ export default function App() {
     payments: getPageLabel("payments", language, effectiveBusinessType, sectionLabels),
     notifications: getPageLabel("notifications", language, effectiveBusinessType, sectionLabels),
     integrations: getPageLabel("integrations", language, effectiveBusinessType, sectionLabels),
-    openIntegrations: OPEN_INTEGRATIONS_LABEL[language] || OPEN_INTEGRATIONS_LABEL.en,
+    openIntegrations:
+      (INTEGRATIONS_UI_COPY[language] || INTEGRATIONS_UI_COPY.en).openIntegrations,
   };
+
+  const integrationsCopy = INTEGRATIONS_UI_COPY[language] || INTEGRATIONS_UI_COPY.en;
+  const manifestApiBaseForBridge =
+    import.meta.env.VITE_MANIFEST_API_BASE ||
+    "https://saas-mvp-funnel-production.up.railway.app";
+  const factoryBridgeHref = buildFactoryBridgeHref({
+    apiBase: manifestApiBaseForBridge,
+    clientId: bootClientId,
+    language,
+    businessName,
+    niche: effectiveBusinessType,
+    city,
+    phone,
+    email,
+    whatsapp,
+  });
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -2370,6 +2643,7 @@ export default function App() {
     if (!resolved.includes("settings")) {
       resolved.push("settings");
     }
+    // Integrations is shared across all niches (not sector-specific).
     return ensureIntegrationsInPages(resolved);
   }, [pages, effectiveBusinessType]);
 
@@ -3330,8 +3604,48 @@ export default function App() {
         )}
 
         {activeTab === "integrations" && (
-          <section className="panel domain-section">
+          <section className="panel domain-section integrations-panel">
             <h3 style={{ margin: 0 }}>{t.integrations}</h3>
+            <p style={{ color: "#64748b", margin: "0.5rem 0 1.25rem" }}>
+              {integrationsCopy.subtitle}
+            </p>
+
+            <a
+              className="integrations-factory-card"
+              href={factoryBridgeHref}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <div className="integrations-factory-card__badge">Factory</div>
+              <h4 style={{ margin: "0 0 0.5rem" }}>{integrationsCopy.factoryTitle}</h4>
+              <p style={{ margin: "0 0 0.85rem", color: "#475569", lineHeight: 1.45 }}>
+                {integrationsCopy.factoryBody}
+              </p>
+              <span className="integrations-factory-card__cta">{integrationsCopy.factoryCta}</span>
+            </a>
+
+            <div className="integrations-grid">
+              {INTEGRATION_STUB_CARDS.map((card) => (
+                <article key={card.id} className="integrations-stub-card" data-integration={card.id}>
+                  <div className="integrations-stub-card__head">
+                    <h4 style={{ margin: 0 }}>
+                      {card.title[language] || card.title.en}
+                    </h4>
+                    <span
+                      className={`integrations-status integrations-status--${card.status}`}
+                    >
+                      {integrationStatusLabel(card.status, language)}
+                    </span>
+                  </div>
+                  <p style={{ margin: "0.65rem 0 0.85rem", color: "#64748b", lineHeight: 1.4 }}>
+                    {card.description[language] || card.description.en}
+                  </p>
+                  <button type="button" className="integrations-stub-btn" disabled>
+                    {integrationsCopy.stubHint}
+                  </button>
+                </article>
+              ))}
+            </div>
           </section>
         )}
 
