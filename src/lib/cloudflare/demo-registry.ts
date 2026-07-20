@@ -73,6 +73,21 @@ export function markDemoPaid(deploymentId: string): boolean {
   return updated;
 }
 
+/** Mark paid by tenant clientId (Polar/LemonSqueezy webhooks). */
+export function markDemoPaidByClientId(clientId: string): boolean {
+  const id = String(clientId || "").trim();
+  if (!id) return false;
+  const entries = readRegistry();
+  let updated = false;
+  const next = entries.map((item) => {
+    if (item.clientId !== id) return item;
+    updated = true;
+    return { ...item, paid: true };
+  });
+  if (updated) writeRegistry(next);
+  return updated;
+}
+
 export function removeDemoByDeploymentId(deploymentId: string): void {
   writeRegistry(readRegistry().filter((item) => item.deploymentId !== deploymentId));
 }

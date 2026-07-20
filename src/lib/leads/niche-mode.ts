@@ -1,33 +1,49 @@
 import type { LeadFormMode, LeadLang } from "@/lib/leads/types";
+import {
+  getSectorModel,
+  getSectorModelByBusinessType,
+  pickLocalized,
+  type SectorModel,
+} from "@/lib/niches/sector-models";
 
-const APPOINTMENT_TYPES = new Set([
-  "beauty_salon",
-  "barbershop",
-  "massage_salon",
-  "fitness_club",
-  "dental_clinic",
-  "health_clinic",
-  "hotel_booking",
-  "education",
-  "cleaning_service",
-  "veterinary",
-]);
-
-const ORDER_TYPES = new Set(["ecommerce", "technology", "shop"]);
-
-export function resolveLeadFormMode(businessType: string): LeadFormMode {
-  const key = String(businessType || "")
+/**
+ * Explicit sectorId / businessType → form mode.
+ * No substring heuristics (e.g. includes("shop")).
+ */
+export function resolveLeadFormMode(
+  businessTypeOrSector: string,
+  sectorId?: string | null,
+): LeadFormMode {
+  if (sectorId) {
+    const bySector = getSectorModel(sectorId);
+    if (bySector) return bySector.mode;
+  }
+  const raw = String(businessTypeOrSector || "")
     .trim()
     .toLowerCase()
     .replace(/-/g, "_")
     .replace(/_crm$/, "");
-  if (ORDER_TYPES.has(key) || key.includes("shop") || key.includes("ecommerce")) {
-    return "order";
-  }
-  if (APPOINTMENT_TYPES.has(key) || key.includes("dental") || key.includes("beauty")) {
-    return "appointment";
-  }
+  const asSector = getSectorModel(raw);
+  if (asSector) return asSector.mode;
+  const byBt = getSectorModelByBusinessType(raw);
+  if (byBt) return byBt.mode;
   return "inquiry";
+}
+
+export function resolveSectorModelForLead(
+  businessType: string,
+  sectorId?: string | null,
+): SectorModel | null {
+  if (sectorId) {
+    const bySector = getSectorModel(sectorId);
+    if (bySector) return bySector;
+  }
+  const raw = String(businessType || "")
+    .trim()
+    .toLowerCase()
+    .replace(/-/g, "_")
+    .replace(/_crm$/, "");
+  return getSectorModel(raw) || getSectorModelByBusinessType(raw);
 }
 
 export function normalizeLeadLang(value: string | null | undefined): LeadLang {
@@ -41,9 +57,11 @@ export const leadFormCopy = {
   en: {
     appointmentCta: "Book now",
     orderCta: "Place order",
+    reservationCta: "Reserve a table",
     inquiryCta: "Send inquiry",
     titleAppointment: "Book an appointment",
     titleOrder: "Place an order",
+    titleReservation: "Make a reservation",
     titleInquiry: "Send an inquiry",
     name: "Name",
     phone: "Phone",
@@ -63,9 +81,11 @@ export const leadFormCopy = {
   de: {
     appointmentCta: "Termin buchen",
     orderCta: "Bestellung aufgeben",
+    reservationCta: "Tisch reservieren",
     inquiryCta: "Anfrage senden",
     titleAppointment: "Termin buchen",
     titleOrder: "Bestellung aufgeben",
+    titleReservation: "Reservierung",
     titleInquiry: "Anfrage senden",
     name: "Name",
     phone: "Telefon",
@@ -85,9 +105,11 @@ export const leadFormCopy = {
   ru: {
     appointmentCta: "Записаться",
     orderCta: "Оформить заказ",
+    reservationCta: "Забронировать столик",
     inquiryCta: "Оставить заявку",
     titleAppointment: "Записаться",
     titleOrder: "Оформить заказ",
+    titleReservation: "Бронирование",
     titleInquiry: "Оставить заявку",
     name: "Имя",
     phone: "Телефон",
@@ -112,16 +134,31 @@ export function leadStatusLabel(language: LeadLang): string {
   return "New lead";
 }
 
-export function ctaForMode(mode: LeadFormMode, language: LeadLang): string {
+export function ctaForMode(
+  mode: LeadFormMode,
+  language: LeadLang,
+  model?: SectorModel | null,
+): string {
+  if (model) return pickLocalized(model.publicCta, language);
   const t = leadFormCopy[language];
   if (mode === "appointment") return t.appointmentCta;
   if (mode === "order") return t.orderCta;
+  if (mode === "reservation") return t.reservationCta;
   return t.inquiryCta;
 }
 
-export function titleForMode(mode: LeadFormMode, language: LeadLang): string {
+export function titleForMode(
+  mode: LeadFormMode,
+  language: LeadLang,
+  model?: SectorModel | null,
+): string {
+  if (model) {
+    // Title mirrors CTA intent for niche-specific flows.
+    return pickLocalized(model.publicCta, language);
+  }
   const t = leadFormCopy[language];
   if (mode === "appointment") return t.titleAppointment;
   if (mode === "order") return t.titleOrder;
+  if (mode === "reservation") return t.titleReservation;
   return t.titleInquiry;
 }

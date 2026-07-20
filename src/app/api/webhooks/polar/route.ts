@@ -10,6 +10,7 @@ import {
 } from "@/lib/polar/order-context";
 import { resolvePolarProductKind } from "@/lib/polar/product-match";
 import { cancelDeletion, findPendingByClientId } from "@/lib/cloudflare/scheduler";
+import { markDemoPaidByClientId } from "@/lib/cloudflare/demo-registry";
 import { markClientDistPaid } from "@/lib/site-delivery/dist-protection";
 import { fulfillPaidSiteDelivery } from "@/lib/site-delivery/post-payment-email";
 import { saveCheckoutReference } from "@/lib/polar/checkout-reference-store";
@@ -17,6 +18,16 @@ import { saveCheckoutReference } from "@/lib/polar/checkout-reference-store";
 function extractSiteId(clientId: string | null): string | null {
   if (!clientId) return null;
   return findPendingByClientId(clientId)?.siteId ?? null;
+}
+
+function markTenantPaid(clientId: string): void {
+  markDemoPaidByClientId(clientId);
+  markClientDistPaid(clientId);
+  // Prefer pending.siteId so TTL row flips paid even if registry slug ≠ siteId.
+  const siteId = extractSiteId(clientId);
+  if (siteId) {
+    cancelDeletion(siteId);
+  }
 }
 
 export const POST = Webhooks({
@@ -58,11 +69,6 @@ export const POST = Webhooks({
       saveCheckoutReference(checkoutId, clientId);
     }
 
-    const siteId = extractSiteId(clientId);
-    if (siteId) {
-      cancelDeletion(siteId);
-    }
-
     if (!clientId) {
       console.error("[polar] order.paid missing clientId/reference_id", {
         orderId,
@@ -73,6 +79,9 @@ export const POST = Webhooks({
       });
       return;
     }
+
+    // Flip paid on registry + pending so Railway/CRM banners clear immediately.
+    markTenantPaid(clientId);
 
     try {
       if (kind === "recurring") {
@@ -93,7 +102,6 @@ export const POST = Webhooks({
 
       if (kind === "crm_demo") {
         console.log("[polar] routing to fulfillCrmDemoOrder", { clientId, email, orderId });
-        markClientDistPaid(clientId);
         const delivery = await fulfillCrmDemoOrder({ clientId, email, orderId });
         console.log("[polar] fulfillCrmDemoOrder result", { clientId, orderId, ...delivery });
         return;

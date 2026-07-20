@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 import {
   ctaForMode,
@@ -21,11 +21,29 @@ type BookingFormProps = {
   language: string;
   services: string[];
   accent?: string;
+  /** Niche-specific CTA from sector model (overrides mode default). */
+  ctaLabel?: string;
+  titleLabel?: string;
+  serviceLabel?: string;
 };
 
 const FETCH_TIMEOUT_MS = 12_000;
 const FRONT_RETRY_ATTEMPTS = 3;
 const FRONT_BASE_DELAY_MS = 400;
+const CATALOG_POLL_MS = 2_000;
+
+async function fetchCatalogNames(
+  clientId: string,
+  language: "en" | "de" | "ru",
+): Promise<string[]> {
+  const res = await fetch(
+    `/api/crm/catalog/${encodeURIComponent(clientId)}?lang=${encodeURIComponent(language)}`,
+    { cache: "no-store" },
+  );
+  const data = (await res.json().catch(() => ({}))) as { names?: string[] };
+  if (!res.ok || !Array.isArray(data.names)) return [];
+  return data.names.filter((item) => typeof item === "string" && item.trim().length > 0);
+}
 
 async function postLeadOnce(
   clientId: string,
@@ -72,11 +90,14 @@ export function PublicBookingForm({
   language,
   services,
   accent = "#c2410c",
+  ctaLabel,
+  titleLabel,
+  serviceLabel,
 }: BookingFormProps) {
   const lang = normalizeLeadLang(language);
   const t = leadFormCopy[lang];
-  const title = titleForMode(mode, lang);
-  const cta = ctaForMode(mode, lang);
+  const title = titleLabel || titleForMode(mode, lang);
+  const cta = ctaLabel || ctaForMode(mode, lang);
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -87,9 +108,40 @@ export function PublicBookingForm({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [liveServices, setLiveServices] = useState<string[]>(services.filter(Boolean));
 
-  const showPreferred = mode === "appointment";
-  const serviceOptions = useMemo(() => services.filter(Boolean), [services]);
+  const showPreferred = mode === "appointment" || mode === "reservation";
+  const serviceOptions = useMemo(() => liveServices.filter(Boolean), [liveServices]);
+
+  useEffect(() => {
+    setLiveServices(services.filter(Boolean));
+  }, [services]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    let cancelled = false;
+
+    const refreshCatalog = async () => {
+      try {
+        const names = await fetchCatalogNames(clientId, lang);
+        if (!cancelled && names.length > 0) {
+          setLiveServices(names);
+        }
+      } catch {
+        // Keep the server-rendered fallback list if live refresh fails.
+      }
+    };
+
+    void refreshCatalog();
+    const intervalId = window.setInterval(() => {
+      void refreshCatalog();
+    }, CATALOG_POLL_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [clientId, lang, open]);
 
   function mapError(err: unknown): string {
     if (err instanceof LeadRequestError) {
@@ -183,7 +235,7 @@ export function PublicBookingForm({
             </label>
             {serviceOptions.length > 0 ? (
               <label className="grid gap-1 text-sm text-slate-200">
-                {t.service}
+                {serviceLabel || t.service}
                 <select
                   value={service}
                   onChange={(e) => setService(e.target.value)}

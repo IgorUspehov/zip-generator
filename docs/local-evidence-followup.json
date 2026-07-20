@@ -1,0 +1,32 @@
+{
+  "unique": "UI-LIVE-CW-45405",
+  "siteUrl": "http://127.0.0.1:3000/site/avtomoyka-local-wash?lang=en",
+  "crmUrl": "http://127.0.0.1:4173/?clientId=wash1000-0000-4000-8000-000carwash01",
+  "beforeOptions": [
+    "Select…",
+    "UI-LIVE-CW-74269"
+  ],
+  "afterOptions": [
+    "Select…",
+    "UI-LIVE-CW-45405",
+    "UI-LIVE-CW-74269"
+  ],
+  "en": {
+    "hasCarWash": true,
+    "hasCustomers": true,
+    "hasWashOrders": true,
+    "hasWashServices": true,
+    "hasEmployees": true,
+    "hasAddWashOrder": true,
+    "banned": []
+  },
+  "de": {
+    "hasAutowasche": true,
+    "hasKunden": true,
+    "hasWaschauftrage": true,
+    "hasWaschleistungen": true,
+    "hasMitarbeiter": true,
+    "hasAddWaschauftrag": true,
+    "banned": []
+  }
+}

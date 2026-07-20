@@ -49,6 +49,7 @@ export const NICHE_CRM_PAGES = {
     "settings",
   ],
   cleaning_service: ["dashboard", "clients", "appointments", "services", "staff", "payments", "settings"],
+  car_wash: ["dashboard", "clients", "appointments", "services", "staff", "payments", "settings"],
   construction: ["dashboard", "clients", "projects", "appointments", "services", "staff", "payments", "settings"],
 };
 

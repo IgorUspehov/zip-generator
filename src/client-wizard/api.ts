@@ -40,10 +40,12 @@ export async function saveQuestionnaire(
 ): Promise<{
   ok: boolean;
   redirectUrl?: string;
+  publicSiteUrl?: string;
   path?: string;
   clientId?: string;
   siteId?: string;
   siteUrl?: string;
+  slug?: string;
 }> {
   console.log("POST payload:", payload);
   const controller = new AbortController();
@@ -63,11 +65,13 @@ export async function saveQuestionnaire(
       ok?: boolean;
       success?: boolean;
       redirectUrl?: string;
+      publicSiteUrl?: string;
       error?: string;
       path?: string;
       clientId?: string;
       siteId?: string;
       siteUrl?: string;
+      slug?: string;
     };
     if (!response.ok || !data.ok) {
       if (response.status === 429) {
@@ -81,10 +85,12 @@ export async function saveQuestionnaire(
     return {
       ok: true,
       redirectUrl: data.redirectUrl,
+      publicSiteUrl: data.publicSiteUrl,
       path: data.path,
       clientId: data.clientId,
       siteId: data.siteId,
       siteUrl: data.siteUrl,
+      slug: data.slug,
     };
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {

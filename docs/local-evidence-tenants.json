@@ -1,0 +1,32 @@
+[
+  {
+    "sectorId": "dental",
+    "clientId": "denta100-0000-4000-8000-00000000fab4",
+    "slug": "klinika-zub-bolit-fab4",
+    "businessName": "Клиника Зуб Болит",
+    "site": "http://127.0.0.1:3000/site/klinika-zub-bolit-fab4?lang=ru",
+    "crm": "http://127.0.0.1:3000/demo/klinika-zub-bolit-fab4?clientId=denta100-0000-4000-8000-00000000fab4",
+    "mode": "appointment",
+    "catalogKey": "services"
+  },
+  {
+    "sectorId": "cafe",
+    "clientId": "cafe1000-0000-4000-8000-000kalinka01",
+    "slug": "kalinka-malinka-klnk",
+    "businessName": "Калинка-Малинка",
+    "site": "http://127.0.0.1:3000/site/kalinka-malinka-klnk?lang=ru",
+    "crm": "http://127.0.0.1:3000/demo/kalinka-malinka-klnk?clientId=cafe1000-0000-4000-8000-000kalinka01",
+    "mode": "reservation",
+    "catalogKey": "menu"
+  },
+  {
+    "sectorId": "car_wash",
+    "clientId": "wash1000-0000-4000-8000-000carwash01",
+    "slug": "avtomoyka-local-wash",
+    "businessName": "Автомойка Local Wash",
+    "site": "http://127.0.0.1:3000/site/avtomoyka-local-wash?lang=ru",
+    "crm": "http://127.0.0.1:3000/demo/avtomoyka-local-wash?clientId=wash1000-0000-4000-8000-000carwash01",
+    "mode": "order",
+    "catalogKey": "services"
+  }
+]

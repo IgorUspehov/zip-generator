@@ -1,6 +1,6 @@
 export type LeadLang = "en" | "de" | "ru";
 
-export type LeadFormMode = "appointment" | "order" | "inquiry";
+export type LeadFormMode = "appointment" | "order" | "reservation" | "inquiry";
 
 export type LeadPayload = {
   name: string;

@@ -1,9 +1,12 @@
-import fs from "fs";
-import path from "path";
-
 import { FieldValue } from "firebase-admin/firestore";
 
+import {
+  catalogNamesForLang,
+  resolveCatalogSeedForClient,
+  resolveCatalogSeedForSector,
+} from "@/lib/catalog/resolve-catalog";
 import { getFirestoreDb } from "@/lib/firebase/admin";
+import { createFileSiteLead, listFileSiteLeads } from "@/lib/leads/file-store";
 import { leadStatusLabel, normalizeLeadLang, resolveLeadFormMode } from "@/lib/leads/niche-mode";
 import type {
   LeadBookingRecord,
@@ -14,51 +17,41 @@ import type {
   LeadPayload,
 } from "@/lib/leads/types";
 import { normalizePhoneKey } from "@/lib/leads/validate";
+import { getSectorModelByBusinessType } from "@/lib/niches/sector-models";
+
+function preferFileLeads(): boolean {
+  const mode = (process.env.LEADS_BACKEND || "").trim().toLowerCase();
+  if (mode === "file") return true;
+  if (mode === "firestore") return false;
+  return process.env.NODE_ENV !== "production";
+}
 
 function newRecId(prefix: string): string {
   const rand = Math.random().toString(36).slice(2, 8);
   return `rec-${prefix}-${Date.now()}-${rand}`;
 }
 
-function pickLocalized(
-  value: unknown,
-  language: LeadLang,
-): string {
-  if (typeof value === "string") return value;
-  if (!value || typeof value !== "object") return "";
-  const obj = value as Record<string, unknown>;
-  const direct = obj[language] ?? obj.en ?? obj.de ?? obj.ru;
-  return typeof direct === "string" ? direct : "";
-}
-
+/**
+ * Canonical catalog names for public form (same source as CRM seed).
+ * Prefer sectorId; fall back to businessType → sector model.
+ * Does NOT use popular_services.
+ */
 export function loadNicheServiceOptions(
-  businessType: string,
+  businessTypeOrSector: string,
   language: LeadLang,
+  sectorId?: string | null,
 ): string[] {
-  try {
-    const filePath = path.join(
-      process.cwd(),
-      "artifacts/factory_output/react_mvp/src/data/niche-scenarios.json",
-    );
-    if (!fs.existsSync(filePath)) return [];
-    const raw = JSON.parse(fs.readFileSync(filePath, "utf8")) as Record<
-      string,
-      { popular_services?: Record<string, string[]>; records?: { services?: unknown[] } }
-    >;
-    const key = businessType.replace(/_crm$/, "");
-    const scenario = raw[key] ?? raw[businessType];
-    if (!scenario) return [];
-    const popular = scenario.popular_services?.[language] ?? scenario.popular_services?.en;
-    if (Array.isArray(popular) && popular.length) return popular.slice(0, 12);
-    const services = scenario.records?.services;
-    if (!Array.isArray(services)) return [];
-    return services
-      .map((item) => pickLocalized((item as { name?: unknown }).name, language))
-      .filter(Boolean)
-      .slice(0, 12);
-  } catch {
-    return [];
+  if (sectorId) {
+    const { items } = resolveCatalogSeedForSector(sectorId);
+    if (items.length) return catalogNamesForLang(items, language);
   }
+  const model = getSectorModelByBusinessType(businessTypeOrSector);
+  if (model) {
+    const { items } = resolveCatalogSeedForSector(model.sectorId);
+    return catalogNamesForLang(items, language);
+  }
+  const { items } = resolveCatalogSeedForClient(businessTypeOrSector);
+  return catalogNamesForLang(items, language);
 }
 
 export async function ensureClientRoot(clientId: string, meta: Record<string, unknown>) {
@@ -100,6 +93,28 @@ async function findClientByPhone(
 }
 
 export async function createSiteLead(input: {
+  clientId: string;
+  businessType: string;
+  payload: LeadPayload;
+  mode: LeadFormMode;
+}): Promise<{
+  client: LeadClientRecord;
+  booking?: LeadBookingRecord;
+  order?: LeadOrderRecord;
+  createdClient: boolean;
+}> {
+  if (preferFileLeads()) {
+    return createFileSiteLead(input);
+  }
+  try {
+    return await createFirestoreSiteLead(input);
+  } catch (error) {
+    console.warn("[leads] Firestore create failed, using file store", error);
+    return createFileSiteLead(input);
+  }
+}
+
+async function createFirestoreSiteLead(input: {
   clientId: string;
   businessType: string;
   payload: LeadPayload;
@@ -193,7 +208,7 @@ export async function createSiteLead(input: {
     return { client, order, booking, createdClient };
   }
 
-  const id = newRecId("apt");
+  const id = newRecId(input.mode === "reservation" ? "rsv" : "apt");
   const booking: LeadBookingRecord = {
     id,
     client: client.name,
@@ -208,15 +223,38 @@ export async function createSiteLead(input: {
   if (input.payload.preferredAt) {
     booking.preferredAt = input.payload.preferredAt;
   }
+  const kind =
+    input.mode === "reservation"
+      ? "reservation"
+      : input.mode === "inquiry"
+        ? "inquiry"
+        : "appointment";
   await root.collection("appointments").doc(id).set({
     ...booking,
     clientId: client.id,
+    kind,
     createdAtServer: FieldValue.serverTimestamp(),
   });
   return { client, booking, createdClient };
 }
 
 export async function listSiteLeads(clientId: string): Promise<{
+  clients: LeadClientRecord[];
+  appointments: LeadBookingRecord[];
+  orders: LeadOrderRecord[];
+}> {
+  if (preferFileLeads()) {
+    return listFileSiteLeads(clientId);
+  }
+  try {
+    return await listFirestoreSiteLeads(clientId);
+  } catch (error) {
+    console.warn("[leads] Firestore list failed, using file store", error);
+    return listFileSiteLeads(clientId);
+  }
+}
+
+async function listFirestoreSiteLeads(clientId: string): Promise<{
   clients: LeadClientRecord[];
   appointments: LeadBookingRecord[];
   orders: LeadOrderRecord[];

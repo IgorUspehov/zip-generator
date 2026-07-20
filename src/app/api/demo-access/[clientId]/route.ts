@@ -36,6 +36,8 @@ export async function GET(
       found: access.found,
       checkoutUrl: access.checkoutUrl,
       crmUrl: access.crmUrl,
+      publicSiteUrl: access.publicSiteUrl,
+      slug: access.slug,
     },
     {
       headers: {

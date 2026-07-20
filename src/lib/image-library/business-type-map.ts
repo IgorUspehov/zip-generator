@@ -53,6 +53,7 @@ const BUSINESS_TYPE_TO_LIBRARY_FOLDER: Record<string, ImageLibraryFolder> = {
   accounting: "accounting",
   construction: "construction",
   cleaning_service: "cleaning_service",
+  car_wash: "car_dealer",
   veterinary_clinic: "veterinary_clinic",
   inventory_system: "ecommerce",
 };

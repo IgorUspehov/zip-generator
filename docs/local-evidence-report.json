@@ -1,0 +1,362 @@
+{
+  "startedAt": "2026-07-20T00:20:52.123Z",
+  "dataDir": "/tmp/crm-redeploy-data",
+  "steps": {
+    "dental": {
+      "seed": [
+        "Осмотр зубов",
+        "Чистка зубов",
+        "Лечение корневого канала"
+      ],
+      "form1": [
+        "Осмотр зубов",
+        "Чистка зубов",
+        "Лечение корневого канала"
+      ],
+      "matchSeed": true,
+      "crmTab": "",
+      "crmHasAll": false,
+      "unique": "LIVE-DENTAL-68679",
+      "via": "api_same_store",
+      "afterAdd": [
+        "Осмотр зубов",
+        "Чистка зубов",
+        "Лечение корневого канала",
+        "LIVE-DENTAL-68679"
+      ],
+      "formAdd": [
+        "Осмотр зубов",
+        "Чистка зубов",
+        "Лечение корневого канала",
+        "LIVE-DENTAL-68679"
+      ],
+      "addedInForm": true,
+      "afterAddAt": "2026-07-20T00:21:14.049Z",
+      "afterDel": [
+        "Осмотр зубов",
+        "Чистка зубов",
+        "Лечение корневого канала"
+      ],
+      "formDel": [
+        "Осмотр зубов",
+        "Чистка зубов",
+        "Лечение корневого канала"
+      ],
+      "removedFromForm": true,
+      "afterDelAt": "2026-07-20T00:21:16.834Z",
+      "lead": {
+        "name": "Lead dental 9094",
+        "phone": "+4917206879094",
+        "uiSuccess": true,
+        "store": {
+          "client": {
+            "id": "rec-cli-1784506883598-sqlfnk",
+            "name": "Lead dental 9094",
+            "phone": "+4917206879094",
+            "note": "Новая заявка",
+            "visits": 0,
+            "source": "site_form",
+            "status": "Новая заявка",
+            "createdAt": 1784506883598
+          },
+          "appointment": {
+            "id": "rec-apt-1784506883699-qb0g8e",
+            "client": "Lead dental 9094",
+            "phone": "+4917206879094",
+            "service": "Осмотр зубов",
+            "time": "20.07.2026, 02:21",
+            "status": "Новая заявка",
+            "note": "Новая заявка",
+            "source": "site_form",
+            "createdAt": 1784506883699,
+            "kind": "appointment"
+          },
+          "order": null
+        },
+        "inCrmUi": false
+      },
+      "urls": {
+        "site": "http://127.0.0.1:3000/site/klinika-zub-bolit-fab4?lang=ru",
+        "crm": "http://127.0.0.1:3000/demo/klinika-zub-bolit-fab4?clientId=denta100-0000-4000-8000-00000000fab4"
+      }
+    },
+    "cafe": {
+      "seed": [
+        "Бизнес-ланч",
+        "Паста карбонара",
+        "Тирамису"
+      ],
+      "form1": [
+        "Бизнес-ланч",
+        "Паста карбонара",
+        "Тирамису"
+      ],
+      "matchSeed": true,
+      "crmTab": "",
+      "crmHasAll": false,
+      "unique": "LIVE-CAFE-05755",
+      "via": "api_same_store",
+      "afterAdd": [
+        "Бизнес-ланч",
+        "Паста карбонара",
+        "Тирамису",
+        "LIVE-CAFE-05755"
+      ],
+      "formAdd": [
+        "Бизнес-ланч",
+        "Паста карбонара",
+        "Тирамису",
+        "LIVE-CAFE-05755"
+      ],
+      "addedInForm": true,
+      "afterAddAt": "2026-07-20T00:21:50.950Z",
+      "afterDel": [
+        "Бизнес-ланч",
+        "Паста карбонара",
+        "Тирамису"
+      ],
+      "formDel": [
+        "Бизнес-ланч",
+        "Паста карбонара",
+        "Тирамису"
+      ],
+      "removedFromForm": true,
+      "afterDelAt": "2026-07-20T00:21:53.184Z",
+      "lead": {
+        "name": "Lead cafe 5587",
+        "phone": "+4917206915587",
+        "uiSuccess": true,
+        "store": {
+          "client": {
+            "id": "rec-cli-1784506917686-s8amc6",
+            "name": "Lead cafe 5587",
+            "phone": "+4917206915587",
+            "note": "Новая заявка",
+            "visits": 0,
+            "source": "site_form",
+            "status": "Новая заявка",
+            "createdAt": 1784506917686
+          },
+          "appointment": {
+            "id": "rec-rsv-1784506917687-00dnl7",
+            "client": "Lead cafe 5587",
+            "phone": "+4917206915587",
+            "service": "Бизнес-ланч",
+            "time": "20.07.2026, 02:21",
+            "status": "Новая заявка",
+            "note": "Новая заявка",
+            "source": "site_form",
+            "createdAt": 1784506917687,
+            "kind": "reservation"
+          },
+          "order": null
+        },
+        "inCrmUi": false
+      },
+      "urls": {
+        "site": "http://127.0.0.1:3000/site/kalinka-malinka-klnk?lang=ru",
+        "crm": "http://127.0.0.1:3000/demo/kalinka-malinka-klnk?clientId=cafe1000-0000-4000-8000-000kalinka01"
+      }
+    },
+    "car_wash": {
+      "seed": [
+        "Мойка кузова",
+        "Салон",
+        "Комплекс"
+      ],
+      "form1": [
+        "Мойка кузова",
+        "Салон",
+        "Комплекс"
+      ],
+      "matchSeed": true,
+      "crmTab": "",
+      "crmHasAll": false,
+      "unique": "LIVE-CAR_WASH-42778",
+      "via": "api_same_store",
+      "afterAdd": [
+        "Мойка кузова",
+        "Салон",
+        "Комплекс",
+        "LIVE-CAR_WASH-42778"
+      ],
+      "formAdd": [
+        "Мойка кузова",
+        "Салон",
+        "Комплекс",
+        "LIVE-CAR_WASH-42778"
+      ],
+      "addedInForm": true,
+      "afterAddAt": "2026-07-20T00:22:29.773Z",
+      "afterDel": [
+        "Мойка кузова",
+        "Салон",
+        "Комплекс"
+      ],
+      "formDel": [
+        "Мойка кузова",
+        "Салон",
+        "Комплекс"
+      ],
+      "removedFromForm": true,
+      "afterDelAt": "2026-07-20T00:22:31.844Z",
+      "lead": {
+        "name": "Lead car_wash 4056",
+        "phone": "+4917206954056",
+        "uiSuccess": true,
+        "store": {
+          "client": {
+            "id": "rec-cli-1784506956374-tw4uqy",
+            "name": "Lead car_wash 4056",
+            "phone": "+4917206954056",
+            "note": "Новая заявка",
+            "visits": 0,
+            "source": "site_form",
+            "status": "Новая заявка",
+            "createdAt": 1784506956374
+          },
+          "appointment": {
+            "id": "rec-ord-1784506956374-gnnbrw",
+            "client": "Lead car_wash 4056",
+            "phone": "+4917206954056",
+            "service": "Мойка кузова",
+            "time": "20.07.2026, 02:22",
+            "status": "Новая заявка",
+            "note": "Новая заявка",
+            "source": "site_form",
+            "createdAt": 1784506956374,
+            "kind": "order"
+          },
+          "order": {
+            "id": "rec-ord-1784506956374-gnnbrw",
+            "client": "Lead car_wash 4056",
+            "phone": "+4917206954056",
+            "item": "Мойка кузова",
+            "status": "Новая заявка",
+            "note": "Новая заявка",
+            "source": "site_form",
+            "createdAt": 1784506956374
+          }
+        },
+        "inCrmUi": false
+      },
+      "urls": {
+        "site": "http://127.0.0.1:3000/site/avtomoyka-local-wash?lang=ru",
+        "crm": "http://127.0.0.1:3000/demo/avtomoyka-local-wash?clientId=wash1000-0000-4000-8000-000carwash01"
+      }
+    }
+  },
+  "uiErrors": {
+    "dental": "TimeoutError: locator.click: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator('button').filter({ hasText: /Добавить услугу|Add Service|Leistung hinzufügen|Добавить/i }).first()\n",
+    "cafe": "TimeoutError: locator.click: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator('button').filter({ hasText: /Добавить услугу|Add Service|Leistung hinzufügen|Добавить/i }).first()\n",
+    "car_wash": "TimeoutError: locator.click: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator('button').filter({ hasText: /Добавить услугу|Add Service|Leistung hinzufügen|Добавить/i }).first()\n"
+  },
+  "car_wash_i18n": {
+    "en": {
+      "shot": "/home/igor/Desktop/saas-mvp-funnel/docs/local-evidence-screenshots/car_wash-crm-en.png",
+      "expect": [
+        {
+          "e": "Car Wash",
+          "ok": false
+        },
+        {
+          "e": "Wash Orders",
+          "ok": false
+        },
+        {
+          "e": "Wash Services",
+          "ok": false
+        },
+        {
+          "e": "Employees",
+          "ok": false
+        }
+      ],
+      "banned": [],
+      "addCta": false,
+      "navSnippet": [
+        "Сайт для клиентов",
+        "https://saas-mvp-funnel-production.up.railway.app/site/avtomoyka-local-wash",
+        "Копировать",
+        "|",
+        "Вход в CRM",
+        "Копировать"
+      ]
+    },
+    "site_en": {
+      "niche": true,
+      "banned": []
+    },
+    "de": {
+      "shot": "/home/igor/Desktop/saas-mvp-funnel/docs/local-evidence-screenshots/car_wash-crm-de.png",
+      "expect": [
+        {
+          "e": "Autowäsche",
+          "ok": false
+        },
+        {
+          "e": "Waschaufträge",
+          "ok": false
+        },
+        {
+          "e": "Waschleistungen",
+          "ok": false
+        },
+        {
+          "e": "Mitarbeiter",
+          "ok": false
+        }
+      ],
+      "banned": [],
+      "addCta": false,
+      "navSnippet": [
+        "Сайт для клиентов",
+        "https://saas-mvp-funnel-production.up.railway.app/site/avtomoyka-local-wash",
+        "Копировать",
+        "|",
+        "Вход в CRM",
+        "Копировать"
+      ]
+    },
+    "site_de": {
+      "niche": true,
+      "banned": []
+    },
+    "ru": {
+      "shot": "/home/igor/Desktop/saas-mvp-funnel/docs/local-evidence-screenshots/car_wash-crm-ru.png",
+      "expect": [
+        {
+          "e": "Автомойка",
+          "ok": false
+        },
+        {
+          "e": "Заказы на мойку",
+          "ok": false
+        },
+        {
+          "e": "Услуги мойки",
+          "ok": false
+        },
+        {
+          "e": "Сотрудники",
+          "ok": false
+        }
+      ],
+      "banned": [],
+      "addCta": false,
+      "navSnippet": [
+        "Сайт для клиентов",
+        "https://saas-mvp-funnel-production.up.railway.app/site/avtomoyka-local-wash",
+        "Копировать",
+        "|",
+        "Вход в CRM",
+        "Копировать"
+      ]
+    },
+    "site_ru": {
+      "niche": true,
+      "banned": []
+    }
+  },
+  "finishedAt": "2026-07-20T00:23:20.336Z"
+}

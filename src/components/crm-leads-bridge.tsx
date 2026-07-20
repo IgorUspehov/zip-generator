@@ -10,7 +10,8 @@ type CrmLeadsBridgeProps = {
 };
 
 /**
- * Railway parent → polls session-bound leads (secret stays on server) → postMessage into CRM iframe.
+ * Railway parent → session-bound leads + catalog sync into CRM iframe.
+ * Catalog mutations from CRM iframe arrive as CRM_CATALOG_PUSH (no baked secret).
  */
 export function CrmLeadsBridge({ clientId, slug, shortId, iframeTitle }: CrmLeadsBridgeProps) {
   useEffect(() => {
@@ -22,13 +23,17 @@ export function CrmLeadsBridge({ clientId, slug, shortId, iframeTitle }: CrmLead
         | HTMLIFrameElement
         | null;
 
-    const push = async () => {
+    const ensureSession = async () => {
+      await fetch("/api/crm/leads/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId, slug, shortId }),
+      });
+    };
+
+    const pushLeads = async () => {
       try {
-        await fetch("/api/crm/leads/session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ clientId, slug, shortId }),
-        });
+        await ensureSession();
         const res = await fetch("/api/crm/leads/session", { cache: "no-store" });
         if (!res.ok || cancelled) return;
         const data = await res.json();
@@ -48,13 +53,35 @@ export function CrmLeadsBridge({ clientId, slug, shortId, iframeTitle }: CrmLead
       }
     };
 
-    void push();
+    const onMessage = (event: MessageEvent) => {
+      const data = event?.data;
+      if (!data || data.type !== "CRM_CATALOG_PUSH") return;
+      if (data.clientId !== clientId) return;
+      if (!Array.isArray(data.items)) return;
+      void (async () => {
+        try {
+          await ensureSession();
+          await fetch(`/api/crm/catalog/${encodeURIComponent(clientId)}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify({ items: data.items }),
+          });
+        } catch {
+          /* ignore */
+        }
+      })();
+    };
+
+    window.addEventListener("message", onMessage);
+    void pushLeads();
     const id = window.setInterval(() => {
-      void push();
+      void pushLeads();
     }, 8000);
     return () => {
       cancelled = true;
-      window.clearInterval(id);
+      window.removeEventListener("message", onMessage);
+      if (id) window.clearInterval(id);
     };
   }, [clientId, slug, shortId, iframeTitle]);
 

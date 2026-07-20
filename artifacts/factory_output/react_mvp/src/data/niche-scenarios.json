@@ -5309,5 +5309,378 @@
         }
       ]
     }
+  },
+  "car_wash": {
+    "metrics": {
+      "ru": [
+        "Клиентов сегодня",
+        "Заказов на мойку",
+        "В очереди",
+        "Сотрудников"
+      ],
+      "de": [
+        "Kunden heute",
+        "Waschaufträge",
+        "In Warteschlange",
+        "Mitarbeiter"
+      ],
+      "en": [
+        "Customers today",
+        "Wash orders",
+        "In queue",
+        "Employees"
+      ]
+    },
+    "metric_values": [
+      "18",
+      "12",
+      "4",
+      "6"
+    ],
+    "today_items": [
+      {
+        "name": {
+          "ru": "Иван П.",
+          "de": "Ivan P.",
+          "en": "Ivan P."
+        },
+        "service": {
+          "ru": "Мойка кузова",
+          "de": "Außenwäsche",
+          "en": "Exterior wash"
+        },
+        "time": "10:00"
+      },
+      {
+        "name": {
+          "ru": "Анна К.",
+          "de": "Anna K.",
+          "en": "Anna K."
+        },
+        "service": {
+          "ru": "Комплекс",
+          "de": "Komplettwäsche",
+          "en": "Full wash"
+        },
+        "time": "11:30"
+      }
+    ],
+    "popular_services": {
+      "ru": [
+        "Мойка кузова",
+        "Салон",
+        "Комплекс"
+      ],
+      "de": [
+        "Außenwäsche",
+        "Innenreinigung",
+        "Komplettwäsche"
+      ],
+      "en": [
+        "Exterior wash",
+        "Interior cleaning",
+        "Full wash"
+      ]
+    },
+    "records": {
+      "clients": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Иван Петров",
+            "de": "Ivan Petrov",
+            "en": "Ivan Petrov"
+          },
+          "phone": "+49 170 1112233",
+          "note": {
+            "ru": "SUV",
+            "de": "SUV",
+            "en": "SUV"
+          },
+          "visits": 3
+        }
+      ],
+      "appointments": [
+        {
+          "id": "1",
+          "client": {
+            "ru": "Иван Петров",
+            "de": "Ivan Petrov",
+            "en": "Ivan Petrov"
+          },
+          "service": {
+            "ru": "Мойка кузова",
+            "de": "Außenwäsche",
+            "en": "Exterior wash"
+          },
+          "time": "10:00",
+          "status": {
+            "ru": "Подтверждён",
+            "de": "Bestätigt",
+            "en": "Confirmed"
+          }
+        }
+      ],
+      "services": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Мойка кузова",
+            "de": "Außenwäsche",
+            "en": "Exterior wash"
+          },
+          "price": "€15",
+          "duration": {
+            "ru": "20 мин",
+            "de": "20 Min.",
+            "en": "20 min"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Салон",
+            "de": "Innenreinigung",
+            "en": "Interior cleaning"
+          },
+          "price": "€25",
+          "duration": {
+            "ru": "40 мин",
+            "de": "40 Min.",
+            "en": "40 min"
+          }
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Комплекс",
+            "de": "Komplettwäsche",
+            "en": "Full wash"
+          },
+          "price": "€35",
+          "duration": {
+            "ru": "60 мин",
+            "de": "60 Min.",
+            "en": "60 min"
+          }
+        }
+      ],
+      "staff": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Сергей М.",
+            "de": "Sergej M.",
+            "en": "Sergej M."
+          },
+          "role": {
+            "ru": "Сотрудник",
+            "de": "Mitarbeiter",
+            "en": "Employee"
+          },
+          "status": {
+            "ru": "Доступен",
+            "de": "Verfügbar",
+            "en": "Available"
+          }
+        }
+      ],
+      "payments": [
+        {
+          "id": "1",
+          "client": {
+            "ru": "Иван Петров",
+            "de": "Ivan Petrov",
+            "en": "Ivan Petrov"
+          },
+          "amount": "€15",
+          "status": {
+            "ru": "Оплачено",
+            "de": "Bezahlt",
+            "en": "Paid"
+          }
+        }
+      ]
+    }
+  },
+  "barbershop": {
+    "metrics": {
+      "ru": [
+        "Клиентов сегодня",
+        "Записей",
+        "Услуг",
+        "Барберов"
+      ],
+      "de": [
+        "Kunden heute",
+        "Termine",
+        "Leistungen",
+        "Barbiere"
+      ],
+      "en": [
+        "Clients today",
+        "Appointments",
+        "Services",
+        "Barbers"
+      ]
+    },
+    "metric_values": [
+      "14",
+      "9",
+      "6",
+      "3"
+    ],
+    "today_items": [
+      {
+        "name": {
+          "ru": "Максим Р.",
+          "de": "Maxim R.",
+          "en": "Maxim R."
+        },
+        "service": {
+          "ru": "Классическая стрижка",
+          "de": "Klassischer Haarschnitt",
+          "en": "Classic haircut"
+        },
+        "time": "12:00"
+      }
+    ],
+    "popular_services": {
+      "ru": [
+        "Классическая стрижка",
+        "Борода",
+        "Бритьё"
+      ],
+      "de": [
+        "Klassischer Haarschnitt",
+        "Bartpflege",
+        "Rasur mit Hot Towel"
+      ],
+      "en": [
+        "Classic haircut",
+        "Beard trim",
+        "Hot towel shave"
+      ]
+    },
+    "records": {
+      "clients": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Максим Романов",
+            "de": "Maxim Romanov",
+            "en": "Maxim Romanov"
+          },
+          "phone": "+49 170 2223344",
+          "note": {
+            "ru": "Постоянный",
+            "de": "Stammkunde",
+            "en": "Regular"
+          },
+          "visits": 5
+        }
+      ],
+      "appointments": [
+        {
+          "id": "1",
+          "client": {
+            "ru": "Максим Романов",
+            "de": "Maxim Romanov",
+            "en": "Maxim Romanov"
+          },
+          "service": {
+            "ru": "Классическая стрижка",
+            "de": "Klassischer Haarschnitt",
+            "en": "Classic haircut"
+          },
+          "time": "12:00",
+          "status": {
+            "ru": "Подтверждён",
+            "de": "Bestätigt",
+            "en": "Confirmed"
+          }
+        }
+      ],
+      "services": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Классическая стрижка",
+            "de": "Klassischer Haarschnitt",
+            "en": "Classic haircut"
+          },
+          "price": "€28",
+          "duration": {
+            "ru": "30 мин",
+            "de": "30 Min.",
+            "en": "30 min"
+          }
+        },
+        {
+          "id": "2",
+          "name": {
+            "ru": "Борода",
+            "de": "Bartpflege",
+            "en": "Beard trim"
+          },
+          "price": "€18",
+          "duration": {
+            "ru": "20 мин",
+            "de": "20 Min.",
+            "en": "20 min"
+          }
+        },
+        {
+          "id": "3",
+          "name": {
+            "ru": "Бритьё",
+            "de": "Rasur mit Hot Towel",
+            "en": "Hot towel shave"
+          },
+          "price": "€25",
+          "duration": {
+            "ru": "25 мин",
+            "de": "25 Min.",
+            "en": "25 min"
+          }
+        }
+      ],
+      "staff": [
+        {
+          "id": "1",
+          "name": {
+            "ru": "Алекс Б.",
+            "de": "Alex B.",
+            "en": "Alex B."
+          },
+          "role": {
+            "ru": "Барбер",
+            "de": "Barbier",
+            "en": "Barber"
+          },
+          "status": {
+            "ru": "Доступен",
+            "de": "Verfügbar",
+            "en": "Available"
+          }
+        }
+      ],
+      "payments": [
+        {
+          "id": "1",
+          "client": {
+            "ru": "Максим Романов",
+            "de": "Maxim Romanov",
+            "en": "Maxim Romanov"
+          },
+          "amount": "€28",
+          "status": {
+            "ru": "Оплачено",
+            "de": "Bezahlt",
+            "en": "Paid"
+          }
+        }
+      ]
+    }
   }
 }

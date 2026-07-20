@@ -34,6 +34,7 @@ function resolveBusinessMeta(clientId: string): {
   businessType: string;
   businessName: string;
   language: string;
+  sectorId: string | null;
 } {
   const manifest = loadClientManifest(clientId) || {};
   const businessType = String(
@@ -43,7 +44,10 @@ function resolveBusinessMeta(clientId: string): {
     manifest.businessName ?? manifest.business_name ?? "Business",
   );
   const language = String(manifest.language ?? manifest.lang ?? "de");
-  return { businessType, businessName, language };
+  const sectorRaw = manifest.sectorId ?? manifest.sector_id;
+  const sectorId =
+    typeof sectorRaw === "string" && sectorRaw.trim() ? sectorRaw.trim() : null;
+  return { businessType, businessName, language, sectorId };
 }
 
 /**
@@ -142,7 +146,7 @@ export async function POST(
   }
 
   const meta = resolveBusinessMeta(clientId);
-  const mode = resolveLeadFormMode(meta.businessType);
+  const mode = resolveLeadFormMode(meta.businessType, meta.sectorId);
   const payload = {
     ...validated.data,
     language: validated.data.language || meta.language,

@@ -57,7 +57,14 @@ export type CopyBundle = {
   s4_ready: string;
   s4_publishing: string;
   s4_copy_link: string;
+  s4_copied: string;
   s4_open: string;
+  s4_public_site_label: string;
+  s4_public_site_hint: string;
+  s4_crm_label: string;
+  s4_crm_hint: string;
+  s4_open_public_site: string;
+  s4_open_crm: string;
   build_steps: string[];
   s5_live: string;
   s5_preview_warming: string;
@@ -151,7 +158,14 @@ const T: Record<UiLang, CopyBundle> = {
     s4_ready: "Your CRM Demo is ready",
     s4_publishing: "⏳ CRM Demo is publishing... {n} sec left",
     s4_copy_link: "Copy link",
+    s4_copied: "Copied!",
     s4_open: "Open CRM Demo",
+    s4_public_site_label: "Your site for customers",
+    s4_public_site_hint: "Put this link on Google Maps, Instagram, or your business card.",
+    s4_crm_label: "Your CRM login",
+    s4_crm_hint: "Private admin panel for you — not for your customers.",
+    s4_open_public_site: "Open customer site",
+    s4_open_crm: "Open CRM",
     build_steps: [
       "Analysing your business",
       "Selecting CRM Demo modules",
@@ -271,7 +285,14 @@ const T: Record<UiLang, CopyBundle> = {
     s4_ready: "Ihr CRM Demo ist bereit",
     s4_publishing: "⏳ CRM Demo wird veröffentlicht... noch {n} Sek",
     s4_copy_link: "Link kopieren",
+    s4_copied: "Kopiert!",
     s4_open: "CRM Demo öffnen",
+    s4_public_site_label: "Ihre Website für Kunden",
+    s4_public_site_hint: "Diesen Link in Google Maps, Instagram oder auf Ihre Visitenkarte setzen.",
+    s4_crm_label: "Ihr CRM-Zugang",
+    s4_crm_hint: "Private Admin-Oberfläche für Sie — nicht für Ihre Kunden.",
+    s4_open_public_site: "Kundenwebsite öffnen",
+    s4_open_crm: "CRM öffnen",
     build_steps: [
       "Analyse Ihres Unternehmens",
       "Auswahl der CRM-Demo-Module",
@@ -391,7 +412,14 @@ const T: Record<UiLang, CopyBundle> = {
     s4_ready: "Ваш CRM Demo готов",
     s4_publishing: "⏳ CRM Demo публикуется... осталось {n} сек",
     s4_copy_link: "Копировать ссылку",
+    s4_copied: "Скопировано!",
     s4_open: "Открыть CRM Demo",
+    s4_public_site_label: "Ваш сайт для клиентов",
+    s4_public_site_hint: "Эту ссылку размещайте в Google Maps, Instagram или на визитке.",
+    s4_crm_label: "Вход в вашу CRM",
+    s4_crm_hint: "Личная админ-панель для вас — не для ваших клиентов.",
+    s4_open_public_site: "Открыть сайт для клиентов",
+    s4_open_crm: "Открыть CRM",
     build_steps: [
       "Анализ бизнеса",
       "Выбор модулей CRM Demo",

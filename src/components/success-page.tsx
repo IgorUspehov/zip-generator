@@ -4,33 +4,65 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { TenantReadyLinks, type TenantReadyLinksCopy } from "@/components/tenant-ready-links";
+
 const COPY = {
   ru: {
     title: "Оплата прошла успешно!",
     subtitleDemo: "Ваш CRM Demo сохранён навсегда",
     subtitlePro: "Ваш CRM Pro готов к скачиванию",
-    emailHint: "В течение 5 минут вы получите письмо со ссылкой.",
+    emailHint: "Сохраните обе ссылки ниже — сайт для клиентов и вход в CRM.",
     download: "Скачать ZIP",
     home: "Вернуться на главную",
     waiting: "Подготавливаем ваш ZIP...",
+    links: {
+      publicSiteLabel: "Ваш сайт для клиентов",
+      publicSiteHint: "Эту ссылку размещайте в Google Maps, Instagram или на визитке.",
+      crmLabel: "Вход в вашу CRM",
+      crmHint: "Личная админ-панель для вас — не для ваших клиентов.",
+      copyLink: "Копировать ссылку",
+      copied: "Скопировано!",
+      openPublicSite: "Открыть сайт для клиентов",
+      openCrm: "Открыть CRM",
+    } satisfies TenantReadyLinksCopy,
   },
   de: {
     title: "Zahlung erfolgreich!",
     subtitleDemo: "Ihr CRM Demo ist dauerhaft gespeichert",
     subtitlePro: "Ihr CRM Pro ist zum Download bereit",
-    emailHint: "Sie erhalten innerhalb von 5 Minuten eine E-Mail.",
+    emailHint: "Speichern Sie beide Links — Kundenwebsite und CRM-Zugang.",
     download: "ZIP herunterladen",
     home: "Zur Startseite",
     waiting: "ZIP wird vorbereitet...",
+    links: {
+      publicSiteLabel: "Ihre Website für Kunden",
+      publicSiteHint: "Diesen Link in Google Maps, Instagram oder auf Ihre Visitenkarte setzen.",
+      crmLabel: "Ihr CRM-Zugang",
+      crmHint: "Private Admin-Oberfläche für Sie — nicht für Ihre Kunden.",
+      copyLink: "Link kopieren",
+      copied: "Kopiert!",
+      openPublicSite: "Kundenwebsite öffnen",
+      openCrm: "CRM öffnen",
+    } satisfies TenantReadyLinksCopy,
   },
   en: {
     title: "Payment successful!",
     subtitleDemo: "Your CRM Demo is saved forever",
     subtitlePro: "Your CRM Pro package is ready",
-    emailHint: "You will receive an email within 5 minutes.",
+    emailHint: "Save both links below — customer site and CRM login.",
     download: "Download ZIP",
     home: "Back to home",
     waiting: "Preparing your ZIP...",
+    links: {
+      publicSiteLabel: "Your site for customers",
+      publicSiteHint: "Put this link on Google Maps, Instagram, or your business card.",
+      crmLabel: "Your CRM login",
+      crmHint: "Private admin panel for you — not for your customers.",
+      copyLink: "Copy link",
+      copied: "Copied!",
+      openPublicSite: "Open customer site",
+      openCrm: "Open CRM",
+    } satisfies TenantReadyLinksCopy,
   },
 } as const;
 
@@ -45,6 +77,36 @@ export function SuccessPageContent() {
   const t = COPY[lang];
 
   const [downloadToken, setDownloadToken] = useState<string | null>(null);
+  const [crmUrl, setCrmUrl] = useState<string | null>(null);
+  const [publicSiteUrl, setPublicSiteUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!clientId) return;
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const response = await fetch(`/api/demo-access/${encodeURIComponent(clientId)}`, {
+          cache: "no-store",
+        });
+        if (!response.ok) return;
+        const data = (await response.json()) as {
+          crmUrl?: string | null;
+          publicSiteUrl?: string | null;
+        };
+        if (cancelled) return;
+        if (typeof data.crmUrl === "string" && data.crmUrl) setCrmUrl(data.crmUrl);
+        if (typeof data.publicSiteUrl === "string" && data.publicSiteUrl) {
+          setPublicSiteUrl(data.publicSiteUrl);
+        }
+      } catch {
+        /* ignore */
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [clientId]);
 
   useEffect(() => {
     if (!isMvpPro || !clientId || !email) {
@@ -101,6 +163,12 @@ export function SuccessPageContent() {
 
         {!isMvpPro ? (
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-slate-600">{t.emailHint}</p>
+        ) : null}
+
+        {publicSiteUrl && crmUrl ? (
+          <div className="mt-8 w-full text-left [&_.tenant-ready-link-block]:border-slate-200 [&_.tenant-ready-link-block]:bg-slate-50 [&_.tenant-ready-link-label]:text-slate-900 [&_.tenant-ready-link-hint]:text-slate-500 [&_.wizard-ready-url]:border-slate-200 [&_.wizard-ready-url]:bg-white [&_.wizard-ready-url]:text-slate-800 [&_.wizard-ready-copy]:border [&_.wizard-ready-copy]:border-slate-200 [&_.wizard-ready-copy]:bg-white [&_.wizard-ready-copy]:text-slate-800">
+            <TenantReadyLinks publicSiteUrl={publicSiteUrl} crmUrl={crmUrl} copy={t.links} />
+          </div>
         ) : null}
 
         {isMvpPro ? (

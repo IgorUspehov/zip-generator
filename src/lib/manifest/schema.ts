@@ -67,9 +67,17 @@ export const clientManifestSchema = z
       });
     }
 
-    // Cross-check form mode is resolvable from businessType (appointment|order|inquiry).
-    const mode = resolveLeadFormMode(value.businessType);
-    if (mode !== "appointment" && mode !== "order" && mode !== "inquiry") {
+    // Cross-check form mode via explicit sector config (no substring heuristics).
+    const mode = resolveLeadFormMode(
+      value.businessType,
+      typeof sector === "string" ? sector : null,
+    );
+    if (
+      mode !== "appointment" &&
+      mode !== "order" &&
+      mode !== "reservation" &&
+      mode !== "inquiry"
+    ) {
       ctx.addIssue({
         code: "custom",
         path: ["businessType"],

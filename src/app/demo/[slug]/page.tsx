@@ -1,7 +1,12 @@
 import { CrmLeadsBridge } from "@/components/crm-leads-bridge";
+import { DemoTenantLinksBar } from "@/components/demo-tenant-links-bar";
 import { DemoUnpaidBanner } from "@/components/demo-unpaid-banner";
 import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
 import { findDemoBySlug } from "@/lib/cloudflare/demo-registry";
+import {
+  buildReadableDemoUrl,
+  buildReadablePublicSiteUrl,
+} from "@/lib/cloudflare/shared-project";
 import { loadClientManifest } from "@/lib/manifest/storage";
 
 type DemoPageProps = {
@@ -36,6 +41,9 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
   const language = resolveManifestLanguage(clientId);
   /** Outer banner → tariff chooser (not Polar directly). */
   const checkoutUrl = access.checkoutUrl;
+  const crmUrl = access.crmUrl || buildReadableDemoUrl(record.slug, clientId);
+  const publicSiteUrl =
+    access.publicSiteUrl || buildReadablePublicSiteUrl(record.slug);
 
   const src = (() => {
     try {
@@ -47,7 +55,8 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
     }
   })();
 
-  const bannerOffset = unpaid ? 52 : 0;
+  // Paid: links bar. Unpaid: paywall banner. Never both.
+  const topOffset = unpaid ? 52 : 56;
 
   const iframeTitle = `CRM Demo ${slug}`;
 
@@ -55,19 +64,25 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
     <>
       {unpaid ? (
         <DemoUnpaidBanner clientId={clientId} checkoutUrl={checkoutUrl} language={language} />
-      ) : null}
+      ) : (
+        <DemoTenantLinksBar
+          publicSiteUrl={publicSiteUrl}
+          crmUrl={crmUrl}
+          language={language}
+        />
+      )}
       <CrmLeadsBridge clientId={clientId} slug={slug} iframeTitle={iframeTitle} />
       <iframe
         title={iframeTitle}
         src={src}
         style={{
           position: "fixed",
-          top: bannerOffset,
+          top: topOffset,
           left: 0,
           right: 0,
           bottom: 0,
           width: "100%",
-          height: `calc(100% - ${bannerOffset}px)`,
+          height: `calc(100% - ${topOffset}px)`,
           border: 0,
           margin: 0,
           padding: 0,

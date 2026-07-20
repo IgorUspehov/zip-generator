@@ -6,6 +6,7 @@ import nicheScenariosData from "./data/niche-scenarios.json";
 import nichePromotionsData from "./data/niche-promotions.json";
 import { getGalleryImagePaths, getHeroImagePath } from "./lib/image-library.js";
 import { useCrmRecords, purgeSeedRecords, CRM_STORAGE_SECTIONS } from "./lib/useCrmRecords.js";
+import { syncCrmCatalogToApi, hydrateCrmCatalogFromApi } from "./lib/sync-crm-catalog.js";
 import {
   NICHE_CRM_PAGES,
   CLIENT_TABS,
@@ -506,6 +507,8 @@ const NICHE_FOLDER_MAP = {
   technology: "technology",
   real_estate: "real_estate",
   real_estate_crm: "real_estate",
+  car_wash: "car_wash",
+  barbershop: "barbershop",
 };
 
 const NICHE_LABELS_KEY_MAP = {
@@ -514,7 +517,7 @@ const NICHE_LABELS_KEY_MAP = {
   car_service_crm: "car_service",
   real_estate_crm: "real_estate",
   fitness: "fitness_club",
-  barbershop: "beauty_salon",
+  barbershop: "barbershop",
   ecommerce_crm: "ecommerce",
   logistics_crm: "logistics",
   delivery: "logistics",
@@ -933,6 +936,11 @@ const COUNTER_LABELS_I18N = {
     de: ["Kunden", "Einsätze", "Objekte", "Mitarbeiter"],
     en: ["Clients", "Jobs", "Locations", "Staff"],
   },
+  car_wash: {
+    ru: ["Клиентов", "Заказов на мойку", "Услуг мойки", "Сотрудников"],
+    de: ["Kunden", "Waschaufträge", "Waschleistungen", "Mitarbeiter"],
+    en: ["Customers", "Wash Orders", "Wash Services", "Employees"],
+  },
   veterinary_clinic: {
     ru: ["Питомцев", "Приёмов", "Владельцев", "Врачей"],
     de: ["Haustiere", "Termine", "Besitzer", "Tierärzte"],
@@ -990,6 +998,7 @@ const NICHE_ICONS = {
   accounting: "📊",
   construction: "🏗️",
   cleaning_service: "🧹",
+  car_wash: "🫧",
   veterinary_clinic: "🐾",
 };
 
@@ -1020,6 +1029,7 @@ const NICHE_SECTOR_LABELS = {
   accounting: { ru: "Бухгалтерские услуги", de: "Buchhaltungsservice", en: "Accounting Services" },
   construction: { ru: "Строительство", de: "Bauunternehmen", en: "Construction" },
   cleaning_service: { ru: "Клининг", de: "Reinigungsservice", en: "Cleaning Service" },
+  car_wash: { ru: "Автомойка", de: "Autowäsche", en: "Car Wash" },
   veterinary_clinic: { ru: "Ветеринарная клиника", de: "Tierklinik", en: "Veterinary Clinic" },
 };
 
@@ -1046,6 +1056,68 @@ const WIZARD_SECTOR_LABELS = {
   shop: { ru: "Интернет-магазин", de: "Online-Shop", en: "Online Store" },
   tech: { ru: "IT и технологии", de: "IT & Technologie", en: "IT & Technology" },
 };
+
+/** Niche-specific CRM “add booking/order” CTA (sector_id preferred). */
+const CRM_ADD_BOOKING_CTA = {
+  car_wash: {
+    ru: "Добавить заказ на мойку",
+    de: "Waschauftrag hinzufügen",
+    en: "Add Wash Order",
+  },
+  food: {
+    ru: "Добавить бронирование",
+    de: "Reservierung hinzufügen",
+    en: "Add reservation",
+  },
+  cafe: {
+    ru: "Добавить бронирование",
+    de: "Reservierung hinzufügen",
+    en: "Add reservation",
+  },
+  hotel: {
+    ru: "Добавить бронирование",
+    de: "Reservierung hinzufügen",
+    en: "Add reservation",
+  },
+  barbershop: {
+    ru: "Добавить запись",
+    de: "Termin hinzufügen",
+    en: "Add appointment",
+  },
+  shop: {
+    ru: "Добавить заказ",
+    de: "Bestellung hinzufügen",
+    en: "Add order",
+  },
+  tech: {
+    ru: "Добавить заказ",
+    de: "Auftrag hinzufügen",
+    en: "Add order",
+  },
+  car_service: {
+    ru: "Добавить заказ",
+    de: "Auftrag hinzufügen",
+    en: "Add work order",
+  },
+  tire_service: {
+    ru: "Добавить заказ",
+    de: "Auftrag hinzufügen",
+    en: "Add work order",
+  },
+  logistics: {
+    ru: "Добавить заказ",
+    de: "Auftrag hinzufügen",
+    en: "Add order",
+  },
+};
+
+function getCrmAddBookingCta(sectorId, language, fallback) {
+  const lang = language || "en";
+  if (sectorId && CRM_ADD_BOOKING_CTA[sectorId]) {
+    return CRM_ADD_BOOKING_CTA[sectorId][lang] || CRM_ADD_BOOKING_CTA[sectorId].en || fallback;
+  }
+  return fallback;
+}
 
 /**
  * Canonical Branche/Niche for Settings, sidebar, footer.
@@ -1361,6 +1433,8 @@ export default function App() {
     () => (bootClientId ? DEFAULT_THEME.hero_bg : (domainUi.theme?.header_bg || DEFAULT_THEME.hero_bg)),
   );
   const [mvpUrl, setMvpUrl] = useState("");
+  const [publicSiteUrl, setPublicSiteUrl] = useState("");
+  const [siteLinkCopied, setSiteLinkCopied] = useState(false);
   const [manifestPending, setManifestPending] = useState(Boolean(bootClientId));
   const [manifestLoaded, setManifestLoaded] = useState(false);
   const [manifestError, setManifestError] = useState(null);
@@ -1500,6 +1574,9 @@ export default function App() {
         if (typeof data.crmUrl === "string" && data.crmUrl) {
           setMvpUrl(data.crmUrl);
         }
+        if (typeof data.publicSiteUrl === "string" && data.publicSiteUrl) {
+          setPublicSiteUrl(data.publicSiteUrl);
+        }
         setDemoAccessReady(true);
       } catch {
         if (!cancelled) {
@@ -1519,6 +1596,20 @@ export default function App() {
       window.clearInterval(intervalId);
     };
   }, [bootClientId]);
+
+  // Derive public site URL from CRM URL when API omits publicSiteUrl (older deploys).
+  useEffect(() => {
+    if (publicSiteUrl || !mvpUrl) return;
+    try {
+      const u = new URL(mvpUrl);
+      if (!u.pathname.includes("/demo/")) return;
+      u.pathname = u.pathname.replace("/demo/", "/site/");
+      u.search = "";
+      setPublicSiteUrl(u.toString());
+    } catch {
+      /* ignore */
+    }
+  }, [mvpUrl, publicSiteUrl]);
 
   useEffect(() => {
     const manifestApiBase =
@@ -1701,7 +1792,7 @@ export default function App() {
     mergeRemoteRecords: mergeRemoteAppointments,
   } = useCrmRecords(crmStorageId, "appointments", appointments, { allowSeed, hold: holdCrmRecords });
   const [crmShowAddAppointment, setCrmShowAddAppointment] = useState(false);
-  const [crmAppointmentForm, setCrmAppointmentForm] = useState({ client: "", service: "", time: "", status: "Pending" });
+  const [crmAppointmentForm, setCrmAppointmentForm] = useState({ client: "", service: "", time: "", status: "" });
   const [editingAppointmentId, setEditingAppointmentId] = useState(null);
   const [editAppointmentForm, setEditAppointmentForm] = useState({ client: "", service: "", time: "", status: "" });
   const displayAppointments = crmAppointmentRecords;
@@ -1845,11 +1936,12 @@ export default function App() {
 
   function handleAddCrmAppointment() {
     if (!crmAppointmentForm.client.trim() || !crmAppointmentForm.time.trim()) return;
+    const pendingFallback = { en: "Pending", de: "Ausstehend", ru: "Ожидает" };
     const booking = addCrmAppointment({
       client: crmAppointmentForm.client.trim(),
       service: crmAppointmentForm.service.trim() || "—",
       time: crmAppointmentForm.time.trim(),
-      status: crmAppointmentForm.status.trim() || "Pending",
+      status: crmAppointmentForm.status.trim() || pendingFallback[language] || pendingFallback.en,
     });
     const matchedService = displayServices.find(
       (s) => String(s.name || "").toLowerCase() === String(crmAppointmentForm.service || "").toLowerCase(),
@@ -1880,7 +1972,7 @@ export default function App() {
       client: editAppointmentForm.client.trim(),
       service: editAppointmentForm.service.trim(),
       time: editAppointmentForm.time.trim(),
-      status: editAppointmentForm.status.trim() || "Pending",
+      status: editAppointmentForm.status.trim() || ({ en: "Pending", de: "Ausstehend", ru: "Ожидает" }[language] || "Pending"),
     });
     setEditingAppointmentId(null);
   }
@@ -1890,12 +1982,54 @@ export default function App() {
     addRecord: addCrmService,
     updateRecord: updateCrmService,
     deleteRecord: deleteCrmService,
+    persist: persistCrmServices,
   } = useCrmRecords(crmStorageId, "services", services, { allowSeed, hold: holdCrmRecords });
   const [crmShowAddService, setCrmShowAddService] = useState(false);
   const [crmServiceForm, setCrmServiceForm] = useState({ name: "", price: "", duration: "" });
   const [editingServiceId, setEditingServiceId] = useState(null);
   const [editServiceForm, setEditServiceForm] = useState({ name: "", price: "", duration: "" });
   const displayServices = crmServiceRecords;
+
+  // Keep public /site form catalog 1:1 with CRM services/menu/products.
+  useEffect(() => {
+    if (!bootClientId || holdCrmRecords) return;
+    let cancelled = false;
+    (async () => {
+      if (displayServices.length > 0) {
+        syncCrmCatalogToApi(bootClientId, displayServices);
+        return;
+      }
+      // Paid CRM may have purged seeds — hydrate from shared catalog, then persist locally.
+      const remote = await hydrateCrmCatalogFromApi(bootClientId, { lang: language });
+      if (cancelled || !remote.length) return;
+      const mapped = remote.map((item, index) => ({
+        id: item.id || `rec-cat-hydrated-${index}`,
+        name:
+          typeof item.name === "string"
+            ? item.name
+            : item.name?.[language] || item.name?.en || item.name?.ru || item.name?.de || "—",
+        price: item.price || "",
+        duration:
+          typeof item.duration === "string"
+            ? item.duration
+            : item.duration?.[language] || item.duration?.en || "",
+      }));
+      // Only user-looking ids survive paid mode; mark hydrated as rec-*.
+      const asUser = mapped.map((item, index) => ({
+        ...item,
+        id: String(item.id || "").startsWith("rec-")
+          ? item.id
+          : `rec-cat-${Date.now()}-${index}`,
+      }));
+      if (typeof persistCrmServices === "function") {
+        persistCrmServices(asUser);
+      }
+      syncCrmCatalogToApi(bootClientId, asUser);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [bootClientId, holdCrmRecords, displayServices, language]);
 
   function handleAddCrmService() {
     if (!crmServiceForm.name.trim()) return;
@@ -2070,18 +2204,14 @@ export default function App() {
     : isUnpaidDemo
       ? nicheScenario?.today_items ?? []
       : [];
-  const popularServices = isPaidCrm
-    ? displayServices.slice(0, 6).map((item) => item.name)
-    : isUnpaidDemo
-      ? nicheScenario?.popular_services?.[language] ?? []
-      : [];
+  const popularServices = displayServices.slice(0, 6).map((item) => item.name);
   const promotionText = isUnpaidDemo ? getPromotionText(activePromotion, language) : "";
   const businessIcon = NICHE_ICONS[effectiveBusinessType] ?? theme.icon;
 
   const i18n = {
-    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", addService: "Add Service", addStaff: "Add Staff", addPayment: "Add Payment", addAsset: "Add Item", markPaid: "Mark paid", amount: "Amount", linkedBooking: "Linked booking", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", paid: "Paid", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", phone: "Phone", mvpReadyTitle: "Your CRM Demo is ready", mvpReadySubtitle: "Save the link — this is your working CRM Demo", copyLink: "Copy link", openMvpTab: "Open CRM Demo in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", settingsSubtitle: "Basic settings for your CRM.", settingsBusiness: "Company name", settingsOwner: "Owner", settingsNiche: "Niche", settingsCity: "City", settingsWhatsapp: "WhatsApp", settingsPostal: "Postal code", settingsAddress: "Address", deleteConfirm: "Delete this record?", paywallText: "Demo version. Choose a plan to continue.", paywallCta: "Choose plan" },
-    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", addService: "Leistung hinzufügen", addStaff: "Mitarbeiter hinzufügen", addPayment: "Zahlung hinzufügen", addAsset: "Eintrag hinzufügen", markPaid: "Als bezahlt markieren", amount: "Betrag", linkedBooking: "Verknüpfter Termin", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", paid: "Bezahlt", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", phone: "Telefon", mvpReadyTitle: "Ihre CRM Demo ist bereit", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihre CRM Demo", copyLink: "Link kopieren", openMvpTab: "CRM Demo in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", settingsSubtitle: "Grundeinstellungen für Ihr CRM.", settingsBusiness: "Firmenname", settingsOwner: "Inhaber", settingsNiche: "Branche", settingsCity: "Stadt", settingsWhatsapp: "WhatsApp", settingsPostal: "Postleitzahl", settingsAddress: "Adresse", deleteConfirm: "Diesen Eintrag löschen?", paywallText: "Demo-Version. Wählen Sie einen Plan, um fortzufahren.", paywallCta: "Plan wählen" },
-    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", addService: "Добавить услугу", addStaff: "Добавить сотрудника", addPayment: "Добавить платёж", addAsset: "Добавить объект", markPaid: "Отметить оплаченным", amount: "Сумма", linkedBooking: "Связанная запись", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", paid: "Оплачено", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", phone: "Телефон", mvpReadyTitle: "Ваша CRM Demo готова", mvpReadySubtitle: "Сохраните ссылку — это ваша рабочая CRM Demo", copyLink: "Копировать ссылку", openMvpTab: "Открыть CRM Demo в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", settingsSubtitle: "Базовые настройки вашей CRM.", settingsBusiness: "Название компании", settingsOwner: "Владелец", settingsNiche: "Ниша", settingsCity: "Город", settingsWhatsapp: "WhatsApp", settingsPostal: "Индекс", settingsAddress: "Адрес", deleteConfirm: "Удалить эту запись?", paywallText: "Демо-версия. Выберите тариф, чтобы продолжить.", paywallCta: "Выбрать тариф" },
+    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", addService: "Add Service", addStaff: "Add Staff", addPayment: "Add Payment", addAsset: "Add Item", markPaid: "Mark paid", amount: "Amount", linkedBooking: "Linked booking", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", paid: "Paid", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", phone: "Phone", mvpReadyTitle: "Your CRM Demo is ready", mvpReadySubtitle: "Save the link — this is your working CRM Demo", copyLink: "Copy link", openMvpTab: "Open CRM Demo in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", settingsSubtitle: "Basic settings for your CRM.", settingsCopySite: "Copy link to my site", settingsSiteCopied: "Site link copied!", settingsPublicSite: "Your site for customers", settingsCrmLogin: "CRM login", settingsBusiness: "Company name", settingsOwner: "Owner", settingsNiche: "Niche", settingsCity: "City", settingsWhatsapp: "WhatsApp", settingsPostal: "Postal code", settingsAddress: "Address", deleteConfirm: "Delete this record?", paywallText: "Demo version. Choose a plan to continue.", paywallCta: "Choose plan" },
+    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", addService: "Leistung hinzufügen", addStaff: "Mitarbeiter hinzufügen", addPayment: "Zahlung hinzufügen", addAsset: "Eintrag hinzufügen", markPaid: "Als bezahlt markieren", amount: "Betrag", linkedBooking: "Verknüpfter Termin", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", paid: "Bezahlt", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", phone: "Telefon", mvpReadyTitle: "Ihre CRM Demo ist bereit", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihre CRM Demo", copyLink: "Link kopieren", openMvpTab: "CRM Demo in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", settingsSubtitle: "Grundeinstellungen für Ihr CRM.", settingsCopySite: "Link zu meiner Website kopieren", settingsSiteCopied: "Website-Link kopiert!", settingsPublicSite: "Ihre Website für Kunden", settingsCrmLogin: "CRM-Zugang", settingsBusiness: "Firmenname", settingsOwner: "Inhaber", settingsNiche: "Branche", settingsCity: "Stadt", settingsWhatsapp: "WhatsApp", settingsPostal: "Postleitzahl", settingsAddress: "Adresse", deleteConfirm: "Diesen Eintrag löschen?", paywallText: "Demo-Version. Wählen Sie einen Plan, um fortzufahren.", paywallCta: "Plan wählen" },
+    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", addService: "Добавить услугу", addStaff: "Добавить сотрудника", addPayment: "Добавить платёж", addAsset: "Добавить объект", markPaid: "Отметить оплаченным", amount: "Сумма", linkedBooking: "Связанная запись", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", paid: "Оплачено", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", phone: "Телефон", mvpReadyTitle: "Ваша CRM Demo готова", mvpReadySubtitle: "Сохраните ссылку — это ваша рабочая CRM Demo", copyLink: "Копировать ссылку", openMvpTab: "Открыть CRM Demo в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", settingsSubtitle: "Базовые настройки вашей CRM.", settingsCopySite: "Скопировать ссылку на мой сайт", settingsSiteCopied: "Ссылка на сайт скопирована!", settingsPublicSite: "Ваш сайт для клиентов", settingsCrmLogin: "Вход в CRM", settingsBusiness: "Название компании", settingsOwner: "Владелец", settingsNiche: "Ниша", settingsCity: "Город", settingsWhatsapp: "WhatsApp", settingsPostal: "Индекс", settingsAddress: "Адрес", deleteConfirm: "Удалить эту запись?", paywallText: "Демо-версия. Выберите тариф, чтобы продолжить.", paywallCta: "Выбрать тариф" },
   };
   const sectionLabels = uiSections ?? {};
   const baseT = i18n[language] || i18n.en;
@@ -2697,7 +2827,7 @@ export default function App() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <h3 style={{ margin: 0 }}>{getPageLabel(activeTab, language, effectiveBusinessType)}</h3>
               <button type="button" onClick={() => setCrmShowAddAppointment(true)} style={{ background: "var(--color-accent, #1d4ed8)", color: "var(--color-on-accent, #ffffff)", border: "none", borderRadius: "10px", padding: "0.55rem 1rem", fontWeight: 700, fontSize: "1rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.12)" }}>
-                {t.addAppointment}
+                {getCrmAddBookingCta(sectorId, language, t.addAppointment)}
               </button>
             </div>
             {crmShowAddAppointment && (
@@ -3154,6 +3284,65 @@ export default function App() {
                   onChange={(e) => persistCompanySettings({ address: e.target.value })}
                 />
               </label>
+              <div style={{ marginTop: "1.25rem", paddingTop: "1rem", borderTop: "1px solid #e2e8f0" }}>
+                <div style={{ fontWeight: 700, marginBottom: "0.35rem" }}>{t.settingsPublicSite || "Your site for customers"}</div>
+                <input
+                  readOnly
+                  value={publicSiteUrl || ""}
+                  placeholder="/site/…"
+                  style={{ ...settingsInputStyle, marginBottom: "0.5rem", fontSize: "0.85rem" }}
+                />
+                <button
+                  type="button"
+                  disabled={!publicSiteUrl}
+                  onClick={() => {
+                    if (!publicSiteUrl) return;
+                    void navigator.clipboard.writeText(publicSiteUrl).then(() => {
+                      setSiteLinkCopied(true);
+                      window.setTimeout(() => setSiteLinkCopied(false), 2000);
+                    });
+                  }}
+                  style={{
+                    background: publicSiteUrl ? "var(--color-accent, #1d4ed8)" : "#94a3b8",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "10px",
+                    padding: "0.65rem 1rem",
+                    fontWeight: 700,
+                    cursor: publicSiteUrl ? "pointer" : "not-allowed",
+                    width: "100%",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  {siteLinkCopied ? (t.settingsSiteCopied || "Copied!") : (t.settingsCopySite || "Copy site link")}
+                </button>
+                <div style={{ fontWeight: 700, marginBottom: "0.35rem" }}>{t.settingsCrmLogin || "CRM login"}</div>
+                <input
+                  readOnly
+                  value={mvpUrl || ""}
+                  style={{ ...settingsInputStyle, marginBottom: "0.5rem", fontSize: "0.85rem" }}
+                />
+                <button
+                  type="button"
+                  disabled={!mvpUrl}
+                  onClick={() => {
+                    if (!mvpUrl) return;
+                    void navigator.clipboard.writeText(mvpUrl);
+                  }}
+                  style={{
+                    background: mvpUrl ? "#0f172a" : "#94a3b8",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "10px",
+                    padding: "0.65rem 1rem",
+                    fontWeight: 700,
+                    cursor: mvpUrl ? "pointer" : "not-allowed",
+                    width: "100%",
+                  }}
+                >
+                  {t.copyLink || "Copy link"}
+                </button>
+              </div>
             </div>
           </section>
         )}

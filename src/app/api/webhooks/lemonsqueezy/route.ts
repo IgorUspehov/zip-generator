@@ -2,6 +2,7 @@ import crypto from "crypto";
 
 import { NextResponse } from "next/server";
 
+import { markDemoPaidByClientId } from "@/lib/cloudflare/demo-registry";
 import {
   cancelDeletion,
   findPendingByClientId,
@@ -11,6 +12,7 @@ import { LEMONSQUEEZY_VARIANT_CRM_FULL } from "@/lib/crm-full/constants";
 import { fulfillCrmFullOrder } from "@/lib/crm-full/fulfillment";
 import { LEMONSQUEEZY_VARIANT_MVP_PRO } from "@/lib/mvp-pro/constants";
 import { fulfillMvpProOrder } from "@/lib/mvp-pro/fulfillment";
+import { markClientDistPaid } from "@/lib/site-delivery/dist-protection";
 
 function verifyWebhookSignature(rawBody: string, signature: string | null, secret: string): boolean {
   if (!signature) {
@@ -151,6 +153,14 @@ export async function POST(request: Request) {
 
   if (siteId) {
     cancelled = cancelDeletion(siteId);
+  }
+  if (clientId) {
+    markDemoPaidByClientId(clientId);
+    markClientDistPaid(clientId);
+    const pending = findPendingByClientId(clientId);
+    if (pending?.siteId && pending.siteId !== siteId) {
+      cancelled = cancelDeletion(pending.siteId) || cancelled;
+    }
   }
 
   let mvpProFulfilled = false;

@@ -14,6 +14,7 @@ import {
   SECTOR_TO_BUSINESS_TYPE,
 } from "@/client-wizard/api";
 import { getCopy, type UiLang } from "@/client-wizard/copy";
+import { TenantReadyLinks } from "@/components/tenant-ready-links";
 import { getPayTranslations } from "@/client-wizard/pay-translations";
 import { getTierTranslations } from "@/client-wizard/tier-translations";
 import { buildFactoryBridgeApiPath, buildTariffsPagePath } from "@/lib/tariffs/urls";
@@ -594,8 +595,10 @@ function ClientWizardFlow() {
   const [pendingRedirectUrl, setPendingRedirectUrl] = useState<string | null>(null);
   const [deployMeta, setDeployMeta] = useState<{
     demoUrl: string;
+    publicSiteUrl?: string;
     siteId?: string;
     clientId?: string;
+    slug?: string;
   } | null>(null);
   const [previewUrl, setPreviewUrl] = useState("https://—.pages.dev");
   const [previewTitle, setPreviewTitle] = useState("—");
@@ -815,8 +818,10 @@ function ClientWizardFlow() {
           setPendingRedirectUrl(data.redirectUrl);
           setDeployMeta({
             demoUrl: data.redirectUrl,
+            publicSiteUrl: data.publicSiteUrl,
             siteId: data.siteId,
             clientId: data.clientId,
+            slug: data.slug,
           });
           setIsGenerating(false);
           console.log("[wizard] navigation target:", "s5");
@@ -1448,33 +1453,34 @@ function ClientWizardFlow() {
                   <div className="step-sub" style={{ textAlign: "center", marginBottom: 0 }}>
                     {name.trim()}
                   </div>
-                  <div className="wizard-ready-actions">
-                    <input
-                      type="text"
-                      readOnly
-                      className="wizard-ready-url"
-                      value={pendingRedirectUrl}
-                      aria-label={copy.s4_copy_link}
-                    />
-                    {publishCountdownText ? (
-                      <p className="step-sub wizard-ready-countdown">{publishCountdownText}</p>
-                    ) : (
-                      <a
-                        href={pendingRedirectUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="btn-primary wizard-ready-open"
-                      >
-                        {copy.s4_open}
-                      </a>
-                    )}
-                    <button
-                      type="button"
-                      className="wizard-ready-copy"
-                      onClick={() => void navigator.clipboard.writeText(pendingRedirectUrl)}
-                    >
-                      {copy.s4_copy_link}
-                    </button>
+                  <TenantReadyLinks
+                    publicSiteUrl={
+                      deployMeta?.publicSiteUrl ||
+                      (() => {
+                        try {
+                          const u = new URL(pendingRedirectUrl);
+                          u.pathname = u.pathname.replace(/^\/demo\//, "/site/");
+                          u.search = "";
+                          return u.toString();
+                        } catch {
+                          return pendingRedirectUrl.replace("/demo/", "/site/").split("?")[0];
+                        }
+                      })()
+                    }
+                    crmUrl={pendingRedirectUrl}
+                    copy={{
+                      publicSiteLabel: copy.s4_public_site_label,
+                      publicSiteHint: copy.s4_public_site_hint,
+                      crmLabel: copy.s4_crm_label,
+                      crmHint: copy.s4_crm_hint,
+                      copyLink: copy.s4_copy_link,
+                      copied: copy.s4_copied,
+                      openPublicSite: copy.s4_open_public_site,
+                      openCrm: copy.s4_open_crm,
+                    }}
+                    publishingText={publishCountdownText}
+                  />
+                  <div className="wizard-ready-actions" style={{ marginTop: 16 }}>
                     <button type="button" className="wizard-ready-restart" onClick={goRestart}>
                       {copy.btn_restart}
                     </button>

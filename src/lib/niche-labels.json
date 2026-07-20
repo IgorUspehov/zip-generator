@@ -1182,5 +1182,103 @@
       "de": "Kunden, Einsätze und Leistungen",
       "en": "Clients, jobs and services"
     }
+  },
+  "car_wash": {
+    "panel_title": {
+      "ru": "Панель автомойки",
+      "de": "Autowäsche-Panel",
+      "en": "Car Wash Panel"
+    },
+    "tabs": {
+      "dashboard": {
+        "ru": "Дашборд",
+        "de": "Dashboard",
+        "en": "Dashboard"
+      },
+      "clients": {
+        "ru": "Клиенты",
+        "de": "Kunden",
+        "en": "Customers"
+      },
+      "appointments": {
+        "ru": "Заказы на мойку",
+        "de": "Waschaufträge",
+        "en": "Wash Orders"
+      },
+      "services": {
+        "ru": "Услуги мойки",
+        "de": "Waschleistungen",
+        "en": "Wash Services"
+      },
+      "staff": {
+        "ru": "Сотрудники",
+        "de": "Mitarbeiter",
+        "en": "Employees"
+      },
+      "payments": {
+        "ru": "Платежи",
+        "de": "Zahlungen",
+        "en": "Payments"
+      },
+      "settings": {
+        "ru": "Настройки",
+        "de": "Einstellungen",
+        "en": "Settings"
+      }
+    },
+    "panel_tagline": {
+      "ru": "Клиенты, заказы на мойку и услуги мойки",
+      "de": "Kunden, Waschaufträge und Waschleistungen",
+      "en": "Customers, wash orders and wash services"
+    }
+  },
+  "barbershop": {
+    "panel_title": {
+      "ru": "Панель барбершопа",
+      "de": "Barbershop-Panel",
+      "en": "Barbershop Panel"
+    },
+    "tabs": {
+      "dashboard": {
+        "ru": "Дашборд",
+        "de": "Dashboard",
+        "en": "Dashboard"
+      },
+      "clients": {
+        "ru": "Клиенты",
+        "de": "Kunden",
+        "en": "Clients"
+      },
+      "appointments": {
+        "ru": "Записи",
+        "de": "Termine",
+        "en": "Appointments"
+      },
+      "services": {
+        "ru": "Услуги",
+        "de": "Leistungen",
+        "en": "Services"
+      },
+      "staff": {
+        "ru": "Барберы",
+        "de": "Barbiere",
+        "en": "Barbers"
+      },
+      "payments": {
+        "ru": "Платежи",
+        "de": "Zahlungen",
+        "en": "Payments"
+      },
+      "settings": {
+        "ru": "Настройки",
+        "de": "Einstellungen",
+        "en": "Settings"
+      }
+    },
+    "panel_tagline": {
+      "ru": "Клиенты, записи и услуги",
+      "de": "Kunden, Termine und Leistungen",
+      "en": "Clients, appointments and services"
+    }
   }
 }

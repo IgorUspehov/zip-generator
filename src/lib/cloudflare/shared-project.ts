@@ -37,3 +37,12 @@ export function buildReadableDemoUrl(slug: string, clientId?: string): string {
   url.searchParams.set("clientId", clientId);
   return url.toString();
 }
+
+/** Public visitor site (Google Maps / Instagram / card) — same slug as /demo/{slug}. */
+export function buildReadablePublicSiteUrl(slug: string, lang?: string): string {
+  const base = `${getPublicSiteOrigin()}/site/${encodeURIComponent(slug)}`;
+  if (!lang) return base;
+  const url = new URL(base);
+  url.searchParams.set("lang", lang);
+  return url.toString();
+}
