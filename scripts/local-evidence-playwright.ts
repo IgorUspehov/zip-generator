@@ -277,8 +277,9 @@ async function main() {
     );
     // Also try UI delete path when CRM still open
     dyn.afterDelAt = new Date().toISOString();
-    dyn.afterDelShared = await catalogNames(t.clientId, "ru");
-    dyn.removedFromShared = !dyn.afterDelShared.includes(unique);
+    const afterDelShared = await catalogNames(t.clientId, "ru");
+    dyn.afterDelShared = afterDelShared;
+    dyn.removedFromShared = !afterDelShared.includes(unique);
 
     await goto(page, `${BASE}/site/${t.slug}?lang=ru`);
     await openForm(page);

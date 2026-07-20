@@ -80,7 +80,7 @@ function main() {
     const model = SECTOR_MODELS[t.sectorId];
     const manifest = baseManifest(t);
     // Cafe/restaurant pages from matrix
-    if (t.sectorId === "cafe" || t.sectorId === "food") {
+    if (t.sectorId === "cafe") {
       manifest.pages = [
         "dashboard",
         "reservations",
