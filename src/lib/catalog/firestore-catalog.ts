@@ -80,12 +80,16 @@ async function listFirestoreCatalog(clientId: string): Promise<CatalogItem[]> {
   const batch = getFirestoreDb().batch();
   seed.forEach((item, index) => {
     const ref = catalogCollection(clientId).doc(item.id);
-    batch.set(ref, {
-      ...item,
+    const payload: Record<string, unknown> = {
+      id: item.id,
+      name: item.name,
       sortOrder: index,
       source: "seed",
       updatedAt: FieldValue.serverTimestamp(),
-    });
+    };
+    if (item.price !== undefined) payload.price = item.price;
+    if (item.duration !== undefined) payload.duration = item.duration;
+    batch.set(ref, payload);
   });
   await batch.commit();
   return seed;
@@ -104,12 +108,17 @@ async function replaceFirestoreCatalog(
   const batch = getFirestoreDb().batch();
   existing.docs.forEach((doc) => batch.delete(doc.ref));
   normalized.forEach((item, index) => {
-    batch.set(col.doc(item.id), {
-      ...item,
+    const payload: Record<string, unknown> = {
+      id: item.id,
+      name: item.name,
       sortOrder: index,
       source: "crm",
       updatedAt: FieldValue.serverTimestamp(),
-    });
+    };
+    // Firestore rejects explicit `undefined` fields (e.g. menu rows without duration).
+    if (item.price !== undefined) payload.price = item.price;
+    if (item.duration !== undefined) payload.duration = item.duration;
+    batch.set(col.doc(item.id), payload);
   });
   await batch.commit();
   return normalized;

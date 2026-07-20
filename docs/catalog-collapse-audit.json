@@ -1,0 +1,261 @@
+{
+  "auditedAt": "2026-07-20T13:47:49.857Z",
+  "summary": {
+    "total": 12,
+    "ok": 10,
+    "fully_collapsed": 0,
+    "partial_collapsed": 0,
+    "empty": 2,
+    "wouldReseed": []
+  },
+  "tenants": [
+    {
+      "slug": "fishkin-ntli-71fa",
+      "clientId": "71fa5ae0-5c2e-4516-b84e-5cccef92337a",
+      "businessName": "",
+      "businessType": "",
+      "sectorKey": null,
+      "itemCount": 0,
+      "collapsedCount": 0,
+      "status": "empty",
+      "recommendation": "empty",
+      "sampleName": null,
+      "seedSample": null,
+      "wouldReplaceWith": null
+    },
+    {
+      "slug": "xerox12345-021c",
+      "clientId": "021cd3f9-bdcd-4e4f-9dfd-a5ced2c8777a",
+      "businessName": "",
+      "businessType": "",
+      "sectorKey": null,
+      "itemCount": 0,
+      "collapsedCount": 0,
+      "status": "empty",
+      "recommendation": "empty",
+      "sampleName": null,
+      "seedSample": null,
+      "wouldReplaceWith": null
+    },
+    {
+      "slug": "polimernye-materialy-2f73",
+      "clientId": "2f7347db-504e-4b47-9613-f462ca4f0d5d",
+      "businessName": "Полимерные материалы",
+      "businessType": "fitness_club",
+      "sectorKey": "fitness",
+      "itemCount": 3,
+      "collapsedCount": 0,
+      "status": "ok",
+      "recommendation": "ok",
+      "sampleName": {
+        "en": "Morning Yoga",
+        "de": "Morgenyoga",
+        "ru": "Утренняя йога"
+      },
+      "seedSample": {
+        "en": "Morning Yoga",
+        "de": "Morgenyoga",
+        "ru": "Утренняя йога"
+      },
+      "wouldReplaceWith": null
+    },
+    {
+      "slug": "polimernye-materialy-f2b6",
+      "clientId": "f2b6607d-b83b-4ce6-b0ee-8648b8b88904",
+      "businessName": "Полимерные материалы",
+      "businessType": "restaurant",
+      "sectorKey": "food",
+      "itemCount": 3,
+      "collapsedCount": 0,
+      "status": "ok",
+      "recommendation": "ok",
+      "sampleName": {
+        "en": "Business Lunch",
+        "de": "Business Lunch",
+        "ru": "Бизнес-ланч"
+      },
+      "seedSample": {
+        "en": "Business Lunch",
+        "de": "Business Lunch",
+        "ru": "Бизнес-ланч"
+      },
+      "wouldReplaceWith": null
+    },
+    {
+      "slug": "ihor-kriazhev-it-b475",
+      "clientId": "b475392b-3c84-4dca-82b4-b6cf780f1e31",
+      "businessName": "Ihor Kriazhev IT",
+      "businessType": "education",
+      "sectorKey": "education",
+      "itemCount": 3,
+      "collapsedCount": 0,
+      "status": "ok",
+      "recommendation": "ok",
+      "sampleName": {
+        "en": "German B2",
+        "de": "Deutsch B2",
+        "ru": "Немецкий B2"
+      },
+      "seedSample": {
+        "en": "German B2",
+        "de": "Deutsch B2",
+        "ru": "Немецкий B2"
+      },
+      "wouldReplaceWith": null
+    },
+    {
+      "slug": "fishkin-ntli-03de",
+      "clientId": "03de11de-f488-45e1-a967-550beaca73dc",
+      "businessName": "Fishkin Ntli",
+      "businessType": "education",
+      "sectorKey": "education",
+      "itemCount": 3,
+      "collapsedCount": 0,
+      "status": "ok",
+      "recommendation": "ok",
+      "sampleName": {
+        "en": "German B2",
+        "de": "Deutsch B2",
+        "ru": "Немецкий B2"
+      },
+      "seedSample": {
+        "en": "German B2",
+        "de": "Deutsch B2",
+        "ru": "Немецкий B2"
+      },
+      "wouldReplaceWith": null
+    },
+    {
+      "slug": "meditsinskaya-klinika-pobolit-i-perestanet-f8dc",
+      "clientId": "f8dc41fa-23f4-4ad5-9962-2a489d85a868",
+      "businessName": "Медицинская клиника \" Поболит и перестанет\"",
+      "businessType": "health_clinic",
+      "sectorKey": "health",
+      "itemCount": 3,
+      "collapsedCount": 0,
+      "status": "ok",
+      "recommendation": "ok",
+      "sampleName": {
+        "en": "General Examination",
+        "de": "Allgemeinuntersuchung",
+        "ru": "Общий осмотр"
+      },
+      "seedSample": {
+        "en": "General Examination",
+        "de": "Allgemeinuntersuchung",
+        "ru": "Общий осмотр"
+      },
+      "wouldReplaceWith": null
+    },
+    {
+      "slug": "klinika-zub-bolit-fab4",
+      "clientId": "fab4b137-0341-43da-9a5d-099297fcd92c",
+      "businessName": "Клиника \"Зуб болит\"",
+      "businessType": "dental_clinic",
+      "sectorKey": "dental",
+      "itemCount": 3,
+      "collapsedCount": 0,
+      "status": "ok",
+      "recommendation": "ok",
+      "sampleName": {
+        "en": "Dental Check-up",
+        "de": "Zahnkontrolle",
+        "ru": "Осмотр зубов"
+      },
+      "seedSample": {
+        "en": "Dental Check-up",
+        "de": "Zahnkontrolle",
+        "ru": "Осмотр зубов"
+      },
+      "wouldReplaceWith": null
+    },
+    {
+      "slug": "kalinka-malinka-klnk",
+      "clientId": "37a66e67-5ed3-4a83-99c4-e0508f8c77fe",
+      "businessName": "Кафе \"Калинка/Малинка\"",
+      "businessType": "restaurant",
+      "sectorKey": "food",
+      "itemCount": 3,
+      "collapsedCount": 0,
+      "status": "ok",
+      "recommendation": "ok",
+      "sampleName": {
+        "en": "Business Lunch",
+        "de": "Business Lunch",
+        "ru": "Бизнес-ланч"
+      },
+      "seedSample": {
+        "en": "Business Lunch",
+        "de": "Business Lunch",
+        "ru": "Бизнес-ланч"
+      },
+      "wouldReplaceWith": null
+    },
+    {
+      "slug": "avtomoyka-local-wash",
+      "clientId": "404db994-66e1-4795-b419-d8e8e72bba38",
+      "businessName": "Автомойка Local Wash",
+      "businessType": "car_wash",
+      "sectorKey": "car_wash",
+      "itemCount": 3,
+      "collapsedCount": 0,
+      "status": "ok",
+      "recommendation": "ok",
+      "sampleName": {
+        "en": "Exterior wash",
+        "de": "Außenwäsche",
+        "ru": "Мойка кузова"
+      },
+      "seedSample": {
+        "en": "Exterior wash",
+        "de": "Außenwäsche",
+        "ru": "Мойка кузова"
+      },
+      "wouldReplaceWith": null
+    },
+    {
+      "slug": "klinika-zub-bolit-b8c1",
+      "clientId": "b8c13d15-86e4-4b3a-afb2-62cf78d07bfe",
+      "businessName": "Клиника \" Зуб болит\"",
+      "businessType": "dental_clinic",
+      "sectorKey": "dental",
+      "itemCount": 3,
+      "collapsedCount": 0,
+      "status": "ok",
+      "recommendation": "ok",
+      "sampleName": {
+        "en": "Dental Check-up",
+        "de": "Zahnkontrolle",
+        "ru": "Осмотр зубов"
+      },
+      "seedSample": {
+        "en": "Dental Check-up",
+        "de": "Zahnkontrolle",
+        "ru": "Осмотр зубов"
+      },
+      "wouldReplaceWith": null
+    },
+    {
+      "slug": "fitness-studio-best-1260",
+      "clientId": "12601a73-faa9-4c0b-aa43-43ba9377bb58",
+      "businessName": "Fitness Studio\"BEST\"",
+      "businessType": "fitness_club",
+      "sectorKey": "fitness",
+      "itemCount": 3,
+      "collapsedCount": 0,
+      "status": "ok",
+      "recommendation": "ok",
+      "sampleName": {
+        "en": "Monthly Basic",
+        "de": "Monats-Basic",
+        "ru": "Базовый месячный"
+      },
+      "seedSample": {
+        "en": "Morning Yoga",
+        "de": "Morgenyoga",
+        "ru": "Утренняя йога"
+      },
+      "wouldReplaceWith": null
+    }
+  ]
+}
