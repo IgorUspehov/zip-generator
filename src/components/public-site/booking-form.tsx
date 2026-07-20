@@ -32,6 +32,16 @@ const FRONT_RETRY_ATTEMPTS = 3;
 const FRONT_BASE_DELAY_MS = 400;
 const CATALOG_POLL_MS = 2_000;
 
+/** Combine separate date/time inputs into the datetime-local style string the API stores. */
+function combinePreferredAt(date: string, time: string): string | undefined {
+  const d = date.trim();
+  const t = time.trim();
+  if (d && t) return `${d}T${t}`;
+  if (d) return d;
+  if (t) return t;
+  return undefined;
+}
+
 async function fetchCatalogNames(
   clientId: string,
   language: "en" | "de" | "ru",
@@ -104,7 +114,8 @@ export function PublicBookingForm({
   const [phone, setPhone] = useState("");
   const [service, setService] = useState("");
   const [comment, setComment] = useState("");
-  const [preferredAt, setPreferredAt] = useState("");
+  const [preferredDate, setPreferredDate] = useState("");
+  const [preferredTime, setPreferredTime] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -169,7 +180,7 @@ export function PublicBookingForm({
       phone: phone.trim(),
       service: service || undefined,
       comment: comment.trim() || undefined,
-      preferredAt: preferredAt || undefined,
+      preferredAt: combinePreferredAt(preferredDate, preferredTime),
       language: lang,
     };
     try {
@@ -184,7 +195,8 @@ export function PublicBookingForm({
       setPhone("");
       setService("");
       setComment("");
-      setPreferredAt("");
+      setPreferredDate("");
+      setPreferredTime("");
     } catch (err) {
       // Final failure only — never show success for a failed / timed-out request.
       setSuccess(false);
@@ -251,15 +263,26 @@ export function PublicBookingForm({
               </label>
             ) : null}
             {showPreferred ? (
-              <label className="grid gap-1 text-sm text-slate-200">
-                {t.preferredAt}
-                <input
-                  type="datetime-local"
-                  value={preferredAt}
-                  onChange={(e) => setPreferredAt(e.target.value)}
-                  className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
-                />
-              </label>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="grid gap-1 text-sm text-slate-200">
+                  {t.preferredDate}
+                  <input
+                    type="date"
+                    value={preferredDate}
+                    onChange={(e) => setPreferredDate(e.target.value)}
+                    className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
+                  />
+                </label>
+                <label className="grid gap-1 text-sm text-slate-200">
+                  {t.preferredTime}
+                  <input
+                    type="time"
+                    value={preferredTime}
+                    onChange={(e) => setPreferredTime(e.target.value)}
+                    className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
+                  />
+                </label>
+              </div>
             ) : null}
             <label className="grid gap-1 text-sm text-slate-200">
               {t.comment}
