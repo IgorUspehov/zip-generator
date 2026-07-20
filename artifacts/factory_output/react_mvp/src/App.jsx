@@ -1618,29 +1618,11 @@ export default function App() {
     const controller = new AbortController();
 
     const loadConfig = async () => {
-      const embedded = readDeployedManifest();
-      if (embedded && applyManifestFromConfig(embedded)) {
-        return;
-      }
-
-      try {
-        const staticResponse = await fetch("./client-manifest.json", {
-          signal: controller.signal,
-          cache: "no-store",
-        });
-        if (staticResponse.ok) {
-          const config = await staticResponse.json();
-          if (applyManifestFromConfig(config)) {
-            return;
-          }
-        }
-      } catch (error) {
-        if (error?.name === "AbortError") {
-          return;
-        }
-      }
-
       const clientId = readClientIdFromLocation();
+
+      // Prefer live Railway manifest whenever URL has a tenant id.
+      // Baked CF manifests are incomplete (often missing pages) and must not
+      // block the API when the same shared Pages deploy serves many clients.
       if (clientId) {
         try {
           const response = await fetch(`${manifestApiBase}/api/manifest/${clientId}`, {
@@ -1657,9 +1639,43 @@ export default function App() {
           if (error?.name === "AbortError") {
             return;
           }
-          setManifestError("Failed to load manifest");
-          setManifestPending(false);
+          // Fall through to baked/static fallbacks when API is unreachable.
         }
+      }
+
+      const embedded = readDeployedManifest();
+      const embeddedClientId =
+        embedded && typeof embedded === "object"
+          ? String(embedded.clientId || embedded.client_id || "").trim()
+          : "";
+      if (
+        embedded &&
+        (!clientId || !embeddedClientId || embeddedClientId === clientId) &&
+        applyManifestFromConfig(embedded)
+      ) {
+        return;
+      }
+
+      try {
+        const staticResponse = await fetch("./client-manifest.json", {
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        if (staticResponse.ok) {
+          const config = await staticResponse.json();
+          const staticId = String(config?.clientId || config?.client_id || "").trim();
+          if ((!clientId || !staticId || staticId === clientId) && applyManifestFromConfig(config)) {
+            return;
+          }
+        }
+      } catch (error) {
+        if (error?.name === "AbortError") {
+          return;
+        }
+      }
+
+      if (clientId) {
+        // API already failed above; keep error state if set.
         return;
       }
 
@@ -2822,7 +2838,11 @@ export default function App() {
           </>
         )}
 
-        {appointmentTabs.has(activeTab) && (pages ? pages.includes(activeTab) || pages.includes("appointments") || pages.includes("viewings") : flags.appointments) && (
+        {appointmentTabs.has(activeTab) &&
+          (effectivePages.includes(activeTab) ||
+            (pages
+              ? pages.includes(activeTab) || pages.includes("appointments") || pages.includes("viewings")
+              : flags.appointments)) && (
           <section className="panel domain-section">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <h3 style={{ margin: 0 }}>{getPageLabel(activeTab, language, effectiveBusinessType)}</h3>

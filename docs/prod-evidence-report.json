@@ -1,0 +1,137 @@
+{
+  "startedAt": "2026-07-20T11:09:59.722Z",
+  "base": "https://saas-mvp-funnel-production.up.railway.app",
+  "tenants": {
+    "dental": {
+      "site": "https://saas-mvp-funnel-production.up.railway.app/site/klinika-zub-bolit-fab4?lang=ru",
+      "crm": "https://saas-mvp-funnel-production.up.railway.app/demo/klinika-zub-bolit-fab4?clientId=fab4b137-0341-43da-9a5d-099297fcd92c",
+      "formNames": [
+        "Осмотр зубов",
+        "Чистка зубов",
+        "Лечение корневого канала"
+      ],
+      "apiNames": [
+        "Осмотр зубов",
+        "Чистка зубов",
+        "Лечение корневого канала"
+      ],
+      "formMatchesApi": true,
+      "crmHasAllFormItems": true,
+      "catalog1to1": true,
+      "siteOk": true,
+      "crmOk": true
+    },
+    "cafe": {
+      "site": "https://saas-mvp-funnel-production.up.railway.app/site/kalinka-malinka-klnk?lang=ru",
+      "crm": "https://saas-mvp-funnel-production.up.railway.app/demo/kalinka-malinka-klnk?clientId=37a66e67-5ed3-4a83-99c4-e0508f8c77fe",
+      "formNames": [
+        "Бизнес-ланч",
+        "Паста карбонара",
+        "Тирамису"
+      ],
+      "apiNames": [
+        "Бизнес-ланч",
+        "Паста карбонара",
+        "Тирамису"
+      ],
+      "formMatchesApi": true,
+      "crmHasAllFormItems": true,
+      "catalog1to1": true,
+      "siteOk": true,
+      "crmOk": true
+    },
+    "car_wash": {
+      "site": "https://saas-mvp-funnel-production.up.railway.app/site/avtomoyka-local-wash?lang=ru",
+      "crm": "https://saas-mvp-funnel-production.up.railway.app/demo/avtomoyka-local-wash?clientId=404db994-66e1-4795-b419-d8e8e72bba38",
+      "formNames": [
+        "PROD-UI-CW-60274",
+        "PROD-UI-CW-16845",
+        "Мойка кузова",
+        "Салон",
+        "Комплекс"
+      ],
+      "apiNames": [
+        "PROD-UI-CW-60274",
+        "PROD-UI-CW-16845",
+        "Мойка кузова",
+        "Салон",
+        "Комплекс"
+      ],
+      "formMatchesApi": true,
+      "crmHasAllFormItems": true,
+      "catalog1to1": true,
+      "siteOk": true,
+      "crmOk": true
+    }
+  },
+  "car_wash_i18n": {
+    "en": {
+      "crmExpect": {
+        "niche": true,
+        "orders": true,
+        "services": true,
+        "cta": true
+      },
+      "siteHasNiche": true,
+      "bannedHits": [],
+      "pass": true
+    },
+    "de": {
+      "crmExpect": {
+        "niche": true,
+        "orders": true,
+        "services": true,
+        "cta": true
+      },
+      "siteHasNiche": true,
+      "bannedHits": [],
+      "pass": true
+    },
+    "ru": {
+      "crmExpect": {
+        "niche": true,
+        "orders": true,
+        "services": true,
+        "cta": true
+      },
+      "siteHasNiche": true,
+      "bannedHits": [],
+      "pass": true
+    }
+  },
+  "uiSync": {
+    "unique": "PROD-UI-CW-50459",
+    "before": [
+      "PROD-UI-CW-60274",
+      "PROD-UI-CW-16845",
+      "Мойка кузова",
+      "Салон",
+      "Комплекс"
+    ],
+    "after": [
+      "PROD-UI-CW-50459",
+      "PROD-UI-CW-60274",
+      "PROD-UI-CW-16845",
+      "Мойка кузова",
+      "Салон",
+      "Комплекс"
+    ],
+    "appearedInOpenForm": true,
+    "appearedInApi": true,
+    "via": "crm_ui_add_service_button",
+    "pass": true
+  },
+  "summary": {
+    "dental_site_crm": "PASS",
+    "cafe_site_crm": "PASS",
+    "car_wash_site_crm": "PASS",
+    "dental_catalog_1to1": "PASS",
+    "cafe_catalog_1to1": "PASS",
+    "car_wash_catalog_1to1": "PASS",
+    "car_wash_i18n_en": "PASS",
+    "car_wash_i18n_de": "PASS",
+    "car_wash_i18n_ru": "PASS",
+    "ui_sync_no_reload": "PASS"
+  },
+  "finishedAt": "2026-07-20T11:11:02.757Z"
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "sectorId": "dental",
+    "clientId": "fab4b137-0341-43da-9a5d-099297fcd92c",
+    "slug": "klinika-zub-bolit-fab4",
+    "site": "https://saas-mvp-funnel-production.up.railway.app/site/klinika-zub-bolit-fab4?lang=ru",
+    "crm": "https://saas-mvp-funnel-production.up.railway.app/demo/klinika-zub-bolit-fab4?clientId=fab4b137-0341-43da-9a5d-099297fcd92c"
+  },
+  {
+    "sectorId": "cafe",
+    "clientId": "37a66e67-5ed3-4a83-99c4-e0508f8c77fe",
+    "slug": "kalinka-malinka-klnk",
+    "site": "https://saas-mvp-funnel-production.up.railway.app/site/kalinka-malinka-klnk?lang=ru",
+    "crm": "https://saas-mvp-funnel-production.up.railway.app/demo/kalinka-malinka-klnk?clientId=37a66e67-5ed3-4a83-99c4-e0508f8c77fe"
+  },
+  {
+    "sectorId": "car_wash",
+    "clientId": "404db994-66e1-4795-b419-d8e8e72bba38",
+    "slug": "avtomoyka-local-wash",
+    "site": "https://saas-mvp-funnel-production.up.railway.app/site/avtomoyka-local-wash?lang=ru",
+    "crm": "https://saas-mvp-funnel-production.up.railway.app/demo/avtomoyka-local-wash?clientId=404db994-66e1-4795-b419-d8e8e72bba38"
+  }
+]
