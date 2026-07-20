@@ -175,6 +175,51 @@ function pickLocalized(value, language) {
   return value ?? "";
 }
 
+function isLocalizedLabel(value) {
+  return (
+    value != null &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    ("en" in value || "de" in value || "ru" in value)
+  );
+}
+
+/** Keep full {en,de,ru} for CRM catalog rows — never collapse on read. */
+function preserveLocalizedLabel(value) {
+  if (isLocalizedLabel(value)) {
+    return {
+      en: value.en == null ? "" : String(value.en),
+      de: value.de == null ? "" : String(value.de),
+      ru: value.ru == null ? "" : String(value.ru),
+    };
+  }
+  return value;
+}
+
+/** Patch only the active UI language; leave the other two locales intact. */
+function patchLocalizedLabel(existing, language, nextValue) {
+  const lang = language === "de" || language === "ru" ? language : "en";
+  const trimmed = String(nextValue ?? "").trim();
+  if (isLocalizedLabel(existing)) {
+    return {
+      en: existing.en == null ? "" : String(existing.en),
+      de: existing.de == null ? "" : String(existing.de),
+      ru: existing.ru == null ? "" : String(existing.ru),
+      [lang]: trimmed,
+    };
+  }
+  // New row or legacy string — store as LocalizedLabel for the edited language only.
+  return { en: "", de: "", ru: "", [lang]: trimmed };
+}
+
+function serviceLabel(value, language) {
+  if (isLocalizedLabel(value)) {
+    return pickLocalized(value, language) || "—";
+  }
+  if (typeof value === "string" && value.trim()) return value;
+  return value == null || value === "" ? "—" : String(value);
+}
+
 function localizeRecord(record, language) {
   if (!record || typeof record !== "object") {
     return record;
@@ -455,14 +500,22 @@ function normalizeDemoData(data, language = "en") {
     })),
     services: (data.services || records.menu || records.products || records.subscriptions || records.classes || records.courses || records.properties || records.services || []).map((item) => {
       const rawPrice = item.price ?? item.value;
+      const rawName = item.name || item.title;
+      const rawDuration = item.duration || item.category;
       const price =
         rawPrice != null && typeof rawPrice === "object"
           ? pickLocalized(rawPrice, language) || "—"
           : rawPrice || "—";
+      // Catalog names must stay as full {en,de,ru} in CRM state — collapsing here
+      // caused CRM→site sync to overwrite every locale with the UI language.
       return {
-        name: pickLocalized(item.name || item.title, language) || "—",
+        name: isLocalizedLabel(rawName)
+          ? preserveLocalizedLabel(rawName)
+          : pickLocalized(rawName, language) || "—",
         price,
-        duration: pickLocalized(item.duration || item.category, language) || "",
+        duration: isLocalizedLabel(rawDuration)
+          ? preserveLocalizedLabel(rawDuration)
+          : pickLocalized(rawDuration, language) || "",
         status: pickLocalized(item.status, language) || "",
       };
     }),
@@ -1960,7 +2013,9 @@ export default function App() {
       status: crmAppointmentForm.status.trim() || pendingFallback[language] || pendingFallback.en,
     });
     const matchedService = displayServices.find(
-      (s) => String(s.name || "").toLowerCase() === String(crmAppointmentForm.service || "").toLowerCase(),
+      (s) =>
+        serviceLabel(s.name, language).toLowerCase() ===
+        String(crmAppointmentForm.service || "").toLowerCase(),
     );
     createPendingPayment({
       client: booking.client,
@@ -2020,15 +2075,18 @@ export default function App() {
       if (cancelled || !remote.length) return;
       const mapped = remote.map((item, index) => ({
         id: item.id || `rec-cat-hydrated-${index}`,
-        name:
-          typeof item.name === "string"
+        // Keep full LocalizedLabel in CRM state — display picks the UI language later.
+        name: isLocalizedLabel(item.name)
+          ? preserveLocalizedLabel(item.name)
+          : typeof item.name === "string"
             ? item.name
-            : item.name?.[language] || item.name?.en || item.name?.ru || item.name?.de || "—",
+            : { en: "—", de: "—", ru: "—" },
         price: item.price || "",
-        duration:
-          typeof item.duration === "string"
+        duration: isLocalizedLabel(item.duration)
+          ? preserveLocalizedLabel(item.duration)
+          : typeof item.duration === "string"
             ? item.duration
-            : item.duration?.[language] || item.duration?.en || "",
+            : "",
       }));
       // Only user-looking ids survive paid mode; mark hydrated as rec-*.
       const asUser = mapped.map((item, index) => ({
@@ -2050,7 +2108,7 @@ export default function App() {
   function handleAddCrmService() {
     if (!crmServiceForm.name.trim()) return;
     addCrmService({
-      name: crmServiceForm.name.trim(),
+      name: patchLocalizedLabel(null, language, crmServiceForm.name.trim()),
       price: crmServiceForm.price.trim(),
       duration: crmServiceForm.duration.trim(),
     });
@@ -2061,18 +2119,26 @@ export default function App() {
   function startEditService(item) {
     setEditingServiceId(item.id);
     setEditServiceForm({
-      name: item.name || "",
+      name: serviceLabel(item.name, language) === "—" ? "" : serviceLabel(item.name, language),
       price: item.price || "",
-      duration: item.duration || "",
+      duration:
+        serviceLabel(item.duration, language) === "—"
+          ? ""
+          : isLocalizedLabel(item.duration)
+            ? pickLocalized(item.duration, language) || ""
+            : item.duration || "",
     });
   }
 
   function saveEditService() {
     if (!editingServiceId || !editServiceForm.name.trim()) return;
+    const existing = crmServiceRecords.find((row) => row.id === editingServiceId);
     updateCrmService(editingServiceId, {
-      name: editServiceForm.name.trim(),
+      name: patchLocalizedLabel(existing?.name, language, editServiceForm.name.trim()),
       price: editServiceForm.price.trim(),
-      duration: editServiceForm.duration.trim(),
+      duration: isLocalizedLabel(existing?.duration)
+        ? patchLocalizedLabel(existing.duration, language, editServiceForm.duration.trim())
+        : editServiceForm.duration.trim(),
     });
     setEditingServiceId(null);
   }
@@ -2220,7 +2286,7 @@ export default function App() {
     : isUnpaidDemo
       ? nicheScenario?.today_items ?? []
       : [];
-  const popularServices = displayServices.slice(0, 6).map((item) => item.name);
+  const popularServices = displayServices.slice(0, 6).map((item) => serviceLabel(item.name, language));
   const promotionText = isUnpaidDemo ? getPromotionText(activePromotion, language) : "";
   const businessIcon = NICHE_ICONS[effectiveBusinessType] ?? theme.icon;
 
@@ -3040,7 +3106,7 @@ export default function App() {
             )}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem" }}>
               {serviceRows.map((item) => (
-                <article key={item.id || item.name} style={serviceCardStyle}>
+                <article key={item.id || serviceLabel(item.name, language)} style={serviceCardStyle}>
                   {editingServiceId === item.id ? (
                     <>
                       <input value={editServiceForm.name} onChange={(e) => setEditServiceForm((f) => ({ ...f, name: e.target.value }))} style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.4rem", marginBottom: "0.35rem" }} />
@@ -3051,9 +3117,9 @@ export default function App() {
                     </>
                   ) : (
                     <>
-                      <strong style={{ fontSize: "1rem", color: "#0f172a" }}>{item.name}</strong>
+                      <strong style={{ fontSize: "1rem", color: "#0f172a" }}>{serviceLabel(item.name, language)}</strong>
                       <span style={{ display: "block", marginTop: "0.35rem", color: "var(--color-accent, #1d4ed8)", fontWeight: 700 }}>{item.price}</span>
-                      <em style={{ display: "block", marginTop: "0.25rem", color: "#64748b", fontStyle: "normal", fontSize: "1rem" }}>{activeTab === "menu" ? translateMenuCategory(item.duration, language) : item.duration}</em>
+                      <em style={{ display: "block", marginTop: "0.25rem", color: "#64748b", fontStyle: "normal", fontSize: "1rem" }}>{activeTab === "menu" ? translateMenuCategory(serviceLabel(item.duration, language), language) : serviceLabel(item.duration, language) === "—" ? "" : serviceLabel(item.duration, language)}</em>
                       {item.id && (
                         <div style={{ marginTop: "0.75rem" }}>
                           <button type="button" style={crmActionBtnStyle} onClick={() => startEditService(item)}>{t.edit}</button>

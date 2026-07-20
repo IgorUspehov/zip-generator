@@ -1,0 +1,185 @@
+[
+  {
+    "sectorId": "realestate",
+    "clientId": "realty10-0000-4000-8000-0000estate01",
+    "beforeApiEn": [
+      "Immobilienverkauf",
+      "Vermietung",
+      "Objektbewertung"
+    ],
+    "beforeApiRu": [
+      "Immobilienverkauf",
+      "Vermietung",
+      "Objektbewertung"
+    ],
+    "beforeCollapsed": true,
+    "beforeSiteEn": [
+      "Immobilienverkauf",
+      "Vermietung",
+      "Objektbewertung"
+    ],
+    "beforeSiteRu": [
+      "Immobilienverkauf",
+      "Vermietung",
+      "Objektbewertung"
+    ],
+    "beforeBugVisible": true,
+    "afterOpenApiEn": [
+      "Property Sales",
+      "Rental",
+      "Property Valuation"
+    ],
+    "afterOpenApiDe": [
+      "Immobilienverkauf",
+      "Vermietung",
+      "Objektbewertung"
+    ],
+    "afterOpenApiRu": [
+      "Продажа недвижимости",
+      "Аренда",
+      "Оценка объекта"
+    ],
+    "afterOpenPreserved": true,
+    "afterSiteEn": [
+      "Property Sales",
+      "Rental",
+      "Property Valuation"
+    ],
+    "afterSiteRu": [
+      "Продажа недвижимости",
+      "Аренда",
+      "Оценка объекта"
+    ],
+    "afterSitePreserved": true,
+    "editedDe": "Immobilienverkauf (DE-edit)",
+    "afterEditName": {
+      "en": "Property Sales",
+      "de": "Immobilienverkauf (DE-edit)",
+      "ru": "Продажа недвижимости"
+    },
+    "afterEditPreserved": true,
+    "pass": true
+  },
+  {
+    "sectorId": "dental",
+    "clientId": "denta100-0000-4000-8000-00000000fab4",
+    "beforeApiEn": [
+      "Zahnkontrolle",
+      "Zahnreinigung",
+      "Wurzelkanalbehandlung"
+    ],
+    "beforeApiRu": [
+      "Zahnkontrolle",
+      "Zahnreinigung",
+      "Wurzelkanalbehandlung"
+    ],
+    "beforeCollapsed": true,
+    "beforeSiteEn": [
+      "Zahnkontrolle",
+      "Zahnreinigung",
+      "Wurzelkanalbehandlung"
+    ],
+    "beforeSiteRu": [
+      "Zahnkontrolle",
+      "Zahnreinigung",
+      "Wurzelkanalbehandlung"
+    ],
+    "beforeBugVisible": true,
+    "afterOpenApiEn": [
+      "Dental Check-up",
+      "Teeth Cleaning",
+      "Root Canal"
+    ],
+    "afterOpenApiDe": [
+      "Zahnkontrolle",
+      "Zahnreinigung",
+      "Wurzelkanalbehandlung"
+    ],
+    "afterOpenApiRu": [
+      "Осмотр зубов",
+      "Чистка зубов",
+      "Лечение корневого канала"
+    ],
+    "afterOpenPreserved": true,
+    "afterSiteEn": [
+      "Dental Check-up",
+      "Teeth Cleaning",
+      "Root Canal"
+    ],
+    "afterSiteRu": [
+      "Осмотр зубов",
+      "Чистка зубов",
+      "Лечение корневого канала"
+    ],
+    "afterSitePreserved": true,
+    "editedDe": "Zahnkontrolle (DE-edit)",
+    "afterEditName": {
+      "en": "Dental Check-up",
+      "de": "Zahnkontrolle (DE-edit)",
+      "ru": "Осмотр зубов"
+    },
+    "afterEditPreserved": true,
+    "pass": true
+  },
+  {
+    "sectorId": "car_wash",
+    "clientId": "wash1000-0000-4000-8000-000carwash01",
+    "beforeApiEn": [
+      "Außenwäsche",
+      "Innenreinigung",
+      "Komplettwäsche"
+    ],
+    "beforeApiRu": [
+      "Außenwäsche",
+      "Innenreinigung",
+      "Komplettwäsche"
+    ],
+    "beforeCollapsed": true,
+    "beforeSiteEn": [
+      "Außenwäsche",
+      "Innenreinigung",
+      "Komplettwäsche"
+    ],
+    "beforeSiteRu": [
+      "Außenwäsche",
+      "Innenreinigung",
+      "Komplettwäsche"
+    ],
+    "beforeBugVisible": true,
+    "afterOpenApiEn": [
+      "Exterior wash",
+      "Interior cleaning",
+      "Full wash"
+    ],
+    "afterOpenApiDe": [
+      "Außenwäsche",
+      "Innenreinigung",
+      "Komplettwäsche"
+    ],
+    "afterOpenApiRu": [
+      "Мойка кузова",
+      "Салон",
+      "Комплекс"
+    ],
+    "afterOpenPreserved": true,
+    "afterSiteEn": [
+      "Exterior wash",
+      "Interior cleaning",
+      "Full wash"
+    ],
+    "afterSiteRu": [
+      "Мойка кузова",
+      "Салон",
+      "Комплекс"
+    ],
+    "afterSitePreserved": true,
+    "editedDe": "Außenwäsche (DE-edit)",
+    "afterEditName": {
+      "en": "Exterior wash",
+      "de": "Außenwäsche (DE-edit)",
+      "ru": "Мойка кузова"
+    },
+    "afterEditPreserved": true,
+    "pass": true
+  }
+]

@@ -4,31 +4,46 @@
  * Fallback: direct PUT with __CRM_LEADS_READ_SECRET__ when present.
  *
  * Never push an empty list unless options.allowEmpty=true (avoids wiping seed).
+ * Names must stay as full {en,de,ru} — never fan a single UI string into all locales.
  */
+function isLocalizedName(value) {
+  return (
+    value != null &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    ("en" in value || "de" in value || "ru" in value)
+  );
+}
+
+function normalizeCatalogName(nameRaw) {
+  if (isLocalizedName(nameRaw)) {
+    // Preserve each locale as-is; do not fill empty slots from another language.
+    return {
+      en: nameRaw.en == null ? "" : String(nameRaw.en),
+      de: nameRaw.de == null ? "" : String(nameRaw.de),
+      ru: nameRaw.ru == null ? "" : String(nameRaw.ru),
+    };
+  }
+  // Legacy collapsed string rows are unsafe to push (would overwrite EN/RU/DE).
+  return null;
+}
+
 export function syncCrmCatalogToApi(clientId, records, options = {}) {
   if (!clientId || typeof window === "undefined") return;
 
-  const items = (Array.isArray(records) ? records : []).map((item, index) => {
-    const nameRaw = item?.name;
-    let name;
-    if (typeof nameRaw === "string") {
-      name = { en: nameRaw, de: nameRaw, ru: nameRaw };
-    } else if (nameRaw && typeof nameRaw === "object") {
-      name = {
-        en: String(nameRaw.en || nameRaw.de || nameRaw.ru || ""),
-        de: String(nameRaw.de || nameRaw.en || nameRaw.ru || ""),
-        ru: String(nameRaw.ru || nameRaw.en || nameRaw.de || ""),
+  const items = (Array.isArray(records) ? records : [])
+    .map((item, index) => {
+      const name = normalizeCatalogName(item?.name);
+      if (!name) return null;
+      if (!name.en && !name.de && !name.ru) return null;
+      return {
+        id: String(item?.id || `rec-cat-${index}`),
+        name,
+        price: item?.price != null ? String(item.price) : undefined,
+        duration: item?.duration,
       };
-    } else {
-      name = { en: "—", de: "—", ru: "—" };
-    }
-    return {
-      id: String(item?.id || `rec-cat-${index}`),
-      name,
-      price: item?.price != null ? String(item.price) : undefined,
-      duration: item?.duration,
-    };
-  });
+    })
+    .filter(Boolean);
 
   if (!items.length && options.allowEmpty !== true) {
     return;
