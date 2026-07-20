@@ -125,7 +125,7 @@ export function V9ShowcasePage() {
           </div>
           <p className="mx-auto max-w-3xl text-sm text-muted-foreground">
             Пройдите путь клиента: посмотрите примеры, заполните опросник, поймите результат и
-            оставьте feedback. Без знаний Cursor, GitHub, React или Netlify.
+            оставьте feedback. Без знаний Cursor, GitHub или React.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg">

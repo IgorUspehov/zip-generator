@@ -21,7 +21,7 @@ const COPY = {
     ],
     deployTitle: "Deploy anywhere",
     deployText:
-      "Upload all files to Netlify, Vercel, Cloudflare Pages, or any static hosting. Your live demo loads personalization via `clientId` in the URL.",
+      "Upload all files to any static hosting (for example Vercel, Cloudflare Pages, or Railway). Your live demo loads personalization via `clientId` in the URL.",
     supportTitle: "Support",
     supportText: "Keep this README and your `clientId` for future updates.",
   },
@@ -43,7 +43,7 @@ const COPY = {
     ],
     deployTitle: "Überall deployen",
     deployText:
-      "Alle Dateien zu Netlify, Vercel, Cloudflare Pages oder einem anderen Static Host hochladen. Die Live-Demo lädt Personalisierung über `clientId` in der URL.",
+      "Alle Dateien auf einen beliebigen Static Host hochladen (z. B. Vercel, Cloudflare Pages oder Railway). Die Live-Demo lädt Personalisierung über `clientId` in der URL.",
     supportTitle: "Support",
     supportText: "Bewahren Sie diese README und Ihre `clientId` für spätere Updates auf.",
   },
@@ -65,7 +65,7 @@ const COPY = {
     ],
     deployTitle: "Деплой",
     deployText:
-      "Загрузите файлы на Netlify, Vercel, Cloudflare Pages или любой static-хостинг. Персонализация подгружается по `clientId` в URL.",
+      "Загрузите файлы на любой static-хостинг (например Vercel, Cloudflare Pages или Railway). Персонализация подгружается по `clientId` в URL.",
     supportTitle: "Поддержка",
     supportText: "Сохраните README и `clientId` для будущих обновлений.",
   },

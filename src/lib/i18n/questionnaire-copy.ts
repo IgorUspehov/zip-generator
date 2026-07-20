@@ -120,7 +120,7 @@ const COPY: Record<Locale, QuestionnaireCopy> = {
     },
     deliveryMethods: {
       zip: "ZIP archive",
-      netlify: "Netlify deploy",
+      netlify: "Live deploy link",
       github: "GitHub repository",
     },
   },
@@ -193,7 +193,7 @@ const COPY: Record<Locale, QuestionnaireCopy> = {
     },
     deliveryMethods: {
       zip: "ZIP-Archiv",
-      netlify: "Netlify Deploy",
+      netlify: "Live-Deploy-Link",
       github: "GitHub Repository",
     },
   },
@@ -266,7 +266,7 @@ const COPY: Record<Locale, QuestionnaireCopy> = {
     },
     deliveryMethods: {
       zip: "ZIP-архив",
-      netlify: "Деплой на Netlify",
+      netlify: "Ссылка на деплой",
       github: "GitHub репозиторий",
     },
   },

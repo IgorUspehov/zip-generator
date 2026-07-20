@@ -388,10 +388,10 @@ export function buildDeliveryOptions(routeId = "latest"): ClientResultPayload["d
     },
     {
       key: "netlify",
-      label: "Netlify",
+      label: "Deploy link",
       available: netlifyAvailable,
       href: netlifyUrl ?? undefined,
-      description: netlifyUrl ?? "Netlify deployment",
+      description: netlifyUrl ?? "Live deploy link",
     },
     {
       key: "custom_domain",

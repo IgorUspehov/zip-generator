@@ -44,7 +44,7 @@ export type ClientFunnelCopy = {
 
 const DELIVERY_EN: ClientFunnelCopy["deliveryOptions"] = {
   zip: { label: "ZIP", description: "final_package.zip" },
-  netlify: { label: "Netlify", description: "Deploy link" },
+  netlify: { label: "Deploy link", description: "Live deploy link" },
   custom_domain: { label: "Domain", description: "Custom domain" },
   github: { label: "GitHub", description: "GitHub package" },
   apk: { label: "APK", description: "Mobile APK" },
@@ -55,7 +55,7 @@ const DELIVERY_EN: ClientFunnelCopy["deliveryOptions"] = {
 
 const DELIVERY_DE: ClientFunnelCopy["deliveryOptions"] = {
   zip: { label: "ZIP", description: "final_package.zip" },
-  netlify: { label: "Netlify", description: "Deploy-Link" },
+  netlify: { label: "Deploy-Link", description: "Live-Deploy-Link" },
   custom_domain: { label: "Domain", description: "Eigene Domain" },
   github: { label: "GitHub", description: "GitHub-Paket" },
   apk: { label: "APK", description: "Mobile APK" },
@@ -66,7 +66,7 @@ const DELIVERY_DE: ClientFunnelCopy["deliveryOptions"] = {
 
 const DELIVERY_RU: ClientFunnelCopy["deliveryOptions"] = {
   zip: { label: "ZIP", description: "final_package.zip" },
-  netlify: { label: "Netlify", description: "Ссылка на деплой" },
+  netlify: { label: "Ссылка на деплой", description: "Ссылка на деплой" },
   custom_domain: { label: "Свой домен", description: "Настройка домена" },
   github: { label: "GitHub", description: "Пакет GitHub" },
   apk: { label: "APK", description: "Мобильный APK" },

@@ -27,7 +27,7 @@ export const SHOWCASE_DELIVERABLES = [
   },
   {
     title: "Deploy Link",
-    description: "Рабочая ссылка на Netlify или пакет для GitHub",
+    description: "Рабочая ссылка на демо или пакет для GitHub",
   },
   {
     title: "Client Package",

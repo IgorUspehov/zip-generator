@@ -170,7 +170,7 @@ const de: Translation = {
     'Galerie mit Fotos Ihrer Nische',
     'Sprachumschaltung EN / DE / RU',
     'Analytics-Dashboard und Statistiken',
-    'Eindeutige URL auf Netlify',
+    'Eindeutige URL',
     'Mobil optimiert — funktioniert auf jedem Gerät',
   ],
 
@@ -317,7 +317,7 @@ const en: Translation = {
     'Gallery with photos of your niche',
     'Language switching EN / DE / RU',
     'Analytics dashboard and statistics',
-    'Unique URL on Netlify',
+    'Unique URL',
     'Mobile-friendly — works on any device',
   ],
 
@@ -464,7 +464,7 @@ const ru: Translation = {
     'Галерея с фото вашей ниши',
     'Переключение языков EN / DE / RU',
     'Панель аналитики и статистика',
-    'Уникальный URL на Netlify',
+    'Уникальный URL',
     'Мобильная адаптация — работает на любом устройстве',
   ],
 
