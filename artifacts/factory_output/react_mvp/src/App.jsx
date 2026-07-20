@@ -576,7 +576,27 @@ const NICHE_LABELS_KEY_MAP = {
   delivery: "logistics",
 };
 
-const DEFAULT_GENERIC_PAGES = ["dashboard", "clients", "appointments", "services", "settings"];
+const DEFAULT_GENERIC_PAGES = [
+  "dashboard",
+  "clients",
+  "appointments",
+  "services",
+  "integrations",
+  "settings",
+];
+
+/** Ensure Integrations sits before Settings for every niche (shared, sector-agnostic). */
+function ensureIntegrationsInPages(pages) {
+  const next = Array.isArray(pages) ? [...pages] : [];
+  const without = next.filter((id) => id !== "integrations");
+  const settingsIdx = without.indexOf("settings");
+  if (settingsIdx >= 0) {
+    without.splice(settingsIdx, 0, "integrations");
+  } else {
+    without.push("integrations");
+  }
+  return without;
+}
 
 function getNicheLabelsKey(businessType) {
   const normalized = String(businessType || "").trim();
@@ -1230,6 +1250,7 @@ const PAGE_TAB_ICONS = {
   teachers: "👨‍🏫",
   drivers: "🚗",
   notifications: "🔔",
+  integrations: "🔌",
   settings: "⚙️",
   payments: "💳",
   invoices: "🧾",
@@ -1251,6 +1272,7 @@ const TAB_FALLBACK_LABELS = {
     clients: "Clients",
     staff: "Staff",
     notifications: "Notifications",
+    integrations: "Integrations",
     patients: "Patients",
     doctors: "Doctors",
     masters: "Masters",
@@ -1271,6 +1293,7 @@ const TAB_FALLBACK_LABELS = {
     clients: "Kunden",
     staff: "Personal",
     notifications: "Benachrichtigungen",
+    integrations: "Integrationen",
     patients: "Patienten",
     doctors: "Ärzte",
     masters: "Meister",
@@ -1291,6 +1314,7 @@ const TAB_FALLBACK_LABELS = {
     clients: "Клиенты",
     staff: "Персонал",
     notifications: "Уведомления",
+    integrations: "Интеграции",
     patients: "Пациенты",
     doctors: "Врачи",
     masters: "Мастера",
@@ -1311,10 +1335,16 @@ const TAB_FALLBACK_LABELS = {
 
 const DEFAULT_PAGES_BY_NICHE = {
   ...NICHE_CRM_PAGES,
-  veterinary_clinic: ["dashboard", "pets", "owners", "appointments", "treatments", "vaccinations", "payments", "settings"],
-  school_management: ["dashboard", "students", "teachers", "classes", "attendance", "grades", "payments", "settings"],
-  course_platform: ["dashboard", "courses", "lessons", "students", "progress", "certificates", "payments", "settings"],
-  inventory_system: ["dashboard", "products", "warehouses", "suppliers", "stock", "orders", "payments", "settings"],
+  veterinary_clinic: ["dashboard", "pets", "owners", "appointments", "treatments", "vaccinations", "payments", "integrations", "settings"],
+  school_management: ["dashboard", "students", "teachers", "classes", "attendance", "grades", "payments", "integrations", "settings"],
+  course_platform: ["dashboard", "courses", "lessons", "students", "progress", "certificates", "payments", "integrations", "settings"],
+  inventory_system: ["dashboard", "products", "warehouses", "suppliers", "stock", "orders", "payments", "integrations", "settings"],
+};
+
+const OPEN_INTEGRATIONS_LABEL = {
+  en: "Integrations",
+  de: "Integrationen",
+  ru: "Интеграции",
 };
 
 const LANDING_DASHBOARD_NICHES = new Set([
@@ -2311,6 +2341,8 @@ export default function App() {
     settings: getPageLabel("settings", language, effectiveBusinessType, sectionLabels),
     payments: getPageLabel("payments", language, effectiveBusinessType, sectionLabels),
     notifications: getPageLabel("notifications", language, effectiveBusinessType, sectionLabels),
+    integrations: getPageLabel("integrations", language, effectiveBusinessType, sectionLabels),
+    openIntegrations: OPEN_INTEGRATIONS_LABEL[language] || OPEN_INTEGRATIONS_LABEL.en,
   };
 
   useEffect(() => {
@@ -2338,7 +2370,7 @@ export default function App() {
     if (!resolved.includes("settings")) {
       resolved.push("settings");
     }
-    return resolved;
+    return ensureIntegrationsInPages(resolved);
   }, [pages, effectiveBusinessType]);
 
   const navItems = effectivePages.map((pageId) => ({
@@ -2375,6 +2407,7 @@ export default function App() {
     genericPageRecords.length > 0 &&
     activeTab !== "dashboard" &&
     activeTab !== "settings" &&
+    activeTab !== "integrations" &&
     !assetTabs.has(activeTab) &&
     !paymentTabs.has(activeTab) &&
     !appointmentTabs.has(activeTab) &&
@@ -2893,13 +2926,23 @@ export default function App() {
             )}
 
             <div className="mvp-ready-compact">
-              <a
-                href={isUnpaidDemo && demoCheckoutUrl ? demoCheckoutUrl : mvpUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {isUnpaidDemo ? t.paywallCta : t.openMvpTab}
-              </a>
+              {isUnpaidDemo ? (
+                <a
+                  href={demoCheckoutUrl || mvpUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {t.paywallCta}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  className="mvp-ready-compact-btn"
+                  onClick={() => setActiveTab("integrations")}
+                >
+                  {t.openIntegrations}
+                </button>
+              )}
             </div>
           </>
         )}
@@ -3283,6 +3326,12 @@ export default function App() {
                 </tbody>
               </table>
             </div>
+          </section>
+        )}
+
+        {activeTab === "integrations" && (
+          <section className="panel domain-section">
+            <h3 style={{ margin: 0 }}>{t.integrations}</h3>
           </section>
         )}
 

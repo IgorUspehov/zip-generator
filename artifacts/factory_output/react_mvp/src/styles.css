@@ -376,14 +376,21 @@ body {
   text-align: center;
 }
 
-.mvp-ready-compact a {
+.mvp-ready-compact a,
+.mvp-ready-compact-btn {
   color: #64748b;
   font-size: 0.85rem;
   font-weight: 600;
   text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
 }
 
-.mvp-ready-compact a:hover {
+.mvp-ready-compact a:hover,
+.mvp-ready-compact-btn:hover {
   color: var(--color-accent, #16a34a);
   text-decoration: underline;
 }

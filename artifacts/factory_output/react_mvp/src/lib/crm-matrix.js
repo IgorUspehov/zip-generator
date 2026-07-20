@@ -3,14 +3,14 @@
  * Derived from DEFAULT_PAGES + approved business-logic matrix.
  */
 export const NICHE_CRM_PAGES = {
-  beauty_salon: ["dashboard", "clients", "appointments", "services", "staff", "payments", "settings"],
-  fitness_club: ["dashboard", "clients", "appointments", "services", "staff", "payments", "settings"],
-  massage_salon: ["dashboard", "clients", "appointments", "services", "staff", "payments", "settings"],
-  dental_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments", "settings"],
-  health_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments", "settings"],
-  restaurant: ["dashboard", "reservations", "tables", "menu", "staff", "payments", "settings"],
-  car_service: ["dashboard", "clients", "work_orders", "vehicles", "mechanics", "payments", "settings"],
-  hotel_booking: ["dashboard", "guests", "rooms", "reservations", "housekeeping", "payments", "settings"],
+  beauty_salon: ["dashboard", "clients", "appointments", "services", "staff", "payments", "integrations", "settings"],
+  fitness_club: ["dashboard", "clients", "appointments", "services", "staff", "payments", "integrations", "settings"],
+  massage_salon: ["dashboard", "clients", "appointments", "services", "staff", "payments", "integrations", "settings"],
+  dental_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments", "integrations", "settings"],
+  health_clinic: ["dashboard", "patients", "doctors", "appointments", "services", "payments", "integrations", "settings"],
+  restaurant: ["dashboard", "reservations", "tables", "menu", "staff", "payments", "integrations", "settings"],
+  car_service: ["dashboard", "clients", "work_orders", "vehicles", "mechanics", "payments", "integrations", "settings"],
+  hotel_booking: ["dashboard", "guests", "rooms", "reservations", "housekeeping", "payments", "integrations", "settings"],
   real_estate: [
     "dashboard",
     "properties",
@@ -20,12 +20,12 @@ export const NICHE_CRM_PAGES = {
     "services",
     "contracts",
     "payments",
-    "settings",
+    "integrations", "settings",
   ],
-  education: ["dashboard", "students", "courses", "teachers", "appointments", "payments", "settings"],
-  logistics: ["dashboard", "routes", "drivers", "deliveries", "vehicles", "payments", "settings"],
-  ecommerce: ["dashboard", "products", "orders", "clients", "payments", "settings"],
-  technology: ["dashboard", "products", "clients", "projects", "developers", "payments", "settings"],
+  education: ["dashboard", "students", "courses", "teachers", "appointments", "payments", "integrations", "settings"],
+  logistics: ["dashboard", "routes", "drivers", "deliveries", "vehicles", "payments", "integrations", "settings"],
+  ecommerce: ["dashboard", "products", "orders", "clients", "payments", "integrations", "settings"],
+  technology: ["dashboard", "products", "clients", "projects", "developers", "payments", "integrations", "settings"],
   law_firm: [
     "dashboard",
     "clients",
@@ -35,7 +35,7 @@ export const NICHE_CRM_PAGES = {
     "services",
     "invoices",
     "payments",
-    "settings",
+    "integrations", "settings",
   ],
   accounting: [
     "dashboard",
@@ -46,11 +46,11 @@ export const NICHE_CRM_PAGES = {
     "services",
     "payments",
     "reports",
-    "settings",
+    "integrations", "settings",
   ],
-  cleaning_service: ["dashboard", "clients", "appointments", "services", "staff", "payments", "settings"],
-  car_wash: ["dashboard", "clients", "appointments", "services", "staff", "payments", "settings"],
-  construction: ["dashboard", "clients", "projects", "appointments", "services", "staff", "payments", "settings"],
+  cleaning_service: ["dashboard", "clients", "appointments", "services", "staff", "payments", "integrations", "settings"],
+  car_wash: ["dashboard", "clients", "appointments", "services", "staff", "payments", "integrations", "settings"],
+  construction: ["dashboard", "clients", "projects", "appointments", "services", "staff", "payments", "integrations", "settings"],
 };
 
 export const CLIENT_TABS = new Set([
