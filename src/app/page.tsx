@@ -498,10 +498,13 @@ export default function Page() {
                 {t.pricingMonthly}
               </div>
               <div className="text-8xl leading-none font-black text-white">
-                €99
+                {t.priceValue}
               </div>
               <div className="mt-2 text-base text-white/80">
                 {t.pricingPerMonth}
+              </div>
+              <div className="mt-3 text-base font-semibold text-white">
+                {t.priceSiteCrm}
               </div>
               <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-full border-4 border-orange-500 bg-gray-950 px-4 py-1.5 text-sm font-bold whitespace-nowrap text-orange-400">
                 {t.pricingDemoFree}

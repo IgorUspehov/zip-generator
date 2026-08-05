@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { POLAR_CHECKOUT_WEBSTUDIO_199 } from "@/lib/polar/constants";
 
 type Lang = "de" | "en" | "ru";
 
@@ -24,13 +25,15 @@ const COPY: Record<
     priceTitle: string;
     priceAmount: string;
     priceNote: string;
+    priceName: string;
     demoNote: string;
     priceCta: string;
   }
 > = {
   de: {
     heroTitle: "CRM Demo in 3 Minuten",
-    heroSubtitle: "Fertiges CRM Demo für Ihr Business. €99 einmalig, kein Abo.",
+    heroSubtitle:
+      "Fertiges CRM Demo für Ihr Business. €199 / Monat — Website + CRM + Buchung.",
     heroCta: "Jetzt testen →",
     processEyebrow: "Prozess",
     processTitle: "So funktioniert's",
@@ -77,14 +80,16 @@ const COPY: Record<
     ],
     priceEyebrow: "Preis",
     priceTitle: "Preis",
-    priceAmount: "€999",
-    priceNote: "einmalig",
+    priceAmount: "€199",
+    priceNote: "/ Monat",
+    priceName: "Website + CRM + Buchung",
     demoNote: "Demo 48 Stunden kostenlos",
     priceCta: "Jetzt testen →",
   },
   en: {
     heroTitle: "CRM Demo in 3 minutes",
-    heroSubtitle: "Ready-made CRM Demo for your business. €99 one-time, no subscription.",
+    heroSubtitle:
+      "Ready-made CRM Demo for your business. €199 / month — Website + CRM + Booking.",
     heroCta: "Try now →",
     processEyebrow: "Process",
     processTitle: "How it works",
@@ -131,14 +136,16 @@ const COPY: Record<
     ],
     priceEyebrow: "Pricing",
     priceTitle: "Pricing",
-    priceAmount: "€999",
-    priceNote: "one-time",
+    priceAmount: "€199",
+    priceNote: "/ month",
+    priceName: "Website + CRM + Booking",
     demoNote: "Free demo for 48 hours",
     priceCta: "Try now →",
   },
   ru: {
     heroTitle: "CRM Demo за 3 минуты",
-    heroSubtitle: "Готовый CRM Demo для вашего бизнеса. €99 разово, без подписки.",
+    heroSubtitle:
+      "Готовый CRM Demo для вашего бизнеса. €199 / месяц — Сайт + CRM + Бронирование.",
     heroCta: "Попробовать →",
     processEyebrow: "Процесс",
     processTitle: "Как работает",
@@ -185,8 +192,9 @@ const COPY: Record<
     ],
     priceEyebrow: "Цена",
     priceTitle: "Цена",
-    priceAmount: "€999",
-    priceNote: "разово",
+    priceAmount: "€199",
+    priceNote: "/ месяц",
+    priceName: "Сайт + CRM + Бронирование",
     demoNote: "Демо бесплатно 48 часов",
     priceCta: "Попробовать →",
   },
@@ -289,7 +297,7 @@ export function MarketingLanding() {
             {t.heroSubtitle}
           </p>
           <div className="mt-10">
-            <CtaButton href="https://buy.polar.sh/polar_cl_qVHaJpa4Zon7ZJjZNAI6UNDt7vkLdV0enAUZc085fTu">{t.heroCta}</CtaButton>
+            <CtaButton href={POLAR_CHECKOUT_WEBSTUDIO_199}>{t.heroCta}</CtaButton>
           </div>
         </div>
       </section>
@@ -372,11 +380,12 @@ export function MarketingLanding() {
               {t.priceAmount}
             </p>
             <p className="mt-2 text-lg font-medium text-slate-500">{t.priceNote}</p>
+            <p className="mt-3 text-base font-semibold text-slate-800">{t.priceName}</p>
             <p className="mt-6 rounded-lg bg-amber-50 px-4 py-3 text-base font-semibold text-amber-900">
               {t.demoNote}
             </p>
             <div className="mt-10">
-              <CtaButton href="https://buy.polar.sh/polar_cl_qVHaJpa4Zon7ZJjZNAI6UNDt7vkLdV0enAUZc085fTu">{t.priceCta}</CtaButton>
+              <CtaButton href={POLAR_CHECKOUT_WEBSTUDIO_199}>{t.priceCta}</CtaButton>
             </div>
           </div>
         </div>

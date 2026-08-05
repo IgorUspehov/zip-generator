@@ -120,32 +120,10 @@ export function TariffChooser() {
     window.location.href = url.toString();
   }
 
-  async function goCrmDemo() {
-    try {
-      const res = await fetch("/api/polar/crm-demo-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientId: clientId || undefined,
-          email: ctx.email || undefined,
-          locale: lang,
-        }),
-      });
-      if (res.ok) {
-        const data = (await res.json()) as { checkout_url?: string };
-        if (data.checkout_url) {
-          window.location.href = data.checkout_url;
-          return;
-        }
-      }
-    } catch {
-      /* fall through to static checkout link */
-    }
-    if (!clientId && !ctx.email) {
-      window.location.href = buildCrmDemoPolarUrl("", undefined, lang);
-      return;
-    }
-    window.location.href = buildCrmDemoPolarUrl(clientId, ctx.email, lang);
+  function goCrmDemo() {
+    // Static Polar checkout (€199/month) — do not use /api/polar/crm-demo-checkout
+    // (that route still targets the legacy CRM Demo product).
+    window.location.href = buildCrmDemoPolarUrl(clientId, ctx.email || undefined, lang);
   }
 
   return (

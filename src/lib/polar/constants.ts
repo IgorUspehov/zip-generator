@@ -31,6 +31,10 @@ export const POLAR_CHECKOUT_CRM_DEMO =
 /** Alias used in wizard and /pay */
 export const POLAR_CHECKOUT_99 = POLAR_CHECKOUT_CRM_DEMO;
 
+/** Web Studio €199/month recurring — primary public checkout. */
+export const POLAR_CHECKOUT_WEBSTUDIO_199 =
+  "https://buy.polar.sh/polar_cl_BJ6Vl6ueOpNfWgBJ2hdqsaSK9PPrbdEpEzoTW3FvzEX";
+
 export const POLAR_CHECKOUT_RECURRING =
   "https://buy.polar.sh/polar_cl_LgroIdJNay4kFrrasqJMxAgL0jKrhngvgFzsU083GHe";
 

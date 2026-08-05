@@ -481,7 +481,7 @@ function PricingTiersBlock({
             ⚡
           </div>
           <h4 className="pricing-tier-name">{tierCopy.mvpDemo.name}</h4>
-          <div className="pricing-tier-price">€99</div>
+          <div className="pricing-tier-price">€199</div>
           <p className="pricing-tier-desc">{tierCopy.mvpDemo.description}</p>
           <div className="pricing-tier-cta">
             <Link href={payHref} className="pricing-tier-btn pricing-tier-btn--primary">

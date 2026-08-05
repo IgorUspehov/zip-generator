@@ -1,4 +1,4 @@
-import { POLAR_CHECKOUT_CRM_DEMO } from "@/lib/polar/constants";
+import { POLAR_CHECKOUT_WEBSTUDIO_199 } from "@/lib/polar/constants";
 import type { TariffContext } from "@/lib/tariffs/copy";
 
 export function buildTariffsPagePath(ctx: Partial<TariffContext> & { lang?: string }): string {
@@ -32,7 +32,7 @@ export function buildCrmDemoPolarUrl(
   email?: string,
   locale?: string,
 ): string {
-  const url = new URL(POLAR_CHECKOUT_CRM_DEMO);
+  const url = new URL(POLAR_CHECKOUT_WEBSTUDIO_199);
   if (clientId) url.searchParams.set("reference_id", clientId);
   if (email?.trim()) url.searchParams.set("customer_email", email.trim());
   if (email?.trim()) url.searchParams.set("prefilled_email", email.trim());

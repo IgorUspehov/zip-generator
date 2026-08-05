@@ -7,8 +7,8 @@ export const tierTranslations = {
     comingSoon: "Скоро доступно",
     downloadZip: "Скачать ZIP",
     mvpDemo: {
-      name: "CRM Demo",
-      description: "€99 / месяц · Polar checkout",
+      name: "Сайт + CRM + Бронирование",
+      description: "€199 / месяц · Polar checkout",
     },
     mvpPro: {
       name: "Factory Website + CRM",
@@ -26,8 +26,8 @@ export const tierTranslations = {
     comingSoon: "Bald verfügbar",
     downloadZip: "ZIP herunterladen",
     mvpDemo: {
-      name: "CRM Demo",
-      description: "€99 / Monat · Polar-Checkout",
+      name: "Website + CRM + Buchung",
+      description: "€199 / Monat · Polar-Checkout",
     },
     mvpPro: {
       name: "Factory Website + CRM",
@@ -45,8 +45,8 @@ export const tierTranslations = {
     comingSoon: "Coming soon",
     downloadZip: "Download ZIP",
     mvpDemo: {
-      name: "CRM Demo",
-      description: "€99 / month · Polar checkout",
+      name: "Website + CRM + Booking",
+      description: "€199 / month · Polar checkout",
     },
     mvpPro: {
       name: "Factory Website + CRM",

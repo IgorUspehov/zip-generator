@@ -107,8 +107,8 @@ const de: Translation = {
   heroSubtitleHighlight: '3 Minuten',
   heroDescription: 'Füllen Sie einen kurzen Fragebogen aus → erhalten Sie eine Live-Demo → zahlen Sie nur, wenn es Ihnen gefällt',
   priceMonthly: 'Monatlich',
-  priceValue: '€99',
-  priceSiteCrm: 'Website + CRM',
+  priceValue: '€199',
+  priceSiteCrm: 'Website + CRM + Buchung',
   priceConfigured: 'vollständig eingerichtet',
   heroBtnPrimary: 'Demo kostenlos starten',
   heroBtnSecondary: 'Website-Demos ansehen',
@@ -155,7 +155,7 @@ const de: Translation = {
     { title: 'Fragebogen ausfüllen', desc: 'Einige Fragen zu Ihrem Business — ohne technisches Wissen' },
     { title: 'System erstellt CRM Demo', desc: 'In 3 Minuten — fertige Website + CRM für Ihre Nische' },
     { title: 'Live-Demo ansehen', desc: 'Sie sehen das fertige Ergebnis vor der Zahlung' },
-    { title: 'Zahlen und Website erhalten', desc: '€99 / Monat — und Ihre Website + CRM sind einsatzbereit' },
+    { title: 'Zahlen und Website erhalten', desc: '€199 / Monat — und Ihre Website + CRM sind einsatzbereit' },
   ],
   howBtn: 'Fragebogen ausfüllen — kostenlos',
   howBtnHint: 'Dauert 2–3 Minuten. Ohne Registrierung.',
@@ -217,7 +217,7 @@ const de: Translation = {
   pricingPerMonth: '/ Monat',
   pricingDemoFree: 'Demo — KOSTENLOS',
   pricingItems: [
-    'Website + CRM vollständig eingerichtet',
+    'Website + CRM + Buchung vollständig eingerichtet',
     'Demo kostenlos, Zahlung nach Ansicht',
     'Fertig in 3 Minuten per Fragebogen',
     'Monatliche Wartung inklusive',
@@ -226,7 +226,7 @@ const de: Translation = {
   ],
   pricingBtn: 'Demo kostenlos starten',
   pricingPayBtn: 'Plan wählen',
-  pricingHint: 'Ohne Registrierung · Demo kostenlos · Zahlung €99/Monat erst nach Ansicht',
+  pricingHint: 'Ohne Registrierung · Demo kostenlos · Zahlung €199/Monat erst nach Ansicht',
 
   ctaTitle1: 'FERTIG!',
   ctaTitle2: 'Website + CRM in 3 Minuten',
@@ -240,7 +240,7 @@ const de: Translation = {
     'Mehr Verkäufe und Buchungen',
   ],
 
-  footerTagline: 'Website + CRM in 3 Minuten · €99 / Monat',
+  footerTagline: 'Website + CRM in 3 Minuten · €199 / Monat',
 };
 
 const en: Translation = {
@@ -254,8 +254,8 @@ const en: Translation = {
   heroSubtitleHighlight: '3 minutes',
   heroDescription: 'Fill out a short questionnaire → get a live Demo → pay only if you like it',
   priceMonthly: 'Monthly',
-  priceValue: '€99',
-  priceSiteCrm: 'Website + CRM',
+  priceValue: '€199',
+  priceSiteCrm: 'Website + CRM + Booking',
   priceConfigured: 'fully configured',
   heroBtnPrimary: 'Launch Demo for free',
   heroBtnSecondary: 'View site demos',
@@ -302,7 +302,7 @@ const en: Translation = {
     { title: 'Fill out the questionnaire', desc: 'A few questions about your business — no technical knowledge' },
     { title: 'System builds CRM Demo', desc: 'In 3 minutes — a ready website + CRM for your niche' },
     { title: 'Watch the live Demo', desc: 'You see the finished result before paying' },
-    { title: 'Pay and get your website', desc: '€99 / month — and your website + CRM are ready to go' },
+    { title: 'Pay and get your website', desc: '€199 / month — and your website + CRM are ready to go' },
   ],
   howBtn: 'Fill out the questionnaire — free',
   howBtnHint: 'Takes 2–3 minutes. No registration.',
@@ -364,7 +364,7 @@ const en: Translation = {
   pricingPerMonth: '/ month',
   pricingDemoFree: 'Demo — FREE',
   pricingItems: [
-    'Website + CRM fully configured',
+    'Website + CRM + Booking fully configured',
     'Demo is free, payment after viewing',
     'Ready in 3 minutes via questionnaire',
     'Monthly maintenance included',
@@ -373,7 +373,7 @@ const en: Translation = {
   ],
   pricingBtn: 'Launch Demo for free',
   pricingPayBtn: 'Choose plan',
-  pricingHint: 'No registration · Demo free · Payment €99/month only after viewing',
+  pricingHint: 'No registration · Demo free · Payment €199/month only after viewing',
 
   ctaTitle1: 'READY!',
   ctaTitle2: 'Website + CRM in 3 minutes',
@@ -387,7 +387,7 @@ const en: Translation = {
     'More sales and bookings',
   ],
 
-  footerTagline: 'Website + CRM in 3 minutes · €99 / month',
+  footerTagline: 'Website + CRM in 3 minutes · €199 / month',
 };
 
 const ru: Translation = {
@@ -401,8 +401,8 @@ const ru: Translation = {
   heroSubtitleHighlight: '3 минуты',
   heroDescription: 'Заполните короткий опросник → получите живое Демо → оплатите только если понравится',
   priceMonthly: 'Ежемесячно',
-  priceValue: '€99',
-  priceSiteCrm: 'Сайт + CRM',
+  priceValue: '€199',
+  priceSiteCrm: 'Сайт + CRM + Бронирование',
   priceConfigured: 'полностью настроены',
   heroBtnPrimary: 'Запустить Демо бесплатно',
   heroBtnSecondary: 'Посмотреть демо сайтов',
@@ -449,7 +449,7 @@ const ru: Translation = {
     { title: 'Заполните опросник', desc: 'Несколько вопросов о вашем бизнесе — без технических знаний' },
     { title: 'Система собирает CRM Demo', desc: 'За 3 минуты — готовый сайт + CRM под вашу нишу' },
     { title: 'Смотрите живое Демо', desc: 'Вы видите готовый результат до оплаты' },
-    { title: 'Оплачиваете и получаете сайт', desc: '€99 / месяц — и ваш сайт + CRM уже работают' },
+    { title: 'Оплачиваете и получаете сайт', desc: '€199 / месяц — и ваш сайт + CRM уже работают' },
   ],
   howBtn: 'Заполнить опросник — это бесплатно',
   howBtnHint: 'Займёт 2–3 минуты. Без регистрации.',
@@ -511,7 +511,7 @@ const ru: Translation = {
   pricingPerMonth: '/ месяц',
   pricingDemoFree: 'Демо — БЕСПЛАТНО',
   pricingItems: [
-    'Сайт + CRM полностью настроены',
+    'Сайт + CRM + Бронирование полностью настроены',
     'Демо — бесплатно, оплата после просмотра',
     'Готово за 3 минуты через опросник',
     'Ежемесячное обслуживание включено',
@@ -520,7 +520,7 @@ const ru: Translation = {
   ],
   pricingBtn: 'Запустить Демо бесплатно',
   pricingPayBtn: 'Выбрать тариф',
-  pricingHint: 'Без регистрации · Демо бесплатно · Оплата €99/мес только после просмотра',
+  pricingHint: 'Без регистрации · Демо бесплатно · Оплата €199/мес только после просмотра',
 
   ctaTitle1: 'ГОТОВО!',
   ctaTitle2: 'Сайт + CRM за 3 минуты',
@@ -534,7 +534,7 @@ const ru: Translation = {
     'Рост продаж и записей',
   ],
 
-  footerTagline: 'Сайт + CRM за 3 минуты · €99 / месяц',
+  footerTagline: 'Сайт + CRM за 3 минуты · €199 / месяц',
 };
 
 export const translations: Record<Lang, Translation> = { de, en, ru };
