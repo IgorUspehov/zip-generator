@@ -162,7 +162,7 @@ export function PayPageContent() {
               title="Demo preview"
               src={demoUrl}
               className="h-[420px] w-full border-0 bg-white sm:h-[520px]"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
             />
           ) : (
             <div className="px-6 py-16 text-center text-slate-600">{t.missingDemoUrl}</div>

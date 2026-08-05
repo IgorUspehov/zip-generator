@@ -212,10 +212,10 @@ const de: Translation = {
   ],
 
   pricingEyebrow: 'Preis',
-  pricingTitle: 'CRM Demo',
+  pricingTitle: 'Website + CRM + Buchung',
   pricingMonthly: 'Monatliche Zahlung',
   pricingPerMonth: '/ Monat',
-  pricingDemoFree: 'Demo — KOSTENLOS',
+  pricingDemoFree: 'Demo vor Zahlung',
   pricingItems: [
     'Website + CRM + Buchung vollständig eingerichtet',
     'Demo kostenlos, Zahlung nach Ansicht',
@@ -359,10 +359,10 @@ const en: Translation = {
   ],
 
   pricingEyebrow: 'Price',
-  pricingTitle: 'CRM Demo',
+  pricingTitle: 'Website + CRM + Booking',
   pricingMonthly: 'Monthly payment',
   pricingPerMonth: '/ month',
-  pricingDemoFree: 'Demo — FREE',
+  pricingDemoFree: 'Demo before payment',
   pricingItems: [
     'Website + CRM + Booking fully configured',
     'Demo is free, payment after viewing',
@@ -506,10 +506,10 @@ const ru: Translation = {
   ],
 
   pricingEyebrow: 'Цена',
-  pricingTitle: 'CRM Demo',
+  pricingTitle: 'Сайт + CRM + Бронирование',
   pricingMonthly: 'Ежемесячная оплата',
   pricingPerMonth: '/ месяц',
-  pricingDemoFree: 'Демо — БЕСПЛАТНО',
+  pricingDemoFree: 'Демо перед оплатой',
   pricingItems: [
     'Сайт + CRM + Бронирование полностью настроены',
     'Демо — бесплатно, оплата после просмотра',

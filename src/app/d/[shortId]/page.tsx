@@ -68,7 +68,7 @@ export default async function ShortDemoPage({ params }: ShortDemoPageProps) {
           margin: 0,
           padding: 0,
         }}
-        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-modals"
         allow="clipboard-write"
       />
     </>

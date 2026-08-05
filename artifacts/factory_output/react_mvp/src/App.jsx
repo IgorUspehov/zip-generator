@@ -3033,7 +3033,7 @@ export default function App() {
                 whiteSpace: "nowrap",
               }}
             >
-              DEMO · €99
+              DEMO · €199
             </div>
           </div>
       ) : null}

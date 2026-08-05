@@ -2,6 +2,7 @@ import { CrmLeadsBridge } from "@/components/crm-leads-bridge";
 import { DemoTenantLinksBar } from "@/components/demo-tenant-links-bar";
 import { DemoUnpaidBanner } from "@/components/demo-unpaid-banner";
 import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
+import { buildDemoEmbedSrc } from "@/lib/cloudflare/demo-embed";
 import { findDemoBySlug } from "@/lib/cloudflare/demo-registry";
 import {
   buildReadableDemoUrl,
@@ -45,15 +46,7 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
   const publicSiteUrl =
     access.publicSiteUrl || buildReadablePublicSiteUrl(record.slug);
 
-  const src = (() => {
-    try {
-      const url = new URL(record.deploymentUrl);
-      if (clientId) url.searchParams.set("clientId", clientId);
-      return url.toString();
-    } catch {
-      return record.deploymentUrl;
-    }
-  })();
+  const src = buildDemoEmbedSrc(record, clientId);
 
   // Paid: links bar. Unpaid: paywall banner. Never both.
   const topOffset = unpaid ? 52 : 56;
@@ -87,7 +80,7 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
           margin: 0,
           padding: 0,
         }}
-        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-modals"
         allow="clipboard-write"
       />
     </>
