@@ -99,11 +99,11 @@ export type Translation = {
 const de: Translation = {
   langLabel: 'Sprache',
 
-  heroBadge: 'CRM Demo',
+  heroBadge: 'WEB STUDIO IHOR KRIAZHEV MÜNCHEN',
   heroTitle1: 'VERLIEREN SIE',
   heroTitle2: 'KEINE',
   heroTitle3: 'KUNDEN MEHR!',
-  heroSubtitle: 'Website + CRM — in',
+  heroSubtitle: 'Website + CRM + Buchung — in',
   heroSubtitleHighlight: '3 Minuten',
   heroDescription: 'Füllen Sie einen kurzen Fragebogen aus → erhalten Sie eine Live-Demo → zahlen Sie nur, wenn es Ihnen gefällt',
   priceMonthly: 'Monatlich',
@@ -114,7 +114,7 @@ const de: Translation = {
   heroBtnSecondary: 'Website-Demos ansehen',
   heroCheckmarks: ['Keine technischen Kenntnisse', 'Demo ist kostenlos', 'Zahlung nach Ansicht'],
 
-  mockTitle: 'CRM Demo — Fitness Club',
+  mockTitle: 'Website + CRM — Fitness Club',
   mockSubtitle: 'Igor Kriazhev · 312 heute',
   mockStats: [
     ['312', 'Kunden'],
@@ -246,11 +246,11 @@ const de: Translation = {
 const en: Translation = {
   langLabel: 'Language',
 
-  heroBadge: 'CRM Demo',
+  heroBadge: 'WEB STUDIO IHOR KRIAZHEV MÜNCHEN',
   heroTitle1: 'STOP',
   heroTitle2: 'LOSING',
   heroTitle3: 'CUSTOMERS!',
-  heroSubtitle: 'Website + CRM — in',
+  heroSubtitle: 'Website + CRM + Booking — in',
   heroSubtitleHighlight: '3 minutes',
   heroDescription: 'Fill out a short questionnaire → get a live Demo → pay only if you like it',
   priceMonthly: 'Monthly',
@@ -261,7 +261,7 @@ const en: Translation = {
   heroBtnSecondary: 'View site demos',
   heroCheckmarks: ['No technical skills', 'Demo is free', 'Pay after viewing'],
 
-  mockTitle: 'CRM Demo — Fitness Club',
+  mockTitle: 'Website + CRM — Fitness Club',
   mockSubtitle: 'Igor Kriazhev · 312 today',
   mockStats: [
     ['312', 'Customers'],
@@ -393,11 +393,11 @@ const en: Translation = {
 const ru: Translation = {
   langLabel: 'Язык',
 
-  heroBadge: 'CRM Demo',
+  heroBadge: 'WEB STUDIO IHOR KRIAZHEV MÜNCHEN',
   heroTitle1: 'ПЕРЕСТАНЬ',
   heroTitle2: 'ТЕРЯТЬ',
   heroTitle3: 'КЛИЕНТОВ!',
-  heroSubtitle: 'Сайт + CRM — за',
+  heroSubtitle: 'Сайт + CRM + Бронирование — за',
   heroSubtitleHighlight: '3 минуты',
   heroDescription: 'Заполните короткий опросник → получите живое Демо → оплатите только если понравится',
   priceMonthly: 'Ежемесячно',
@@ -408,7 +408,7 @@ const ru: Translation = {
   heroBtnSecondary: 'Посмотреть демо сайтов',
   heroCheckmarks: ['Без технических знаний', 'Демо — бесплатно', 'Оплата после просмотра'],
 
-  mockTitle: 'CRM Demo — Fitness Club',
+  mockTitle: 'Сайт + CRM — Fitness Club',
   mockSubtitle: 'Igor Kriazhev · 312 сегодня',
   mockStats: [
     ['312', 'Клиентов'],
