@@ -1969,11 +1969,19 @@ export default function App() {
           });
           if (response.ok) {
             const config = await response.json();
-            applyManifestFromConfig(config);
-            return;
+            const applied = applyManifestFromConfig(config);
+            if (applied) {
+              return;
+            }
+            console.error("[CRM] Manifest API returned OK but applyManifestFromConfig failed", {
+              clientId,
+              keys: config && typeof config === "object" ? Object.keys(config) : [],
+            });
+            // Fall through to baked/static fallbacks, then explicit error UI.
+          } else {
+            setManifestError(`Manifest not found (${response.status})`);
+            setManifestPending(false);
           }
-          setManifestError(`Manifest not found (${response.status})`);
-          setManifestPending(false);
         } catch (error) {
           if (error?.name === "AbortError") {
             return;
@@ -2014,7 +2022,23 @@ export default function App() {
       }
 
       if (clientId) {
-        // API already failed above; keep error state if set.
+        // API + baked/static fallbacks failed — surface a clear error instead of infinite Loading.
+        const unavailable = {
+          en: "Demo unavailable, please try again later",
+          de: "Demo nicht verfügbar, bitte versuchen Sie es später erneut",
+          ru: "Демо недоступно, попробуйте позже",
+        };
+        const langHint =
+          readPreviewLangFromLocation() ||
+          (typeof language === "string" ? language : "") ||
+          "en";
+        const langKey = langHint === "de" || langHint === "ru" ? langHint : "en";
+        console.error("[CRM] Demo unavailable: could not apply manifest from API or static fallbacks", {
+          clientId,
+          language: langKey,
+        });
+        setManifestError(unavailable[langKey]);
+        setManifestPending(false);
         return;
       }
 
@@ -2359,21 +2383,38 @@ export default function App() {
       // Paid CRM may have purged seeds — hydrate from shared catalog, then persist locally.
       const remote = await hydrateCrmCatalogFromApi(bootClientId, { lang: language });
       if (cancelled || !remote.length) return;
-      const mapped = remote.map((item, index) => ({
-        id: item.id || `rec-cat-hydrated-${index}`,
-        // Keep full LocalizedLabel in CRM state — display picks the UI language later.
-        name: isLocalizedLabel(item.name)
-          ? preserveLocalizedLabel(item.name)
-          : typeof item.name === "string"
-            ? item.name
-            : { en: "—", de: "—", ru: "—" },
-        price: item.price || "",
-        duration: isLocalizedLabel(item.duration)
-          ? preserveLocalizedLabel(item.duration)
-          : typeof item.duration === "string"
-            ? item.duration
-            : "",
-      }));
+      const seenNames = new Set();
+      const mapped = remote
+        .map((item, index) => {
+          const label = isLocalizedLabel(item.name)
+            ? preserveLocalizedLabel(item.name)
+            : typeof item.name === "string"
+              ? item.name
+              : { en: "—", de: "—", ru: "—" };
+          const key = isLocalizedLabel(label)
+            ? String(label.en || label.de || label.ru || "")
+                .trim()
+                .toLowerCase()
+            : String(label || "")
+                .trim()
+                .toLowerCase();
+          if (key) {
+            if (seenNames.has(key)) return null;
+            seenNames.add(key);
+          }
+          return {
+            id: item.id || `rec-cat-hydrated-${index}`,
+            // Keep full LocalizedLabel in CRM state — display picks the UI language later.
+            name: label,
+            price: item.price || "",
+            duration: isLocalizedLabel(item.duration)
+              ? preserveLocalizedLabel(item.duration)
+              : typeof item.duration === "string"
+                ? item.duration
+                : "",
+          };
+        })
+        .filter(Boolean);
       // Only user-looking ids survive paid mode; mark hydrated as rec-*.
       const asUser = mapped.map((item, index) => ({
         ...item,
@@ -2918,8 +2959,7 @@ export default function App() {
     return (
       <div className="app-shell app-error" style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "2rem" }}>
         <div style={{ textAlign: "center", maxWidth: "420px" }}>
-          <h1 style={{ marginBottom: "0.75rem" }}>Manifest unavailable</h1>
-          <p style={{ color: "#64748b" }}>{manifestError}</p>
+          <h1 style={{ marginBottom: "0.75rem", fontSize: "1.25rem", color: "#0f172a" }}>{manifestError}</h1>
         </div>
       </div>
     );

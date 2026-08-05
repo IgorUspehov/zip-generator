@@ -7,7 +7,7 @@ import { findPendingByClientId } from "@/lib/cloudflare/scheduler";
 import { resolveLeadFormMode } from "@/lib/leads/niche-mode";
 import { notifyNewLead } from "@/lib/leads/notify-site-lead";
 import { assertLeadRateLimit } from "@/lib/leads/rate-limit";
-import { ensureLeadsReadSecret } from "@/lib/leads/read-secret";
+import { ensureLeadsReadSecret, ManifestNotFoundError } from "@/lib/leads/read-secret";
 import { withRetries } from "@/lib/leads/retry";
 import { createSiteLead } from "@/lib/leads/store";
 import { validateLeadPayload } from "@/lib/leads/validate";
@@ -211,6 +211,12 @@ export async function POST(
       { status: 201, headers: CORS_HEADERS },
     );
   } catch (error) {
+    if (error instanceof ManifestNotFoundError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 404, headers: CORS_HEADERS },
+      );
+    }
     const message = error instanceof Error ? error.message : "Failed to create lead";
     console.error("[leads] POST failed after retries", { clientId, message });
     return NextResponse.json({ error: message }, { status: 500, headers: CORS_HEADERS });

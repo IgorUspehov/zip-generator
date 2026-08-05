@@ -6,7 +6,11 @@ import {
 } from "@/lib/catalog/firestore-catalog";
 import { catalogNamesForLang } from "@/lib/catalog/resolve-catalog";
 import { normalizeLeadLang } from "@/lib/leads/niche-mode";
-import { ensureLeadsReadSecret, verifyLeadsReadSecret } from "@/lib/leads/read-secret";
+import {
+  ensureLeadsReadSecret,
+  ManifestNotFoundError,
+  verifyLeadsReadSecret,
+} from "@/lib/leads/read-secret";
 import {
   LEADS_SESSION_COOKIE,
   parseLeadsSessionValue,
@@ -74,6 +78,12 @@ export async function GET(
       { headers: { ...CORS, "Cache-Control": "no-store" } },
     );
   } catch (error) {
+    if (error instanceof ManifestNotFoundError) {
+      return NextResponse.json(
+        { error: error.message, ok: false },
+        { status: 404, headers: CORS },
+      );
+    }
     const message = error instanceof Error ? error.message : String(error);
     console.error("[catalog] GET failed", { clientId, message });
     return NextResponse.json(

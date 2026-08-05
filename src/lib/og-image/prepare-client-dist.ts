@@ -7,13 +7,15 @@ import {
   getOgImagePath,
 } from "@/lib/image-library";
 
-import { RAILWAY_FRAME_ANCESTOR } from "@/lib/cloudflare/iframe-ready";
+import {
+  FRAME_ANCESTORS_CSP_VALUE,
+} from "@/lib/cloudflare/iframe-ready";
 import { ensureLeadsReadSecret, stripLeadsSecrets } from "@/lib/leads/read-secret";
 
-/** Cloudflare Pages _headers — allow Live Preview iframe from Railway only. */
+/** Cloudflare Pages _headers — allow Live Preview iframe from Railway + custom domain. */
 export const CLIENT_DIST_HEADERS = `/*
   ! X-Frame-Options
-  Content-Security-Policy: frame-ancestors 'self' ${RAILWAY_FRAME_ANCESTOR}
+  Content-Security-Policy: frame-ancestors 'self' ${FRAME_ANCESTORS_CSP_VALUE}
 `;
 
 type ManifestLike = {
@@ -44,9 +46,9 @@ function formatBusinessTypeLabel(businessType: string): string {
 function writeClientDistHeaders(stagingDir: string): void {
   const headersPath = path.join(stagingDir, "_headers");
   fs.writeFileSync(headersPath, `${CLIENT_DIST_HEADERS.trim()}\n`, "utf8");
-  console.log("[og-image] wrote _headers for Railway iframe embedding", {
+  console.log("[og-image] wrote _headers for iframe embedding", {
     headersPath,
-    frameAncestor: RAILWAY_FRAME_ANCESTOR,
+    frameAncestors: FRAME_ANCESTORS_CSP_VALUE,
   });
 }
 

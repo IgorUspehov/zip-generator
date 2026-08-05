@@ -24,14 +24,30 @@ export function stripLeadsSecrets<T extends Record<string, unknown>>(manifest: T
   return next;
 }
 
+/** Thrown when the tenant manifest file is missing (e.g. after storage prune). */
+export class ManifestNotFoundError extends Error {
+  readonly statusCode = 404;
+
+  constructor(clientId: string) {
+    super(`Manifest not found for clientId=${clientId}`);
+    this.name = "ManifestNotFoundError";
+  }
+}
+
 /**
  * Ensure server-side manifest has a leads read secret (not exposed publicly).
  * Returns the secret for CRM injection.
+ *
+ * Never creates a stub `{ clientId, leadsReadSecret }` when the file is missing —
+ * that masked prune/TTL loss as a "valid" empty tenant and broke Live Preview.
  */
 export function ensureLeadsReadSecret(clientId: string): string {
   const id = String(clientId || "").trim();
   if (!id) throw new Error("clientId required");
-  const manifest = loadClientManifest(id) || { clientId: id };
+  const manifest = loadClientManifest(id);
+  if (!manifest) {
+    throw new ManifestNotFoundError(id);
+  }
   const existing = readLeadsSecretFromManifest(manifest);
   if (existing) return existing;
   const secret = generateLeadsReadSecret();

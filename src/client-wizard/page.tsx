@@ -38,12 +38,26 @@ const LIVE_PREVIEW_PROBE_INTERVAL_MS = 2_000;
 const LIVE_PREVIEW_PROBE_MAX_ATTEMPTS = 60;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function isProbeablePreviewUrl(url: string): boolean {
+/**
+ * Live Preview iframe may only load Railway readable demo URLs
+ * (`/demo/{slug}?clientId=…`). Never mount ephemeral `{hash}.*.pages.dev` —
+ * those deployments are pruned and show "refused to connect" in the iframe.
+ */
+function isReadableDemoPreviewUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
     if (parsed.protocol !== "https:") return false;
-    if (parsed.pathname.startsWith("/demo/")) return true;
-    return parsed.hostname.endsWith(".pages.dev") || parsed.hostname.endsWith(".netlify.app");
+    return parsed.pathname.startsWith("/demo/");
+  } catch {
+    return false;
+  }
+}
+
+function isEphemeralPagesPreviewUrl(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    // Wizard must not iframe pages.dev / netlify — only Railway `/demo/{slug}`.
+    return host.endsWith(".pages.dev") || host.endsWith(".netlify.app");
   } catch {
     return false;
   }
@@ -600,7 +614,7 @@ function ClientWizardFlow() {
     clientId?: string;
     slug?: string;
   } | null>(null);
-  const [previewUrl, setPreviewUrl] = useState("https://—.pages.dev");
+  const [previewUrl, setPreviewUrl] = useState("");
   const [previewTitle, setPreviewTitle] = useState("—");
   const [previewSub, setPreviewSub] = useState("—");
   const [publishCountdown, setPublishCountdown] = useState<number | null>(null);
@@ -625,7 +639,16 @@ function ClientWizardFlow() {
     setStep("s1");
   }, [urlClientId, deployMeta?.clientId]);
 
-  const livePreviewUrl = pendingRedirectUrl ?? deployMeta?.demoUrl ?? previewUrl;
+  // Prefer Railway `/demo/{slug}` only — never fall back to pages.dev / netlify hashes.
+  const livePreviewUrl = (() => {
+    const candidates = [pendingRedirectUrl, deployMeta?.demoUrl, previewUrl];
+    for (const candidate of candidates) {
+      if (candidate && isReadableDemoPreviewUrl(candidate)) {
+        return candidate;
+      }
+    }
+    return "";
+  })();
   const hasPromoInput = promoInput.trim().length > 0;
 
   useEffect(() => {
@@ -657,7 +680,11 @@ function ClientWizardFlow() {
 
     setPreviewTitle(name.trim() || "—");
     setPreviewSub(sector ? `${sector.icon} ${sector.label}` : "—");
-    setPreviewUrl(pendingRedirectUrl ?? deployMeta?.demoUrl ?? "https://—.pages.dev");
+    const railwayPreview =
+      (pendingRedirectUrl && isReadableDemoPreviewUrl(pendingRedirectUrl) && pendingRedirectUrl) ||
+      (deployMeta?.demoUrl && isReadableDemoPreviewUrl(deployMeta.demoUrl) && deployMeta.demoUrl) ||
+      "";
+    setPreviewUrl(railwayPreview);
 
     void (async () => {
       try {
@@ -668,7 +695,8 @@ function ClientWizardFlow() {
         if (!preview.ok) {
           return;
         }
-        if (preview.preview_url) {
+        // Never adopt pages.dev / netlify preview_url into wizard Live Preview state.
+        if (preview.preview_url && isReadableDemoPreviewUrl(preview.preview_url)) {
           setPreviewUrl(preview.preview_url);
         }
         if (preview.business_name) {
@@ -695,7 +723,7 @@ function ClientWizardFlow() {
   }, [copy.sectors, deployMeta, name, pendingRedirectUrl, selSector, step]);
 
   useEffect(() => {
-    if (step !== "s5" || !isProbeablePreviewUrl(livePreviewUrl)) {
+    if (step !== "s5" || !isReadableDemoPreviewUrl(livePreviewUrl)) {
       setLivePreviewIframeSrc(null);
       setLivePreviewWarming(false);
       return;
@@ -723,6 +751,12 @@ function ClientWizardFlow() {
             const data = (await response.json()) as { ready?: boolean };
             if (data.ready) {
               if (!cancelled) {
+                // Guard again: never mount a pages.dev hash even if probe returned ready.
+                if (isEphemeralPagesPreviewUrl(livePreviewUrl)) {
+                  console.error("[wizard] refusing ephemeral pages.dev Live Preview URL", livePreviewUrl);
+                  setLivePreviewWarming(false);
+                  return;
+                }
                 setLivePreviewIframeSrc(livePreviewUrl);
                 setLivePreviewWarming(false);
               }

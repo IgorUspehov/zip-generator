@@ -1,9 +1,35 @@
-/** Allowed parent for CRM Demo Live Preview iframe. */
-export const RAILWAY_FRAME_ANCESTOR = "https://saas-mvp-funnel-production.up.railway.app";
+/** Legacy Railway production origin (still used for iframe embeds). */
+export const DEFAULT_RAILWAY_ORIGIN =
+  "https://saas-mvp-funnel-production.up.railway.app";
+
+/** Custom domain that must also be allowed to embed crm-demo-sites. */
+export const CUSTOM_SITE_FRAME_ANCESTOR = "https://webstudio-muenchen.com";
 
 /**
- * True when Pages edge serves a real response that Railway may embed:
- * HTTP 2xx, no blocking X-Frame-Options, CSP frame-ancestors includes Railway.
+ * Current public site origin (env override or Railway default).
+ * Prefer FRAME_ANCESTORS when writing CSP — Live Preview must work from both hosts.
+ */
+export const RAILWAY_FRAME_ANCESTOR =
+  process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "") ||
+  DEFAULT_RAILWAY_ORIGIN;
+
+/**
+ * All parents allowed to embed the Cloudflare Pages CRM iframe.
+ * Always includes Railway + custom domain; also includes NEXT_PUBLIC_SITE_URL if set.
+ */
+export const FRAME_ANCESTORS: readonly string[] = (() => {
+  const set = new Set<string>([DEFAULT_RAILWAY_ORIGIN, CUSTOM_SITE_FRAME_ANCESTOR]);
+  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");
+  if (fromEnv) set.add(fromEnv);
+  return Array.from(set);
+})();
+
+/** Space-separated list for CSP `frame-ancestors`. */
+export const FRAME_ANCESTORS_CSP_VALUE = FRAME_ANCESTORS.join(" ");
+
+/**
+ * True when Pages edge serves a real response that Railway / custom domain may embed:
+ * HTTP 2xx, no blocking X-Frame-Options, CSP frame-ancestors includes an allowed parent.
  */
 export function isPagesIframeEmbedReady(response: {
   ok: boolean;
@@ -23,5 +49,5 @@ export function isPagesIframeEmbedReady(response: {
     return false;
   }
 
-  return csp.includes(RAILWAY_FRAME_ANCESTOR);
+  return FRAME_ANCESTORS.some((origin) => csp.includes(origin));
 }
