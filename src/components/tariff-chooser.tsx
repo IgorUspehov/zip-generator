@@ -12,6 +12,9 @@ import {
 } from "@/lib/tariffs/copy";
 import { buildCrmDemoPolarUrl, buildFactoryBridgeApiPath } from "@/lib/tariffs/urls";
 
+/** Factory €499 / €999 cards — keep code, hide from public UI for now. */
+const SHOW_FACTORY_TARIFF_CARDS = false;
+
 type ManifestSlice = {
   businessName?: string;
   ownerName?: string;
@@ -186,7 +189,9 @@ export function TariffChooser() {
         {loading ? (
           <p className="text-center text-slate-400">{t.loading}</p>
         ) : (
-          <div className="grid gap-5 lg:grid-cols-3">
+          <div
+            className={`grid gap-5 ${SHOW_FACTORY_TARIFF_CARDS ? "lg:grid-cols-3" : "mx-auto max-w-md lg:grid-cols-1"}`}
+          >
             <article className="flex flex-col rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl">
               <h2 className="text-xl font-bold">{t.crmDemo.name}</h2>
               <div className="mt-3 flex items-baseline gap-1">
@@ -208,52 +213,58 @@ export function TariffChooser() {
               </button>
             </article>
 
-            <article className="relative flex flex-col rounded-3xl border-2 border-orange-400/60 bg-orange-500/10 p-6 shadow-xl">
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-500 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
-                {t.popular}
-              </span>
-              <h2 className="text-xl font-bold">{t.factoryReady.name}</h2>
-              <div className="mt-3 flex items-baseline gap-1">
-                <span className="text-5xl font-black text-white">{t.factoryReady.price}</span>
-              </div>
-              <p className="mt-3 text-sm text-slate-200">{t.factoryReady.description}</p>
-              <ul className="mt-4 space-y-2 text-sm text-slate-100">
-                {t.factoryReady.bullets.map((b) => (
-                  <li key={b}>• {b}</li>
-                ))}
-              </ul>
-              <button
-                type="button"
-                onClick={() => goFactory(499)}
-                className="mt-auto w-full rounded-2xl bg-white px-4 py-3.5 text-base font-black text-slate-900 hover:bg-orange-50"
-              >
-                {t.factoryReady.cta}
-              </button>
-            </article>
+            {SHOW_FACTORY_TARIFF_CARDS ? (
+              <>
+                <article className="relative flex flex-col rounded-3xl border-2 border-orange-400/60 bg-orange-500/10 p-6 shadow-xl">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-500 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
+                    {t.popular}
+                  </span>
+                  <h2 className="text-xl font-bold">{t.factoryReady.name}</h2>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="text-5xl font-black text-white">{t.factoryReady.price}</span>
+                  </div>
+                  <p className="mt-3 text-sm text-slate-200">{t.factoryReady.description}</p>
+                  <ul className="mt-4 space-y-2 text-sm text-slate-100">
+                    {t.factoryReady.bullets.map((b) => (
+                      <li key={b}>• {b}</li>
+                    ))}
+                  </ul>
+                  <button
+                    type="button"
+                    onClick={() => goFactory(499)}
+                    className="mt-auto w-full rounded-2xl bg-white px-4 py-3.5 text-base font-black text-slate-900 hover:bg-orange-50"
+                  >
+                    {t.factoryReady.cta}
+                  </button>
+                </article>
 
-            <article className="flex flex-col rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl">
-              <h2 className="text-xl font-bold">{t.factoryCustom.name}</h2>
-              <div className="mt-3 flex items-baseline gap-1">
-                <span className="text-5xl font-black text-white">{t.factoryCustom.price}</span>
-              </div>
-              <p className="mt-3 text-sm text-slate-300">{t.factoryCustom.description}</p>
-              <ul className="mt-4 space-y-2 text-sm text-slate-200">
-                {t.factoryCustom.bullets.map((b) => (
-                  <li key={b}>• {b}</li>
-                ))}
-              </ul>
-              <button
-                type="button"
-                onClick={() => goFactory(999)}
-                className="mt-auto w-full rounded-2xl border-2 border-white/30 bg-transparent px-4 py-3.5 text-base font-black text-white hover:bg-white/10"
-              >
-                {t.factoryCustom.cta}
-              </button>
-            </article>
+                <article className="flex flex-col rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl">
+                  <h2 className="text-xl font-bold">{t.factoryCustom.name}</h2>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="text-5xl font-black text-white">{t.factoryCustom.price}</span>
+                  </div>
+                  <p className="mt-3 text-sm text-slate-300">{t.factoryCustom.description}</p>
+                  <ul className="mt-4 space-y-2 text-sm text-slate-200">
+                    {t.factoryCustom.bullets.map((b) => (
+                      <li key={b}>• {b}</li>
+                    ))}
+                  </ul>
+                  <button
+                    type="button"
+                    onClick={() => goFactory(999)}
+                    className="mt-auto w-full rounded-2xl border-2 border-white/30 bg-transparent px-4 py-3.5 text-base font-black text-white hover:bg-white/10"
+                  >
+                    {t.factoryCustom.cta}
+                  </button>
+                </article>
+              </>
+            ) : null}
           </div>
         )}
 
-        <p className="mt-8 text-center text-sm text-slate-400">{t.bridgeNote}</p>
+        {SHOW_FACTORY_TARIFF_CARDS ? (
+          <p className="mt-8 text-center text-sm text-slate-400">{t.bridgeNote}</p>
+        ) : null}
         {!clientId ? (
           <p className="mt-2 text-center text-sm text-amber-300">{t.missingClient}</p>
         ) : null}

@@ -468,6 +468,9 @@ function PricingTiersBlock({
     window.open(`/api/download-zip?${params.toString()}`, "_blank", "noopener,noreferrer");
   };
 
+  /** Factory €499 / €999 cards — keep code, hide from public UI for now. */
+  const showFactoryTariffCards = false;
+
   return (
     <div className="pricing-tiers-section">
       <hr className="pricing-tiers-divider" />
@@ -488,46 +491,50 @@ function PricingTiersBlock({
           </div>
         </article>
 
-        <article className="pricing-tier-card pricing-tier-card--popular">
-          <span className="pricing-tier-badge">{tierCopy.popular}</span>
-          <div className="pricing-tier-icon" aria-hidden>
-            🚀
-          </div>
-          <h4 className="pricing-tier-name">{tierCopy.mvpPro.name}</h4>
-          <div className="pricing-tier-price">€499</div>
-          <p className="pricing-tier-desc">{tierCopy.mvpPro.description}</p>
-          {proDownloadToken && clientId ? (
-            <button type="button" className="pricing-tier-btn pricing-tier-btn--primary" onClick={handleDownloadProZip}>
-              {tierCopy.downloadZip}
-            </button>
-          ) : (
-            <a
-              href={payHrefPro}
-              className="pricing-tier-btn"
-              target="_blank"
-              rel="noreferrer"
-            >
-              €499
-            </a>
-          )}
-        </article>
+        {showFactoryTariffCards ? (
+          <>
+            <article className="pricing-tier-card pricing-tier-card--popular">
+              <span className="pricing-tier-badge">{tierCopy.popular}</span>
+              <div className="pricing-tier-icon" aria-hidden>
+                🚀
+              </div>
+              <h4 className="pricing-tier-name">{tierCopy.mvpPro.name}</h4>
+              <div className="pricing-tier-price">€499</div>
+              <p className="pricing-tier-desc">{tierCopy.mvpPro.description}</p>
+              {proDownloadToken && clientId ? (
+                <button type="button" className="pricing-tier-btn pricing-tier-btn--primary" onClick={handleDownloadProZip}>
+                  {tierCopy.downloadZip}
+                </button>
+              ) : (
+                <a
+                  href={payHrefPro}
+                  className="pricing-tier-btn"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  €499
+                </a>
+              )}
+            </article>
 
-        <article className="pricing-tier-card">
-          <div className="pricing-tier-icon" aria-hidden>
-            💎
-          </div>
-          <h4 className="pricing-tier-name">{tierCopy.crmFull.name}</h4>
-          <div className="pricing-tier-price">€999</div>
-          <p className="pricing-tier-desc">{tierCopy.crmFull.description}</p>
-          <a
-            href={payHrefFull}
-            className="pricing-tier-btn"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {tierCopy.crmFull.contact}
-          </a>
-        </article>
+            <article className="pricing-tier-card">
+              <div className="pricing-tier-icon" aria-hidden>
+                💎
+              </div>
+              <h4 className="pricing-tier-name">{tierCopy.crmFull.name}</h4>
+              <div className="pricing-tier-price">€999</div>
+              <p className="pricing-tier-desc">{tierCopy.crmFull.description}</p>
+              <a
+                href={payHrefFull}
+                className="pricing-tier-btn"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {tierCopy.crmFull.contact}
+              </a>
+            </article>
+          </>
+        ) : null}
       </div>
     </div>
   );
