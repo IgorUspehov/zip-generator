@@ -31,9 +31,9 @@ const COPY: Record<
   }
 > = {
   de: {
-    heroTitle: "CRM Demo in 3 Minuten",
+    heroTitle: "Website + CRM + Buchung in 3 Minuten",
     heroSubtitle:
-      "Fertiges CRM Demo für Ihr Business. €199 / Monat — Website + CRM + Buchung.",
+      "Fertiges Website + CRM + Buchung für Ihr Business. €199 / Monat — Website + CRM + Buchung.",
     heroCta: "Jetzt testen →",
     processEyebrow: "Prozess",
     processTitle: "So funktioniert's",
@@ -45,17 +45,17 @@ const COPY: Record<
       },
       {
         icon: "⚙️",
-        title: "System erstellt Ihr CRM Demo",
+        title: "System erstellt Ihr Website + CRM + Buchung",
         description: "Automatisch für Ihre Branche",
       },
       {
         icon: "🚀",
-        title: "Link erhalten — Ihr CRM Demo ist online",
+        title: "Link erhalten — Ihr Website + CRM + Buchung ist online",
         description: "Eindeutige URL",
       },
     ],
     featuresEyebrow: "Leistungen",
-    featuresTitle: "Was ist in CRM Demo enthalten",
+    featuresTitle: "Was ist in Website + CRM + Buchung enthalten",
     features: [
       "Business-Verwaltungspanel",
       "Kunden, Termine, Leistungen",
@@ -87,9 +87,9 @@ const COPY: Record<
     priceCta: "Jetzt testen →",
   },
   en: {
-    heroTitle: "CRM Demo in 3 minutes",
+    heroTitle: "Website + CRM + Booking in 3 minutes",
     heroSubtitle:
-      "Ready-made CRM Demo for your business. €199 / month — Website + CRM + Booking.",
+      "Ready-made Website + CRM + Booking for your business. €199 / month — Website + CRM + Booking.",
     heroCta: "Try now →",
     processEyebrow: "Process",
     processTitle: "How it works",
@@ -101,17 +101,17 @@ const COPY: Record<
       },
       {
         icon: "⚙️",
-        title: "The system builds your CRM Demo",
+        title: "The system builds your Website + CRM + Booking",
         description: "Automatically tailored to your niche",
       },
       {
         icon: "🚀",
-        title: "Get a link — your CRM Demo is live",
+        title: "Get a link — your Website + CRM + Booking is live",
         description: "Unique URL",
       },
     ],
     featuresEyebrow: "Features",
-    featuresTitle: "What's included in CRM Demo",
+    featuresTitle: "What's included in Website + CRM + Booking",
     features: [
       "Business management panel",
       "Clients, appointments, services",
@@ -143,9 +143,9 @@ const COPY: Record<
     priceCta: "Try now →",
   },
   ru: {
-    heroTitle: "CRM Demo за 3 минуты",
+    heroTitle: "Сайт + CRM + Бронирование за 3 минуты",
     heroSubtitle:
-      "Готовый CRM Demo для вашего бизнеса. €199 / месяц — Сайт + CRM + Бронирование.",
+      "Готовый Сайт + CRM + Бронирование для вашего бизнеса. €199 / месяц — Сайт + CRM + Бронирование.",
     heroCta: "Попробовать →",
     processEyebrow: "Процесс",
     processTitle: "Как работает",
@@ -157,17 +157,17 @@ const COPY: Record<
       },
       {
         icon: "⚙️",
-        title: "Система собирает ваш CRM Demo",
+        title: "Система собирает ваш Сайт + CRM + Бронирование",
         description: "Автоматически под вашу нишу",
       },
       {
         icon: "🚀",
-        title: "Получаете ссылку — ваш CRM Demo уже онлайн",
+        title: "Получаете ссылку — ваш Сайт + CRM + Бронирование уже онлайн",
         description: "Уникальный URL",
       },
     ],
     featuresEyebrow: "Возможности",
-    featuresTitle: "Что входит в CRM Demo",
+    featuresTitle: "Что входит в Сайт + CRM + Бронирование",
     features: [
       "Панель управления бизнесом",
       "Клиенты, записи, услуги",
@@ -288,7 +288,7 @@ export function MarketingLanding() {
         <div className="absolute inset-0 bg-black/50" aria-hidden />
         <div className="relative z-10 mx-auto max-w-4xl px-6 py-24 text-center">
           <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-amber-400">
-            CRM Demo
+            Web Studio IHOR KRIAZHEV München
           </p>
           <h1 className="text-5xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl">
             {t.heroTitle}
@@ -394,16 +394,16 @@ export function MarketingLanding() {
       <footer className="border-t border-slate-200 bg-slate-900 py-12 text-slate-300">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-6 text-center text-sm sm:flex-row sm:justify-between sm:text-left">
           <p>
-            <span className="font-semibold text-white">CRM Demo</span>
+            <span className="font-semibold text-white">Web Studio IHOR KRIAZHEV München</span>
             {" | München, Deutschland | "}
             <a
-              href="mailto:contact@mvpfactory.de"
+              href="mailto:list.uspeh2022@gmail.com"
               className="text-amber-400 underline-offset-4 hover:underline"
             >
-              contact@mvpfactory.de
+              list.uspeh2022@gmail.com
             </a>
           </p>
-          <nav className="flex gap-8">
+          <nav className="flex flex-wrap gap-8">
             <Link
               href="/agb"
               className="text-slate-300 underline-offset-4 hover:text-white hover:underline"
@@ -415,6 +415,18 @@ export function MarketingLanding() {
               className="text-slate-300 underline-offset-4 hover:text-white hover:underline"
             >
               Datenschutz
+            </Link>
+            <Link
+              href="/impressum"
+              className="text-slate-300 underline-offset-4 hover:text-white hover:underline"
+            >
+              Impressum
+            </Link>
+            <Link
+              href="/widerrufsbelehrung"
+              className="text-slate-300 underline-offset-4 hover:text-white hover:underline"
+            >
+              Widerrufsbelehrung
             </Link>
           </nav>
         </div>

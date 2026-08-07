@@ -114,7 +114,15 @@ export function resolveSectorModelForClient(clientId: string): SectorModel | nul
 
 /** Localized name list for public form / CRM dropdown — same order, same items. */
 export function catalogNamesForLang(items: CatalogItem[], lang: LeadLang): string[] {
-  return items.map((item) => pickLocalized(item.name, lang)).filter(Boolean);
+  const seen = new Set<string>();
+  const names: string[] = [];
+  for (const item of items) {
+    const name = pickLocalized(item.name, lang);
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    names.push(name);
+  }
+  return names;
 }
 
 /**

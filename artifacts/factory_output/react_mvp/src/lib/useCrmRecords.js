@@ -15,6 +15,39 @@ function isSeedRecord(record) {
   return String(record?.id || "").startsWith("seed-");
 }
 
+/** Stable key for catalog-ish rows (string or {en,de,ru}). */
+function recordNameKey(name) {
+  if (name == null) return "";
+  if (typeof name === "string") return name.trim().toLowerCase();
+  if (typeof name === "object") {
+    const en = String(name.en ?? "").trim().toLowerCase();
+    const de = String(name.de ?? "").trim().toLowerCase();
+    const ru = String(name.ru ?? "").trim().toLowerCase();
+    return en || de || ru;
+  }
+  return "";
+}
+
+/**
+ * Unpaid demos may keep scenario seeds plus user `rec-*` rows.
+ * Hydrated catalog copies must replace matching seeds — never concat
+ * the same product twice (that used to sync 6 names into /site forms).
+ */
+function mergeSeedAndUser(seeded = [], userAdded = []) {
+  if (!userAdded.length) return seeded;
+  if (!seeded.length) return userAdded;
+  const byKey = new Map();
+  for (const seed of seeded) {
+    const key = recordNameKey(seed?.name) || String(seed?.id || "");
+    if (key) byKey.set(key, seed);
+  }
+  for (const user of userAdded) {
+    const key = recordNameKey(user?.name) || String(user?.id || "");
+    if (key) byKey.set(key, user); // user / hydrated wins
+  }
+  return [...byKey.values()];
+}
+
 function readStorage(key) {
   try {
     const raw = localStorage.getItem(key);
@@ -64,7 +97,7 @@ export function useCrmRecords(clientId, section, defaultRecords = [], options = 
     const stored = readStorage(storageKey);
     if (stored !== null) {
       const userAdded = stored.filter(isUserRecord);
-      const next = allowSeed ? [...seeded, ...userAdded] : userAdded;
+      const next = allowSeed ? mergeSeedAndUser(seeded, userAdded) : userAdded;
       setRecords(next);
       writeStorage(storageKey, next);
       setLoading(false);

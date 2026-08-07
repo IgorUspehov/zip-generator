@@ -69,7 +69,7 @@ export async function buildClientDistZipBuffer(input: {
   });
 }
 
-const CRM_DEMO_README = `CRM Demo
+const CRM_DEMO_README = `Website + CRM + Booking
 
 This archive contains your published site files:
 - index.html

@@ -24,7 +24,7 @@ export default async function ShortDemoPage({ params }: ShortDemoPageProps) {
     return (
       <main style={{ fontFamily: "system-ui", padding: 40 }}>
         <h1>Demo not found</h1>
-        <p>No CRM Demo is registered for “{shortId}”.</p>
+        <p>No Website + CRM + Booking is registered for “{shortId}”.</p>
       </main>
     );
   }
@@ -37,7 +37,7 @@ export default async function ShortDemoPage({ params }: ShortDemoPageProps) {
   const src = buildDemoEmbedSrc(record);
   const bannerOffset = unpaid ? 52 : 0;
 
-  const iframeTitle = `CRM Demo ${shortId}`;
+  const iframeTitle = `Website + CRM + Booking ${shortId}`;
 
   return (
     <>

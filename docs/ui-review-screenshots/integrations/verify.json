@@ -1,0 +1,311 @@
+{
+  "compact": "Интеграции",
+  "results": [
+    {
+      "niche": "dental_clinic",
+      "lang": "en",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=en&businessName=CRM+Demo&niche=dental_clinic",
+      "stubCount": 8,
+      "statuses": [
+        "Soon",
+        "Soon",
+        "Connect",
+        "Not configured",
+        "Soon",
+        "Not configured",
+        "Soon",
+        "Soon"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "dental_clinic-en.png"
+    },
+    {
+      "niche": "dental_clinic",
+      "lang": "de",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=de&businessName=CRM+Demo&niche=dental_clinic",
+      "stubCount": 8,
+      "statuses": [
+        "Bald",
+        "Bald",
+        "Verbinden",
+        "Nicht eingerichtet",
+        "Bald",
+        "Nicht eingerichtet",
+        "Bald",
+        "Bald"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "dental_clinic-de.png"
+    },
+    {
+      "niche": "dental_clinic",
+      "lang": "ru",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=ru&businessName=CRM+Demo&niche=dental_clinic",
+      "stubCount": 8,
+      "statuses": [
+        "Скоро",
+        "Скоро",
+        "Подключить",
+        "Не настроено",
+        "Скоро",
+        "Не настроено",
+        "Скоро",
+        "Скоро"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "dental_clinic-ru.png"
+    },
+    {
+      "niche": "restaurant",
+      "lang": "en",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=en&businessName=CRM+Demo&niche=restaurant",
+      "stubCount": 8,
+      "statuses": [
+        "Soon",
+        "Soon",
+        "Connect",
+        "Not configured",
+        "Soon",
+        "Not configured",
+        "Soon",
+        "Soon"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "restaurant-en.png"
+    },
+    {
+      "niche": "restaurant",
+      "lang": "de",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=de&businessName=CRM+Demo&niche=restaurant",
+      "stubCount": 8,
+      "statuses": [
+        "Bald",
+        "Bald",
+        "Verbinden",
+        "Nicht eingerichtet",
+        "Bald",
+        "Nicht eingerichtet",
+        "Bald",
+        "Bald"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "restaurant-de.png"
+    },
+    {
+      "niche": "restaurant",
+      "lang": "ru",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=ru&businessName=CRM+Demo&niche=restaurant",
+      "stubCount": 8,
+      "statuses": [
+        "Скоро",
+        "Скоро",
+        "Подключить",
+        "Не настроено",
+        "Скоро",
+        "Не настроено",
+        "Скоро",
+        "Скоро"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "restaurant-ru.png"
+    },
+    {
+      "niche": "car_service",
+      "lang": "en",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=en&businessName=CRM+Demo&niche=car_service",
+      "stubCount": 8,
+      "statuses": [
+        "Soon",
+        "Soon",
+        "Connect",
+        "Not configured",
+        "Soon",
+        "Not configured",
+        "Soon",
+        "Soon"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "car_service-en.png"
+    },
+    {
+      "niche": "car_service",
+      "lang": "de",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=de&businessName=CRM+Demo&niche=car_service",
+      "stubCount": 8,
+      "statuses": [
+        "Bald",
+        "Bald",
+        "Verbinden",
+        "Nicht eingerichtet",
+        "Bald",
+        "Nicht eingerichtet",
+        "Bald",
+        "Bald"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "car_service-de.png"
+    },
+    {
+      "niche": "car_service",
+      "lang": "ru",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=ru&businessName=CRM+Demo&niche=car_service",
+      "stubCount": 8,
+      "statuses": [
+        "Скоро",
+        "Скоро",
+        "Подключить",
+        "Не настроено",
+        "Скоро",
+        "Не настроено",
+        "Скоро",
+        "Скоро"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "car_service-ru.png"
+    },
+    {
+      "niche": "law_firm",
+      "lang": "en",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=en&businessName=CRM+Demo&niche=law_firm",
+      "stubCount": 8,
+      "statuses": [
+        "Soon",
+        "Soon",
+        "Connect",
+        "Not configured",
+        "Soon",
+        "Not configured",
+        "Soon",
+        "Soon"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "law_firm-en.png"
+    },
+    {
+      "niche": "law_firm",
+      "lang": "de",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=de&businessName=CRM+Demo&niche=law_firm",
+      "stubCount": 8,
+      "statuses": [
+        "Bald",
+        "Bald",
+        "Verbinden",
+        "Nicht eingerichtet",
+        "Bald",
+        "Nicht eingerichtet",
+        "Bald",
+        "Bald"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "law_firm-de.png"
+    },
+    {
+      "niche": "law_firm",
+      "lang": "ru",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=ru&businessName=CRM+Demo&niche=law_firm",
+      "stubCount": 8,
+      "statuses": [
+        "Скоро",
+        "Скоро",
+        "Подключить",
+        "Не настроено",
+        "Скоро",
+        "Не настроено",
+        "Скоро",
+        "Скоро"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "law_firm-ru.png"
+    },
+    {
+      "niche": "fitness_club",
+      "lang": "en",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=en&businessName=CRM+Demo&niche=fitness_club",
+      "stubCount": 8,
+      "statuses": [
+        "Soon",
+        "Soon",
+        "Connect",
+        "Not configured",
+        "Soon",
+        "Not configured",
+        "Soon",
+        "Soon"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "fitness_club-en.png"
+    },
+    {
+      "niche": "fitness_club",
+      "lang": "de",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=de&businessName=CRM+Demo&niche=fitness_club",
+      "stubCount": 8,
+      "statuses": [
+        "Bald",
+        "Bald",
+        "Verbinden",
+        "Nicht eingerichtet",
+        "Bald",
+        "Nicht eingerichtet",
+        "Bald",
+        "Bald"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "fitness_club-de.png"
+    },
+    {
+      "niche": "fitness_club",
+      "lang": "ru",
+      "factoryHref": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?tier=factory_ready&language=ru&businessName=CRM+Demo&niche=fitness_club",
+      "stubCount": 8,
+      "statuses": [
+        "Скоро",
+        "Скоро",
+        "Подключить",
+        "Не настроено",
+        "Скоро",
+        "Не настроено",
+        "Скоро",
+        "Скоро"
+      ],
+      "factoryTitle": "Factory Website+CRM",
+      "file": "fitness_club-ru.png"
+    }
+  ],
+  "bridgeHref": null,
+  "bridgeResults": [
+    {
+      "id": "fab4b137-0341-43da-9a5d-099297fcd92c",
+      "niche": "dental",
+      "navCount": 1,
+      "href": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?clientId=fab4b137-0341-43da-9a5d-099297fcd92c&tier=factory_ready&language=ru&businessName=%D0%9A%D0%BB%D0%B8%D0%BD%D0%B8%D0%BA%D0%B0+%22%D0%97%D1%83%D0%B1+%D0%B1%D0%BE%D0%BB%D0%B8%D1%82%22&niche=dental_clinic&city=Munich&phone=%2B4915258400610&email=uspeh.polimer2022%40gmail.com&whatsapp=%2B79881554136",
+      "hasClientId": true,
+      "hasTier": true,
+      "compactText": "",
+      "openMvpGone": true,
+      "hasIntegrationsCta": false
+    },
+    {
+      "id": "37a66e67-5ed3-4a83-99c4-e0508f8c77fe",
+      "niche": "cafe",
+      "navCount": 1,
+      "href": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?clientId=37a66e67-5ed3-4a83-99c4-e0508f8c77fe&tier=factory_ready&language=ru&businessName=%D0%9A%D0%B0%D1%84%D0%B5+%22%D0%9A%D0%B0%D0%BB%D0%B8%D0%BD%D0%BA%D0%B0%2F%D0%9C%D0%B0%D0%BB%D0%B8%D0%BD%D0%BA%D0%B0%22&niche=restaurant&city=M%C3%BCnchen&phone=%2B4915258400610&email=uspeh.polimer2022%40gmail.com&whatsapp=%2B4915250055777",
+      "hasClientId": true,
+      "hasTier": true,
+      "compactText": "",
+      "openMvpGone": true,
+      "hasIntegrationsCta": false
+    },
+    {
+      "id": "404db994-66e1-4795-b419-d8e8e72bba38",
+      "niche": "car_wash",
+      "navCount": 1,
+      "href": "https://saas-mvp-funnel-production.up.railway.app/api/factory-bridge?clientId=404db994-66e1-4795-b419-d8e8e72bba38&tier=factory_ready&language=ru&businessName=%D0%90%D0%B2%D1%82%D0%BE%D0%BC%D0%BE%D0%B9%D0%BA%D0%B0+Local+Wash&niche=car_wash&city=M%C3%BCnchen&phone=%2B4915258400610&email=uspeh.polimer2022%40gmail.com&whatsapp=%2B4915258400610",
+      "hasClientId": true,
+      "hasTier": true,
+      "compactText": "",
+      "openMvpGone": true,
+      "hasIntegrationsCta": false
+    }
+  ]
+}

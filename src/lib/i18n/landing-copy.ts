@@ -153,7 +153,7 @@ const de: Translation = {
   howSubtitle: 'Demo ist kostenlos. Zahlung erst, nachdem Sie das Ergebnis gesehen haben.',
   howSteps: [
     { title: 'Fragebogen ausfüllen', desc: 'Einige Fragen zu Ihrem Business — ohne technisches Wissen' },
-    { title: 'System erstellt CRM Demo', desc: 'In 3 Minuten — fertige Website + CRM für Ihre Nische' },
+    { title: 'System erstellt Website + CRM', desc: 'In 3 Minuten — fertige Website + CRM für Ihre Nische' },
     { title: 'Live-Demo ansehen', desc: 'Sie sehen das fertige Ergebnis vor der Zahlung' },
     { title: 'Zahlen und Website erhalten', desc: '€199 / Monat — und Ihre Website + CRM sind einsatzbereit' },
   ],
@@ -161,7 +161,7 @@ const de: Translation = {
   howBtnHint: 'Dauert 2–3 Minuten. Ohne Registrierung.',
 
   featuresEyebrow: 'Funktionen',
-  featuresTitle: 'Was in CRM Demo enthalten ist',
+  featuresTitle: 'Was in Website + CRM + Buchung enthalten ist',
   features: [
     'Professionelle Website für Ihre Nische',
     'CRM — Kunden, Termine, Leistungen',
@@ -300,7 +300,7 @@ const en: Translation = {
   howSubtitle: 'Demo is free. Payment only after you see the result.',
   howSteps: [
     { title: 'Fill out the questionnaire', desc: 'A few questions about your business — no technical knowledge' },
-    { title: 'System builds CRM Demo', desc: 'In 3 minutes — a ready website + CRM for your niche' },
+    { title: 'System builds Website + CRM', desc: 'In 3 minutes — a ready website + CRM for your niche' },
     { title: 'Watch the live Demo', desc: 'You see the finished result before paying' },
     { title: 'Pay and get your website', desc: '€199 / month — and your website + CRM are ready to go' },
   ],
@@ -308,7 +308,7 @@ const en: Translation = {
   howBtnHint: 'Takes 2–3 minutes. No registration.',
 
   featuresEyebrow: 'Features',
-  featuresTitle: 'What is included in CRM Demo',
+  featuresTitle: 'What\'s included in Website + CRM + Booking',
   features: [
     'Professional website for your niche',
     'CRM — customers, bookings, services',
@@ -447,7 +447,7 @@ const ru: Translation = {
   howSubtitle: 'Демо — бесплатно. Оплата только после того, как вы увидите результат.',
   howSteps: [
     { title: 'Заполните опросник', desc: 'Несколько вопросов о вашем бизнесе — без технических знаний' },
-    { title: 'Система собирает CRM Demo', desc: 'За 3 минуты — готовый сайт + CRM под вашу нишу' },
+    { title: 'Система собирает Сайт + CRM', desc: 'За 3 минуты — готовый сайт + CRM под вашу нишу' },
     { title: 'Смотрите живое Демо', desc: 'Вы видите готовый результат до оплаты' },
     { title: 'Оплачиваете и получаете сайт', desc: '€199 / месяц — и ваш сайт + CRM уже работают' },
   ],
@@ -455,7 +455,7 @@ const ru: Translation = {
   howBtnHint: 'Займёт 2–3 минуты. Без регистрации.',
 
   featuresEyebrow: 'Возможности',
-  featuresTitle: 'Что входит в CRM Demo',
+  featuresTitle: 'Что входит в Сайт + CRM + Бронирование',
   features: [
     'Профессиональный сайт под вашу нишу',
     'CRM — клиенты, записи, услуги',

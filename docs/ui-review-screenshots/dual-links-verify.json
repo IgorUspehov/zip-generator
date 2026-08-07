@@ -1,0 +1,47 @@
+[
+  {
+    "slug": "ihor-kriazhev-it-b475",
+    "ok": true,
+    "siteInput": "https://saas-mvp-funnel-production.up.railway.app/site/ihor-kriazhev-it-b475",
+    "crmInput": "https://saas-mvp-funnel-production.up.railway.app/demo/ihor-kriazhev-it-b475?clientId=b475392b-3c84-4dca-82b4-b6cf780f1e31",
+    "readyFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/ready-dual-links-ihor-kriazhev-it-b475.png",
+    "successFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/success-dual-links-ihor-kriazhev-it-b475.png",
+    "demoFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/demo-links-bar-ihor-kriazhev-it-b475.png"
+  },
+  {
+    "slug": "fishkin-ntli-03de",
+    "ok": true,
+    "siteInput": "https://saas-mvp-funnel-production.up.railway.app/site/fishkin-ntli-03de",
+    "crmInput": "https://saas-mvp-funnel-production.up.railway.app/demo/fishkin-ntli-03de?clientId=03de11de-f488-45e1-a967-550beaca73dc",
+    "readyFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/ready-dual-links-fishkin-ntli-03de.png",
+    "successFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/success-dual-links-fishkin-ntli-03de.png",
+    "demoFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/demo-links-bar-fishkin-ntli-03de.png"
+  },
+  {
+    "slug": "fishkin-ntli-71fa",
+    "ok": true,
+    "siteInput": "https://saas-mvp-funnel-production.up.railway.app/site/fishkin-ntli-71fa",
+    "crmInput": "https://saas-mvp-funnel-production.up.railway.app/demo/fishkin-ntli-71fa?clientId=71fa5ae0-5c2e-4516-b84e-5cccef92337a",
+    "readyFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/ready-dual-links-fishkin-ntli-71fa.png",
+    "successFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/success-dual-links-fishkin-ntli-71fa.png",
+    "demoFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/demo-links-bar-fishkin-ntli-71fa.png"
+  },
+  {
+    "slug": "meditsinskaya-klinika-pobolit-i-perestanet-f8dc",
+    "ok": true,
+    "siteInput": "https://saas-mvp-funnel-production.up.railway.app/site/meditsinskaya-klinika-pobolit-i-perestanet-f8dc",
+    "crmInput": "https://saas-mvp-funnel-production.up.railway.app/demo/meditsinskaya-klinika-pobolit-i-perestanet-f8dc?clientId=f8dc41fa-23f4-4ad5-9962-2a489d85a868",
+    "readyFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/ready-dual-links-meditsinskaya-klinika-pobolit-i-perestanet-f8dc.png",
+    "successFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/success-dual-links-meditsinskaya-klinika-pobolit-i-perestanet-f8dc.png",
+    "demoFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/demo-links-bar-meditsinskaya-klinika-pobolit-i-perestanet-f8dc.png"
+  },
+  {
+    "slug": "polimernye-materialy-2f73",
+    "ok": true,
+    "siteInput": "https://saas-mvp-funnel-production.up.railway.app/site/polimernye-materialy-2f73",
+    "crmInput": "https://saas-mvp-funnel-production.up.railway.app/demo/polimernye-materialy-2f73?clientId=2f7347db-504e-4b47-9613-f462ca4f0d5d",
+    "readyFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/ready-dual-links-polimernye-materialy-2f73.png",
+    "successFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/success-dual-links-polimernye-materialy-2f73.png",
+    "demoFile": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/demo-links-bar-polimernye-materialy-2f73.png"
+  }
+]

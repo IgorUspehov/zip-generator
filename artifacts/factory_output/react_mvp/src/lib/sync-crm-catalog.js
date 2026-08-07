@@ -31,11 +31,20 @@ function normalizeCatalogName(nameRaw) {
 export function syncCrmCatalogToApi(clientId, records, options = {}) {
   if (!clientId || typeof window === "undefined") return;
 
+  const seenNames = new Set();
   const items = (Array.isArray(records) ? records : [])
     .map((item, index) => {
       const name = normalizeCatalogName(item?.name);
       if (!name) return null;
       if (!name.en && !name.de && !name.ru) return null;
+      // Prefer first occurrence; skip seed+hydrate duplicates of the same product.
+      const dedupeKey = [name.en, name.de, name.ru]
+        .map((v) => String(v || "").trim().toLowerCase())
+        .find(Boolean);
+      if (dedupeKey) {
+        if (seenNames.has(dedupeKey)) return null;
+        seenNames.add(dedupeKey);
+      }
       return {
         id: String(item?.id || `rec-cat-${index}`),
         name,

@@ -3633,9 +3633,9 @@
         {
           "id": "1",
           "name": {
-            "ru": "CRM Demo",
-            "de": "CRM Demo",
-            "en": "CRM Demo"
+            "ru": "Сайт + CRM + Бронирование",
+            "de": "Website + CRM + Buchung",
+            "en": "Website + CRM + Booking"
           },
           "status": {
             "ru": "В работе",

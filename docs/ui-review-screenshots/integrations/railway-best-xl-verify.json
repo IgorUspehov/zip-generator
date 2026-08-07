@@ -1,0 +1,32 @@
+{
+  "url": "https://saas-mvp-funnel-production.up.railway.app/demo/best-xl-1d23?clientId=1d2394a4-8de1-4a66-b4a9-fbe20b607543",
+  "iframeSrc": "https://crm-demo-sites.pages.dev/?clientId=1d2394a4-8de1-4a66-b4a9-fbe20b607543",
+  "sidebarHasIntegrations": true,
+  "navTexts": [
+    "📊",
+    "\" BEST XL\"",
+    "Барбершоп",
+    "Timishora",
+    "EN",
+    "DE",
+    "RU",
+    "MENU",
+    "🏠",
+    "Дашборд",
+    "👥",
+    "Клиенты",
+    "новая",
+    "📅",
+    "Записи",
+    "новая",
+    "🛠",
+    "Услуги",
+    "🔌",
+    "Интеграции",
+    "⚙️",
+    "Настройки"
+  ],
+  "error": null,
+  "sidebarShot": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/integrations/railway-verify-best-xl-sidebar.png",
+  "pageShot": "/home/igor/Desktop/saas-mvp-funnel/docs/ui-review-screenshots/integrations/railway-verify-best-xl-page.png"
+}

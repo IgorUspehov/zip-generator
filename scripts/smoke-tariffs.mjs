@@ -9,9 +9,9 @@ const BASE = process.env.SCREENSHOT_BASE_URL || "http://127.0.0.1:3010";
 const outDir = new URL("../docs/ui-review-screenshots/", import.meta.url);
 
 const EXPECT = {
-  en: { title: "Choose your plan", c99: "Pay €99 · CRM Demo", c499: "Continue to Factory · €499", c999: "Continue to Factory · €999" },
-  de: { title: "Plan wählen", c99: "€99 zahlen · CRM Demo", c499: "Weiter zu Factory · €499", c999: "Weiter zu Factory · €999" },
-  ru: { title: "Выберите тариф", c99: "Оплатить €99 · CRM Demo", c499: "Перейти в Factory · €499", c999: "Перейти в Factory · €999" },
+  en: { title: "Choose your plan", c99: "Pay €99 · Website + CRM + Booking", c499: "Continue to Factory · €499", c999: "Continue to Factory · €999" },
+  de: { title: "Plan wählen", c99: "€99 zahlen · Website + CRM + Buchung", c499: "Weiter zu Factory · €499", c999: "Weiter zu Factory · €999" },
+  ru: { title: "Выберите тариф", c99: "Оплатить €99 · Сайт + CRM + Бронирование", c499: "Перейти в Factory · €499", c999: "Перейти в Factory · €999" },
 };
 
 async function main() {

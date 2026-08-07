@@ -122,7 +122,16 @@ export function PublicBookingForm({
   const [liveServices, setLiveServices] = useState<string[]>(services.filter(Boolean));
 
   const showPreferred = mode === "appointment" || mode === "reservation";
-  const serviceOptions = useMemo(() => liveServices.filter(Boolean), [liveServices]);
+  const serviceOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const item of liveServices) {
+      if (!item || seen.has(item)) continue;
+      seen.add(item);
+      out.push(item);
+    }
+    return out;
+  }, [liveServices]);
 
   useEffect(() => {
     setLiveServices(services.filter(Boolean));
@@ -254,8 +263,8 @@ export function PublicBookingForm({
                   className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
                 >
                   <option value="">{t.servicePlaceholder}</option>
-                  {serviceOptions.map((item) => (
-                    <option key={item} value={item}>
+                  {serviceOptions.map((item, index) => (
+                    <option key={`${index}:${item}`} value={item}>
                       {item}
                     </option>
                   ))}

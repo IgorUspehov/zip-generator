@@ -45,7 +45,7 @@ export async function GET(request: Request) {
     const manifestJson = readManifestJson(clientId);
     const zipStream = createMvpProZipStream({
       distPath,
-      readmeContent: "CRM Demo — exported site files\n",
+      readmeContent: "Website + CRM + Booking — exported site files\n",
       manifestJson,
     });
     const webStream = Readable.toWeb(zipStream) as ReadableStream;

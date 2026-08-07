@@ -9,7 +9,7 @@ import { TenantReadyLinks, type TenantReadyLinksCopy } from "@/components/tenant
 const COPY = {
   ru: {
     title: "Оплата прошла успешно!",
-    subtitleDemo: "Ваш CRM Demo сохранён навсегда",
+    subtitleDemo: "Ваш Сайт + CRM + Бронирование сохранён навсегда",
     subtitlePro: "Ваш CRM Pro готов к скачиванию",
     emailHint: "Сохраните обе ссылки ниже — сайт для клиентов и вход в CRM.",
     download: "Скачать ZIP",
@@ -28,7 +28,7 @@ const COPY = {
   },
   de: {
     title: "Zahlung erfolgreich!",
-    subtitleDemo: "Ihr CRM Demo ist dauerhaft gespeichert",
+    subtitleDemo: "Ihr Website + CRM + Buchung ist dauerhaft gespeichert",
     subtitlePro: "Ihr CRM Pro ist zum Download bereit",
     emailHint: "Speichern Sie beide Links — Kundenwebsite und CRM-Zugang.",
     download: "ZIP herunterladen",
@@ -47,7 +47,7 @@ const COPY = {
   },
   en: {
     title: "Payment successful!",
-    subtitleDemo: "Your CRM Demo is saved forever",
+    subtitleDemo: "Your Website + CRM + Booking is saved forever",
     subtitlePro: "Your CRM Pro package is ready",
     emailHint: "Save both links below — customer site and CRM login.",
     download: "Download ZIP",

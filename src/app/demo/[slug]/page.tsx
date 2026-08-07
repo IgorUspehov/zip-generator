@@ -31,7 +31,7 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
     return (
       <main style={{ fontFamily: "system-ui", padding: 40 }}>
         <h1>Demo not found</h1>
-        <p>No CRM Demo is registered for “{slug}”.</p>
+        <p>No Website + CRM + Booking is registered for “{slug}”.</p>
       </main>
     );
   }
@@ -51,7 +51,7 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
   // Paid: links bar. Unpaid: paywall banner. Never both.
   const topOffset = unpaid ? 52 : 56;
 
-  const iframeTitle = `CRM Demo ${slug}`;
+  const iframeTitle = `Website + CRM + Booking ${slug}`;
 
   return (
     <>

@@ -64,12 +64,12 @@ function patchClientIndexHtml(
     return;
   }
 
-  const businessName = String(publicManifest.businessName ?? "CRM Demo");
+  const businessName = String(publicManifest.businessName ?? "Website + CRM + Booking");
   const businessType = String(publicManifest.businessType ?? "generic");
   const typeLabel = formatBusinessTypeLabel(businessType);
   const title = `${businessName} — ${typeLabel}`;
   const ogTitle = businessName;
-  const ogDescription = `CRM Demo for ${businessName} — ready in minutes`;
+  const ogDescription = `Website + CRM + Booking for ${businessName} — ready in minutes`;
   const ogImageRelative = getOgImagePath(businessType);
   const ogImageUrl = siteUrl ? `${siteUrl}${ogImageRelative}` : ogImageRelative;
 
@@ -137,7 +137,7 @@ export async function prepareClientDistWithOgImage(
   fs.cpSync(sourceDistPath, stagingDir, { recursive: true });
 
   const businessType = String(manifest.businessType ?? "generic");
-  const businessName = String(manifest.businessName ?? "CRM Demo");
+  const businessName = String(manifest.businessName ?? "Website + CRM + Booking");
 
   ensureImageLibraryInDist(stagingDir, businessType);
 

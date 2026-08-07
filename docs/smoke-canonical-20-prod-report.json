@@ -1,0 +1,372 @@
+{
+  "base": "https://saas-mvp-funnel-production.up.railway.app",
+  "prefix": "SMOKE-20260721",
+  "rows": [
+    {
+      "niche": "beauty",
+      "siteUrl": "-",
+      "crmUrl": "-",
+      "language": "-",
+      "mode": "appointment",
+      "catalog1to1": "-",
+      "post": "-",
+      "crmRecord": "-",
+      "tenantIsolation": "-",
+      "publicGet405": "-",
+      "protectedGet": "-",
+      "anonFirestore403": "-",
+      "verdict": "BLOCKED",
+      "failReasons": [
+        "no production tenant in demo-registry/manifests"
+      ]
+    },
+    {
+      "niche": "barbershop",
+      "siteUrl": "https://saas-mvp-funnel-production.up.railway.app/site/best-xl-1d23?lang=ru",
+      "crmUrl": "https://saas-mvp-funnel-production.up.railway.app/demo/best-xl-1d23?clientId=1d2394a4-8de1-4a66-b4a9-fbe20b607543",
+      "language": "ru",
+      "mode": "appointment",
+      "catalog1to1": "NO",
+      "post": "201",
+      "crmRecord": "YES",
+      "tenantIsolation": "YES",
+      "publicGet405": "405",
+      "protectedGet": "200",
+      "anonFirestore403": "403",
+      "verdict": "FAIL",
+      "failReasons": [
+        "catalog mismatch form=[] crm=[Классическая стрижка,Борода,Бритьё]"
+      ]
+    },
+    {
+      "niche": "massage",
+      "siteUrl": "-",
+      "crmUrl": "-",
+      "language": "-",
+      "mode": "appointment",
+      "catalog1to1": "-",
+      "post": "-",
+      "crmRecord": "-",
+      "tenantIsolation": "-",
+      "publicGet405": "-",
+      "protectedGet": "-",
+      "anonFirestore403": "-",
+      "verdict": "BLOCKED",
+      "failReasons": [
+        "no production tenant in demo-registry/manifests"
+      ]
+    },
+    {
+      "niche": "fitness",
+      "siteUrl": "https://saas-mvp-funnel-production.up.railway.app/site/fitness-studio-best-1260?lang=ru",
+      "crmUrl": "https://saas-mvp-funnel-production.up.railway.app/demo/fitness-studio-best-1260?clientId=12601a73-faa9-4c0b-aa43-43ba9377bb58",
+      "language": "ru",
+      "mode": "appointment",
+      "catalog1to1": "NO",
+      "post": "201",
+      "crmRecord": "YES",
+      "tenantIsolation": "YES",
+      "publicGet405": "405",
+      "protectedGet": "200",
+      "anonFirestore403": "403",
+      "verdict": "FAIL",
+      "failReasons": [
+        "catalog mismatch form=[] crm=[Базовый месячный,Годовой Pro,Дневной пропуск]"
+      ]
+    },
+    {
+      "niche": "yoga",
+      "siteUrl": "https://saas-mvp-funnel-production.up.railway.app/site/polimernye-materialy-2f73?lang=ru",
+      "crmUrl": "https://saas-mvp-funnel-production.up.railway.app/demo/polimernye-materialy-2f73?clientId=2f7347db-504e-4b47-9613-f462ca4f0d5d",
+      "language": "ru",
+      "mode": "appointment",
+      "catalog1to1": "NO",
+      "post": "201",
+      "crmRecord": "YES",
+      "tenantIsolation": "YES",
+      "publicGet405": "405",
+      "protectedGet": "200",
+      "anonFirestore403": "403",
+      "verdict": "FAIL",
+      "failReasons": [
+        "catalog mismatch form=[] crm=[Утренняя йога,HIIT тренировка,Велотренировка]"
+      ]
+    },
+    {
+      "niche": "dental",
+      "siteUrl": "https://saas-mvp-funnel-production.up.railway.app/site/klinika-zub-bolit-fab4?lang=ru",
+      "crmUrl": "https://saas-mvp-funnel-production.up.railway.app/demo/klinika-zub-bolit-fab4?clientId=fab4b137-0341-43da-9a5d-099297fcd92c",
+      "language": "ru",
+      "mode": "appointment",
+      "catalog1to1": "NO",
+      "post": "201",
+      "crmRecord": "YES",
+      "tenantIsolation": "NO",
+      "publicGet405": "405",
+      "protectedGet": "200",
+      "anonFirestore403": "403",
+      "verdict": "FAIL",
+      "failReasons": [
+        "catalog mismatch form=[] crm=[Осмотр зубов,Чистка зубов,Лечение корневого канала]",
+        "lead leaked to other tenant"
+      ]
+    },
+    {
+      "niche": "health",
+      "siteUrl": "https://saas-mvp-funnel-production.up.railway.app/site/meditsinskaya-klinika-pobolit-i-perestanet-f8dc?lang=ru",
+      "crmUrl": "https://saas-mvp-funnel-production.up.railway.app/demo/meditsinskaya-klinika-pobolit-i-perestanet-f8dc?clientId=f8dc41fa-23f4-4ad5-9962-2a489d85a868",
+      "language": "ru",
+      "mode": "appointment",
+      "catalog1to1": "NO",
+      "post": "201",
+      "crmRecord": "YES",
+      "tenantIsolation": "NO",
+      "publicGet405": "405",
+      "protectedGet": "200",
+      "anonFirestore403": "403",
+      "verdict": "FAIL",
+      "failReasons": [
+        "catalog mismatch form=[] crm=[Общий осмотр,УЗИ,Кардиограмма]",
+        "lead leaked to other tenant"
+      ]
+    },
+    {
+      "niche": "food",
+      "siteUrl": "-",
+      "crmUrl": "-",
+      "language": "-",
+      "mode": "reservation",
+      "catalog1to1": "-",
+      "post": "-",
+      "crmRecord": "-",
+      "tenantIsolation": "-",
+      "publicGet405": "-",
+      "protectedGet": "-",
+      "anonFirestore403": "-",
+      "verdict": "BLOCKED",
+      "failReasons": [
+        "no production tenant in demo-registry/manifests"
+      ]
+    },
+    {
+      "niche": "cafe",
+      "siteUrl": "https://saas-mvp-funnel-production.up.railway.app/site/kalinka-malinka-klnk?lang=ru",
+      "crmUrl": "https://saas-mvp-funnel-production.up.railway.app/demo/kalinka-malinka-klnk?clientId=37a66e67-5ed3-4a83-99c4-e0508f8c77fe",
+      "language": "ru",
+      "mode": "reservation",
+      "catalog1to1": "NO",
+      "post": "201",
+      "crmRecord": "YES",
+      "tenantIsolation": "NO",
+      "publicGet405": "405",
+      "protectedGet": "200",
+      "anonFirestore403": "403",
+      "verdict": "FAIL",
+      "failReasons": [
+        "catalog mismatch form=[] crm=[Бизнес-ланч,Паста карбонара,Тирамису]",
+        "lead leaked to other tenant"
+      ]
+    },
+    {
+      "niche": "hotel",
+      "siteUrl": "-",
+      "crmUrl": "-",
+      "language": "-",
+      "mode": "reservation",
+      "catalog1to1": "-",
+      "post": "-",
+      "crmRecord": "-",
+      "tenantIsolation": "-",
+      "publicGet405": "-",
+      "protectedGet": "-",
+      "anonFirestore403": "-",
+      "verdict": "BLOCKED",
+      "failReasons": [
+        "no production tenant in demo-registry/manifests"
+      ]
+    },
+    {
+      "niche": "car_service",
+      "siteUrl": "-",
+      "crmUrl": "-",
+      "language": "-",
+      "mode": "order",
+      "catalog1to1": "-",
+      "post": "-",
+      "crmRecord": "-",
+      "tenantIsolation": "-",
+      "publicGet405": "-",
+      "protectedGet": "-",
+      "anonFirestore403": "-",
+      "verdict": "BLOCKED",
+      "failReasons": [
+        "no production tenant in demo-registry/manifests"
+      ]
+    },
+    {
+      "niche": "tire_service",
+      "siteUrl": "-",
+      "crmUrl": "-",
+      "language": "-",
+      "mode": "order",
+      "catalog1to1": "-",
+      "post": "-",
+      "crmRecord": "-",
+      "tenantIsolation": "-",
+      "publicGet405": "-",
+      "protectedGet": "-",
+      "anonFirestore403": "-",
+      "verdict": "BLOCKED",
+      "failReasons": [
+        "no production tenant in demo-registry/manifests"
+      ]
+    },
+    {
+      "niche": "car_wash",
+      "siteUrl": "https://saas-mvp-funnel-production.up.railway.app/site/avtomoyka-local-wash?lang=ru",
+      "crmUrl": "https://saas-mvp-funnel-production.up.railway.app/demo/avtomoyka-local-wash?clientId=404db994-66e1-4795-b419-d8e8e72bba38",
+      "language": "ru",
+      "mode": "order",
+      "catalog1to1": "NO",
+      "post": "201",
+      "crmRecord": "YES",
+      "tenantIsolation": "NO",
+      "publicGet405": "405",
+      "protectedGet": "200",
+      "anonFirestore403": "403",
+      "verdict": "FAIL",
+      "failReasons": [
+        "catalog mismatch form=[] crm=[Мойка кузова,Салон,Комплекс]",
+        "lead leaked to other tenant"
+      ]
+    },
+    {
+      "niche": "realestate",
+      "siteUrl": "-",
+      "crmUrl": "-",
+      "language": "-",
+      "mode": "inquiry",
+      "catalog1to1": "-",
+      "post": "-",
+      "crmRecord": "-",
+      "tenantIsolation": "-",
+      "publicGet405": "-",
+      "protectedGet": "-",
+      "anonFirestore403": "-",
+      "verdict": "BLOCKED",
+      "failReasons": [
+        "no production tenant in demo-registry/manifests"
+      ]
+    },
+    {
+      "niche": "law_firm",
+      "siteUrl": "-",
+      "crmUrl": "-",
+      "language": "-",
+      "mode": "inquiry",
+      "catalog1to1": "-",
+      "post": "-",
+      "crmRecord": "-",
+      "tenantIsolation": "-",
+      "publicGet405": "-",
+      "protectedGet": "-",
+      "anonFirestore403": "-",
+      "verdict": "BLOCKED",
+      "failReasons": [
+        "no production tenant in demo-registry/manifests"
+      ]
+    },
+    {
+      "niche": "accounting",
+      "siteUrl": "-",
+      "crmUrl": "-",
+      "language": "-",
+      "mode": "inquiry",
+      "catalog1to1": "-",
+      "post": "-",
+      "crmRecord": "-",
+      "tenantIsolation": "-",
+      "publicGet405": "-",
+      "protectedGet": "-",
+      "anonFirestore403": "-",
+      "verdict": "BLOCKED",
+      "failReasons": [
+        "no production tenant in demo-registry/manifests"
+      ]
+    },
+    {
+      "niche": "education",
+      "siteUrl": "https://saas-mvp-funnel-production.up.railway.app/site/fishkin-ntli-03de?lang=ru",
+      "crmUrl": "https://saas-mvp-funnel-production.up.railway.app/demo/fishkin-ntli-03de?clientId=03de11de-f488-45e1-a967-550beaca73dc",
+      "language": "ru",
+      "mode": "appointment",
+      "catalog1to1": "NO",
+      "post": "201",
+      "crmRecord": "YES",
+      "tenantIsolation": "NO",
+      "publicGet405": "405",
+      "protectedGet": "200",
+      "anonFirestore403": "403",
+      "verdict": "FAIL",
+      "failReasons": [
+        "catalog mismatch form=[] crm=[Немецкий B2,Английский A2,Основы математики]",
+        "lead leaked to other tenant"
+      ]
+    },
+    {
+      "niche": "logistics",
+      "siteUrl": "-",
+      "crmUrl": "-",
+      "language": "-",
+      "mode": "order",
+      "catalog1to1": "-",
+      "post": "-",
+      "crmRecord": "-",
+      "tenantIsolation": "-",
+      "publicGet405": "-",
+      "protectedGet": "-",
+      "anonFirestore403": "-",
+      "verdict": "BLOCKED",
+      "failReasons": [
+        "no production tenant in demo-registry/manifests"
+      ]
+    },
+    {
+      "niche": "shop",
+      "siteUrl": "https://saas-mvp-funnel-production.up.railway.app/site/ihor-kriazhev-it-9535?lang=ru",
+      "crmUrl": "https://saas-mvp-funnel-production.up.railway.app/demo/ihor-kriazhev-it-9535?clientId=9535d455-0423-40a3-9ff1-1f52342291c8",
+      "language": "ru",
+      "mode": "order",
+      "catalog1to1": "NO",
+      "post": "201",
+      "crmRecord": "YES",
+      "tenantIsolation": "NO",
+      "publicGet405": "405",
+      "protectedGet": "200",
+      "anonFirestore403": "403",
+      "verdict": "FAIL",
+      "failReasons": [
+        "catalog mismatch form=[] crm=[Беспроводные наушники,Умные часы,Чехол для телефона]",
+        "lead leaked to other tenant"
+      ]
+    },
+    {
+      "niche": "tech",
+      "siteUrl": "-",
+      "crmUrl": "-",
+      "language": "-",
+      "mode": "order",
+      "catalog1to1": "-",
+      "post": "-",
+      "crmRecord": "-",
+      "tenantIsolation": "-",
+      "publicGet405": "-",
+      "protectedGet": "-",
+      "anonFirestore403": "-",
+      "verdict": "BLOCKED",
+      "failReasons": [
+        "no production tenant in demo-registry/manifests"
+      ]
+    }
+  ]
+}

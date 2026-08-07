@@ -41,9 +41,9 @@ function buildEmailCopy(language: ClientLanguage, siteUrl: string, downloadUrl?:
     : zipFallback[language];
 
   const intros = {
-    ru: "Оплата подтверждена. Ваш CRM Demo уже опубликован.",
-    de: "Zahlung bestätigt. Ihr CRM Demo ist live.",
-    en: "Payment confirmed. Your CRM Demo is live.",
+    ru: "Оплата подтверждена. Ваш Сайт + CRM + Бронирование уже опубликован.",
+    de: "Zahlung bestätigt. Ihr Website + CRM + Buchung ist live.",
+    en: "Payment confirmed. Your Website + CRM + Booking is live.",
   } as const;
 
   const bodies = {

@@ -7,8 +7,8 @@ import { grantSiteDownloadAccess } from "@/lib/site-delivery/download-access";
 import { markClientDistEmailDelivered } from "@/lib/site-delivery/dist-protection";
 import { clientDistExists, resolveClientDistPath } from "@/lib/site-delivery/dist-store";
 
-const CRM_DEMO_SUBJECT = "Your CRM Demo is ready";
-const CRM_DEMO_DELIVERY_TEST_SUBJECT = "CRM Demo delivery test";
+const CRM_DEMO_SUBJECT = "Your Website + CRM + Booking is ready";
+const CRM_DEMO_DELIVERY_TEST_SUBJECT = "Website + CRM + Booking delivery test";
 
 function pickString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
@@ -36,11 +36,11 @@ function buildCrmDemoEmailText(siteUrl: string, downloadUrl?: string): string {
   const zipNote = downloadUrl
     ? `Download ZIP:
 ${downloadUrl}`
-    : "Your site files are available from the CRM Demo dashboard.";
+    : "Your site files are available from the Website + CRM + Booking dashboard.";
 
   return `Hello.
 
-Your CRM Demo has been successfully created.
+Your Website + CRM + Booking has been successfully created.
 
 Website:
 ${siteUrl}

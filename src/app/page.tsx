@@ -576,7 +576,7 @@ export default function Page() {
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
           <div className="flex items-center gap-2">
             <Rocket className="h-5 w-5 text-orange-500" />
-            <span className="text-sm font-bold text-white">CRM Demo</span>
+            <span className="text-sm font-bold text-white">Web Studio IHOR KRIAZHEV München</span>
           </div>
           <p className="text-xs text-gray-500">{t.footerTagline}</p>
           <div className="flex gap-3 text-xs text-gray-500">

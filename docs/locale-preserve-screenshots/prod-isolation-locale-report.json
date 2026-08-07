@@ -1,0 +1,47 @@
+{
+  "dentalIframe": "https://crm-demo-sites.pages.dev/?clientId=fab4b137-0341-43da-9a5d-099297fcd92c",
+  "cafeIframe": "https://crm-demo-sites.pages.dev/?clientId=37a66e67-5ed3-4a83-99c4-e0508f8c77fe",
+  "dentalHasOwnName": true,
+  "cafeHasOwnName": true,
+  "dentalNoCafeLeak": true,
+  "cafeNoDentalLeak": true,
+  "sameOriginSecondTabOwnName": true,
+  "sameOriginSecondTabNoDental": true,
+  "dentalCatalog": {
+    "en": [
+      "Dental Check-up",
+      "Teeth Cleaning",
+      "Root Canal"
+    ],
+    "de": [
+      "Zahnkontrolle",
+      "Zahnreinigung",
+      "Wurzelkanalbehandlung"
+    ],
+    "ru": [
+      "Осмотр зубов",
+      "Чистка зубов",
+      "Лечение корневого канала"
+    ],
+    "first": {
+      "en": "Dental Check-up",
+      "de": "Zahnkontrolle",
+      "ru": "Осмотр зубов"
+    }
+  },
+  "localeApiPass": true,
+  "siteEnOpts": [
+    "Dental Check-up",
+    "Teeth Cleaning",
+    "Root Canal"
+  ],
+  "siteEnHasEnglish": true,
+  "siteEnNotGermanOnly": true,
+  "siteRuCafeOpts": [
+    "Бизнес-ланч",
+    "Паста карбонара",
+    "Тирамису"
+  ],
+  "isolationPass": true,
+  "pass": true
+}

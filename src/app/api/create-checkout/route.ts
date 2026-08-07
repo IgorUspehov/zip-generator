@@ -56,7 +56,7 @@ export async function POST(request: Request) {
 
     const result = await createCheckout(storeId, variantId, {
       productOptions: {
-        name: "CRM Demo — постоянный сайт",
+        name: "Сайт + CRM + Бронирование — постоянный сайт",
         description: "Ваш демо-сайт остаётся навсегда. Разовый платёж без подписки.",
         redirectUrl: `${siteUrl}/success`,
       },

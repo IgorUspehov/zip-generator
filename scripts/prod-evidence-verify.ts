@@ -68,7 +68,7 @@ async function waitCrmFrame(page: Page): Promise<Frame> {
       try {
         await fr.waitForSelector("body", { timeout: 5000 });
         const text = await fr.locator("body").innerText({ timeout: 5000 });
-        if (text && !/Loading CRM Demo/i.test(text) && text.length > 40) return fr;
+        if (text && !/Loading Website \+ CRM \+ Booking/i.test(text) && text.length > 40) return fr;
       } catch {
         /* keep waiting */
       }

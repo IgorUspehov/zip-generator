@@ -23,7 +23,7 @@ export function ReadyPreviewClient() {
     <main className="mf-root" data-step="s6" style={{ minHeight: "100svh", padding: "2rem 1rem" }}>
       <div className="build-wrap wizard-ready-wrap" style={{ maxWidth: 560, margin: "0 auto" }}>
         <div className="step-h" style={{ textAlign: "center" }}>
-          Ваш CRM Demo готов
+          Ваш Сайт + CRM + Бронирование готов
         </div>
         <div className="step-sub" style={{ textAlign: "center", marginBottom: 0 }}>
           {name}

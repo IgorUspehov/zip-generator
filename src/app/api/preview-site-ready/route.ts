@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { buildDemoEmbedSrc } from "@/lib/cloudflare/demo-embed";
 import { findDemoBySlug } from "@/lib/cloudflare/demo-registry";
 import { isPagesIframeEmbedReady } from "@/lib/cloudflare/iframe-ready";
 import { findPendingByClientId } from "@/lib/cloudflare/scheduler";
@@ -31,14 +32,8 @@ function resolveProbeTarget(urlParam: string): string | null {
     const slug = previewUrl.pathname.replace(/^\/demo\//, "").split("/")[0];
     const record = findDemoBySlug(slug);
     if (!record?.deploymentUrl) return null;
-    try {
-      const deployment = new URL(record.deploymentUrl);
-      const clientId = previewUrl.searchParams.get("clientId") || record.clientId;
-      if (clientId) deployment.searchParams.set("clientId", clientId);
-      return deployment.toString();
-    } catch {
-      return record.deploymentUrl;
-    }
+    const clientId = previewUrl.searchParams.get("clientId") || record.clientId;
+    return buildDemoEmbedSrc(record, clientId || undefined);
   }
 
   return null;
