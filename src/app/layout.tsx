@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://saas-mvp-funnel-production.up.railway.app/og-image.png",
+        url: "https://saas-mvp-funnel-production.up.railway.app/assets/og-image-199.png?v=199",
         width: 1200,
         height: 630,
         alt: "Сайт + CRM + Бронирование — воронка создания CRM-сайта",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Сайт + CRM + Бронирование — за 3 минуты",
     description: "Сайт + CRM + Бронирование для вашего бизнеса. €199/Monat — Website + CRM + Buchung.",
-    images: ["https://saas-mvp-funnel-production.up.railway.app/og-image.png"],
+    images: ["https://saas-mvp-funnel-production.up.railway.app/assets/og-image-199.png?v=199"],
   },
 };
 
@@ -58,14 +58,14 @@ export default function RootLayout({
         />
         <meta
           property="og:image"
-          content="https://saas-mvp-funnel-production.up.railway.app/og-image.png"
+          content="https://saas-mvp-funnel-production.up.railway.app/assets/og-image-199.png?v=199"
         />
         <meta property="og:url" content="https://saas-mvp-funnel-production.up.railway.app/" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:image"
-          content="https://saas-mvp-funnel-production.up.railway.app/og-image.png"
+          content="https://saas-mvp-funnel-production.up.railway.app/assets/og-image-199.png?v=199"
         />
       </head>
       <body
