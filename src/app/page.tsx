@@ -118,7 +118,7 @@ export default function Page() {
     <div className="bg-white font-sans text-[var(--color-fg,#0f172a)]">
       {/* Language switcher — bottom-right on mobile so it doesn't cover hero/problem text */}
       <div
-        className="fixed right-3 bottom-3 z-50 flex gap-0.5 rounded-full border border-gray-200 bg-white/95 px-2 py-1 shadow-md backdrop-blur sm:top-4 sm:right-4 sm:bottom-auto sm:gap-1 sm:px-3 sm:py-1.5"
+        className="fixed right-3 bottom-20 z-50 flex gap-0.5 rounded-full border border-gray-200 bg-white/95 px-2 py-1 shadow-md backdrop-blur sm:top-4 sm:right-4 sm:bottom-auto sm:gap-1 sm:px-3 sm:py-1.5"
         role="group"
         aria-label={t.langLabel}
       >

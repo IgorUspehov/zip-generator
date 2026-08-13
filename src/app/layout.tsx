@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { LandingNavigationFix } from "@/components/landing-navigation-fix";
+import { SupportWidget } from "@/components/SupportWidget";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { I18nProvider } from "@/lib/i18n/context";
 
@@ -74,6 +75,7 @@ export default function RootLayout({
         <I18nProvider>
           <LandingNavigationFix />
           <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+          <SupportWidget />
         </I18nProvider>
       </body>
     </html>
