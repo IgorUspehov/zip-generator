@@ -16,30 +16,43 @@ import { supportWidgetCopy } from "@/lib/i18n/support-widget-copy";
 const TELEGRAM_URL = "https://t.me/Ihor_Kriazhev";
 const WHATSAPP_URL = "https://wa.me/4915258400610";
 
-const ALLOWED_PATHS = new Set(["/", "/tariffs"]);
-const DEFAULT_OFFSET = 24;
-
-type Position = { bottom: number; right: number };
-
 export function SupportWidget() {
   const pathname = usePathname();
   const { locale } = useTranslation();
   const copy = supportWidgetCopy[locale] ?? supportWidgetCopy.de;
   const [open, setOpen] = useState(false);
-  const [position, setPosition] = useState<Position>({
-    bottom: DEFAULT_OFFSET,
-    right: DEFAULT_OFFSET,
-  });
   const titleId = useId();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{
-    startX: number;
-    startY: number;
-    originRight: number;
-    originBottom: number;
-    moved: boolean;
-  } | null>(null);
-  const suppressClickRef = useRef(false);
+
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const startRef = useRef({ x: 0, y: 0 });
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    setDragging(true);
+    startRef.current = { x: e.clientX - pos.x, y: e.clientY - pos.y };
+  };
+  const onMouseMove = (e: MouseEvent) => {
+    if (!dragging) return;
+    setPos({ x: e.clientX - startRef.current.x, y: e.clientY - startRef.current.y });
+  };
+  const onMouseUp = () => setDragging(false);
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    startRef.current = { x: t.clientX - pos.x, y: t.clientY - pos.y };
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    setPos({ x: t.clientX - startRef.current.x, y: t.clientY - startRef.current.y });
+  };
+
+  useEffect(() => {
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, [dragging]);
 
   useEffect(() => {
     if (!open) return;
@@ -52,93 +65,12 @@ export function SupportWidget() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  useEffect(() => {
-    const onMouseMove = (event: MouseEvent) => {
-      const drag = dragRef.current;
-      if (!drag) return;
-
-      const deltaX = event.clientX - drag.startX;
-      const deltaY = event.clientY - drag.startY;
-      if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) {
-        drag.moved = true;
-      }
-
-      const el = containerRef.current;
-      const width = el?.offsetWidth ?? 0;
-      const height = el?.offsetHeight ?? 0;
-      const maxRight = Math.max(DEFAULT_OFFSET, window.innerWidth - width - DEFAULT_OFFSET);
-      const maxBottom = Math.max(DEFAULT_OFFSET, window.innerHeight - height - DEFAULT_OFFSET);
-
-      setPosition({
-        right: Math.min(Math.max(DEFAULT_OFFSET, drag.originRight - deltaX), maxRight),
-        bottom: Math.min(Math.max(DEFAULT_OFFSET, drag.originBottom - deltaY), maxBottom),
-      });
-    };
-
-    const onMouseUp = () => {
-      if (!dragRef.current) return;
-      if (dragRef.current.moved) {
-        suppressClickRef.current = true;
-      }
-      dragRef.current = null;
-    };
-
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-    return () => {
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-    };
-  }, []);
-
-  if (!ALLOWED_PATHS.has(pathname)) {
-    return null;
-  }
-
-  const beginDrag = (clientX: number, clientY: number) => {
-    dragRef.current = {
-      startX: clientX,
-      startY: clientY,
-      originRight: position.right,
-      originBottom: position.bottom,
-      moved: false,
-    };
-  };
-
-  const moveDrag = (clientX: number, clientY: number) => {
-    const drag = dragRef.current;
-    if (!drag) return;
-
-    const deltaX = clientX - drag.startX;
-    const deltaY = clientY - drag.startY;
-    if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) {
-      drag.moved = true;
-    }
-
-    const el = containerRef.current;
-    const width = el?.offsetWidth ?? 0;
-    const height = el?.offsetHeight ?? 0;
-    const maxRight = Math.max(DEFAULT_OFFSET, window.innerWidth - width - DEFAULT_OFFSET);
-    const maxBottom = Math.max(DEFAULT_OFFSET, window.innerHeight - height - DEFAULT_OFFSET);
-
-    setPosition({
-      right: Math.min(Math.max(DEFAULT_OFFSET, drag.originRight - deltaX), maxRight),
-      bottom: Math.min(Math.max(DEFAULT_OFFSET, drag.originBottom - deltaY), maxBottom),
-    });
-  };
-
-  const endDrag = () => {
-    if (dragRef.current?.moved) {
-      suppressClickRef.current = true;
-    }
-    dragRef.current = null;
-  };
+  if (pathname !== "/" && pathname !== "/tariffs") return null;
 
   return (
     <div
-      ref={containerRef}
       className="fixed z-[9999] flex flex-col items-end gap-3"
-      style={{ bottom: position.bottom, right: position.right }}
+      style={{ bottom: 24, right: 24 }}
     >
       {open && (
         <div
@@ -199,33 +131,16 @@ export function SupportWidget() {
 
       <button
         type="button"
-        onClick={() => {
-          if (suppressClickRef.current) {
-            suppressClickRef.current = false;
-            return;
-          }
-          setOpen((prev) => !prev);
-        }}
-        onMouseDown={(event) => {
-          if (event.button !== 0) return;
-          beginDrag(event.clientX, event.clientY);
-        }}
-        onTouchStart={(event) => {
-          const touch = event.touches[0];
-          if (!touch) return;
-          beginDrag(touch.clientX, touch.clientY);
-        }}
-        onTouchMove={(event) => {
-          if (!dragRef.current) return;
-          const touch = event.touches[0];
-          if (!touch) return;
-          event.preventDefault();
-          moveDrag(touch.clientX, touch.clientY);
-        }}
-        onTouchEnd={endDrag}
-        onTouchCancel={endDrag}
+        onClick={() => setOpen((prev) => !prev)}
+        onMouseDown={onMouseDown}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
         aria-expanded={open}
-        className="touch-none inline-flex cursor-grab items-center gap-2 rounded-full bg-gray-950 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-black/20 transition-colors hover:bg-orange-500 hover:shadow-orange-500/30 active:cursor-grabbing"
+        style={{
+          transform: `translate(${pos.x}px, ${pos.y}px)`,
+          cursor: "grab",
+        }}
+        className="inline-flex items-center gap-2 rounded-full bg-gray-950 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-black/20 transition-all hover:bg-orange-500 hover:shadow-orange-500/30"
       >
         <MessageCircle className="h-4 w-4" />
         {copy.button}
