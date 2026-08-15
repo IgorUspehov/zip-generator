@@ -20,6 +20,7 @@ export function SupportWidget() {
   const copy = supportWidgetCopy[locale] ?? supportWidgetCopy.de;
   const [open, setOpen] = useState(false);
   const titleId = useId();
+  const [pathname, setPathname] = useState("");
 
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
@@ -44,6 +45,10 @@ export function SupportWidget() {
   };
 
   useEffect(() => {
+    setPathname(window.location.pathname);
+  }, []);
+
+  useEffect(() => {
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     return () => {
@@ -62,6 +67,10 @@ export function SupportWidget() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
+
+  if (pathname.includes("/client") || pathname.includes("/demo")) {
+    return null;
+  }
 
   return (
     <div
