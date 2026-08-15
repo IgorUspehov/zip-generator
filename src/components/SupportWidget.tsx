@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
 import { MessageCircle, X } from "lucide-react";
 
 import {
@@ -17,7 +16,6 @@ const TELEGRAM_URL = "https://t.me/Ihor_Kriazhev";
 const WHATSAPP_URL = "https://wa.me/4915258400610";
 
 export function SupportWidget() {
-  const pathname = usePathname();
   const { locale } = useTranslation();
   const copy = supportWidgetCopy[locale] ?? supportWidgetCopy.de;
   const [open, setOpen] = useState(false);
@@ -64,8 +62,6 @@ export function SupportWidget() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
-
-  if (pathname !== "/" && pathname !== "/tariffs") return null;
 
   return (
     <div
