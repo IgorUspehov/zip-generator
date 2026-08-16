@@ -101,7 +101,7 @@ export function PublicBookingForm({
   const [open, setOpen] = useState(alwaysOpen);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [service, setService] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
   const [preferredDate, setPreferredDate] = useState("");
   const [preferredTime, setPreferredTime] = useState("");
   const [sending, setSending] = useState(false);
@@ -145,7 +145,7 @@ export function PublicBookingForm({
     const payload = {
       name: name.trim(),
       phone: phone.trim(),
-      service: service || undefined,
+      service: selected.length > 0 ? selected.join(", ") : undefined,
       preferredAt: combinePreferredAt(preferredDate, preferredTime),
       language: lang,
     };
@@ -159,7 +159,7 @@ export function PublicBookingForm({
       setSuccess(true);
       setName("");
       setPhone("");
-      setService("");
+      setSelected([]);
       setPreferredDate("");
       setPreferredTime("");
     } catch (err) {
@@ -211,21 +211,28 @@ export function PublicBookingForm({
               />
             </label>
             {serviceOptions.length > 0 ? (
-              <label className="grid gap-1 text-sm text-slate-200">
-                {serviceLabel || t.service}
-                <select
-                  value={service}
-                  onChange={(e) => setService(e.target.value)}
-                  className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
-                >
-                  <option value="">{t.servicePlaceholder}</option>
-                  {serviceOptions.map((item, index) => (
-                    <option key={`${index}:${item}`} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <fieldset className="grid gap-2 text-sm text-slate-200">
+                <legend>{serviceLabel || t.service}</legend>
+                {serviceOptions.map((service) => (
+                  <label
+                    key={service}
+                    className="flex cursor-pointer items-center gap-2"
+                  >
+                    <input
+                      type="checkbox"
+                      value={service}
+                      checked={selected.includes(service)}
+                      onChange={(e) => {
+                        if (e.target.checked)
+                          setSelected([...selected, service]);
+                        else
+                          setSelected(selected.filter((s) => s !== service));
+                      }}
+                    />
+                    {service}
+                  </label>
+                ))}
+              </fieldset>
             ) : null}
             {showPreferred ? (
               <div className="grid gap-3 sm:grid-cols-2">
