@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
+
+export type JobVacancyOption = {
+  id: string;
+  title: string;
+  salary: string;
+};
 
 type JobFormProps = {
   clientId: string;
   language: string;
+  vacancies: JobVacancyOption[];
   accent?: string;
-};
-
-type VacancyOption = {
-  id: string;
-  title: string;
-  salary: string;
 };
 
 const COPY = {
@@ -25,7 +26,6 @@ const COPY = {
     cta: "Bewerbung senden",
     success: "Bewerbung eingegangen! Wir melden uns bald.",
     sending: "Senden…",
-    loading: "Laden…",
     empty: "Вакансий пока нет",
     selectPosition: "Position wählen",
     selectSalary: "Gehalt wählen",
@@ -42,7 +42,6 @@ const COPY = {
     cta: "Отправить заявку",
     success: "Заявка принята! Скоро свяжемся.",
     sending: "Отправка…",
-    loading: "Загрузка…",
     empty: "Вакансий пока нет",
     selectPosition: "Выберите должность",
     selectSalary: "Выберите ставку",
@@ -59,7 +58,6 @@ const COPY = {
     cta: "Submit application",
     success: "Application received! We'll be in touch.",
     sending: "Sending…",
-    loading: "Loading…",
     empty: "Вакансий пока нет",
     selectPosition: "Select position",
     selectSalary: "Select rate",
@@ -82,13 +80,12 @@ function normalizeJobLang(language: string): JobLang {
 export function JobForm({
   clientId,
   language,
+  vacancies,
   accent = "#c2410c",
 }: JobFormProps) {
   const lang = normalizeJobLang(language);
   const t = COPY[lang];
 
-  const [vacancies, setVacancies] = useState<VacancyOption[]>([]);
-  const [loading, setLoading] = useState(true);
   const [vacancyId, setVacancyId] = useState("");
   const [salary, setSalary] = useState("");
   const [name, setName] = useState("");
@@ -96,49 +93,6 @@ export function JobForm({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    void (async () => {
-      try {
-        const res = await fetch(
-          `/api/crm/vacancies/${encodeURIComponent(clientId)}`,
-          { cache: "no-store" },
-        );
-        const data = (await res.json().catch(() => ({}))) as {
-          ok?: boolean;
-          items?: Array<{
-            id?: unknown;
-            title?: unknown;
-            salary?: unknown;
-          }>;
-        };
-        if (cancelled) return;
-        const items = Array.isArray(data.items) ? data.items : [];
-        setVacancies(
-          items
-            .map((item) => {
-              const id = typeof item.id === "string" ? item.id.trim() : "";
-              const title =
-                typeof item.title === "string" ? item.title.trim() : "";
-              const salaryValue =
-                typeof item.salary === "string" ? item.salary.trim() : "";
-              if (!id || !title) return null;
-              return { id, title, salary: salaryValue };
-            })
-            .filter((item): item is VacancyOption => Boolean(item)),
-        );
-      } catch {
-        if (!cancelled) setVacancies([]);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [clientId]);
 
   const selectedVacancy = useMemo(
     () => vacancies.find((item) => item.id === vacancyId) ?? null,
@@ -210,14 +164,6 @@ export function JobForm({
         <p className="text-lg font-semibold text-emerald-300" role="status">
           {t.success}
         </p>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-lg rounded-3xl border border-white/15 bg-white/10 p-6 shadow-xl backdrop-blur">
-        <p className="text-sm text-slate-300">{t.loading}</p>
       </div>
     );
   }

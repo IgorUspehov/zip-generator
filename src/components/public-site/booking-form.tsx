@@ -25,6 +25,8 @@ type BookingFormProps = {
   ctaLabel?: string;
   titleLabel?: string;
   serviceLabel?: string;
+  /** When true, render the form immediately (no CTA gate / close control). */
+  alwaysOpen?: boolean;
 };
 
 const FETCH_TIMEOUT_MS = 12_000;
@@ -103,13 +105,14 @@ export function PublicBookingForm({
   ctaLabel,
   titleLabel,
   serviceLabel,
+  alwaysOpen = false,
 }: BookingFormProps) {
   const lang = normalizeLeadLang(language);
   const t = leadFormCopy[lang];
   const title = titleLabel || titleForMode(mode, lang);
   const cta = ctaLabel || ctaForMode(mode, lang);
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(alwaysOpen);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [service, setService] = useState("");
@@ -323,13 +326,15 @@ export function PublicBookingForm({
             >
               {sending ? t.sending : t.submit}
             </button>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="rounded-2xl border border-white/25 px-5 py-3 text-base font-semibold text-slate-200"
-            >
-              ×
-            </button>
+            {alwaysOpen ? null : (
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="rounded-2xl border border-white/25 px-5 py-3 text-base font-semibold text-slate-200"
+              >
+                ×
+              </button>
+            )}
           </div>
         </form>
       )}
