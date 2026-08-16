@@ -13,14 +13,17 @@ const COPY = {
   en: {
     text: "Demo version. Choose a plan to continue.",
     cta: "Choose plan",
+    promoCta: "Apply promo code",
   },
   de: {
     text: "Demo-Version. Wählen Sie einen Plan, um fortzufahren.",
     cta: "Plan wählen",
+    promoCta: "Promo-Code einlösen",
   },
   ru: {
     text: "Демо-версия. Выберите тариф, чтобы продолжить.",
     cta: "Выбрать тариф",
+    promoCta: "Применить промокод",
   },
 } as const;
 
@@ -90,6 +93,20 @@ export function DemoUnpaidBanner({ checkoutUrl, language }: DemoUnpaidBannerProp
         }}
       >
         {copy.cta}
+      </a>
+      <a
+        href="/client"
+        style={{
+          background: "#f8fafc",
+          color: "#0f172a",
+          fontWeight: 700,
+          textDecoration: "none",
+          borderRadius: "999px",
+          padding: "0.4rem 1rem",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {copy.promoCta}
       </a>
     </div>
   );
