@@ -112,8 +112,6 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
 
   const vacanciesTitle =
     lang === "ru" ? "Вакансии" : lang === "de" ? "Stellenangebote" : "Open positions";
-  const applyLabel =
-    lang === "ru" ? "Откликнуться" : lang === "de" ? "Bewerben" : "Apply";
   const salaryLabel =
     lang === "ru" ? "Зарплата" : lang === "de" ? "Gehalt" : "Salary";
 
@@ -199,14 +197,6 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
                 ) : null}
               </article>
             ))}
-          </div>
-          <div className="mt-8">
-            <a
-              href="#booking"
-              className="inline-flex rounded-full bg-orange-500 px-8 py-4 text-base font-bold text-white hover:bg-orange-400"
-            >
-              {applyLabel}
-            </a>
           </div>
         </section>
       ) : null}
