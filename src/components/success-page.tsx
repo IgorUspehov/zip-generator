@@ -11,7 +11,7 @@ const COPY = {
     title: "Оплата прошла успешно!",
     subtitleDemo: "Ваш Сайт + CRM + Бронирование сохранён навсегда",
     subtitlePro: "Ваш CRM Pro готов к скачиванию",
-    emailHint: "Сохраните обе ссылки ниже — сайт для клиентов и вход в CRM.",
+    emailHint: "Сохраните ссылки ниже — сайт для клиентов, вакансии и бронирование.",
     download: "Скачать ZIP",
     home: "Вернуться на главную",
     waiting: "Подготавливаем ваш ZIP...",
@@ -22,18 +22,15 @@ const COPY = {
       jobsHint: "Отправьте эту ссылку соискателям",
       bookingLabel: "Страница бронирования",
       bookingHint: "Отправьте эту ссылку вашим клиентам",
-      crmLabel: "Вход в вашу CRM",
-      crmHint: "Личная админ-панель для вас — не для ваших клиентов.",
       copyLink: "Копировать ссылку",
       copied: "Скопировано!",
-      openCrm: "Открыть CRM",
     } satisfies TenantReadyLinksCopy,
   },
   de: {
     title: "Zahlung erfolgreich!",
     subtitleDemo: "Ihr Website + CRM + Buchung ist dauerhaft gespeichert",
     subtitlePro: "Ihr CRM Pro ist zum Download bereit",
-    emailHint: "Speichern Sie beide Links — Kundenwebsite und CRM-Zugang.",
+    emailHint: "Speichern Sie die Links unten — Kundenwebsite, Stellen und Buchung.",
     download: "ZIP herunterladen",
     home: "Zur Startseite",
     waiting: "ZIP wird vorbereitet...",
@@ -44,18 +41,15 @@ const COPY = {
       jobsHint: "Senden Sie diesen Link an Bewerber",
       bookingLabel: "Buchungsseite",
       bookingHint: "Senden Sie diesen Link an Ihre Kunden",
-      crmLabel: "Ihr CRM-Zugang",
-      crmHint: "Private Admin-Oberfläche für Sie — nicht für Ihre Kunden.",
       copyLink: "Link kopieren",
       copied: "Kopiert!",
-      openCrm: "CRM öffnen",
     } satisfies TenantReadyLinksCopy,
   },
   en: {
     title: "Payment successful!",
     subtitleDemo: "Your Website + CRM + Booking is saved forever",
     subtitlePro: "Your CRM Pro package is ready",
-    emailHint: "Save both links below — customer site and CRM login.",
+    emailHint: "Save the links below — customer site, jobs, and booking.",
     download: "Download ZIP",
     home: "Back to home",
     waiting: "Preparing your ZIP...",
@@ -66,11 +60,8 @@ const COPY = {
       jobsHint: "Send this link to applicants",
       bookingLabel: "Booking page",
       bookingHint: "Send this link to your customers",
-      crmLabel: "Your CRM login",
-      crmHint: "Private admin panel for you — not for your customers.",
       copyLink: "Copy link",
       copied: "Copied!",
-      openCrm: "Open CRM",
     } satisfies TenantReadyLinksCopy,
   },
 } as const;
@@ -86,7 +77,6 @@ export function SuccessPageContent() {
   const t = COPY[lang];
 
   const [downloadToken, setDownloadToken] = useState<string | null>(null);
-  const [crmUrl, setCrmUrl] = useState<string | null>(null);
   const [publicSiteUrl, setPublicSiteUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -99,11 +89,9 @@ export function SuccessPageContent() {
         });
         if (!response.ok) return;
         const data = (await response.json()) as {
-          crmUrl?: string | null;
           publicSiteUrl?: string | null;
         };
         if (cancelled) return;
-        if (typeof data.crmUrl === "string" && data.crmUrl) setCrmUrl(data.crmUrl);
         if (typeof data.publicSiteUrl === "string" && data.publicSiteUrl) {
           setPublicSiteUrl(data.publicSiteUrl);
         }
@@ -174,9 +162,9 @@ export function SuccessPageContent() {
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-slate-600">{t.emailHint}</p>
         ) : null}
 
-        {publicSiteUrl && crmUrl ? (
+        {publicSiteUrl ? (
           <div className="mt-8 w-full text-left [&_.tenant-ready-link-block]:border-slate-200 [&_.tenant-ready-link-block]:bg-slate-50 [&_.tenant-ready-link-label]:text-slate-900 [&_.tenant-ready-link-hint]:text-slate-500 [&_.wizard-ready-url]:border-slate-200 [&_.wizard-ready-url]:bg-white [&_.wizard-ready-url]:text-slate-800 [&_.wizard-ready-copy]:border [&_.wizard-ready-copy]:border-slate-200 [&_.wizard-ready-copy]:bg-white [&_.wizard-ready-copy]:text-slate-800">
-            <TenantReadyLinks publicSiteUrl={publicSiteUrl} crmUrl={crmUrl} copy={t.links} />
+            <TenantReadyLinks publicSiteUrl={publicSiteUrl} copy={t.links} />
           </div>
         ) : null}
 

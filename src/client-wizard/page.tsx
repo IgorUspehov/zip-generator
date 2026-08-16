@@ -1508,7 +1508,6 @@ function ClientWizardFlow() {
                         }
                       })()
                     }
-                    crmUrl={pendingRedirectUrl}
                     copy={{
                       publicSiteLabel: copy.s4_public_site_label,
                       publicSiteHint: copy.s4_public_site_hint,
@@ -1516,11 +1515,8 @@ function ClientWizardFlow() {
                       jobsHint: copy.s4_jobs_hint,
                       bookingLabel: copy.s4_booking_label,
                       bookingHint: copy.s4_booking_hint,
-                      crmLabel: copy.s4_crm_label,
-                      crmHint: copy.s4_crm_hint,
                       copyLink: copy.s4_copy_link,
                       copied: copy.s4_copied,
-                      openCrm: copy.s4_open_crm,
                     }}
                     publishingText={publishCountdownText}
                   />

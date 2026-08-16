@@ -11,18 +11,14 @@ export type TenantReadyLinksCopy = {
   jobsHint: string;
   bookingLabel: string;
   bookingHint: string;
-  crmLabel: string;
-  crmHint: string;
   copyLink: string;
   copied: string;
-  openCrm: string;
 };
 
 type TenantReadyLinksProps = {
   publicSiteUrl: string;
-  crmUrl: string;
   copy: TenantReadyLinksCopy;
-  /** Optional countdown text shown instead of open CRM while publishing. */
+  /** Optional countdown text while publishing. */
   publishingText?: string | null;
   className?: string;
 };
@@ -47,14 +43,12 @@ function LinkBlock({
   url,
   copyLabel,
   copiedLabel,
-  openLinks,
 }: {
   label: string;
   hint: string;
   url: string;
   copyLabel: string;
   copiedLabel: string;
-  openLinks?: Array<{ label: string; href: string }>;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -77,26 +71,14 @@ function LinkBlock({
         >
           {copied ? copiedLabel : copyLabel}
         </button>
-        {openLinks?.map((link) => (
-          <a
-            key={link.href}
-            href={link.href}
-            target="_blank"
-            rel="noreferrer"
-            className="btn-primary wizard-ready-open"
-          >
-            {link.label}
-          </a>
-        ))}
       </div>
     </div>
   );
 }
 
-/** Share links: public site, jobs, booking, and CRM login. */
+/** Share links: public site, jobs, and booking. */
 export function TenantReadyLinks({
   publicSiteUrl,
-  crmUrl,
   copy,
   publishingText,
   className,
@@ -123,16 +105,6 @@ export function TenantReadyLinks({
         url={joinSitePath(publicSiteUrl, "/booking")}
         copyLabel={copy.copyLink}
         copiedLabel={copy.copied}
-      />
-      <LinkBlock
-        label={copy.crmLabel}
-        hint={copy.crmHint}
-        url={crmUrl}
-        copyLabel={copy.copyLink}
-        copiedLabel={copy.copied}
-        openLinks={
-          publishingText ? undefined : [{ label: copy.openCrm, href: crmUrl }]
-        }
       />
       {publishingText ? <p className="step-sub wizard-ready-countdown">{publishingText}</p> : null}
     </div>
