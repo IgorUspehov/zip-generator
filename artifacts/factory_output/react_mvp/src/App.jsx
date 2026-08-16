@@ -2633,6 +2633,7 @@ export default function App() {
   const heroPhotoSrc = heroPhoto ?? getHeroImagePath(effectiveBusinessType);
   const galleryPhotoList = galleryPhotos ?? getGalleryImagePaths(effectiveBusinessType);
   const publicSiteBase = String(publicSiteUrl || "").replace(/\/$/, "").replace(/#.*$/, "");
+  const siteUrl = publicSiteBase;
   const heroBookingHref = publicSiteBase ? `${publicSiteBase}/booking` : "/booking";
   const heroJobHref = publicSiteBase ? `${publicSiteBase}/job` : "/job";
   const heroBookLabel =
@@ -4032,42 +4033,8 @@ export default function App() {
                 >
                   {siteLinkCopied ? (t.settingsSiteCopied || "Copied!") : (t.settingsCopySite || "Copy site link")}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => window.open(publicSiteUrl + "/job", "_blank")}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    marginTop: "8px",
-                    padding: "12px",
-                    background: "#FFD400",
-                    color: "#000",
-                    fontWeight: "bold",
-                    borderRadius: "8px",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  Вакансии
-                </button>
-                <button
-                  type="button"
-                  onClick={() => window.open(publicSiteUrl + "/booking", "_blank")}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    marginTop: "8px",
-                    padding: "12px",
-                    background: "#FFD400",
-                    color: "#000",
-                    fontWeight: "bold",
-                    borderRadius: "8px",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  Заявки / Бронирование
-                </button>
+                <button onClick={() => window.open(siteUrl + '/job', '_blank')} style={{display:'block',width:'100%',marginTop:'8px',padding:'12px',background:'#FFD400',color:'#000',fontWeight:'bold',borderRadius:'8px',border:'none',cursor:'pointer'}}>Вакансии</button>
+                <button onClick={() => window.open(siteUrl + '/booking', '_blank')} style={{display:'block',width:'100%',marginTop:'8px',padding:'12px',background:'#FFD400',color:'#000',fontWeight:'bold',borderRadius:'8px',border:'none',cursor:'pointer'}}>Заявки / Бронирование</button>
               </div>
             </div>
           </section>
