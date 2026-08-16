@@ -1794,7 +1794,6 @@ export default function App() {
   );
   const [mvpUrl, setMvpUrl] = useState("");
   const [publicSiteUrl, setPublicSiteUrl] = useState("");
-  const [siteLinkCopied, setSiteLinkCopied] = useState(false);
   const [manifestPending, setManifestPending] = useState(Boolean(bootClientId));
   const [manifestLoaded, setManifestLoaded] = useState(false);
   const [manifestError, setManifestError] = useState(null);
@@ -4002,37 +4001,6 @@ export default function App() {
                 />
               </label>
               <div style={{ marginTop: "1.25rem", paddingTop: "1rem", borderTop: "1px solid #e2e8f0" }}>
-                <div style={{ fontWeight: 700, marginBottom: "0.35rem" }}>{t.settingsPublicSite || "Your site for customers"}</div>
-                <input
-                  readOnly
-                  value={publicSiteUrl || ""}
-                  placeholder="/site/…"
-                  style={{ ...settingsInputStyle, marginBottom: "0.5rem", fontSize: "0.85rem" }}
-                />
-                <button
-                  type="button"
-                  disabled={!publicSiteUrl}
-                  onClick={() => {
-                    if (!publicSiteUrl) return;
-                    void navigator.clipboard.writeText(publicSiteUrl).then(() => {
-                      setSiteLinkCopied(true);
-                      window.setTimeout(() => setSiteLinkCopied(false), 2000);
-                    });
-                  }}
-                  style={{
-                    background: publicSiteUrl ? "var(--color-accent, #1d4ed8)" : "#94a3b8",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "10px",
-                    padding: "0.65rem 1rem",
-                    fontWeight: 700,
-                    cursor: publicSiteUrl ? "pointer" : "not-allowed",
-                    width: "100%",
-                    marginBottom: "1rem",
-                  }}
-                >
-                  {siteLinkCopied ? (t.settingsSiteCopied || "Copied!") : (t.settingsCopySite || "Copy site link")}
-                </button>
                 <button onClick={() => window.open(siteUrl + '/job', '_blank')} style={{display:'block',width:'100%',marginTop:'8px',padding:'12px',background:'#FFD400',color:'#000',fontWeight:'bold',borderRadius:'8px',border:'none',cursor:'pointer'}}>Вакансии</button>
                 <button onClick={() => window.open(siteUrl + '/booking', '_blank')} style={{display:'block',width:'100%',marginTop:'8px',padding:'12px',background:'#FFD400',color:'#000',fontWeight:'bold',borderRadius:'8px',border:'none',cursor:'pointer'}}>Заявки / Бронирование</button>
               </div>
