@@ -832,23 +832,17 @@ function ClientWizardFlow() {
         const recaptchaToken = await executeRecaptcha("submit_questionnaire");
         const data = await saveQuestionnaire(payload, recaptchaToken);
         console.log("[wizard] API response:", data);
-        const siteParam = data.clientId?.trim() || data.slug?.trim() || "";
-        if (siteParam) {
-          console.log("[wizard] navigation target:", `/site/${siteParam}`);
-          window.location.assign(`/site/${encodeURIComponent(siteParam)}`);
+        const slug = data.slug?.trim() || "";
+        const clientId = data.clientId?.trim() || "";
+        if (slug && clientId) {
+          const demoPath = `/demo/${encodeURIComponent(slug)}?clientId=${encodeURIComponent(clientId)}`;
+          console.log("[wizard] navigation target:", demoPath);
+          window.location.assign(demoPath);
           return;
         }
         if (data.redirectUrl) {
-          setPendingRedirectUrl(data.redirectUrl);
-          setDeployMeta({
-            demoUrl: data.redirectUrl,
-            publicSiteUrl: data.publicSiteUrl,
-            siteId: data.siteId,
-            clientId: data.clientId,
-            slug: data.slug,
-          });
-          setIsGenerating(false);
-          console.log("[wizard] navigation target:", "s5");
+          console.log("[wizard] navigation target:", data.redirectUrl);
+          window.location.assign(data.redirectUrl);
           return;
         }
         throw new Error("No redirect URL returned");
@@ -1015,9 +1009,16 @@ function ClientWizardFlow() {
         const data = (await response.json()) as { valid?: boolean };
         if (response.ok && data.valid) {
           setPromoValidated(true);
-          const siteParam = deployMeta?.clientId?.trim() || deployMeta?.slug?.trim() || "";
-          if (siteParam) {
-            window.location.assign(`/site/${encodeURIComponent(siteParam)}`);
+          const slug = deployMeta?.slug?.trim() || "";
+          const clientId = deployMeta?.clientId?.trim() || "";
+          if (slug && clientId) {
+            window.location.assign(
+              `/demo/${encodeURIComponent(slug)}?clientId=${encodeURIComponent(clientId)}`,
+            );
+            return;
+          }
+          if (deployMeta?.demoUrl) {
+            window.location.assign(deployMeta.demoUrl);
             return;
           }
         } else {
