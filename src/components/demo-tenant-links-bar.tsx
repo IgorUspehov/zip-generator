@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 
 type DemoTenantLinksBarProps = {
   publicSiteUrl: string;
@@ -10,19 +10,22 @@ type DemoTenantLinksBarProps = {
 
 const COPY = {
   en: {
-    site: "Customer site",
+    vacancies: "Vacancies",
+    booking: "Leads / Booking",
     crm: "CRM login",
     copy: "Copy",
     copied: "Copied",
   },
   de: {
-    site: "Kundenwebsite",
+    vacancies: "Stellen",
+    booking: "Anfragen / Buchung",
     crm: "CRM-Zugang",
     copy: "Kopieren",
     copied: "Kopiert",
   },
   ru: {
-    site: "Сайт для клиентов",
+    vacancies: "Вакансии",
+    booking: "Заявки / Бронирование",
     crm: "Вход в CRM",
     copy: "Копировать",
     copied: "Скопировано",
@@ -45,6 +48,22 @@ async function copyText(value: string): Promise<boolean> {
   }
 }
 
+const yellowBtnStyle: CSSProperties = {
+  background: "#f59e0b",
+  color: "#ffffff",
+  fontWeight: 700,
+  border: 0,
+  borderRadius: 10,
+  padding: "0.45rem 0.9rem",
+  cursor: "pointer",
+  textDecoration: "none",
+  display: "inline-flex",
+  alignItems: "center",
+  fontFamily: "inherit",
+  fontSize: "0.82rem",
+  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.18)",
+};
+
 /** Persistent Railway chrome: both share links for existing tenants (no CF redeploy needed). */
 export function DemoTenantLinksBar({
   publicSiteUrl,
@@ -52,12 +71,15 @@ export function DemoTenantLinksBar({
   language,
 }: DemoTenantLinksBarProps) {
   const t = COPY[normalizeLang(language)];
-  const [copiedKey, setCopiedKey] = useState<"site" | "crm" | null>(null);
+  const [copiedKey, setCopiedKey] = useState<"crm" | null>(null);
+  const siteBase = String(publicSiteUrl || "").replace(/#.*$/, "");
+  const vacanciesHref = siteBase ? `${siteBase}#vacancies` : "";
+  const bookingHref = siteBase ? `${siteBase}#booking` : "";
 
-  const onCopy = (key: "site" | "crm", value: string) => {
-    void copyText(value).then((ok) => {
+  const onCopyCrm = () => {
+    void copyText(crmUrl).then((ok) => {
       if (!ok) return;
-      setCopiedKey(key);
+      setCopiedKey("crm");
       window.setTimeout(() => setCopiedKey(null), 2000);
     });
   };
@@ -83,41 +105,31 @@ export function DemoTenantLinksBar({
         borderBottom: "1px solid #1e293b",
       }}
     >
-      <span style={{ fontWeight: 700, color: "#f8fafc" }}>{t.site}</span>
-      <code
-        style={{
-          maxWidth: "min(42vw, 280px)",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-          background: "#1e293b",
-          padding: "0.25rem 0.5rem",
-          borderRadius: 6,
-        }}
-        title={publicSiteUrl}
-      >
-        {publicSiteUrl}
-      </code>
-      <button
-        type="button"
-        onClick={() => onCopy("site", publicSiteUrl)}
-        style={{
-          background: "#22c55e",
-          color: "#052e16",
-          fontWeight: 700,
-          border: 0,
-          borderRadius: 999,
-          padding: "0.3rem 0.75rem",
-          cursor: "pointer",
-        }}
-      >
-        {copiedKey === "site" ? t.copied : t.copy}
-      </button>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem" }}>
+        {vacanciesHref ? (
+          <a href={vacanciesHref} target="_blank" rel="noreferrer" style={yellowBtnStyle}>
+            {t.vacancies}
+          </a>
+        ) : (
+          <button type="button" disabled style={{ ...yellowBtnStyle, opacity: 0.5, cursor: "not-allowed" }}>
+            {t.vacancies}
+          </button>
+        )}
+        {bookingHref ? (
+          <a href={bookingHref} target="_blank" rel="noreferrer" style={yellowBtnStyle}>
+            {t.booking}
+          </a>
+        ) : (
+          <button type="button" disabled style={{ ...yellowBtnStyle, opacity: 0.5, cursor: "not-allowed" }}>
+            {t.booking}
+          </button>
+        )}
+      </div>
       <span style={{ opacity: 0.35 }}>|</span>
       <span style={{ fontWeight: 700, color: "#f8fafc" }}>{t.crm}</span>
       <button
         type="button"
-        onClick={() => onCopy("crm", crmUrl)}
+        onClick={onCopyCrm}
         style={{
           background: "#e2e8f0",
           color: "#0f172a",
