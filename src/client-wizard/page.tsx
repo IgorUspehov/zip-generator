@@ -1516,7 +1516,8 @@ function ClientWizardFlow() {
                       crmHint: copy.s4_crm_hint,
                       copyLink: copy.s4_copy_link,
                       copied: copy.s4_copied,
-                      openPublicSite: copy.s4_open_public_site,
+                      openJobs: copy.s4_open_jobs,
+                      openBooking: copy.s4_open_booking,
                       openCrm: copy.s4_open_crm,
                     }}
                     publishingText={publishCountdownText}

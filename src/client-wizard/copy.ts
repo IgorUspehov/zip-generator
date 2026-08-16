@@ -63,7 +63,8 @@ export type CopyBundle = {
   s4_public_site_hint: string;
   s4_crm_label: string;
   s4_crm_hint: string;
-  s4_open_public_site: string;
+  s4_open_jobs: string;
+  s4_open_booking: string;
   s4_open_crm: string;
   build_steps: string[];
   s5_live: string;
@@ -164,7 +165,8 @@ const T: Record<UiLang, CopyBundle> = {
     s4_public_site_hint: "Put this link on Google Maps, Instagram, or your business card.",
     s4_crm_label: "Your CRM login",
     s4_crm_hint: "Private admin panel for you — not for your customers.",
-    s4_open_public_site: "Open customer site",
+    s4_open_jobs: "Jobs",
+    s4_open_booking: "Requests / Booking",
     s4_open_crm: "Open CRM",
     build_steps: [
       "Analysing your business",
@@ -291,7 +293,8 @@ const T: Record<UiLang, CopyBundle> = {
     s4_public_site_hint: "Diesen Link in Google Maps, Instagram oder auf Ihre Visitenkarte setzen.",
     s4_crm_label: "Ihr CRM-Zugang",
     s4_crm_hint: "Private Admin-Oberfläche für Sie — nicht für Ihre Kunden.",
-    s4_open_public_site: "Kundenwebsite öffnen",
+    s4_open_jobs: "Stellenangebote",
+    s4_open_booking: "Anfragen / Buchung",
     s4_open_crm: "CRM öffnen",
     build_steps: [
       "Analyse Ihres Unternehmens",
@@ -418,7 +421,8 @@ const T: Record<UiLang, CopyBundle> = {
     s4_public_site_hint: "Эту ссылку размещайте в Google Maps, Instagram или на визитке.",
     s4_crm_label: "Вход в вашу CRM",
     s4_crm_hint: "Личная админ-панель для вас — не для ваших клиентов.",
-    s4_open_public_site: "Открыть сайт для клиентов",
+    s4_open_jobs: "Вакансии",
+    s4_open_booking: "Заявки / Бронирование",
     s4_open_crm: "Открыть CRM",
     build_steps: [
       "Анализ бизнеса",

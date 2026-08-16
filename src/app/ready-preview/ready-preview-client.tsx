@@ -38,7 +38,8 @@ export function ReadyPreviewClient() {
             crmHint: "Личная админ-панель для вас — не для ваших клиентов.",
             copyLink: "Копировать ссылку",
             copied: "Скопировано!",
-            openPublicSite: "Открыть сайт для клиентов",
+            openJobs: "Вакансии",
+            openBooking: "Заявки / Бронирование",
             openCrm: "Открыть CRM",
           }}
         />

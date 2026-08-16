@@ -11,7 +11,8 @@ export type TenantReadyLinksCopy = {
   crmHint: string;
   copyLink: string;
   copied: string;
-  openPublicSite: string;
+  openJobs: string;
+  openBooking: string;
   openCrm: string;
 };
 
@@ -33,24 +34,25 @@ async function copyText(value: string): Promise<boolean> {
   }
 }
 
+function joinSitePath(siteUrl: string, path: string): string {
+  const base = siteUrl.replace(/\/$/, "");
+  return `${base}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
 function LinkBlock({
   label,
   hint,
   url,
   copyLabel,
   copiedLabel,
-  openLabel,
-  openHref,
-  openDisabled,
+  openLinks,
 }: {
   label: string;
   hint: string;
   url: string;
   copyLabel: string;
   copiedLabel: string;
-  openLabel: string;
-  openHref?: string;
-  openDisabled?: boolean;
+  openLinks?: Array<{ label: string; href: string }>;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -73,11 +75,17 @@ function LinkBlock({
         >
           {copied ? copiedLabel : copyLabel}
         </button>
-        {openHref && !openDisabled ? (
-          <a href={openHref} target="_blank" rel="noreferrer" className="btn-primary wizard-ready-open">
-            {openLabel}
+        {openLinks?.map((link) => (
+          <a
+            key={link.href}
+            href={link.href}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-primary wizard-ready-open"
+          >
+            {link.label}
           </a>
-        ) : null}
+        ))}
       </div>
     </div>
   );
@@ -99,8 +107,10 @@ export function TenantReadyLinks({
         url={publicSiteUrl}
         copyLabel={copy.copyLink}
         copiedLabel={copy.copied}
-        openLabel={copy.openPublicSite}
-        openHref={publicSiteUrl}
+        openLinks={[
+          { label: copy.openJobs, href: joinSitePath(publicSiteUrl, "/job") },
+          { label: copy.openBooking, href: joinSitePath(publicSiteUrl, "/booking") },
+        ]}
       />
       <LinkBlock
         label={copy.crmLabel}
@@ -108,9 +118,9 @@ export function TenantReadyLinks({
         url={crmUrl}
         copyLabel={copy.copyLink}
         copiedLabel={copy.copied}
-        openLabel={copy.openCrm}
-        openHref={publishingText ? undefined : crmUrl}
-        openDisabled={Boolean(publishingText)}
+        openLinks={
+          publishingText ? undefined : [{ label: copy.openCrm, href: crmUrl }]
+        }
       />
       {publishingText ? <p className="step-sub wizard-ready-countdown">{publishingText}</p> : null}
     </div>
