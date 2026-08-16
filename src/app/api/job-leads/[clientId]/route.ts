@@ -14,6 +14,7 @@ type JobLeadBody = {
   name?: unknown;
   phone?: unknown;
   position?: unknown;
+  salary?: unknown;
   experience?: unknown;
   language?: unknown;
 };
@@ -54,6 +55,7 @@ export async function POST(
   const name = asTrimmedString(body.name, 120);
   const phone = asTrimmedString(body.phone, 40);
   const position = asTrimmedString(body.position, 120);
+  const salary = asTrimmedString(body.salary, 120);
   const experience = asTrimmedString(body.experience, 2000);
   const language = asTrimmedString(body.language, 8) || "de";
 
@@ -71,6 +73,7 @@ export async function POST(
     name,
     phone,
     position,
+    salary,
     experience,
     language,
     status: "new" as const,

@@ -1,13 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { PublicBookingForm } from "@/components/public-site/booking-form";
-import { JobForm } from "@/components/public-site/job-form";
-import {
-  catalogNamesForLang,
-  resolveCatalogSeedForClient,
-} from "@/lib/catalog/resolve-catalog";
-import { listCatalogItems } from "@/lib/catalog/firestore-catalog";
 import {
   buildPublicSitePath,
   resolvePublicSiteParam,
@@ -16,32 +9,16 @@ import { resolveSiteCrmHref } from "@/lib/cloudflare/resolve-site-crm-href";
 import {
   leadFormCopy,
   normalizeLeadLang,
-  resolveLeadFormMode,
   resolveSectorModelForLead,
 } from "@/lib/leads/niche-mode";
 import { loadClientManifest } from "@/lib/manifest/storage";
 import { pickLocalized } from "@/lib/niches/sector-models";
 import { DEFAULT_BUSINESS_TYPE } from "@/lib/sector-mapping";
-import { listVacancies } from "@/lib/vacancies/store";
-import type { LeadLang } from "@/lib/leads/types";
 
 type SitePageProps = {
   params: Promise<{ clientId: string }>;
   searchParams: Promise<{ lang?: string }>;
 };
-
-async function loadSharedCatalogNames(
-  clientId: string,
-  lang: LeadLang,
-): Promise<string[]> {
-  try {
-    const items = await listCatalogItems(clientId);
-    return catalogNamesForLang(items, lang);
-  } catch {
-    const { items } = resolveCatalogSeedForClient(clientId);
-    return catalogNamesForLang(items, lang);
-  }
-}
 
 export default async function PublicSitePage({ params, searchParams }: SitePageProps) {
   const { clientId: raw } = await params;
@@ -86,14 +63,9 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
     query.lang || String(manifest.language || manifest.lang || "de"),
   );
   const model = resolveSectorModelForLead(businessType, sectorId);
-  const mode = resolveLeadFormMode(businessType, sectorId);
-  const services = await loadSharedCatalogNames(clientId, lang);
-  const vacancies = await listVacancies(clientId);
   const nicheLabel = model
     ? pickLocalized(model.niche, lang)
     : businessType.replace(/_/g, " ");
-  const formCta = model ? pickLocalized(model.publicCta, lang) : undefined;
-  const catalogLabel = model ? pickLocalized(model.catalog, lang) : undefined;
   const t = leadFormCopy[lang];
   const crmHref = resolveSiteCrmHref({
     clientId,
@@ -110,10 +82,7 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
       ? manifest.heroPhoto
       : gallery[0] || `/image-library/${heroFolder}/hero.jpg`;
 
-  const vacanciesTitle =
-    lang === "ru" ? "Вакансии" : lang === "de" ? "Stellenangebote" : "Open positions";
-  const salaryLabel =
-    lang === "ru" ? "Зарплата" : lang === "de" ? "Gehalt" : "Salary";
+  const langQuery = query.lang ? `?lang=${encodeURIComponent(lang)}` : "";
 
   return (
     <main className="min-h-svh bg-gradient-to-b from-slate-950 via-slate-900 to-stone-900 text-white">
@@ -150,12 +119,18 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
             {phone ? ` · ${phone}` : ""}
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
-            <a href="#booking" className="rounded-full bg-orange-500 px-8 py-4 text-base font-bold text-white hover:bg-orange-400">
+            <Link
+              href={`/site/${clientId}/booking${langQuery}`}
+              className="rounded-full bg-orange-500 px-8 py-4 text-base font-bold text-white hover:bg-orange-400"
+            >
               {lang === "ru" ? "Заказать услугу" : lang === "de" ? "Termin buchen" : "Book Service"}
-            </a>
-            <a href="#vacancies" className="rounded-full border border-white/30 bg-white/10 px-8 py-4 text-base font-bold text-white hover:bg-white/20">
+            </Link>
+            <Link
+              href={`/site/${clientId}/job${langQuery}`}
+              className="rounded-full border border-white/30 bg-white/10 px-8 py-4 text-base font-bold text-white hover:bg-white/20"
+            >
               {lang === "ru" ? "Вакансии" : "Jobs"}
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -173,56 +148,6 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
           ))}
         </section>
       ) : null}
-
-      {vacancies.length > 0 ? (
-        <section id="vacancies" className="mx-auto max-w-5xl px-6 py-12">
-          <h2 className="text-3xl font-black tracking-tight">{vacanciesTitle}</h2>
-          <div className="mt-6 grid gap-4">
-            {vacancies.map((item) => (
-              <article
-                key={item.id}
-                className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur"
-              >
-                <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                {item.description && item.description !== item.title ? (
-                  <p className="mt-2 whitespace-pre-wrap text-slate-200">{item.description}</p>
-                ) : null}
-                {item.requirements && item.requirements !== item.description ? (
-                  <p className="mt-2 whitespace-pre-wrap text-slate-200">{item.requirements}</p>
-                ) : null}
-                {item.salary ? (
-                  <p className="mt-3 text-sm font-semibold text-orange-200">
-                    {salaryLabel}: {item.salary}
-                  </p>
-                ) : null}
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      <section className="mx-auto max-w-5xl px-6 py-12">
-        <div id="booking">
-          <PublicBookingForm
-            clientId={clientId}
-            mode={mode}
-            language={lang}
-            services={services}
-            accent="#ea580c"
-            ctaLabel={formCta}
-            titleLabel={formCta}
-            serviceLabel={catalogLabel}
-          />
-        </div>
-      </section>
-
-      <section id="job" className="mx-auto max-w-5xl px-6 py-12">
-        <JobForm
-          clientId={clientId}
-          language={lang}
-          accent="#ea580c"
-        />
-      </section>
 
       {crmHref ? (
         <footer className="border-t border-white/10 px-6 py-8 text-center text-sm text-slate-400">

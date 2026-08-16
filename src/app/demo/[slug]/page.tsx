@@ -4,10 +4,7 @@ import { DemoUnpaidBanner } from "@/components/demo-unpaid-banner";
 import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
 import { buildDemoEmbedSrc } from "@/lib/cloudflare/demo-embed";
 import { findDemoBySlug } from "@/lib/cloudflare/demo-registry";
-import {
-  buildReadableDemoUrl,
-  buildReadablePublicSiteUrl,
-} from "@/lib/cloudflare/shared-project";
+import { buildReadablePublicSiteUrl } from "@/lib/cloudflare/shared-project";
 import { loadClientManifest } from "@/lib/manifest/storage";
 
 type DemoPageProps = {
@@ -42,7 +39,6 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
   const language = resolveManifestLanguage(clientId);
   /** Outer banner → tariff chooser (not Polar directly). */
   const checkoutUrl = access.checkoutUrl;
-  const crmUrl = access.crmUrl || buildReadableDemoUrl(record.slug, clientId);
   const publicSiteUrl =
     access.publicSiteUrl || buildReadablePublicSiteUrl(record.slug);
 
@@ -60,7 +56,6 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
       ) : (
         <DemoTenantLinksBar
           publicSiteUrl={publicSiteUrl}
-          crmUrl={crmUrl}
           language={language}
         />
       )}
