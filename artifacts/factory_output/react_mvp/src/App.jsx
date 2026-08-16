@@ -2151,11 +2151,6 @@ export default function App() {
   const [siteLeadBadge, setSiteLeadBadge] = useState(0);
   const [jobApplications, setJobApplications] = useState([]);
   const [vacancies, setVacancies] = useState([]);
-  const [vacancyForm, setVacancyForm] = useState({
-    title: "",
-    salary: "",
-    requirements: "",
-  });
   const [vacancySaving, setVacancySaving] = useState(false);
   const displayClients = crmClientRecords;
 
@@ -2313,10 +2308,13 @@ export default function App() {
 
   async function handleAddVacancy() {
     if (!bootClientId || vacancySaving) return;
-    const title = vacancyForm.title.trim();
+    const titleEl = document.getElementById("jobTitle");
+    const salaryEl = document.getElementById("jobSalary");
+    const reqsEl = document.getElementById("jobReqs");
+    const title = String(titleEl?.value || "").trim();
     if (!title) return;
-    const salary = vacancyForm.salary.trim();
-    const requirements = vacancyForm.requirements.trim();
+    const salary = String(salaryEl?.value || "").trim();
+    const requirements = String(reqsEl?.value || "").trim();
     setVacancySaving(true);
     try {
       const item = await createCrmVacancy(bootClientId, {
@@ -2327,12 +2325,13 @@ export default function App() {
       });
       if (item && typeof item === "object") {
         setVacancies((prev) => [item, ...prev.filter((v) => v.id !== item.id)]);
-        setVacancyForm({ title: "", salary: "", requirements: "" });
       } else {
         const refreshed = await fetchCrmVacancies(bootClientId);
         setVacancies(Array.isArray(refreshed) ? refreshed : []);
-        setVacancyForm({ title: "", salary: "", requirements: "" });
       }
+      if (titleEl) titleEl.value = "";
+      if (salaryEl) salaryEl.value = "";
+      if (reqsEl) reqsEl.value = "";
     } finally {
       setVacancySaving(false);
     }
@@ -3354,46 +3353,29 @@ export default function App() {
               <h3 style={{ margin: 0 }}>{getPageLabel("vacancies", language, effectiveBusinessType)}</h3>
             </div>
 
-            <div style={{ marginBottom: "1.25rem", padding: "1rem", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#f8fafc" }}>
-              <div style={{ display: "grid", gap: "0.65rem", marginBottom: "0.75rem" }}>
-                <input
-                  placeholder={language === "ru" ? "Название должности" : language === "de" ? "Stellenbezeichnung" : "Job title"}
-                  value={vacancyForm.title}
-                  onChange={(e) => setVacancyForm((f) => ({ ...f, title: e.target.value }))}
-                  required
-                  style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }}
-                />
-                <input
-                  placeholder={language === "ru" ? "€16/час" : language === "de" ? "€16/Std." : "€16/hour"}
-                  value={vacancyForm.salary}
-                  onChange={(e) => setVacancyForm((f) => ({ ...f, salary: e.target.value }))}
-                  aria-label={language === "ru" ? "Зарплата" : language === "de" ? "Gehalt" : "Salary"}
-                  style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }}
-                />
-                <textarea
-                  placeholder={language === "ru" ? "Требования" : language === "de" ? "Anforderungen" : "Requirements"}
-                  value={vacancyForm.requirements}
-                  onChange={(e) => setVacancyForm((f) => ({ ...f, requirements: e.target.value }))}
-                  rows={3}
-                  style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem", resize: "vertical" }}
-                />
-              </div>
+            <div style={{ marginBottom: "20px" }}>
+              <input
+                id="jobTitle"
+                placeholder="Название должности *"
+                style={{ display: "block", width: "100%", marginBottom: "8px", padding: "8px", borderRadius: "8px", border: "1px solid #ccc" }}
+              />
+              <input
+                id="jobSalary"
+                placeholder="Зарплата (необязательно, напр. €16/час)"
+                style={{ display: "block", width: "100%", marginBottom: "8px", padding: "8px", borderRadius: "8px", border: "1px solid #ccc" }}
+              />
+              <textarea
+                id="jobReqs"
+                placeholder="Требования (необязательно)"
+                style={{ display: "block", width: "100%", marginBottom: "8px", padding: "8px", borderRadius: "8px", border: "1px solid #ccc", height: "80px" }}
+              />
               <button
                 type="button"
                 onClick={handleAddVacancy}
-                disabled={vacancySaving || !vacancyForm.title.trim()}
-                style={{
-                  background: "var(--color-accent, #1d4ed8)",
-                  color: "var(--color-on-accent, #ffffff)",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "0.55rem 1rem",
-                  fontWeight: 700,
-                  cursor: vacancySaving ? "wait" : "pointer",
-                  opacity: vacancySaving || !vacancyForm.title.trim() ? 0.6 : 1,
-                }}
+                disabled={vacancySaving}
+                style={{ background: "#FFD400", color: "#000", fontWeight: "bold", padding: "10px 24px", borderRadius: "8px", border: "none", cursor: vacancySaving ? "wait" : "pointer" }}
               >
-                {language === "ru" ? "Добавить вакансию" : language === "de" ? "Stelle hinzufügen" : "Add vacancy"}
+                Добавить вакансию
               </button>
             </div>
 
