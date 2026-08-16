@@ -2709,9 +2709,9 @@ export default function App() {
   const businessIcon = NICHE_ICONS[effectiveBusinessType] ?? theme.icon;
 
   const i18n = {
-    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", addService: "Add Service", addStaff: "Add Staff", addPayment: "Add Payment", addAsset: "Add Item", markPaid: "Mark paid", amount: "Amount", linkedBooking: "Linked booking", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", paid: "Paid", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", phone: "Phone", mvpReadyTitle: "Your Website + CRM + Booking is ready", mvpReadySubtitle: "Save the link — this is your working Website + CRM + Booking", copyLink: "Copy link", openMvpTab: "Open Website + CRM + Booking in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", settingsSubtitle: "Basic settings for your CRM.", settingsCopySite: "Copy link to my site", settingsSiteCopied: "Site link copied!", settingsPublicSite: "Your site for customers", settingsCrmLogin: "CRM login", settingsBusiness: "Company name", settingsOwner: "Owner", settingsNiche: "Niche", settingsCity: "City", settingsWhatsapp: "WhatsApp", settingsPostal: "Postal code", settingsAddress: "Address", deleteConfirm: "Delete this record?", paywallText: "Demo version. Choose a plan to continue.", paywallCta: "Choose plan" },
-    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", addService: "Leistung hinzufügen", addStaff: "Mitarbeiter hinzufügen", addPayment: "Zahlung hinzufügen", addAsset: "Eintrag hinzufügen", markPaid: "Als bezahlt markieren", amount: "Betrag", linkedBooking: "Verknüpfter Termin", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", paid: "Bezahlt", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", phone: "Telefon", mvpReadyTitle: "Ihre Website + CRM + Buchung ist bereit", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihre Website + CRM + Buchung", copyLink: "Link kopieren", openMvpTab: "Website + CRM + Buchung in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", settingsSubtitle: "Grundeinstellungen für Ihr CRM.", settingsCopySite: "Link zu meiner Website kopieren", settingsSiteCopied: "Website-Link kopiert!", settingsPublicSite: "Ihre Website für Kunden", settingsCrmLogin: "CRM-Zugang", settingsBusiness: "Firmenname", settingsOwner: "Inhaber", settingsNiche: "Branche", settingsCity: "Stadt", settingsWhatsapp: "WhatsApp", settingsPostal: "Postleitzahl", settingsAddress: "Adresse", deleteConfirm: "Diesen Eintrag löschen?", paywallText: "Demo-Version. Wählen Sie einen Plan, um fortzufahren.", paywallCta: "Plan wählen" },
-    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", addService: "Добавить услугу", addStaff: "Добавить сотрудника", addPayment: "Добавить платёж", addAsset: "Добавить объект", markPaid: "Отметить оплаченным", amount: "Сумма", linkedBooking: "Связанная запись", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", paid: "Оплачено", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", phone: "Телефон", mvpReadyTitle: "Ваш Сайт + CRM + Бронирование готов", mvpReadySubtitle: "Сохраните ссылку — это ваш рабочий Сайт + CRM + Бронирование", copyLink: "Копировать ссылку", openMvpTab: "Открыть Сайт + CRM + Бронирование в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", settingsSubtitle: "Базовые настройки вашей CRM.", settingsCopySite: "Скопировать ссылку на мой сайт", settingsSiteCopied: "Ссылка на сайт скопирована!", settingsPublicSite: "Ваш сайт для клиентов", settingsCrmLogin: "Вход в CRM", settingsBusiness: "Название компании", settingsOwner: "Владелец", settingsNiche: "Ниша", settingsCity: "Город", settingsWhatsapp: "WhatsApp", settingsPostal: "Индекс", settingsAddress: "Адрес", deleteConfirm: "Удалить эту запись?", paywallText: "Демо-версия. Выберите тариф, чтобы продолжить.", paywallCta: "Выбрать тариф" },
+    en: { patients: "Patients", visits: "Visits", visitsBadge: "visits", addClient: "Add Client", addAppointment: "Add Appointment", addService: "Add Service", addStaff: "Add Staff", addPayment: "Add Payment", addAsset: "Add Item", markPaid: "Mark paid", amount: "Amount", linkedBooking: "Linked booking", edit: "Edit", delete: "Delete", save: "Save", cancel: "Cancel", actions: "Actions", confirmed: "Confirmed", pending: "Pending", paid: "Paid", menu: "MENU", client: "Client", service: "Service", time: "Time", status: "Status", name: "Name", note: "Note", role: "Role", available: "Available", inSurgery: "In Surgery", gallery: "Gallery", phone: "Phone", mvpReadyTitle: "Your Website + CRM + Booking is ready", mvpReadySubtitle: "Save the link — this is your working Website + CRM + Booking", copyLink: "Copy link", openMvpTab: "Open Website + CRM + Booking in new tab", reminders: "Reminders", dentist: "Dentist", orthodontist: "Orthodontist", hygienist: "Hygienist", noteTreatment: "Treatment plan active", noteCleaning: "Regular cleaning", noteNew: "New patient record", service1: "Dental Check-up", service2: "Teeth Cleaning", service3: "Root Canal Treatment", reminder1: "Follow-up: Patient Weber treatment plan update", reminder2: "Reminder: cleaning appointment for Patient Koch", settingsSubtitle: "Basic settings for your CRM.", settingsCopySite: "Copy link to my site", settingsSiteCopied: "Site link copied!", settingsPublicSite: "Your site for customers", settingsJobLink: "Vacancies", settingsBookingLink: "Requests / Booking", settingsCrmLogin: "CRM login", settingsBusiness: "Company name", settingsOwner: "Owner", settingsNiche: "Niche", settingsCity: "City", settingsWhatsapp: "WhatsApp", settingsPostal: "Postal code", settingsAddress: "Address", deleteConfirm: "Delete this record?", paywallText: "Demo version. Choose a plan to continue.", paywallCta: "Choose plan" },
+    de: { patients: "Patienten", visits: "Besuche", visitsBadge: "Besuche", addClient: "Kunde hinzufügen", addAppointment: "Termin hinzufügen", addService: "Leistung hinzufügen", addStaff: "Mitarbeiter hinzufügen", addPayment: "Zahlung hinzufügen", addAsset: "Eintrag hinzufügen", markPaid: "Als bezahlt markieren", amount: "Betrag", linkedBooking: "Verknüpfter Termin", edit: "Bearbeiten", delete: "Löschen", save: "Speichern", cancel: "Abbrechen", actions: "Aktionen", confirmed: "Bestätigt", pending: "Ausstehend", paid: "Bezahlt", menu: "MENÜ", client: "Kunde", service: "Dienstleistung", time: "Uhrzeit", status: "Status", name: "Name", note: "Notiz", role: "Rolle", available: "Verfügbar", inSurgery: "Im Eingriff", gallery: "Galerie", phone: "Telefon", mvpReadyTitle: "Ihre Website + CRM + Buchung ist bereit", mvpReadySubtitle: "Speichern Sie den Link — das ist Ihre Website + CRM + Buchung", copyLink: "Link kopieren", openMvpTab: "Website + CRM + Buchung in neuem Tab öffnen", reminders: "Erinnerungen", dentist: "Zahnarzt", orthodontist: "Kieferorthopäde", hygienist: "Hygienikerin", noteTreatment: "Behandlungsplan aktiv", noteCleaning: "Regelmäßige Reinigung", noteNew: "Neue Patientenakte", service1: "Zahnkontrolle", service2: "Zahnreinigung", service3: "Wurzelkanalbehandlung", reminder1: "Nachverfolgung: Behandlungsplan Patient Weber", reminder2: "Erinnerung: Reinigungstermin für Patient Koch", settingsSubtitle: "Grundeinstellungen für Ihr CRM.", settingsCopySite: "Link zu meiner Website kopieren", settingsSiteCopied: "Website-Link kopiert!", settingsPublicSite: "Ihre Website für Kunden", settingsJobLink: "Stellenangebote", settingsBookingLink: "Anfragen / Buchung", settingsCrmLogin: "CRM-Zugang", settingsBusiness: "Firmenname", settingsOwner: "Inhaber", settingsNiche: "Branche", settingsCity: "Stadt", settingsWhatsapp: "WhatsApp", settingsPostal: "Postleitzahl", settingsAddress: "Adresse", deleteConfirm: "Diesen Eintrag löschen?", paywallText: "Demo-Version. Wählen Sie einen Plan, um fortzufahren.", paywallCta: "Plan wählen" },
+    ru: { patients: "Пациенты", visits: "Визиты", visitsBadge: "визитов", addClient: "Добавить клиента", addAppointment: "Добавить приём", addService: "Добавить услугу", addStaff: "Добавить сотрудника", addPayment: "Добавить платёж", addAsset: "Добавить объект", markPaid: "Отметить оплаченным", amount: "Сумма", linkedBooking: "Связанная запись", edit: "Изменить", delete: "Удалить", save: "Сохранить", cancel: "Отмена", actions: "Действия", confirmed: "Подтверждён", pending: "Ожидает", paid: "Оплачено", menu: "МЕНЮ", client: "Клиент", service: "Услуга", time: "Время", status: "Статус", name: "Имя", note: "Заметка", role: "Роль", available: "Доступен", inSurgery: "На приёме", gallery: "Галерея", phone: "Телефон", mvpReadyTitle: "Ваш Сайт + CRM + Бронирование готов", mvpReadySubtitle: "Сохраните ссылку — это ваш рабочий Сайт + CRM + Бронирование", copyLink: "Копировать ссылку", openMvpTab: "Открыть Сайт + CRM + Бронирование в новой вкладке", reminders: "Напоминания", dentist: "Стоматолог", orthodontist: "Ортодонт", hygienist: "Гигиенист", noteTreatment: "План лечения активен", noteCleaning: "Регулярная чистка", noteNew: "Новая карта пациента", service1: "Осмотр зубов", service2: "Чистка зубов", service3: "Лечение корневого канала", reminder1: "Напоминание: обновление плана лечения Пациент Вебер", reminder2: "Напоминание: запись на чистку Пациент Кох", settingsSubtitle: "Базовые настройки вашей CRM.", settingsCopySite: "Скопировать ссылку на мой сайт", settingsSiteCopied: "Ссылка на сайт скопирована!", settingsPublicSite: "Ваш сайт для клиентов", settingsJobLink: "Вакансии", settingsBookingLink: "Заявки / Бронирование", settingsCrmLogin: "Вход в CRM", settingsBusiness: "Название компании", settingsOwner: "Владелец", settingsNiche: "Ниша", settingsCity: "Город", settingsWhatsapp: "WhatsApp", settingsPostal: "Индекс", settingsAddress: "Адрес", deleteConfirm: "Удалить эту запись?", paywallText: "Демо-версия. Выберите тариф, чтобы продолжить.", paywallCta: "Выбрать тариф" },
   };
   const sectionLabels = uiSections ?? {};
   const baseT = i18n[language] || i18n.en;
@@ -4027,11 +4027,63 @@ export default function App() {
                     fontWeight: 700,
                     cursor: publicSiteUrl ? "pointer" : "not-allowed",
                     width: "100%",
-                    marginBottom: "1rem",
+                    marginBottom: "0.5rem",
                   }}
                 >
                   {siteLinkCopied ? (t.settingsSiteCopied || "Copied!") : (t.settingsCopySite || "Copy site link")}
                 </button>
+                <a
+                  href={publicSiteBase ? heroJobHref : undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-disabled={!publicSiteBase}
+                  onClick={(e) => {
+                    if (!publicSiteBase) e.preventDefault();
+                  }}
+                  style={{
+                    display: "block",
+                    textAlign: "center",
+                    textDecoration: "none",
+                    boxSizing: "border-box",
+                    background: publicSiteBase ? "var(--color-accent, #1d4ed8)" : "#94a3b8",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "10px",
+                    padding: "0.65rem 1rem",
+                    fontWeight: 700,
+                    cursor: publicSiteBase ? "pointer" : "not-allowed",
+                    width: "100%",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  {t.settingsJobLink || "Vacancies"}
+                </a>
+                <a
+                  href={publicSiteBase ? heroBookingHref : undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-disabled={!publicSiteBase}
+                  onClick={(e) => {
+                    if (!publicSiteBase) e.preventDefault();
+                  }}
+                  style={{
+                    display: "block",
+                    textAlign: "center",
+                    textDecoration: "none",
+                    boxSizing: "border-box",
+                    background: publicSiteBase ? "var(--color-accent, #1d4ed8)" : "#94a3b8",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "10px",
+                    padding: "0.65rem 1rem",
+                    fontWeight: 700,
+                    cursor: publicSiteBase ? "pointer" : "not-allowed",
+                    width: "100%",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  {t.settingsBookingLink || "Requests / Booking"}
+                </a>
               </div>
             </div>
           </section>
