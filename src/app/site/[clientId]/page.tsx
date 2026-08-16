@@ -107,14 +107,6 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
     typeof manifest.heroPhoto === "string"
       ? manifest.heroPhoto
       : gallery[0] || `/image-library/${heroFolder}/hero.jpg`;
-  const themePrimary =
-    manifest.theme &&
-    typeof manifest.theme === "object" &&
-    typeof (manifest.theme as { primary?: unknown }).primary === "string"
-      ? String((manifest.theme as { primary: string }).primary)
-      : "#ea580c";
-  const jobNavLabel = lang === "ru" ? "Вакансии" : lang === "en" ? "Jobs" : "Job";
-
   return (
     <main className="min-h-svh bg-gradient-to-b from-slate-950 via-slate-900 to-stone-900 text-white">
       <div
@@ -129,11 +121,6 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
               {nicheLabel}
             </p>
             <div className="flex flex-wrap items-center gap-3">
-              <nav className="flex items-center gap-4 text-sm font-semibold text-slate-200">
-                <a href="#job" className="transition hover:text-orange-200">
-                  {jobNavLabel}
-                </a>
-              </nav>
               <div className="flex gap-1 rounded-full border border-white/15 bg-black/25 p-1">
                 {(["en", "de", "ru"] as const).map((code) => (
                   <Link
@@ -146,6 +133,12 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
                     {code}
                   </Link>
                 ))}
+                <a
+                  href="#job"
+                  className="rounded-full px-3 py-1 text-xs font-bold uppercase text-slate-200"
+                >
+                  {lang === "ru" ? "Вакансии" : lang === "de" ? "Jobs" : "Jobs"}
+                </a>
               </div>
             </div>
           </div>
@@ -164,13 +157,6 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
             titleLabel={formCta}
             serviceLabel={catalogLabel}
           />
-          <section id="job" className="mt-10">
-            <JobForm
-              clientId={clientId}
-              language={lang}
-              accent={themePrimary}
-            />
-          </section>
         </div>
       </div>
 
@@ -187,6 +173,14 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
           ))}
         </section>
       ) : null}
+
+      <section id="job" className="mx-auto max-w-5xl px-6 py-12">
+        <JobForm
+          clientId={clientId}
+          language={lang}
+          accent="#ea580c"
+        />
+      </section>
 
       {crmHref ? (
         <footer className="border-t border-white/10 px-6 py-8 text-center text-sm text-slate-400">
