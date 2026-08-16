@@ -4018,32 +4018,6 @@ export default function App() {
                 >
                   {siteLinkCopied ? (t.settingsSiteCopied || "Copied!") : (t.settingsCopySite || "Copy site link")}
                 </button>
-                <div style={{ fontWeight: 700, marginBottom: "0.35rem" }}>{t.settingsCrmLogin || "CRM login"}</div>
-                <input
-                  readOnly
-                  value={mvpUrl || ""}
-                  style={{ ...settingsInputStyle, marginBottom: "0.5rem", fontSize: "0.85rem" }}
-                />
-                <button
-                  type="button"
-                  disabled={!mvpUrl}
-                  onClick={() => {
-                    if (!mvpUrl) return;
-                    void navigator.clipboard.writeText(mvpUrl);
-                  }}
-                  style={{
-                    background: mvpUrl ? "#0f172a" : "#94a3b8",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "10px",
-                    padding: "0.65rem 1rem",
-                    fontWeight: 700,
-                    cursor: mvpUrl ? "pointer" : "not-allowed",
-                    width: "100%",
-                  }}
-                >
-                  {t.copyLink || "Copy link"}
-                </button>
               </div>
             </div>
           </section>
