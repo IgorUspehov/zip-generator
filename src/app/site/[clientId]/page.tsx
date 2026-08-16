@@ -136,11 +136,6 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
               </div>
             </div>
           </div>
-          <nav className="mb-6 flex gap-4">
-            <a href="#job" className="text-sm font-semibold text-orange-300 hover:text-orange-200">
-              {lang === "ru" ? "Вакансии" : "Jobs"}
-            </a>
-          </nav>
           <h1 className="max-w-3xl text-5xl font-black tracking-tight sm:text-6xl">{businessName}</h1>
           <p className="mt-4 max-w-2xl text-lg text-slate-200">
             {city ? `${nicheLabel} · ${city}` : nicheLabel}
