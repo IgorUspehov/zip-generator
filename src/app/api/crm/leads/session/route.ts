@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { findDemoByShortId, findDemoBySlug } from "@/lib/cloudflare/demo-registry";
+import { listJobApplications } from "@/lib/jobs/store";
 import {
   readLeadsSessionClientId,
   setLeadsSessionCookie,
@@ -45,13 +46,17 @@ export async function GET() {
   }
 
   try {
-    const leads = await listSiteLeads(clientId);
+    const [leads, jobApplications] = await Promise.all([
+      listSiteLeads(clientId),
+      listJobApplications(clientId),
+    ]);
     return NextResponse.json(
       {
         clientId,
         clients: leads.clients,
         appointments: leads.appointments,
         orders: leads.orders,
+        jobApplications,
       },
       { headers: { "Cache-Control": "no-store" } },
     );

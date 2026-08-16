@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { findDemoByClientId } from "@/lib/cloudflare/demo-registry";
 import { findPendingByClientId } from "@/lib/cloudflare/scheduler";
+import { listJobApplications } from "@/lib/jobs/store";
 import { verifyLeadsReadSecret } from "@/lib/leads/read-secret";
 import { listSiteLeads } from "@/lib/leads/store";
 import { loadClientManifest } from "@/lib/manifest/storage";
@@ -52,13 +53,17 @@ export async function GET(
   }
 
   try {
-    const leads = await listSiteLeads(clientId);
+    const [leads, jobApplications] = await Promise.all([
+      listSiteLeads(clientId),
+      listJobApplications(clientId),
+    ]);
     return NextResponse.json(
       {
         clientId,
         clients: leads.clients,
         appointments: leads.appointments,
         orders: leads.orders,
+        jobApplications,
       },
       { headers: CORS_HEADERS },
     );

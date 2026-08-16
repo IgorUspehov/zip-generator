@@ -141,16 +141,32 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
             {city ? `${nicheLabel} · ${city}` : nicheLabel}
             {phone ? ` · ${phone}` : ""}
           </p>
-          <PublicBookingForm
-            clientId={clientId}
-            mode={mode}
-            language={lang}
-            services={services}
-            accent="#ea580c"
-            ctaLabel={formCta}
-            titleLabel={formCta}
-            serviceLabel={catalogLabel}
-          />
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a
+              href="#booking"
+              className="rounded-full bg-orange-500 px-6 py-3 text-sm font-bold text-white hover:bg-orange-400"
+            >
+              {lang === "ru" ? "Заказать услугу" : lang === "de" ? "Termin buchen" : "Book Service"}
+            </a>
+            <a
+              href="#job"
+              className="rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-bold text-white hover:bg-white/20"
+            >
+              {lang === "ru" ? "Вакансии" : "Jobs"}
+            </a>
+          </div>
+          <div id="booking">
+            <PublicBookingForm
+              clientId={clientId}
+              mode={mode}
+              language={lang}
+              services={services}
+              accent="#ea580c"
+              ctaLabel={formCta}
+              titleLabel={formCta}
+              serviceLabel={catalogLabel}
+            />
+          </div>
         </div>
       </div>
 

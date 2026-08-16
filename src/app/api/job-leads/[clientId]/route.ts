@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
 import { getFirestoreDb } from "@/lib/firebase/admin";
-import { sendTelegramMessage } from "@/lib/telegram/notify";
 
 export const runtime = "nodejs";
 
@@ -92,24 +91,6 @@ export async function POST(
       { error: message },
       { status: 500, headers: CORS_HEADERS },
     );
-  }
-
-  const telegramText = [
-    "🔔 Новая заявка на работу",
-    `👤 ${name}`,
-    `📞 ${phone}`,
-    `💼 ${position}`,
-    `📝 ${experience || "—"}`,
-  ].join("\n");
-
-  try {
-    await sendTelegramMessage(telegramText);
-  } catch (notifyError) {
-    console.error("[job-leads] telegram notify failed after successful write", {
-      clientId,
-      message:
-        notifyError instanceof Error ? notifyError.message : String(notifyError),
-    });
   }
 
   return NextResponse.json({ ok: true }, { status: 201, headers: CORS_HEADERS });

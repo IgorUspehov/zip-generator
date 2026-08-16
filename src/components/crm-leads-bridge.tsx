@@ -45,6 +45,7 @@ export function CrmLeadsBridge({ clientId, slug, shortId, iframeTitle }: CrmLead
             clients: data.clients || [],
             appointments: data.appointments || [],
             orders: data.orders || [],
+            jobApplications: data.jobApplications || [],
           },
           "*",
         );

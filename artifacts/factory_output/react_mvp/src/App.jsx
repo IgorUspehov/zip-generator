@@ -620,6 +620,18 @@ function ensureIntegrationsInPages(pages) {
   return without;
 }
 
+/** Ensure Vacancies sits right after Dashboard for every niche. */
+function ensureVacanciesInPages(pages) {
+  const next = Array.isArray(pages) ? pages.filter((id) => id !== "vacancies") : [];
+  const dashIdx = next.indexOf("dashboard");
+  if (dashIdx >= 0) {
+    next.splice(dashIdx + 1, 0, "vacancies");
+  } else {
+    next.unshift("vacancies");
+  }
+  return next;
+}
+
 function getNicheLabelsKey(businessType) {
   const normalized = String(businessType || "").trim();
   if (!normalized) {
@@ -1251,6 +1263,7 @@ const PAGE_ALIASES = {
 
 const PAGE_TAB_ICONS = {
   dashboard: "🏠",
+  vacancies: "💼",
   appointments: "📅",
   reservations: "📅",
   clients: "👥",
@@ -1295,6 +1308,7 @@ const TAB_FALLBACK_LABELS = {
     staff: "Staff",
     notifications: "Notifications",
     integrations: "Integrations",
+    vacancies: "Jobs",
     patients: "Patients",
     doctors: "Doctors",
     masters: "Masters",
@@ -1316,6 +1330,7 @@ const TAB_FALLBACK_LABELS = {
     staff: "Personal",
     notifications: "Benachrichtigungen",
     integrations: "Integrationen",
+    vacancies: "Jobs",
     patients: "Patienten",
     doctors: "Ärzte",
     masters: "Meister",
@@ -1337,6 +1352,7 @@ const TAB_FALLBACK_LABELS = {
     staff: "Персонал",
     notifications: "Уведомления",
     integrations: "Интеграции",
+    vacancies: "Вакансии",
     patients: "Пациенты",
     doctors: "Врачи",
     masters: "Мастера",
@@ -2128,6 +2144,7 @@ export default function App() {
   const [editingClientId, setEditingClientId] = useState(null);
   const [editClientForm, setEditClientForm] = useState({ name: "", note: "", phone: "", visits: 0 });
   const [siteLeadBadge, setSiteLeadBadge] = useState(0);
+  const [jobApplications, setJobApplications] = useState([]);
   const displayClients = crmClientRecords;
 
   function handleAddCrmClient() {
@@ -2212,6 +2229,8 @@ export default function App() {
       if (cancelled || !data || data.clientId !== bootClientId) return;
       const remoteClients = Array.isArray(data.clients) ? data.clients : [];
       const remoteAppointments = Array.isArray(data.appointments) ? data.appointments : [];
+      const remoteJobs = Array.isArray(data.jobApplications) ? data.jobApplications : [];
+      setJobApplications(remoteJobs);
       const addedClients = mergeRemoteClients(remoteClients) || 0;
       const addedAppointments = mergeRemoteAppointments(remoteAppointments) || 0;
       const added = Number(addedClients) + Number(addedAppointments);
@@ -2685,7 +2704,7 @@ export default function App() {
       resolved.push("settings");
     }
     // Integrations is shared across all niches (not sector-specific).
-    return ensureIntegrationsInPages(resolved);
+    return ensureVacanciesInPages(ensureIntegrationsInPages(resolved));
   }, [pages, effectiveBusinessType]);
 
   const navItems = effectivePages.map((pageId) => ({
@@ -2721,6 +2740,7 @@ export default function App() {
     isUnpaidDemo &&
     genericPageRecords.length > 0 &&
     activeTab !== "dashboard" &&
+    activeTab !== "vacancies" &&
     activeTab !== "settings" &&
     activeTab !== "integrations" &&
     !assetTabs.has(activeTab) &&
@@ -3259,6 +3279,58 @@ export default function App() {
               )}
             </div>
           </>
+        )}
+
+        {activeTab === "vacancies" && (
+          <section className="panel domain-section">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
+              <h3 style={{ margin: 0 }}>{getPageLabel("vacancies", language, effectiveBusinessType)}</h3>
+            </div>
+            {jobApplications.length === 0 ? (
+              <p style={{ color: "#64748b", margin: 0 }}>
+                {language === "ru" ? "Заявок пока нет" : language === "de" ? "Noch keine Bewerbungen" : "No applications yet"}
+              </p>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={tableStyle}>
+                  <thead>
+                    <tr>
+                      <th style={thStyle}>{(language === "ru" ? "Имя" : language === "de" ? "Name" : "Name").toUpperCase()}</th>
+                      <th style={thStyle}>{(language === "ru" ? "Телефон" : language === "de" ? "Telefon" : "Phone").toUpperCase()}</th>
+                      <th style={thStyle}>{(language === "ru" ? "Должность" : language === "de" ? "Position" : "Position").toUpperCase()}</th>
+                      <th style={thStyle}>{(language === "ru" ? "Опыт" : language === "de" ? "Erfahrung" : "Experience").toUpperCase()}</th>
+                      <th style={thStyle}>{(language === "ru" ? "Дата" : language === "de" ? "Datum" : "Date").toUpperCase()}</th>
+                      <th style={thStyle}>{(language === "ru" ? "Статус" : language === "de" ? "Status" : "Status").toUpperCase()}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {jobApplications.map((item) => {
+                      const createdAt = Number(item.createdAt) || 0;
+                      const dateLabel = createdAt
+                        ? new Date(createdAt).toLocaleDateString(
+                            language === "ru" ? "ru-RU" : language === "de" ? "de-DE" : "en-GB",
+                          )
+                        : "—";
+                      const statusLabel =
+                        language === "ru" ? "Новая" : language === "de" ? "Neu" : "New";
+                      return (
+                        <tr key={item.id || `${item.name}-${item.phone}-${createdAt}`}>
+                          <td style={{ ...tdStyle, fontWeight: 600, color: "#0f172a" }}>{item.name || "—"}</td>
+                          <td style={tdStyle}>{item.phone || "—"}</td>
+                          <td style={tdStyle}>{item.position || "—"}</td>
+                          <td style={tdStyle}>{item.experience || "—"}</td>
+                          <td style={tdStyle}>{dateLabel}</td>
+                          <td style={tdStyle}>
+                            <span style={{ ...statusBadgeBase, ...getStatusBadgeStyle("new") }}>{statusLabel}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
         )}
 
         {appointmentTabs.has(activeTab) &&
