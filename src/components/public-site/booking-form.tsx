@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 
 import {
   ctaForMode,
@@ -32,7 +32,6 @@ type BookingFormProps = {
 const FETCH_TIMEOUT_MS = 12_000;
 const FRONT_RETRY_ATTEMPTS = 3;
 const FRONT_BASE_DELAY_MS = 400;
-const CATALOG_POLL_MS = 2_000;
 
 /** Combine separate date/time inputs into the datetime-local style string the API stores. */
 function combinePreferredAt(date: string, time: string): string | undefined {
@@ -42,19 +41,6 @@ function combinePreferredAt(date: string, time: string): string | undefined {
   if (d) return d;
   if (t) return t;
   return undefined;
-}
-
-async function fetchCatalogNames(
-  clientId: string,
-  language: "en" | "de" | "ru",
-): Promise<string[]> {
-  const res = await fetch(
-    `/api/crm/catalog/${encodeURIComponent(clientId)}?lang=${encodeURIComponent(language)}`,
-    { cache: "no-store" },
-  );
-  const data = (await res.json().catch(() => ({}))) as { names?: string[] };
-  if (!res.ok || !Array.isArray(data.names)) return [];
-  return data.names.filter((item) => typeof item === "string" && item.trim().length > 0);
 }
 
 async function postLeadOnce(
@@ -116,55 +102,24 @@ export function PublicBookingForm({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [service, setService] = useState("");
-  const [comment, setComment] = useState("");
   const [preferredDate, setPreferredDate] = useState("");
   const [preferredTime, setPreferredTime] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [liveServices, setLiveServices] = useState<string[]>(services.filter(Boolean));
 
   const showPreferred = mode === "appointment" || mode === "reservation";
   const serviceOptions = useMemo(() => {
     const seen = new Set<string>();
     const out: string[] = [];
-    for (const item of liveServices) {
-      if (!item || seen.has(item)) continue;
-      seen.add(item);
-      out.push(item);
+    for (const item of services) {
+      const name = typeof item === "string" ? item.trim() : "";
+      if (!name || seen.has(name)) continue;
+      seen.add(name);
+      out.push(name);
     }
     return out;
-  }, [liveServices]);
-
-  useEffect(() => {
-    setLiveServices(services.filter(Boolean));
   }, [services]);
-
-  useEffect(() => {
-    if (!open) return undefined;
-    let cancelled = false;
-
-    const refreshCatalog = async () => {
-      try {
-        const names = await fetchCatalogNames(clientId, lang);
-        if (!cancelled && names.length > 0) {
-          setLiveServices(names);
-        }
-      } catch {
-        // Keep the server-rendered fallback list if live refresh fails.
-      }
-    };
-
-    void refreshCatalog();
-    const intervalId = window.setInterval(() => {
-      void refreshCatalog();
-    }, CATALOG_POLL_MS);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(intervalId);
-    };
-  }, [clientId, lang, open]);
 
   function mapError(err: unknown): string {
     if (err instanceof LeadRequestError) {
@@ -191,7 +146,6 @@ export function PublicBookingForm({
       name: name.trim(),
       phone: phone.trim(),
       service: service || undefined,
-      comment: comment.trim() || undefined,
       preferredAt: combinePreferredAt(preferredDate, preferredTime),
       language: lang,
     };
@@ -206,7 +160,6 @@ export function PublicBookingForm({
       setName("");
       setPhone("");
       setService("");
-      setComment("");
       setPreferredDate("");
       setPreferredTime("");
     } catch (err) {
@@ -296,16 +249,6 @@ export function PublicBookingForm({
                 </label>
               </div>
             ) : null}
-            <label className="grid gap-1 text-sm text-slate-200">
-              {t.comment}
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                maxLength={1000}
-                rows={3}
-                className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
-              />
-            </label>
           </div>
           {error ? (
             <p className="mt-3 text-sm font-semibold text-rose-300" role="alert">
