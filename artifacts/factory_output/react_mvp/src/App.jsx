@@ -4027,63 +4027,47 @@ export default function App() {
                     fontWeight: 700,
                     cursor: publicSiteUrl ? "pointer" : "not-allowed",
                     width: "100%",
-                    marginBottom: "0.5rem",
+                    marginBottom: "1rem",
                   }}
                 >
                   {siteLinkCopied ? (t.settingsSiteCopied || "Copied!") : (t.settingsCopySite || "Copy site link")}
                 </button>
-                <a
-                  href={publicSiteBase ? heroJobHref : undefined}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-disabled={!publicSiteBase}
-                  onClick={(e) => {
-                    if (!publicSiteBase) e.preventDefault();
-                  }}
+                <button
+                  type="button"
+                  onClick={() => window.open(publicSiteUrl + "/job", "_blank")}
                   style={{
                     display: "block",
-                    textAlign: "center",
-                    textDecoration: "none",
-                    boxSizing: "border-box",
-                    background: publicSiteBase ? "var(--color-accent, #1d4ed8)" : "#94a3b8",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "10px",
-                    padding: "0.65rem 1rem",
-                    fontWeight: 700,
-                    cursor: publicSiteBase ? "pointer" : "not-allowed",
                     width: "100%",
-                    marginBottom: "0.5rem",
+                    marginTop: "8px",
+                    padding: "12px",
+                    background: "#FFD400",
+                    color: "#000",
+                    fontWeight: "bold",
+                    borderRadius: "8px",
+                    border: "none",
+                    cursor: "pointer",
                   }}
                 >
-                  {t.settingsJobLink || "Vacancies"}
-                </a>
-                <a
-                  href={publicSiteBase ? heroBookingHref : undefined}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-disabled={!publicSiteBase}
-                  onClick={(e) => {
-                    if (!publicSiteBase) e.preventDefault();
-                  }}
+                  Вакансии
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.open(publicSiteUrl + "/booking", "_blank")}
                   style={{
                     display: "block",
-                    textAlign: "center",
-                    textDecoration: "none",
-                    boxSizing: "border-box",
-                    background: publicSiteBase ? "var(--color-accent, #1d4ed8)" : "#94a3b8",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "10px",
-                    padding: "0.65rem 1rem",
-                    fontWeight: 700,
-                    cursor: publicSiteBase ? "pointer" : "not-allowed",
                     width: "100%",
-                    marginBottom: "1rem",
+                    marginTop: "8px",
+                    padding: "12px",
+                    background: "#FFD400",
+                    color: "#000",
+                    fontWeight: "bold",
+                    borderRadius: "8px",
+                    border: "none",
+                    cursor: "pointer",
                   }}
                 >
-                  {t.settingsBookingLink || "Requests / Booking"}
-                </a>
+                  Заявки / Бронирование
+                </button>
               </div>
             </div>
           </section>
