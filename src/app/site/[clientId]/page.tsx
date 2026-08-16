@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { PublicBookingForm } from "@/components/public-site/booking-form";
+import { JobForm } from "@/components/public-site/job-form";
 import {
   catalogNamesForLang,
   resolveCatalogSeedForClient,
@@ -106,6 +107,13 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
     typeof manifest.heroPhoto === "string"
       ? manifest.heroPhoto
       : gallery[0] || `/image-library/${heroFolder}/hero.jpg`;
+  const themePrimary =
+    manifest.theme &&
+    typeof manifest.theme === "object" &&
+    typeof (manifest.theme as { primary?: unknown }).primary === "string"
+      ? String((manifest.theme as { primary: string }).primary)
+      : "#ea580c";
+  const jobNavLabel = lang === "ru" ? "Вакансии" : lang === "en" ? "Jobs" : "Job";
 
   return (
     <main className="min-h-svh bg-gradient-to-b from-slate-950 via-slate-900 to-stone-900 text-white">
@@ -120,18 +128,25 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-200/90">
               {nicheLabel}
             </p>
-            <div className="flex gap-1 rounded-full border border-white/15 bg-black/25 p-1">
-              {(["en", "de", "ru"] as const).map((code) => (
-                <Link
-                  key={code}
-                  href={buildPublicSitePath(siteSlug, code)}
-                  className={`rounded-full px-3 py-1 text-xs font-bold uppercase ${
-                    lang === code ? "bg-orange-500 text-white" : "text-slate-200"
-                  }`}
-                >
-                  {code}
-                </Link>
-              ))}
+            <div className="flex flex-wrap items-center gap-3">
+              <nav className="flex items-center gap-4 text-sm font-semibold text-slate-200">
+                <a href="#job" className="transition hover:text-orange-200">
+                  {jobNavLabel}
+                </a>
+              </nav>
+              <div className="flex gap-1 rounded-full border border-white/15 bg-black/25 p-1">
+                {(["en", "de", "ru"] as const).map((code) => (
+                  <Link
+                    key={code}
+                    href={buildPublicSitePath(siteSlug, code)}
+                    className={`rounded-full px-3 py-1 text-xs font-bold uppercase ${
+                      lang === code ? "bg-orange-500 text-white" : "text-slate-200"
+                    }`}
+                  >
+                    {code}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
           <h1 className="max-w-3xl text-5xl font-black tracking-tight sm:text-6xl">{businessName}</h1>
@@ -149,6 +164,13 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
             titleLabel={formCta}
             serviceLabel={catalogLabel}
           />
+          <section id="job" className="mt-10">
+            <JobForm
+              clientId={clientId}
+              language={lang}
+              accent={themePrimary}
+            />
+          </section>
         </div>
       </div>
 
