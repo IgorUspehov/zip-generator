@@ -114,9 +114,9 @@ export async function POST(
   const requirements =
     typeof body.requirements === "string" ? body.requirements.trim() : "";
 
-  if (!title || !description) {
+  if (!title) {
     return NextResponse.json(
-      { error: "title and description are required" },
+      { error: "title is required" },
       { status: 400, headers: CORS },
     );
   }
@@ -124,7 +124,7 @@ export async function POST(
   try {
     const item = await createVacancy(clientId, {
       title,
-      description,
+      ...(description ? { description } : {}),
       ...(salary ? { salary } : {}),
       ...(requirements ? { requirements } : {}),
     });

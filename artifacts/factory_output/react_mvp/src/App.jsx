@@ -2153,7 +2153,6 @@ export default function App() {
   const [vacancies, setVacancies] = useState([]);
   const [vacancyForm, setVacancyForm] = useState({
     title: "",
-    description: "",
     salary: "",
     requirements: "",
   });
@@ -2315,23 +2314,24 @@ export default function App() {
   async function handleAddVacancy() {
     if (!bootClientId || vacancySaving) return;
     const title = vacancyForm.title.trim();
-    const description = vacancyForm.description.trim();
-    if (!title || !description) return;
+    if (!title) return;
+    const salary = vacancyForm.salary.trim();
+    const requirements = vacancyForm.requirements.trim();
     setVacancySaving(true);
     try {
       const item = await createCrmVacancy(bootClientId, {
         title,
-        description,
-        salary: vacancyForm.salary.trim() || undefined,
-        requirements: vacancyForm.requirements.trim() || undefined,
+        description: requirements || title,
+        salary: salary || undefined,
+        requirements: requirements || undefined,
       });
       if (item && typeof item === "object") {
         setVacancies((prev) => [item, ...prev.filter((v) => v.id !== item.id)]);
-        setVacancyForm({ title: "", description: "", salary: "", requirements: "" });
+        setVacancyForm({ title: "", salary: "", requirements: "" });
       } else {
         const refreshed = await fetchCrmVacancies(bootClientId);
         setVacancies(Array.isArray(refreshed) ? refreshed : []);
-        setVacancyForm({ title: "", description: "", salary: "", requirements: "" });
+        setVacancyForm({ title: "", salary: "", requirements: "" });
       }
     } finally {
       setVacancySaving(false);
@@ -3357,36 +3357,31 @@ export default function App() {
             <div style={{ marginBottom: "1.25rem", padding: "1rem", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#f8fafc" }}>
               <div style={{ display: "grid", gap: "0.65rem", marginBottom: "0.75rem" }}>
                 <input
-                  placeholder={language === "ru" ? "Название должности *" : language === "de" ? "Stellenbezeichnung *" : "Job title *"}
+                  placeholder={language === "ru" ? "Название должности" : language === "de" ? "Stellenbezeichnung" : "Job title"}
                   value={vacancyForm.title}
                   onChange={(e) => setVacancyForm((f) => ({ ...f, title: e.target.value }))}
+                  required
                   style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }}
-                />
-                <textarea
-                  placeholder={language === "ru" ? "Описание *" : language === "de" ? "Beschreibung *" : "Description *"}
-                  value={vacancyForm.description}
-                  onChange={(e) => setVacancyForm((f) => ({ ...f, description: e.target.value }))}
-                  rows={3}
-                  style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem", resize: "vertical" }}
                 />
                 <input
-                  placeholder={language === "ru" ? "Зарплата (необязательно)" : language === "de" ? "Gehalt (optional)" : "Salary (optional)"}
+                  placeholder={language === "ru" ? "€16/час" : language === "de" ? "€16/Std." : "€16/hour"}
                   value={vacancyForm.salary}
                   onChange={(e) => setVacancyForm((f) => ({ ...f, salary: e.target.value }))}
+                  aria-label={language === "ru" ? "Зарплата" : language === "de" ? "Gehalt" : "Salary"}
                   style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }}
                 />
                 <textarea
-                  placeholder={language === "ru" ? "Требования (необязательно)" : language === "de" ? "Anforderungen (optional)" : "Requirements (optional)"}
+                  placeholder={language === "ru" ? "Требования" : language === "de" ? "Anforderungen" : "Requirements"}
                   value={vacancyForm.requirements}
                   onChange={(e) => setVacancyForm((f) => ({ ...f, requirements: e.target.value }))}
-                  rows={2}
+                  rows={3}
                   style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem", resize: "vertical" }}
                 />
               </div>
               <button
                 type="button"
                 onClick={handleAddVacancy}
-                disabled={vacancySaving || !vacancyForm.title.trim() || !vacancyForm.description.trim()}
+                disabled={vacancySaving || !vacancyForm.title.trim()}
                 style={{
                   background: "var(--color-accent, #1d4ed8)",
                   color: "var(--color-on-accent, #ffffff)",
@@ -3395,7 +3390,7 @@ export default function App() {
                   padding: "0.55rem 1rem",
                   fontWeight: 700,
                   cursor: vacancySaving ? "wait" : "pointer",
-                  opacity: vacancySaving || !vacancyForm.title.trim() || !vacancyForm.description.trim() ? 0.6 : 1,
+                  opacity: vacancySaving || !vacancyForm.title.trim() ? 0.6 : 1,
                 }}
               >
                 {language === "ru" ? "Добавить вакансию" : language === "de" ? "Stelle hinzufügen" : "Add vacancy"}
@@ -3421,7 +3416,6 @@ export default function App() {
                     <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "flex-start" }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <h4 style={{ margin: "0 0 0.35rem", color: "#0f172a", fontSize: "1.05rem" }}>{item.title}</h4>
-                        <p style={{ margin: "0 0 0.5rem", color: "#475569", whiteSpace: "pre-wrap" }}>{item.description}</p>
                         {item.salary ? (
                           <p style={{ margin: "0 0 0.25rem", color: "#0f172a", fontWeight: 600 }}>
                             {language === "ru" ? "Зарплата" : language === "de" ? "Gehalt" : "Salary"}: {item.salary}
@@ -3431,6 +3425,8 @@ export default function App() {
                           <p style={{ margin: 0, color: "#64748b", whiteSpace: "pre-wrap", fontSize: "0.92rem" }}>
                             {language === "ru" ? "Требования" : language === "de" ? "Anforderungen" : "Requirements"}: {item.requirements}
                           </p>
+                        ) : item.description && item.description !== item.title ? (
+                          <p style={{ margin: 0, color: "#475569", whiteSpace: "pre-wrap" }}>{item.description}</p>
                         ) : null}
                       </div>
                       <button

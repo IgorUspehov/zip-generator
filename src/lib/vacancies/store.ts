@@ -28,10 +28,11 @@ function normalizeVacancy(
   fallbackId: string,
 ): VacancyRecord | null {
   const title = asString(data.title).trim();
-  const description = asString(data.description).trim();
-  if (!title || !description) return null;
-  const salary = asString(data.salary).trim();
+  if (!title) return null;
   const requirements = asString(data.requirements).trim();
+  const description =
+    asString(data.description).trim() || requirements || title;
+  const salary = asString(data.salary).trim();
   return {
     id: asString(data.id) || fallbackId,
     title,
@@ -64,19 +65,20 @@ export async function createVacancy(
   clientId: string,
   input: {
     title: string;
-    description: string;
+    description?: string;
     salary?: string;
     requirements?: string;
   },
 ): Promise<VacancyRecord> {
   const id = `vac-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const title = String(input.title || "").trim();
-  const description = String(input.description || "").trim();
-  if (!title || !description) {
-    throw new Error("title and description are required");
+  if (!title) {
+    throw new Error("title is required");
   }
   const salary = String(input.salary || "").trim();
   const requirements = String(input.requirements || "").trim();
+  const description =
+    String(input.description || "").trim() || requirements || title;
   const record: VacancyRecord = {
     id,
     title,

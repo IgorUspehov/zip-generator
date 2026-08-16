@@ -186,7 +186,12 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
                 className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur"
               >
                 <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                <p className="mt-2 whitespace-pre-wrap text-slate-200">{item.description}</p>
+                {item.description && item.description !== item.title ? (
+                  <p className="mt-2 whitespace-pre-wrap text-slate-200">{item.description}</p>
+                ) : null}
+                {item.requirements && item.requirements !== item.description ? (
+                  <p className="mt-2 whitespace-pre-wrap text-slate-200">{item.requirements}</p>
+                ) : null}
                 {item.salary ? (
                   <p className="mt-3 text-sm font-semibold text-orange-200">
                     {salaryLabel}: {item.salary}
