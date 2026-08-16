@@ -120,16 +120,16 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
-              href={`/site/${clientId}/booking${langQuery}`}
+              href={`/site/${encodeURIComponent(siteSlug)}/booking${langQuery}`}
               className="rounded-full bg-orange-500 px-8 py-4 text-base font-bold text-white hover:bg-orange-400"
             >
               {lang === "ru" ? "Заказать услугу" : lang === "de" ? "Termin buchen" : "Book Service"}
             </Link>
             <Link
-              href={`/site/${clientId}/job${langQuery}`}
+              href={`/site/${encodeURIComponent(siteSlug)}/job${langQuery}`}
               className="rounded-full border border-white/30 bg-white/10 px-8 py-4 text-base font-bold text-white hover:bg-white/20"
             >
-              {lang === "ru" ? "Вакансии" : "Jobs"}
+              {lang === "ru" ? "Вакансии" : lang === "de" ? "Stellen" : "Jobs"}
             </Link>
           </div>
         </div>

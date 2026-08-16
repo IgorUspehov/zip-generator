@@ -197,6 +197,48 @@ body {
   font-size: 1.125rem;
 }
 
+.hero-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.15rem;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.35rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--color-on-hero, #ffffff);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.hero-cta:hover {
+  transform: translateY(-1px);
+}
+
+.hero-cta--primary {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-accent, #1d4ed8);
+}
+
+.hero-cta--primary:hover {
+  background: #ffffff;
+}
+
+.hero-cta--secondary {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.hero-cta--secondary:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
 .panel {
   background: #ffffff;
   border-radius: 16px;

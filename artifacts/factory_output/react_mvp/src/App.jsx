@@ -2632,6 +2632,12 @@ export default function App() {
   const sectorLabel = getSectorLabel(effectiveBusinessType, language, sectorId);
   const heroPhotoSrc = heroPhoto ?? getHeroImagePath(effectiveBusinessType);
   const galleryPhotoList = galleryPhotos ?? getGalleryImagePaths(effectiveBusinessType);
+  const publicSiteBase = String(publicSiteUrl || "").replace(/\/$/, "").replace(/#.*$/, "");
+  const heroBookingHref = publicSiteBase ? `${publicSiteBase}/booking` : "/booking";
+  const heroJobHref = publicSiteBase ? `${publicSiteBase}/job` : "/job";
+  const heroBookLabel =
+    language === "ru" ? "Заказать услугу" : language === "de" ? "Termin buchen" : "Book Service";
+  const heroJobsLabel = language === "ru" ? "Вакансии" : language === "de" ? "Stellen" : "Jobs";
   const nicheLabelsConfig = useMemo(
     () => getNicheLabelsConfig(effectiveBusinessType),
     [effectiveBusinessType],
@@ -3215,6 +3221,14 @@ export default function App() {
                   ))}
                 </div>
               )}
+              <div className="hero-cta-row">
+                <a className="hero-cta hero-cta--primary" href={heroBookingHref}>
+                  {heroBookLabel}
+                </a>
+                <a className="hero-cta hero-cta--secondary" href={heroJobHref}>
+                  {heroJobsLabel}
+                </a>
+              </div>
             </header>
 
             <div
