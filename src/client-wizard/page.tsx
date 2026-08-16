@@ -14,7 +14,6 @@ import {
   SECTOR_TO_BUSINESS_TYPE,
 } from "@/client-wizard/api";
 import { getCopy, type UiLang } from "@/client-wizard/copy";
-import { TenantReadyLinks } from "@/components/tenant-ready-links";
 import { getPayTranslations } from "@/client-wizard/pay-translations";
 import { getTierTranslations } from "@/client-wizard/tier-translations";
 import { buildFactoryBridgeApiPath, buildTariffsPagePath } from "@/lib/tariffs/urls";
@@ -624,9 +623,7 @@ function ClientWizardFlow() {
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewTitle, setPreviewTitle] = useState("—");
   const [previewSub, setPreviewSub] = useState("—");
-  const [publishCountdown, setPublishCountdown] = useState<number | null>(null);
   const [autoAdvancedToPreview, setAutoAdvancedToPreview] = useState(false);
-  const [siteAccessGranted, setSiteAccessGranted] = useState(false);
   const [showPromo, setShowPromo] = useState(false);
   const [promoInput, setPromoInput] = useState("");
   const [promoValidated, setPromoValidated] = useState(false);
@@ -642,7 +639,6 @@ function ClientWizardFlow() {
     setPendingRedirectUrl(null);
     setDeployMeta(null);
     setLivePreviewIframeSrc(null);
-    setSiteAccessGranted(false);
     setStep("s1");
   }, [urlClientId, deployMeta?.clientId]);
 
@@ -657,25 +653,6 @@ function ClientWizardFlow() {
     return "";
   })();
   const hasPromoInput = promoInput.trim().length > 0;
-
-  useEffect(() => {
-    if (!siteAccessGranted || !pendingRedirectUrl) {
-      setPublishCountdown(null);
-      return;
-    }
-
-    setPublishCountdown(30);
-    const timer = window.setInterval(() => {
-      setPublishCountdown((prev) => (prev !== null && prev > 0 ? prev - 1 : 0));
-    }, 1000);
-
-    return () => window.clearInterval(timer);
-  }, [siteAccessGranted, pendingRedirectUrl]);
-
-  const publishCountdownText =
-    publishCountdown !== null && publishCountdown > 0
-      ? copy.s4_publishing.replace("{n}", String(publishCountdown))
-      : null;
 
   useEffect(() => {
     if (step !== "s5") {
@@ -855,6 +832,12 @@ function ClientWizardFlow() {
         const recaptchaToken = await executeRecaptcha("submit_questionnaire");
         const data = await saveQuestionnaire(payload, recaptchaToken);
         console.log("[wizard] API response:", data);
+        const siteParam = data.clientId?.trim() || data.slug?.trim() || "";
+        if (siteParam) {
+          console.log("[wizard] navigation target:", `/site/${siteParam}`);
+          window.location.assign(`/site/${encodeURIComponent(siteParam)}`);
+          return;
+        }
         if (data.redirectUrl) {
           setPendingRedirectUrl(data.redirectUrl);
           setDeployMeta({
@@ -906,9 +889,7 @@ function ClientWizardFlow() {
     setPostalErr(false);
     setCityErr(false);
     setAddressErr(false);
-    setPublishCountdown(null);
     setAutoAdvancedToPreview(false);
-    setSiteAccessGranted(false);
     setShowPromo(false);
     setPromoInput("");
     setLivePreviewIframeSrc(null);
@@ -1014,7 +995,6 @@ function ClientWizardFlow() {
   }
 
   function handleYes() {
-    setSiteAccessGranted(false);
     setShowPromo(false);
     setPromoInput("");
     setPromoValidated(false);
@@ -1035,7 +1015,11 @@ function ClientWizardFlow() {
         const data = (await response.json()) as { valid?: boolean };
         if (response.ok && data.valid) {
           setPromoValidated(true);
-          setSiteAccessGranted(true);
+          const siteParam = deployMeta?.clientId?.trim() || deployMeta?.slug?.trim() || "";
+          if (siteParam) {
+            window.location.assign(`/site/${encodeURIComponent(siteParam)}`);
+            return;
+          }
         } else {
           setPromoValidated(false);
           setPromoError(true);
@@ -1485,111 +1469,65 @@ function ClientWizardFlow() {
 
           {/* STEP 6 */}
           <div className={stepClass("s6")} id="s6">
-            {siteAccessGranted && pendingRedirectUrl ? (
-              <>
-                <div className="build-wrap wizard-ready-wrap">
-                  <div className="step-h" style={{ textAlign: "center" }}>
-                    {copy.s4_ready}
-                  </div>
-                  <div className="step-sub" style={{ textAlign: "center", marginBottom: 0 }}>
-                    {name.trim()}
-                  </div>
-                  <TenantReadyLinks
-                    publicSiteUrl={
-                      deployMeta?.publicSiteUrl ||
-                      (() => {
-                        try {
-                          const u = new URL(pendingRedirectUrl);
-                          u.pathname = u.pathname.replace(/^\/demo\//, "/site/");
-                          u.search = "";
-                          return u.toString();
-                        } catch {
-                          return pendingRedirectUrl.replace("/demo/", "/site/").split("?")[0];
-                        }
-                      })()
-                    }
-                    copy={{
-                      publicSiteLabel: copy.s4_public_site_label,
-                      publicSiteHint: copy.s4_public_site_hint,
-                      jobsLabel: copy.s4_jobs_label,
-                      jobsHint: copy.s4_jobs_hint,
-                      bookingLabel: copy.s4_booking_label,
-                      bookingHint: copy.s4_booking_hint,
-                      copyLink: copy.s4_copy_link,
-                      copied: copy.s4_copied,
-                    }}
-                    publishingText={publishCountdownText}
-                  />
-                  <div className="wizard-ready-actions" style={{ marginTop: 16 }}>
-                    <button type="button" className="wizard-ready-restart" onClick={goRestart}>
-                      {copy.btn_restart}
-                    </button>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="step-h" style={{ marginBottom: 8 }}>
-                  {copy.s6_pay_h}
-                </div>
-                <div className="step-sub" style={{ marginBottom: 20 }}>
-                  {previewTitle}
-                </div>
-                <div className="wizard-pay-actions">
-                  <button
-                    type="button"
-                    className="wizard-pay-action-btn"
-                    onClick={() => setShowPromo((current) => !current)}
-                  >
-                    {copy.s6_promo_button}
-                  </button>
-                  <button
-                    type="button"
-                    className="wizard-pay-action-btn"
-                    onClick={() => void handlePayOrUnlock()}
-                    disabled={promoChecking}
-                  >
-                    {hasPromoInput ? copy.s6_promo_unlock : copy.s6_pay_button}
-                  </button>
-                </div>
-                {!hasPromoInput ? (
-                  <p className="step-sub" style={{ marginTop: 8, textAlign: "center" }}>
-                    {copy.s6_pay_subline}
+            <div className="step-h" style={{ marginBottom: 8 }}>
+              {copy.s6_pay_h}
+            </div>
+            <div className="step-sub" style={{ marginBottom: 20 }}>
+              {previewTitle}
+            </div>
+            <div className="wizard-pay-actions">
+              <button
+                type="button"
+                className="wizard-pay-action-btn"
+                onClick={() => setShowPromo((current) => !current)}
+              >
+                {copy.s6_promo_button}
+              </button>
+              <button
+                type="button"
+                className="wizard-pay-action-btn"
+                onClick={() => void handlePayOrUnlock()}
+                disabled={promoChecking}
+              >
+                {hasPromoInput ? copy.s6_promo_unlock : copy.s6_pay_button}
+              </button>
+            </div>
+            {!hasPromoInput ? (
+              <p className="step-sub" style={{ marginTop: 8, textAlign: "center" }}>
+                {copy.s6_pay_subline}
+              </p>
+            ) : null}
+            {showPromo ? (
+              <div style={{ marginTop: 12 }}>
+                <input
+                  type="text"
+                  value={promoInput}
+                  onChange={(e) => {
+                    setPromoInput(e.target.value);
+                    setPromoValidated(false);
+                    setPromoError(false);
+                  }}
+                  placeholder={copy.s6_promo_placeholder}
+                  className={`inp ${promoError ? "err" : ""}`}
+                  style={
+                    promoValidated
+                      ? { borderColor: "#22c55e", background: "#f0fdf4" }
+                      : undefined
+                  }
+                  disabled={promoChecking}
+                />
+                {promoError ? (
+                  <p className="step-sub" style={{ marginTop: 8, color: "#ef4444" }}>
+                    {copy.s6_promo_invalid}
                   </p>
                 ) : null}
-                {showPromo ? (
-                  <div style={{ marginTop: 12 }}>
-                    <input
-                      type="text"
-                      value={promoInput}
-                      onChange={(e) => {
-                        setPromoInput(e.target.value);
-                        setPromoValidated(false);
-                        setPromoError(false);
-                      }}
-                      placeholder={copy.s6_promo_placeholder}
-                      className={`inp ${promoError ? "err" : ""}`}
-                      style={
-                        promoValidated
-                          ? { borderColor: "#22c55e", background: "#f0fdf4" }
-                          : undefined
-                      }
-                      disabled={promoChecking}
-                    />
-                    {promoError ? (
-                      <p className="step-sub" style={{ marginTop: 8, color: "#ef4444" }}>
-                        {copy.s6_promo_invalid}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : null}
-                <WizardStepNav layout="single">
-                  <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s5")}>
-                    <span>{copy.btn_back}</span>
-                  </button>
-                </WizardStepNav>
-              </>
-            )}
+              </div>
+            ) : null}
+            <WizardStepNav layout="single">
+              <button type="button" className="btn-back btn-nav-secondary" onClick={() => goTo("s5")}>
+                <span>{copy.btn_back}</span>
+              </button>
+            </WizardStepNav>
           </div>
         </div>
       </div>
