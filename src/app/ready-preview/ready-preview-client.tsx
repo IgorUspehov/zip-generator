@@ -34,12 +34,14 @@ export function ReadyPreviewClient() {
           copy={{
             publicSiteLabel: "Ваш сайт для клиентов",
             publicSiteHint: "Эту ссылку размещайте в Google Maps, Instagram или на визитке.",
+            jobsLabel: "Страница вакансий",
+            jobsHint: "Отправьте эту ссылку соискателям",
+            bookingLabel: "Страница бронирования",
+            bookingHint: "Отправьте эту ссылку вашим клиентам",
             crmLabel: "Вход в вашу CRM",
             crmHint: "Личная админ-панель для вас — не для ваших клиентов.",
             copyLink: "Копировать ссылку",
             copied: "Скопировано!",
-            openJobs: "Вакансии",
-            openBooking: "Заявки / Бронирование",
             openCrm: "Открыть CRM",
           }}
         />

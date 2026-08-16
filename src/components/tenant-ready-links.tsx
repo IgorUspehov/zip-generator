@@ -7,12 +7,14 @@ import "@/client-wizard/styles.css";
 export type TenantReadyLinksCopy = {
   publicSiteLabel: string;
   publicSiteHint: string;
+  jobsLabel: string;
+  jobsHint: string;
+  bookingLabel: string;
+  bookingHint: string;
   crmLabel: string;
   crmHint: string;
   copyLink: string;
   copied: string;
-  openJobs: string;
-  openBooking: string;
   openCrm: string;
 };
 
@@ -91,7 +93,7 @@ function LinkBlock({
   );
 }
 
-/** Two equal, labeled share links: public /site/{slug} + CRM /demo/{slug}?clientId=… */
+/** Share links: public site, jobs, booking, and CRM login. */
 export function TenantReadyLinks({
   publicSiteUrl,
   crmUrl,
@@ -107,10 +109,20 @@ export function TenantReadyLinks({
         url={publicSiteUrl}
         copyLabel={copy.copyLink}
         copiedLabel={copy.copied}
-        openLinks={[
-          { label: copy.openJobs, href: joinSitePath(publicSiteUrl, "/job") },
-          { label: copy.openBooking, href: joinSitePath(publicSiteUrl, "/booking") },
-        ]}
+      />
+      <LinkBlock
+        label={copy.jobsLabel}
+        hint={copy.jobsHint}
+        url={joinSitePath(publicSiteUrl, "/job")}
+        copyLabel={copy.copyLink}
+        copiedLabel={copy.copied}
+      />
+      <LinkBlock
+        label={copy.bookingLabel}
+        hint={copy.bookingHint}
+        url={joinSitePath(publicSiteUrl, "/booking")}
+        copyLabel={copy.copyLink}
+        copiedLabel={copy.copied}
       />
       <LinkBlock
         label={copy.crmLabel}

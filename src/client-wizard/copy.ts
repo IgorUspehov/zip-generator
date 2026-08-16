@@ -61,10 +61,12 @@ export type CopyBundle = {
   s4_open: string;
   s4_public_site_label: string;
   s4_public_site_hint: string;
+  s4_jobs_label: string;
+  s4_jobs_hint: string;
+  s4_booking_label: string;
+  s4_booking_hint: string;
   s4_crm_label: string;
   s4_crm_hint: string;
-  s4_open_jobs: string;
-  s4_open_booking: string;
   s4_open_crm: string;
   build_steps: string[];
   s5_live: string;
@@ -163,10 +165,12 @@ const T: Record<UiLang, CopyBundle> = {
     s4_open: "Open CRM Demo",
     s4_public_site_label: "Your site for customers",
     s4_public_site_hint: "Put this link on Google Maps, Instagram, or your business card.",
+    s4_jobs_label: "Jobs page",
+    s4_jobs_hint: "Send this link to applicants",
+    s4_booking_label: "Booking page",
+    s4_booking_hint: "Send this link to your customers",
     s4_crm_label: "Your CRM login",
     s4_crm_hint: "Private admin panel for you — not for your customers.",
-    s4_open_jobs: "Jobs",
-    s4_open_booking: "Requests / Booking",
     s4_open_crm: "Open CRM",
     build_steps: [
       "Analysing your business",
@@ -291,10 +295,12 @@ const T: Record<UiLang, CopyBundle> = {
     s4_open: "CRM Demo öffnen",
     s4_public_site_label: "Ihre Website für Kunden",
     s4_public_site_hint: "Diesen Link in Google Maps, Instagram oder auf Ihre Visitenkarte setzen.",
+    s4_jobs_label: "Stellenangebote-Seite",
+    s4_jobs_hint: "Senden Sie diesen Link an Bewerber",
+    s4_booking_label: "Buchungsseite",
+    s4_booking_hint: "Senden Sie diesen Link an Ihre Kunden",
     s4_crm_label: "Ihr CRM-Zugang",
     s4_crm_hint: "Private Admin-Oberfläche für Sie — nicht für Ihre Kunden.",
-    s4_open_jobs: "Stellenangebote",
-    s4_open_booking: "Anfragen / Buchung",
     s4_open_crm: "CRM öffnen",
     build_steps: [
       "Analyse Ihres Unternehmens",
@@ -419,10 +425,12 @@ const T: Record<UiLang, CopyBundle> = {
     s4_open: "Открыть CRM Demo",
     s4_public_site_label: "Ваш сайт для клиентов",
     s4_public_site_hint: "Эту ссылку размещайте в Google Maps, Instagram или на визитке.",
+    s4_jobs_label: "Страница вакансий",
+    s4_jobs_hint: "Отправьте эту ссылку соискателям",
+    s4_booking_label: "Страница бронирования",
+    s4_booking_hint: "Отправьте эту ссылку вашим клиентам",
     s4_crm_label: "Вход в вашу CRM",
     s4_crm_hint: "Личная админ-панель для вас — не для ваших клиентов.",
-    s4_open_jobs: "Вакансии",
-    s4_open_booking: "Заявки / Бронирование",
     s4_open_crm: "Открыть CRM",
     build_steps: [
       "Анализ бизнеса",

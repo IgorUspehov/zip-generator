@@ -1512,12 +1512,14 @@ function ClientWizardFlow() {
                     copy={{
                       publicSiteLabel: copy.s4_public_site_label,
                       publicSiteHint: copy.s4_public_site_hint,
+                      jobsLabel: copy.s4_jobs_label,
+                      jobsHint: copy.s4_jobs_hint,
+                      bookingLabel: copy.s4_booking_label,
+                      bookingHint: copy.s4_booking_hint,
                       crmLabel: copy.s4_crm_label,
                       crmHint: copy.s4_crm_hint,
                       copyLink: copy.s4_copy_link,
                       copied: copy.s4_copied,
-                      openJobs: copy.s4_open_jobs,
-                      openBooking: copy.s4_open_booking,
                       openCrm: copy.s4_open_crm,
                     }}
                     publishingText={publishCountdownText}
