@@ -8,6 +8,11 @@ import { getGalleryImagePaths, getHeroImagePath } from "./lib/image-library.js";
 import { useCrmRecords, purgeSeedRecords, CRM_STORAGE_SECTIONS } from "./lib/useCrmRecords.js";
 import { syncCrmCatalogToApi, hydrateCrmCatalogFromApi } from "./lib/sync-crm-catalog.js";
 import {
+  fetchCrmVacancies,
+  createCrmVacancy,
+  deleteCrmVacancy,
+} from "./lib/sync-crm-vacancies.js";
+import {
   NICHE_CRM_PAGES,
   CLIENT_TABS,
   BOOKING_TABS,
@@ -2145,6 +2150,14 @@ export default function App() {
   const [editClientForm, setEditClientForm] = useState({ name: "", note: "", phone: "", visits: 0 });
   const [siteLeadBadge, setSiteLeadBadge] = useState(0);
   const [jobApplications, setJobApplications] = useState([]);
+  const [vacancies, setVacancies] = useState([]);
+  const [vacancyForm, setVacancyForm] = useState({
+    title: "",
+    description: "",
+    salary: "",
+    requirements: "",
+  });
+  const [vacancySaving, setVacancySaving] = useState(false);
   const displayClients = crmClientRecords;
 
   function handleAddCrmClient() {
@@ -2285,6 +2298,60 @@ export default function App() {
     mergeRemoteClients,
     mergeRemoteAppointments,
   ]);
+
+  // Vacancies: load from shared Firestore via Railway API / parent bridge.
+  useEffect(() => {
+    if (!bootClientId || holdCrmRecords) return undefined;
+    let cancelled = false;
+    (async () => {
+      const items = await fetchCrmVacancies(bootClientId);
+      if (!cancelled) setVacancies(Array.isArray(items) ? items : []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [bootClientId, holdCrmRecords]);
+
+  async function handleAddVacancy() {
+    if (!bootClientId || vacancySaving) return;
+    const title = vacancyForm.title.trim();
+    const description = vacancyForm.description.trim();
+    if (!title || !description) return;
+    setVacancySaving(true);
+    try {
+      const item = await createCrmVacancy(bootClientId, {
+        title,
+        description,
+        salary: vacancyForm.salary.trim() || undefined,
+        requirements: vacancyForm.requirements.trim() || undefined,
+      });
+      if (item && typeof item === "object") {
+        setVacancies((prev) => [item, ...prev.filter((v) => v.id !== item.id)]);
+        setVacancyForm({ title: "", description: "", salary: "", requirements: "" });
+      } else {
+        const refreshed = await fetchCrmVacancies(bootClientId);
+        setVacancies(Array.isArray(refreshed) ? refreshed : []);
+        setVacancyForm({ title: "", description: "", salary: "", requirements: "" });
+      }
+    } finally {
+      setVacancySaving(false);
+    }
+  }
+
+  async function handleDeleteVacancy(vacancyId) {
+    if (!bootClientId || !vacancyId) return;
+    const confirmMsg =
+      language === "ru"
+        ? "Удалить эту запись?"
+        : language === "de"
+          ? "Diesen Eintrag löschen?"
+          : "Delete this record?";
+    if (!window.confirm(confirmMsg)) return;
+    const ok = await deleteCrmVacancy(bootClientId, vacancyId);
+    if (ok) {
+      setVacancies((prev) => prev.filter((v) => v.id !== vacancyId));
+    }
+  }
 
   const assetSeedSource = getNicheScenario(effectiveBusinessType)?.records || {};
   const {
@@ -3286,6 +3353,102 @@ export default function App() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <h3 style={{ margin: 0 }}>{getPageLabel("vacancies", language, effectiveBusinessType)}</h3>
             </div>
+
+            <div style={{ marginBottom: "1.25rem", padding: "1rem", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#f8fafc" }}>
+              <div style={{ display: "grid", gap: "0.65rem", marginBottom: "0.75rem" }}>
+                <input
+                  placeholder={language === "ru" ? "Название должности *" : language === "de" ? "Stellenbezeichnung *" : "Job title *"}
+                  value={vacancyForm.title}
+                  onChange={(e) => setVacancyForm((f) => ({ ...f, title: e.target.value }))}
+                  style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }}
+                />
+                <textarea
+                  placeholder={language === "ru" ? "Описание *" : language === "de" ? "Beschreibung *" : "Description *"}
+                  value={vacancyForm.description}
+                  onChange={(e) => setVacancyForm((f) => ({ ...f, description: e.target.value }))}
+                  rows={3}
+                  style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem", resize: "vertical" }}
+                />
+                <input
+                  placeholder={language === "ru" ? "Зарплата (необязательно)" : language === "de" ? "Gehalt (optional)" : "Salary (optional)"}
+                  value={vacancyForm.salary}
+                  onChange={(e) => setVacancyForm((f) => ({ ...f, salary: e.target.value }))}
+                  style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem" }}
+                />
+                <textarea
+                  placeholder={language === "ru" ? "Требования (необязательно)" : language === "de" ? "Anforderungen (optional)" : "Requirements (optional)"}
+                  value={vacancyForm.requirements}
+                  onChange={(e) => setVacancyForm((f) => ({ ...f, requirements: e.target.value }))}
+                  rows={2}
+                  style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "0.5rem 0.75rem", fontSize: "1rem", resize: "vertical" }}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleAddVacancy}
+                disabled={vacancySaving || !vacancyForm.title.trim() || !vacancyForm.description.trim()}
+                style={{
+                  background: "var(--color-accent, #1d4ed8)",
+                  color: "var(--color-on-accent, #ffffff)",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "0.55rem 1rem",
+                  fontWeight: 700,
+                  cursor: vacancySaving ? "wait" : "pointer",
+                  opacity: vacancySaving || !vacancyForm.title.trim() || !vacancyForm.description.trim() ? 0.6 : 1,
+                }}
+              >
+                {language === "ru" ? "Добавить вакансию" : language === "de" ? "Stelle hinzufügen" : "Add vacancy"}
+              </button>
+            </div>
+
+            {vacancies.length === 0 ? (
+              <p style={{ color: "#64748b", margin: "0 0 1.5rem" }}>
+                {language === "ru" ? "Вакансий пока нет" : language === "de" ? "Noch keine Stellen" : "No vacancies yet"}
+              </p>
+            ) : (
+              <div style={{ display: "grid", gap: "0.75rem", marginBottom: "1.5rem" }}>
+                {vacancies.map((item) => (
+                  <div
+                    key={item.id}
+                    style={{
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "12px",
+                      padding: "1rem",
+                      background: "#fff",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "flex-start" }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <h4 style={{ margin: "0 0 0.35rem", color: "#0f172a", fontSize: "1.05rem" }}>{item.title}</h4>
+                        <p style={{ margin: "0 0 0.5rem", color: "#475569", whiteSpace: "pre-wrap" }}>{item.description}</p>
+                        {item.salary ? (
+                          <p style={{ margin: "0 0 0.25rem", color: "#0f172a", fontWeight: 600 }}>
+                            {language === "ru" ? "Зарплата" : language === "de" ? "Gehalt" : "Salary"}: {item.salary}
+                          </p>
+                        ) : null}
+                        {item.requirements ? (
+                          <p style={{ margin: 0, color: "#64748b", whiteSpace: "pre-wrap", fontSize: "0.92rem" }}>
+                            {language === "ru" ? "Требования" : language === "de" ? "Anforderungen" : "Requirements"}: {item.requirements}
+                          </p>
+                        ) : null}
+                      </div>
+                      <button
+                        type="button"
+                        style={crmDangerBtnStyle}
+                        onClick={() => handleDeleteVacancy(item.id)}
+                      >
+                        {t.delete}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <h4 style={{ margin: "0 0 0.75rem", color: "#0f172a" }}>
+              {language === "ru" ? "Отклики" : language === "de" ? "Bewerbungen" : "Applications"}
+            </h4>
             {jobApplications.length === 0 ? (
               <p style={{ color: "#64748b", margin: 0 }}>
                 {language === "ru" ? "Заявок пока нет" : language === "de" ? "Noch keine Bewerbungen" : "No applications yet"}

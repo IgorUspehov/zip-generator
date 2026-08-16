@@ -54,24 +54,93 @@ export function CrmLeadsBridge({ clientId, slug, shortId, iframeTitle }: CrmLead
       }
     };
 
+    const replyVacancy = (
+      requestId: string,
+      payload: { ok: boolean; item?: unknown },
+    ) => {
+      const frame = iframe();
+      frame?.contentWindow?.postMessage(
+        { type: "CRM_VACANCY_RESULT", requestId, ...payload },
+        "*",
+      );
+    };
+
     const onMessage = (event: MessageEvent) => {
       const data = event?.data;
-      if (!data || data.type !== "CRM_CATALOG_PUSH") return;
-      if (data.clientId !== clientId) return;
-      if (!Array.isArray(data.items)) return;
-      void (async () => {
-        try {
-          await ensureSession();
-          await fetch(`/api/crm/catalog/${encodeURIComponent(clientId)}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            credentials: "same-origin",
-            body: JSON.stringify({ items: data.items }),
-          });
-        } catch {
-          /* ignore */
-        }
-      })();
+      if (!data || data.clientId !== clientId) return;
+
+      if (data.type === "CRM_CATALOG_PUSH") {
+        if (!Array.isArray(data.items)) return;
+        void (async () => {
+          try {
+            await ensureSession();
+            await fetch(`/api/crm/catalog/${encodeURIComponent(clientId)}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              credentials: "same-origin",
+              body: JSON.stringify({ items: data.items }),
+            });
+          } catch {
+            /* ignore */
+          }
+        })();
+        return;
+      }
+
+      if (data.type === "CRM_VACANCY_CREATE") {
+        const requestId = String(data.requestId || "");
+        void (async () => {
+          try {
+            await ensureSession();
+            const res = await fetch(
+              `/api/crm/vacancies/${encodeURIComponent(clientId)}`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({
+                  title: data.title,
+                  description: data.description,
+                  salary: data.salary,
+                  requirements: data.requirements,
+                }),
+              },
+            );
+            const json = (await res.json().catch(() => ({}))) as {
+              ok?: boolean;
+              item?: unknown;
+            };
+            replyVacancy(requestId, {
+              ok: res.ok && json.ok === true,
+              item: json.item,
+            });
+          } catch {
+            replyVacancy(requestId, { ok: false });
+          }
+        })();
+        return;
+      }
+
+      if (data.type === "CRM_VACANCY_DELETE") {
+        const requestId = String(data.requestId || "");
+        void (async () => {
+          try {
+            await ensureSession();
+            const res = await fetch(
+              `/api/crm/vacancies/${encodeURIComponent(clientId)}`,
+              {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({ id: data.id }),
+              },
+            );
+            replyVacancy(requestId, { ok: res.ok });
+          } catch {
+            replyVacancy(requestId, { ok: false });
+          }
+        })();
+      }
     };
 
     window.addEventListener("message", onMessage);
