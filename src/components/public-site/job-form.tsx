@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 type JobFormProps = {
   clientId: string;
@@ -11,64 +11,67 @@ type JobFormProps = {
 type VacancyOption = {
   id: string;
   title: string;
-  salary?: string;
+  salary: string;
 };
 
 const COPY = {
   de: {
     title: "Wir suchen Mitarbeiter",
     subtitle: "Bewerben Sie sich jetzt",
+    position: "Position",
+    salary: "Gehalt",
     name: "Vollständiger Name",
     phone: "Telefon",
-    position: "Position",
-    positionPlaceholder: "Position wählen",
-    salary: "Gehalt",
-    experience: "Erfahrung (optional)",
-    cta: "Jetzt bewerben",
+    cta: "Bewerbung senden",
     success: "Bewerbung eingegangen! Wir melden uns bald.",
     sending: "Senden…",
-    loading: "Stellen werden geladen…",
-    noVacancies: "Derzeit keine offenen Stellen.",
+    loading: "Laden…",
+    empty: "Вакансий пока нет",
+    selectPosition: "Position wählen",
+    selectSalary: "Gehalt wählen",
     errorRequired: "Bitte alle Pflichtfelder ausfüllen.",
     errorGeneric: "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
   },
   ru: {
     title: "Вакансии",
     subtitle: "Отправьте заявку",
+    position: "Должность",
+    salary: "Ставка",
     name: "Полное имя",
     phone: "Телефон",
-    position: "Должность",
-    positionPlaceholder: "Выберите должность",
-    salary: "Ставка",
-    experience: "Опыт работы (необязательно)",
     cta: "Отправить заявку",
     success: "Заявка принята! Скоро свяжемся.",
     sending: "Отправка…",
-    loading: "Загрузка вакансий…",
-    noVacancies: "Сейчас нет открытых вакансий.",
+    loading: "Загрузка…",
+    empty: "Вакансий пока нет",
+    selectPosition: "Выберите должность",
+    selectSalary: "Выберите ставку",
     errorRequired: "Заполните обязательные поля.",
     errorGeneric: "Что-то пошло не так. Попробуйте ещё раз.",
   },
   en: {
     title: "We Are Hiring",
     subtitle: "Apply now",
+    position: "Position",
+    salary: "Rate",
     name: "Full name",
     phone: "Phone",
-    position: "Position",
-    positionPlaceholder: "Select a position",
-    salary: "Rate",
-    experience: "Experience (optional)",
-    cta: "Apply Now",
+    cta: "Submit application",
     success: "Application received! We'll be in touch.",
     sending: "Sending…",
-    loading: "Loading positions…",
-    noVacancies: "No open positions right now.",
+    loading: "Loading…",
+    empty: "Вакансий пока нет",
+    selectPosition: "Select position",
+    selectSalary: "Select rate",
     errorRequired: "Please fill in all required fields.",
     errorGeneric: "Something went wrong. Please try again.",
   },
 } as const;
 
 type JobLang = keyof typeof COPY;
+
+const fieldClassName =
+  "rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400";
 
 function normalizeJobLang(language: string): JobLang {
   const code = language.trim().toLowerCase().slice(0, 2);
@@ -85,66 +88,89 @@ export function JobForm({
   const t = COPY[lang];
 
   const [vacancies, setVacancies] = useState<VacancyOption[]>([]);
-  const [loadingVacancies, setLoadingVacancies] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [vacancyId, setVacancyId] = useState("");
+  const [salary, setSalary] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [position, setPosition] = useState("");
-  const [experience, setExperience] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    setLoadingVacancies(true);
-    fetch(`/api/crm/vacancies/${encodeURIComponent(clientId)}`, {
-      cache: "no-store",
-    })
-      .then(async (res) => {
+    setLoading(true);
+    void (async () => {
+      try {
+        const res = await fetch(
+          `/api/crm/vacancies/${encodeURIComponent(clientId)}`,
+          { cache: "no-store" },
+        );
         const data = (await res.json().catch(() => ({}))) as {
           ok?: boolean;
           items?: Array<{
-            id?: string;
-            title?: string;
-            salary?: string;
+            id?: unknown;
+            title?: unknown;
+            salary?: unknown;
           }>;
         };
-        if (!res.ok || data.ok !== true || !Array.isArray(data.items)) {
-          return [] as VacancyOption[];
-        }
-        return data.items
-          .map((item) => {
-            const title = String(item.title || "").trim();
-            if (!title) return null;
-            const salary = String(item.salary || "").trim();
-            return {
-              id: String(item.id || title),
-              title,
-              ...(salary ? { salary } : {}),
-            } satisfies VacancyOption;
-          })
-          .filter((item): item is VacancyOption => Boolean(item));
-      })
-      .catch(() => [] as VacancyOption[])
-      .then((items) => {
         if (cancelled) return;
-        setVacancies(items);
-        setLoadingVacancies(false);
-      });
+        const items = Array.isArray(data.items) ? data.items : [];
+        setVacancies(
+          items
+            .map((item) => {
+              const id = typeof item.id === "string" ? item.id.trim() : "";
+              const title =
+                typeof item.title === "string" ? item.title.trim() : "";
+              const salaryValue =
+                typeof item.salary === "string" ? item.salary.trim() : "";
+              if (!id || !title) return null;
+              return { id, title, salary: salaryValue };
+            })
+            .filter((item): item is VacancyOption => Boolean(item)),
+        );
+      } catch {
+        if (!cancelled) setVacancies([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
     return () => {
       cancelled = true;
     };
   }, [clientId]);
 
-  const selected = vacancies.find((item) => item.title === position);
+  const selectedVacancy = useMemo(
+    () => vacancies.find((item) => item.id === vacancyId) ?? null,
+    [vacancies, vacancyId],
+  );
+
+  const salaryOptions = useMemo(() => {
+    if (!selectedVacancy?.salary) return [] as string[];
+    return [selectedVacancy.salary];
+  }, [selectedVacancy]);
+
+  function onVacancyChange(nextId: string) {
+    setVacancyId(nextId);
+    const next = vacancies.find((item) => item.id === nextId);
+    setSalary(next?.salary ?? "");
+    setError("");
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError("");
-    if (!name.trim() || !phone.trim() || !position.trim()) {
+
+    const position = selectedVacancy?.title?.trim() ?? "";
+    if (!position || !name.trim() || !phone.trim()) {
       setError(t.errorRequired);
       return;
     }
+    if (salaryOptions.length > 0 && !salary.trim()) {
+      setError(t.errorRequired);
+      return;
+    }
+
     setSending(true);
     try {
       const res = await fetch(`/api/job-leads/${encodeURIComponent(clientId)}`, {
@@ -153,9 +179,8 @@ export function JobForm({
         body: JSON.stringify({
           name: name.trim(),
           phone: phone.trim(),
-          position: position.trim(),
-          salary: selected?.salary || undefined,
-          experience: experience.trim() || undefined,
+          position,
+          salary: salary.trim() || undefined,
           language: lang,
         }),
       });
@@ -168,10 +193,10 @@ export function JobForm({
         return;
       }
       setSuccess(true);
+      setVacancyId("");
+      setSalary("");
       setName("");
       setPhone("");
-      setPosition("");
-      setExperience("");
     } catch {
       setError(t.errorGeneric);
     } finally {
@@ -189,6 +214,25 @@ export function JobForm({
     );
   }
 
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-lg rounded-3xl border border-white/15 bg-white/10 p-6 shadow-xl backdrop-blur">
+        <p className="text-sm text-slate-300">{t.loading}</p>
+      </div>
+    );
+  }
+
+  if (vacancies.length === 0) {
+    return (
+      <div className="mx-auto max-w-lg rounded-3xl border border-white/15 bg-white/10 p-6 shadow-xl backdrop-blur">
+        <h2 className="text-2xl font-black text-white">{t.title}</h2>
+        <p className="mt-3 text-base text-slate-200" role="status">
+          {t.empty}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <form
       onSubmit={onSubmit}
@@ -198,15 +242,58 @@ export function JobForm({
       <p className="mt-1 text-sm text-slate-300">{t.subtitle}</p>
       <div className="mt-5 grid gap-3">
         <label className="grid gap-1 text-sm text-slate-200">
+          {t.position} *
+          <select
+            value={vacancyId}
+            onChange={(e) => onVacancyChange(e.target.value)}
+            required
+            className={fieldClassName}
+          >
+            <option value="">{t.selectPosition}</option>
+            {vacancies.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.title}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="grid gap-1 text-sm text-slate-200">
+          {t.salary}
+          {salaryOptions.length > 0 ? " *" : ""}
+          <select
+            value={salary}
+            onChange={(e) => setSalary(e.target.value)}
+            required={salaryOptions.length > 0}
+            disabled={!vacancyId || salaryOptions.length === 0}
+            className={`${fieldClassName} disabled:opacity-50`}
+          >
+            <option value="">
+              {!vacancyId
+                ? t.selectPosition
+                : salaryOptions.length === 0
+                  ? "—"
+                  : t.selectSalary}
+            </option>
+            {salaryOptions.map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="grid gap-1 text-sm text-slate-200">
           {t.name} *
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
             maxLength={120}
-            className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
+            className={fieldClassName}
           />
         </label>
+
         <label className="grid gap-1 text-sm text-slate-200">
           {t.phone} *
           <input
@@ -216,56 +303,21 @@ export function JobForm({
             required
             maxLength={40}
             inputMode="tel"
-            className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
-          />
-        </label>
-        <label className="grid gap-1 text-sm text-slate-200">
-          {t.position} *
-          <select
-            value={position}
-            onChange={(e) => setPosition(e.target.value)}
-            required
-            disabled={loadingVacancies || vacancies.length === 0}
-            className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400 disabled:opacity-60"
-          >
-            <option value="">
-              {loadingVacancies ? t.loading : t.positionPlaceholder}
-            </option>
-            {vacancies.map((item) => (
-              <option key={item.id} value={item.title}>
-                {item.salary ? `${item.title} — ${item.salary}` : item.title}
-              </option>
-            ))}
-          </select>
-        </label>
-        {!loadingVacancies && vacancies.length === 0 ? (
-          <p className="text-sm text-slate-300">{t.noVacancies}</p>
-        ) : null}
-        {selected?.salary ? (
-          <p className="text-sm font-semibold text-orange-200">
-            {t.salary}: {selected.salary}
-          </p>
-        ) : null}
-        <label className="grid gap-1 text-sm text-slate-200">
-          {t.experience}
-          <textarea
-            value={experience}
-            onChange={(e) => setExperience(e.target.value)}
-            maxLength={2000}
-            rows={3}
-            className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
+            className={fieldClassName}
           />
         </label>
       </div>
+
       {error ? (
         <p className="mt-3 text-sm font-semibold text-rose-300" role="alert">
           {error}
         </p>
       ) : null}
+
       <div className="mt-5">
         <button
           type="submit"
-          disabled={sending || loadingVacancies || vacancies.length === 0}
+          disabled={sending}
           className="rounded-2xl px-5 py-3 text-base font-black text-white disabled:opacity-60"
           style={{ background: accent }}
         >
