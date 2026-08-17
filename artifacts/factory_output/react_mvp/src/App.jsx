@@ -3080,45 +3080,6 @@ export default function App() {
             }}
           >
             <span style={{ textAlign: "center", maxWidth: "42rem" }}>{t.paywallText}</span>
-            <a
-              href={demoCheckoutUrl || mvpUrl}
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                background: "#22c55e",
-                color: "#052e16",
-                fontWeight: 700,
-                textDecoration: "none",
-                borderRadius: "999px",
-                padding: "0.4rem 1rem",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {t.paywallCta}
-            </a>
-            <a
-              href={`${manifestApiBaseForBridge}/pay`}
-              target="_blank"
-              rel="noreferrer"
-              onClick={(event) => {
-                event.preventDefault();
-                const params = new URLSearchParams();
-                params.set("demo_url", window.location.href);
-                if (bootClientId) params.set("client_id", bootClientId);
-                window.open(`${manifestApiBaseForBridge}/pay?${params.toString()}`, "_blank");
-              }}
-              style={{
-                background: "#f8fafc",
-                color: "#0f172a",
-                fontWeight: 700,
-                textDecoration: "none",
-                borderRadius: "999px",
-                padding: "0.4rem 1rem",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {t.paywallPromoCta}
-            </a>
           </div>
         </>
       ) : null}
