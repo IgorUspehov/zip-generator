@@ -4,7 +4,7 @@ import { findPendingByClientId } from "@/lib/cloudflare/scheduler";
 import { getCheckoutReference } from "@/lib/polar/checkout-reference-store";
 
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://saas-mvp-funnel-production.up.railway.app";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://webstudio-muenchen.com";
 
 const CACHE_LOOKUP_RETRIES = 6;
 const CACHE_LOOKUP_DELAY_MS = 400;

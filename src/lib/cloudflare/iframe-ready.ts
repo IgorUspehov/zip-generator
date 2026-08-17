@@ -1,4 +1,7 @@
-/** Legacy Railway production origin (still used for iframe embeds). */
+/** Canonical public origin (Render + custom domain). */
+export const DEFAULT_PUBLIC_ORIGIN = "https://webstudio-muenchen.com";
+
+/** Legacy Railway production origin (kept for CSP / old bookmarks). */
 export const DEFAULT_RAILWAY_ORIGIN =
   "https://saas-mvp-funnel-production.up.railway.app";
 
@@ -6,12 +9,12 @@ export const DEFAULT_RAILWAY_ORIGIN =
 export const CUSTOM_SITE_FRAME_ANCESTOR = "https://webstudio-muenchen.com";
 
 /**
- * Current public site origin (env override or Railway default).
+ * Current public site origin (env override or production default).
  * Prefer FRAME_ANCESTORS when writing CSP — Live Preview must work from both hosts.
  */
 export const RAILWAY_FRAME_ANCESTOR =
   process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "") ||
-  DEFAULT_RAILWAY_ORIGIN;
+  DEFAULT_PUBLIC_ORIGIN;
 
 /**
  * All parents allowed to embed the Cloudflare Pages CRM iframe.

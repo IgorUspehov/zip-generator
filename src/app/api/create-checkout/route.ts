@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     ensureLemonSqueezyConfigured();
 
     const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ?? "https://saas-mvp-funnel-production.up.railway.app";
+      process.env.NEXT_PUBLIC_SITE_URL ?? "https://webstudio-muenchen.com";
 
     const result = await createCheckout(storeId, variantId, {
       productOptions: {

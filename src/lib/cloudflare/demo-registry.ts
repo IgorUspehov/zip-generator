@@ -2,6 +2,10 @@ import fs from "fs";
 import path from "path";
 
 import { resolvePersistentDataDir } from "@/lib/site-delivery/data-dir";
+import {
+  readCachedDemoRegistry,
+  writeCachedDemoRegistry,
+} from "@/lib/runtime-session-store";
 
 export type DemoSiteRecord = {
   slug: string;
@@ -18,7 +22,7 @@ function getDemoRegistryPath(): string {
   return path.join(resolvePersistentDataDir(), "demo-registry.json");
 }
 
-function readRegistry(): DemoSiteRecord[] {
+function readRegistryFromDisk(): DemoSiteRecord[] {
   const filePath = getDemoRegistryPath();
   if (!fs.existsSync(filePath)) return [];
   try {
@@ -29,10 +33,32 @@ function readRegistry(): DemoSiteRecord[] {
   }
 }
 
-function writeRegistry(entries: DemoSiteRecord[]): void {
+function writeRegistryToDisk(entries: DemoSiteRecord[]): void {
   const filePath = getDemoRegistryPath();
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, `${JSON.stringify(entries, null, 2)}\n`, "utf8");
+}
+
+function readRegistry(): DemoSiteRecord[] {
+  const cached = readCachedDemoRegistry();
+  if (cached) {
+    return cached;
+  }
+  const fromDisk = readRegistryFromDisk();
+  writeCachedDemoRegistry(fromDisk);
+  return fromDisk;
+}
+
+function writeRegistry(entries: DemoSiteRecord[]): void {
+  writeCachedDemoRegistry(entries);
+  try {
+    writeRegistryToDisk(entries);
+  } catch (error) {
+    console.warn("[demo-registry] disk write failed — using memory only", {
+      message: error instanceof Error ? error.message : String(error),
+      entries: entries.length,
+    });
+  }
 }
 
 export function upsertDemoRecord(record: DemoSiteRecord): void {

@@ -7,7 +7,7 @@
     "image-library:bootstrap": "node scripts/bootstrap-image-library.mjs",
     "smoke:factory-crm": "npx tsx scripts/smoke-factory-crm-bootstrap.mjs",
     "react-mvp:install": "npm install --prefix artifacts/factory_output/react_mvp",
-    "react-mvp:build": "npm run build --prefix artifacts/factory_output/react_mvp",
+    "react-mvp:build": "VITE_MANIFEST_API_BASE=https://webstudio-muenchen.com npm run build --prefix artifacts/factory_output/react_mvp",
     "dev:client-funnel": "next dev -p 3001",
     "generate:presentation": "node scripts/generate-presentation.mjs",
     "domain:sync": "node scripts/sync-domain-pipeline.mjs",

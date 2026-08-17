@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
   const site =
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "https://saas-mvp-funnel-production.up.railway.app";
+    "https://webstudio-muenchen.com";
 
   try {
     const polar = new Polar({ accessToken: token });

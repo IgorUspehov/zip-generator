@@ -9,7 +9,7 @@ function apiBase(options = {}) {
     import.meta.env.VITE_MANIFEST_API_BASE ||
     (typeof window !== "undefined" && window.location?.origin?.includes("127.0.0.1")
       ? "http://127.0.0.1:3000"
-      : "https://saas-mvp-funnel-production.up.railway.app")
+      : "https://webstudio-muenchen.com")
   );
 }
 

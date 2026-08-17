@@ -495,6 +495,7 @@ async function waitForPagesEdgeReady(siteUrl: string, timeoutMs = 120_000): Prom
 export function resolveMvpDistPath(): string {
   const candidates = [
     process.env.MVP_DIST_PATH,
+    path.join(process.cwd(), "client-template/dist"),
     path.join(process.cwd(), "artifacts/factory_output/react_mvp/dist"),
     path.join(process.cwd(), "mvp-template/dist"),
   ].filter((value): value is string => Boolean(value));

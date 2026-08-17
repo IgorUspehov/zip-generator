@@ -1905,7 +1905,7 @@ export default function App() {
 
     const manifestApiBase =
       import.meta.env.VITE_MANIFEST_API_BASE ||
-      "https://saas-mvp-funnel-production.up.railway.app";
+      "https://webstudio-muenchen.com";
     let cancelled = false;
 
     const checkAccess = async () => {
@@ -1973,7 +1973,7 @@ export default function App() {
   useEffect(() => {
     const manifestApiBase =
       import.meta.env.VITE_MANIFEST_API_BASE ||
-      "https://saas-mvp-funnel-production.up.railway.app";
+      "https://webstudio-muenchen.com";
     const controller = new AbortController();
 
     const loadConfig = async () => {
@@ -2258,7 +2258,7 @@ export default function App() {
     if (leadsToken) {
       const manifestApiBase =
         import.meta.env.VITE_MANIFEST_API_BASE ||
-        "https://saas-mvp-funnel-production.up.railway.app";
+        "https://webstudio-muenchen.com";
       const syncLeads = async () => {
         try {
           const response = await fetch(
@@ -2736,7 +2736,7 @@ export default function App() {
   const integrationsCopy = INTEGRATIONS_UI_COPY[language] || INTEGRATIONS_UI_COPY.en;
   const manifestApiBaseForBridge =
     import.meta.env.VITE_MANIFEST_API_BASE ||
-    "https://saas-mvp-funnel-production.up.railway.app";
+    "https://webstudio-muenchen.com";
   const factoryBridgeHref = buildFactoryBridgeHref({
     apiBase: manifestApiBaseForBridge,
     clientId: bootClientId,

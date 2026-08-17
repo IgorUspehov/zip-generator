@@ -80,7 +80,7 @@ export function syncCrmCatalogToApi(clientId, records, options = {}) {
     import.meta.env.VITE_MANIFEST_API_BASE ||
     (typeof window !== "undefined" && window.location?.origin?.includes("127.0.0.1")
       ? "http://127.0.0.1:3000"
-      : "https://saas-mvp-funnel-production.up.railway.app");
+      : "https://webstudio-muenchen.com");
 
   void fetch(`${base}/api/crm/catalog/${encodeURIComponent(clientId)}`, {
     method: "PUT",
@@ -103,7 +103,7 @@ export async function hydrateCrmCatalogFromApi(clientId, options = {}) {
     import.meta.env.VITE_MANIFEST_API_BASE ||
     (window.location?.origin?.includes("127.0.0.1")
       ? "http://127.0.0.1:3000"
-      : "https://saas-mvp-funnel-production.up.railway.app");
+      : "https://webstudio-muenchen.com");
   try {
     const res = await fetch(
       `${base}/api/crm/catalog/${encodeURIComponent(clientId)}?lang=${options.lang || "en"}`,
