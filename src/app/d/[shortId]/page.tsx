@@ -1,5 +1,5 @@
 import { CrmLeadsBridge } from "@/components/crm-leads-bridge";
-import { DemoUnpaidBanner } from "@/components/demo-unpaid-banner";
+import { DemoSiteFrame } from "@/components/demo-site-frame";
 import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
 import { buildDemoEmbedSrc } from "@/lib/cloudflare/demo-embed";
 import { findDemoByShortId } from "@/lib/cloudflare/demo-registry";
@@ -35,41 +35,22 @@ export default async function ShortDemoPage({ params }: ShortDemoPageProps) {
   /** Outer banner → tariff chooser (not Polar directly). */
   const checkoutUrl = access.checkoutUrl;
   const src = buildDemoEmbedSrc(record);
-  const bannerOffset = unpaid ? 52 : 0;
-
   const iframeTitle = `Website + CRM + Booking ${shortId}`;
 
   return (
     <>
-      {unpaid ? (
-        <DemoUnpaidBanner
-          clientId={record.clientId}
-          checkoutUrl={checkoutUrl}
-          language={language}
-        />
-      ) : null}
       <CrmLeadsBridge
         clientId={record.clientId}
         shortId={shortId}
         iframeTitle={iframeTitle}
       />
-      <iframe
-        title={iframeTitle}
-        src={src}
-        style={{
-          position: "fixed",
-          top: bannerOffset,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: "100%",
-          height: `calc(100% - ${bannerOffset}px)`,
-          border: 0,
-          margin: 0,
-          padding: 0,
-        }}
-        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-modals"
-        allow="clipboard-write"
+      <DemoSiteFrame
+        unpaid={unpaid}
+        clientId={record.clientId}
+        checkoutUrl={checkoutUrl}
+        language={language}
+        iframeSrc={src}
+        iframeTitle={iframeTitle}
       />
     </>
   );

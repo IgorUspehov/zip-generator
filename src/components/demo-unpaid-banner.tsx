@@ -71,11 +71,7 @@ export function DemoUnpaidBanner({ clientId, checkoutUrl, language }: DemoUnpaid
   return (
     <div
       style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 2147483646,
+        flexShrink: 0,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

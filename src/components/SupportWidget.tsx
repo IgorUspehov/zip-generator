@@ -15,12 +15,20 @@ import { supportWidgetCopy } from "@/lib/i18n/support-widget-copy";
 const TELEGRAM_URL = "https://t.me/Ihor_Kriazhev";
 const WHATSAPP_URL = "https://wa.me/4915258400610";
 
+function shouldHideSupportWidget(pathname: string, framed: boolean): boolean {
+  if (framed || !pathname) return true;
+  if (pathname.includes("/client") || pathname.includes("/demo")) return true;
+  if (pathname === "/d" || pathname.startsWith("/d/")) return true;
+  return false;
+}
+
 export function SupportWidget() {
   const { locale } = useTranslation();
   const copy = supportWidgetCopy[locale] ?? supportWidgetCopy.de;
   const [open, setOpen] = useState(false);
   const titleId = useId();
   const [pathname, setPathname] = useState("");
+  const [framed, setFramed] = useState(true);
 
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
@@ -46,6 +54,7 @@ export function SupportWidget() {
 
   useEffect(() => {
     setPathname(window.location.pathname);
+    setFramed(window.self !== window.top);
   }, []);
 
   useEffect(() => {
@@ -68,7 +77,7 @@ export function SupportWidget() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  if (pathname.includes("/client") || pathname.includes("/demo")) {
+  if (shouldHideSupportWidget(pathname, framed)) {
     return null;
   }
 
