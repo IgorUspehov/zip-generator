@@ -105,7 +105,18 @@ function CopyableFormLink({
 
   return (
     <div style={rowStyle}>
-      <span style={labelStyle}>{label} —</span>
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+          style={{ ...copyBtnStyle, textDecoration: "none" }}
+        >
+          {label}
+        </a>
+      ) : (
+        <span style={labelStyle}>{label}</span>
+      )}
       {href ? (
         <input
           type="text"
