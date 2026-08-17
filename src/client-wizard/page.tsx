@@ -36,7 +36,7 @@ const PAYMENT_POLL_MAX_ATTEMPTS = 20;
 const LIVE_PREVIEW_PROBE_INTERVAL_MS = 2_000;
 const LIVE_PREVIEW_PROBE_MAX_ATTEMPTS = 60;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const BUILD_COUNTDOWN_SEC = 30;
+const BUILD_COUNTDOWN_SEC = 45;
 
 function formatBuildCountdown(secondsLeft: number): string {
   const clamped = Math.max(0, Math.min(BUILD_COUNTDOWN_SEC, secondsLeft));
