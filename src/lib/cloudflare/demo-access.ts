@@ -5,7 +5,7 @@ import {
   buildReadablePublicSiteUrl,
 } from "@/lib/cloudflare/shared-project";
 import { POLAR_CHECKOUT_WEBSTUDIO_199 } from "@/lib/polar/constants";
-import { buildTariffsPageUrl } from "@/lib/tariffs/urls";
+import { buildTariffsPagePath } from "@/lib/tariffs/urls";
 
 export type DemoAccessStatus = {
   clientId: string;
@@ -40,7 +40,9 @@ export function buildCrmDemoCheckoutUrl(clientId: string): string {
 export function resolveDemoAccess(clientId: string): DemoAccessStatus {
   const id = String(clientId ?? "").trim();
   const polarCheckoutUrl = buildCrmDemoCheckoutUrl(id);
-  const checkoutUrl = buildTariffsPageUrl({ clientId: id });
+  // Relative path — always stays on the current host (Render / custom domain).
+  // Absolute NEXT_PUBLIC_SITE_URL is bake-time and used to leak Railway after migrations.
+  const checkoutUrl = buildTariffsPagePath({ clientId: id });
 
   if (!id) {
     return {

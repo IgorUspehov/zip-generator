@@ -34,14 +34,26 @@ function normalizeLang(language: string | undefined): keyof typeof COPY {
   return "de";
 }
 
-/** Top bar for unpaid CRM demos on Railway /demo and /d routes. */
-export function DemoUnpaidBanner({ checkoutUrl, language }: DemoUnpaidBannerProps) {
+/** Top bar for unpaid CRM demos on /demo and /d routes. */
+export function DemoUnpaidBanner({ clientId, checkoutUrl, language }: DemoUnpaidBannerProps) {
   const [lang, setLang] = useState(() => normalizeLang(language));
+  const [promoHref, setPromoHref] = useState("/pay");
   const copy = COPY[lang];
 
   useEffect(() => {
     setLang(normalizeLang(language));
   }, [language]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (typeof window !== "undefined") {
+      params.set("demo_url", window.location.href);
+    }
+    if (clientId) {
+      params.set("client_id", clientId);
+    }
+    setPromoHref(`/pay?${params.toString()}`);
+  }, [clientId]);
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
@@ -95,7 +107,7 @@ export function DemoUnpaidBanner({ checkoutUrl, language }: DemoUnpaidBannerProp
         {copy.cta}
       </a>
       <a
-        href="/client"
+        href={promoHref}
         style={{
           background: "#f8fafc",
           color: "#0f172a",

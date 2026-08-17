@@ -23,7 +23,9 @@ export function buildTariffsPageUrl(
   siteOrigin?: string,
 ): string {
   const path = buildTariffsPagePath(ctx);
-  const origin = (siteOrigin || process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+  // Same-host relative by default. Pass siteOrigin only for emails / cross-origin links.
+  // Do NOT fall back to NEXT_PUBLIC_SITE_URL here — it is bake-time and may still be Railway.
+  const origin = (siteOrigin || "").replace(/\/$/, "");
   return origin ? `${origin}${path}` : path;
 }
 

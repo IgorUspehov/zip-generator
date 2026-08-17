@@ -3097,9 +3097,16 @@ export default function App() {
               {t.paywallCta}
             </a>
             <a
-              href={`${manifestApiBaseForBridge}/client`}
-              target="_top"
+              href={`${manifestApiBaseForBridge}/pay`}
+              target="_blank"
               rel="noreferrer"
+              onClick={(event) => {
+                event.preventDefault();
+                const params = new URLSearchParams();
+                params.set("demo_url", window.location.href);
+                if (bootClientId) params.set("client_id", bootClientId);
+                window.open(`${manifestApiBaseForBridge}/pay?${params.toString()}`, "_blank");
+              }}
               style={{
                 background: "#f8fafc",
                 color: "#0f172a",

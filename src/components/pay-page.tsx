@@ -117,16 +117,23 @@ export function PayPageContent() {
   const promoApplied = promoInput.trim().toLowerCase() === PROMO_CODE;
 
   function handlePay() {
-    if (!canCheckout) {
-      setError(t.missingParams);
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
+    // Promo unlock: only needs a valid demo URL (banner → /pay?demo_url=…).
     if (promoApplied) {
+      if (!hasValidDemoUrl) {
+        setLoading(false);
+        setError(t.missingDemoUrl);
+        return;
+      }
       window.location.href = demoUrl;
+      return;
+    }
+
+    if (!canCheckout) {
+      setLoading(false);
+      setError(t.missingParams);
       return;
     }
 
@@ -181,7 +188,7 @@ export function PayPageContent() {
             <button
               type="button"
               onClick={() => handlePay()}
-              disabled={!canCheckout || loading}
+              disabled={loading || (!promoApplied && !canCheckout) || (promoApplied && !hasValidDemoUrl)}
               className={actionButtonClass}
             >
               {loading ? t.redirecting : promoApplied ? t.freeButton : t.payButton}
