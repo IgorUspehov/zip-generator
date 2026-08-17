@@ -56,6 +56,7 @@ export type CopyBundle = {
   s4_generating: string;
   s4_ready: string;
   s4_publishing: string;
+  s4_countdown_finishing: string;
   s4_copy_link: string;
   s4_copied: string;
   s4_open: string;
@@ -157,6 +158,7 @@ const T: Record<UiLang, CopyBundle> = {
     s4_generating: "Generating your CRM Demo...",
     s4_ready: "Your CRM Demo is ready",
     s4_publishing: "⏳ CRM Demo is publishing... {n} sec left",
+    s4_countdown_finishing: "Almost ready… finishing up",
     s4_copy_link: "Copy link",
     s4_copied: "Copied!",
     s4_open: "Open CRM Demo",
@@ -284,6 +286,7 @@ const T: Record<UiLang, CopyBundle> = {
     s4_generating: "Wir erstellen Ihr CRM Demo...",
     s4_ready: "Ihr CRM Demo ist bereit",
     s4_publishing: "⏳ CRM Demo wird veröffentlicht... noch {n} Sek",
+    s4_countdown_finishing: "Gleich fertig… letzter Schritt",
     s4_copy_link: "Link kopieren",
     s4_copied: "Kopiert!",
     s4_open: "CRM Demo öffnen",
@@ -411,6 +414,7 @@ const T: Record<UiLang, CopyBundle> = {
     s4_generating: "Генерируем ваш CRM Demo...",
     s4_ready: "Ваш CRM Demo готов",
     s4_publishing: "⏳ CRM Demo публикуется... осталось {n} сек",
+    s4_countdown_finishing: "Почти готово… завершаем сборку",
     s4_copy_link: "Копировать ссылку",
     s4_copied: "Скопировано!",
     s4_open: "Открыть CRM Demo",

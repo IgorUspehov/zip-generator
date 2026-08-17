@@ -77,10 +77,10 @@ const urlInputStyle: CSSProperties = {
 
 const copyBtnStyle: CSSProperties = {
   flexShrink: 0,
-  border: "1px solid #475569",
+  border: "1px solid #ea580c",
   borderRadius: 8,
-  background: "#334155",
-  color: "#f8fafc",
+  background: "#f97316",
+  color: "#111827",
   fontWeight: 700,
   fontSize: "0.75rem",
   padding: "0.35rem 0.65rem",

@@ -3309,23 +3309,13 @@ export default function App() {
             )}
 
             <div className="mvp-ready-compact">
-              {isUnpaidDemo ? (
-                <a
-                  href={demoCheckoutUrl || mvpUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {t.paywallCta}
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  className="mvp-ready-compact-btn"
-                  onClick={() => setActiveTab("integrations")}
-                >
-                  {t.openIntegrations}
-                </button>
-              )}
+              <button
+                type="button"
+                className="mvp-ready-compact-btn"
+                onClick={() => setActiveTab("integrations")}
+              >
+                {t.openIntegrations}
+              </button>
             </div>
           </>
         )}

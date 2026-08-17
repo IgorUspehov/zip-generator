@@ -754,6 +754,42 @@
   color: #f3f4f6;
 }
 
+.build-countdown {
+  margin: 22px auto 0;
+}
+
+.build-countdown-board {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 176px;
+  padding: 16px 28px 14px;
+  border-radius: 18px;
+  background: #070709;
+  border: 1px solid rgba(249, 115, 22, 0.5);
+  box-shadow:
+    inset 0 0 28px rgba(249, 115, 22, 0.14),
+    0 0 24px rgba(234, 88, 12, 0.18);
+}
+
+.build-countdown-digits {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 48px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  color: #fdba74;
+  text-shadow: 0 0 18px rgba(251, 146, 60, 0.45);
+}
+
+.build-countdown-label {
+  margin: 12px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #d1d5db;
+}
+
 .build-progress {
   width: 100%;
   max-width: 100%;
@@ -777,6 +813,18 @@
     rgba(249, 115, 22, 0.15) 100%
   );
   background-size: 220% 100%;
+  animation: buildProgress 1.5s linear infinite;
+}
+
+.build-progress-bar.is-timed {
+  animation: none;
+  background: linear-gradient(90deg, #ea580c, #fdba74);
+  background-size: 100% 100%;
+  transition: width 0.25s linear;
+}
+
+.build-progress-bar.is-finishing {
+  width: 100%;
   animation: buildProgress 1.5s linear infinite;
 }
 

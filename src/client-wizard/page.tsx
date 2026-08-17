@@ -36,6 +36,12 @@ const PAYMENT_POLL_MAX_ATTEMPTS = 20;
 const LIVE_PREVIEW_PROBE_INTERVAL_MS = 2_000;
 const LIVE_PREVIEW_PROBE_MAX_ATTEMPTS = 60;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const BUILD_COUNTDOWN_SEC = 30;
+
+function formatBuildCountdown(secondsLeft: number): string {
+  const clamped = Math.max(0, Math.min(BUILD_COUNTDOWN_SEC, secondsLeft));
+  return `00:${String(clamped).padStart(2, "0")}`;
+}
 
 /**
  * Live Preview iframe may only load Railway readable demo URLs
@@ -612,6 +618,7 @@ function ClientWizardFlow() {
     nicheLocked ? nicheFromUrl : null,
   );
   const [isGenerating, setIsGenerating] = useState(false);
+  const [buildSecondsLeft, setBuildSecondsLeft] = useState(BUILD_COUNTDOWN_SEC);
   const [pendingRedirectUrl, setPendingRedirectUrl] = useState<string | null>(null);
   const [deployMeta, setDeployMeta] = useState<{
     demoUrl: string;
@@ -778,6 +785,22 @@ function ClientWizardFlow() {
     setAutoAdvancedToPreview(true);
     goTo("s5");
   }, [autoAdvancedToPreview, goTo, isGenerating, pendingRedirectUrl, step]);
+
+  useEffect(() => {
+    if (!isGenerating) {
+      setBuildSecondsLeft(BUILD_COUNTDOWN_SEC);
+      return;
+    }
+    setBuildSecondsLeft(BUILD_COUNTDOWN_SEC);
+    const startedAt = Date.now();
+    const tick = () => {
+      const elapsedSec = Math.floor((Date.now() - startedAt) / 1000);
+      setBuildSecondsLeft(Math.max(0, BUILD_COUNTDOWN_SEC - elapsedSec));
+    };
+    tick();
+    const id = window.setInterval(tick, 250);
+    return () => window.clearInterval(id);
+  }, [isGenerating]);
 
   const [nameErr, setNameErr] = useState(false);
   const [businessNameErr, setBusinessNameErr] = useState(false);
@@ -1377,8 +1400,28 @@ function ClientWizardFlow() {
                   <p className="step-sub" style={{ textAlign: "center", marginTop: 12 }}>
                     {copy.s4_generating}
                   </p>
+                  <div className="build-countdown" aria-live="polite" aria-atomic="true">
+                    <div className="build-countdown-board">
+                      <span className="build-countdown-digits">
+                        {formatBuildCountdown(buildSecondsLeft)}
+                      </span>
+                    </div>
+                    <p className="build-countdown-label">
+                      {buildSecondsLeft > 0
+                        ? copy.s4_publishing.replace("{n}", String(buildSecondsLeft))
+                        : copy.s4_countdown_finishing}
+                    </p>
+                  </div>
                   <div className="build-progress" aria-hidden="true">
-                    <div className="build-progress-bar" />
+                    <div
+                      className={`build-progress-bar ${buildSecondsLeft === 0 ? "is-finishing" : "is-timed"}`}
+                      style={{
+                        width: `${Math.min(
+                          100,
+                          ((BUILD_COUNTDOWN_SEC - buildSecondsLeft) / BUILD_COUNTDOWN_SEC) * 100,
+                        )}%`,
+                      }}
+                    />
                   </div>
                 </>
               ) : pendingRedirectUrl ? (
