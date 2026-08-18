@@ -1545,6 +1545,43 @@ const SITE_COPY_UI = {
   ru: { label: "Сайт", copy: "Копировать", copied: "Скопировано", missing: "Ссылка пока недоступна" },
 };
 
+function isForeignPagesHost(hostname) {
+  const host = String(hostname || "").toLowerCase();
+  return host === "pages.dev" || host.endsWith(".pages.dev");
+}
+
+/** Canonical share URL: /demo/{slug}?clientId=… on webstudio-muenchen.com, never pages.dev or /site/. */
+function resolveShareableDemoUrl(mvpUrl, publicSiteUrl, clientId) {
+  const id = String(clientId || "").trim();
+
+  const fromDemoPath = (raw) => {
+    try {
+      const u = new URL(String(raw || "").trim());
+      if (isForeignPagesHost(u.hostname)) return "";
+      if (!u.pathname.includes("/demo/")) return "";
+      if (id) u.searchParams.set("clientId", id);
+      return u.toString();
+    } catch {
+      return "";
+    }
+  };
+
+  const fromMvp = fromDemoPath(mvpUrl);
+  if (fromMvp) return fromMvp;
+
+  try {
+    const u = new URL(String(publicSiteUrl || "").trim());
+    if (isForeignPagesHost(u.hostname)) return "";
+    if (!u.pathname.includes("/site/")) return "";
+    u.pathname = u.pathname.replace("/site/", "/demo/");
+    u.search = "";
+    if (id) u.searchParams.set("clientId", id);
+    return u.toString();
+  } catch {
+    return "";
+  }
+}
+
 async function copyTextToClipboard(value) {
   try {
     await navigator.clipboard.writeText(value);
@@ -3383,7 +3420,10 @@ export default function App() {
             )}
 
             {isPaidCrm ? (
-              <PublicSiteCopyRow url={publicSiteUrl} language={language} />
+              <PublicSiteCopyRow
+                url={resolveShareableDemoUrl(mvpUrl, publicSiteUrl, bootClientId)}
+                language={language}
+              />
             ) : isUnpaidDemo ? (
               <div className="mvp-ready-compact">
                 <button
