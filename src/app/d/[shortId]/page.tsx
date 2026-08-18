@@ -1,13 +1,30 @@
+import type { Metadata } from "next";
+
 import { CrmLeadsBridge } from "@/components/crm-leads-bridge";
 import { DemoSiteFrame } from "@/components/demo-site-frame";
 import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
 import { buildDemoEmbedSrc } from "@/lib/cloudflare/demo-embed";
 import { findDemoByShortId } from "@/lib/cloudflare/demo-registry";
 import { loadClientManifest } from "@/lib/manifest/storage";
+import { buildPublicSiteMetadata } from "@/lib/site/public-site-metadata";
 
 type ShortDemoPageProps = {
   params: Promise<{ shortId: string }>;
 };
+
+export async function generateMetadata({
+  params,
+}: ShortDemoPageProps): Promise<Metadata> {
+  const { shortId } = await params;
+  const record = findDemoByShortId(shortId);
+  if (!record) {
+    return { title: "Demo not found" };
+  }
+  return buildPublicSiteMetadata(record.slug, "demo", undefined, {
+    clientId: record.clientId,
+    canonicalPath: `/d/${encodeURIComponent(shortId)}`,
+  });
+}
 
 function resolveManifestLanguage(clientId: string): string | undefined {
   const manifest = loadClientManifest(clientId);

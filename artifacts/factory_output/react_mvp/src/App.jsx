@@ -1658,10 +1658,6 @@ const INTEGRATIONS_UI_COPY = {
     statusConnect: "Connect",
     statusNotConfigured: "Not configured",
     stubHint: "Not available yet",
-    factoryTitle: "Factory Website+CRM",
-    factoryBody:
-      "Need more capabilities? Move to Factory Website+CRM with the Studio SDK.",
-    factoryCta: "Open Factory Website+CRM",
   },
   de: {
     openIntegrations: "Integrationen",
@@ -1671,10 +1667,6 @@ const INTEGRATIONS_UI_COPY = {
     statusConnect: "Verbinden",
     statusNotConfigured: "Nicht eingerichtet",
     stubHint: "Noch nicht verfügbar",
-    factoryTitle: "Factory Website+CRM",
-    factoryBody:
-      "Mehr Funktionen nötig? Wechseln Sie zu Factory Website+CRM mit dem Studio SDK.",
-    factoryCta: "Factory Website+CRM öffnen",
   },
   ru: {
     openIntegrations: "Интеграции",
@@ -1684,10 +1676,6 @@ const INTEGRATIONS_UI_COPY = {
     statusConnect: "Подключить",
     statusNotConfigured: "Не настроено",
     stubHint: "Пока недоступно",
-    factoryTitle: "Factory Website+CRM",
-    factoryBody:
-      "Нужно больше возможностей? Перейдите в Factory Website+CRM со Studio SDK.",
-    factoryCta: "Перейти в Factory Website+CRM",
   },
 };
 
@@ -1696,31 +1684,6 @@ function integrationStatusLabel(status, language) {
   if (status === "connect") return copy.statusConnect;
   if (status === "not_configured") return copy.statusNotConfigured;
   return copy.statusSoon;
-}
-
-function buildFactoryBridgeHref({
-  apiBase,
-  clientId,
-  language,
-  businessName,
-  niche,
-  city,
-  phone,
-  email,
-  whatsapp,
-}) {
-  const base = String(apiBase || "").replace(/\/$/, "");
-  const params = new URLSearchParams();
-  if (clientId) params.set("clientId", String(clientId));
-  params.set("tier", "factory_ready");
-  if (language) params.set("language", String(language));
-  if (businessName) params.set("businessName", String(businessName));
-  if (niche) params.set("niche", String(niche));
-  if (city) params.set("city", String(city));
-  if (phone) params.set("phone", String(phone));
-  if (email) params.set("email", String(email));
-  if (whatsapp) params.set("whatsapp", String(whatsapp));
-  return `${base}/api/factory-bridge?${params.toString()}`;
 }
 
 const LANDING_DASHBOARD_NICHES = new Set([
@@ -2839,20 +2802,6 @@ export default function App() {
   };
 
   const integrationsCopy = INTEGRATIONS_UI_COPY[language] || INTEGRATIONS_UI_COPY.en;
-  const manifestApiBaseForBridge =
-    import.meta.env.VITE_MANIFEST_API_BASE ||
-    "https://webstudio-muenchen.com";
-  const factoryBridgeHref = buildFactoryBridgeHref({
-    apiBase: manifestApiBaseForBridge,
-    clientId: bootClientId,
-    language,
-    businessName,
-    niche: effectiveBusinessType,
-    city,
-    phone,
-    email,
-    whatsapp,
-  });
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -3953,20 +3902,6 @@ export default function App() {
             <p style={{ color: "#64748b", margin: "0.5rem 0 1.25rem" }}>
               {integrationsCopy.subtitle}
             </p>
-
-            <a
-              className="integrations-factory-card"
-              href={factoryBridgeHref}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <div className="integrations-factory-card__badge">Factory</div>
-              <h4 style={{ margin: "0 0 0.5rem" }}>{integrationsCopy.factoryTitle}</h4>
-              <p style={{ margin: "0 0 0.85rem", color: "#475569", lineHeight: 1.45 }}>
-                {integrationsCopy.factoryBody}
-              </p>
-              <span className="integrations-factory-card__cta">{integrationsCopy.factoryCta}</span>
-            </a>
 
             <div className="integrations-grid">
               {INTEGRATION_STUB_CARDS.map((card) => (

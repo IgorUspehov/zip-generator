@@ -12,10 +12,11 @@ import { loadClientManifest } from "@/lib/manifest/storage";
 import { pickLocalized } from "@/lib/niches/sector-models";
 import { DEFAULT_BUSINESS_TYPE } from "@/lib/sector-mapping";
 
-export type PublicSiteOgPage = "site" | "job" | "booking";
+export type PublicSiteOgPage = "site" | "job" | "booking" | "demo";
 
 const PAGE_LABELS: Record<PublicSiteOgPage, Record<LeadLang, string>> = {
   site: { en: "", de: "", ru: "" },
+  demo: { en: "", de: "", ru: "" },
   job: { en: "Jobs", de: "Stellen", ru: "Вакансии" },
   booking: { en: "Booking", de: "Termin buchen", ru: "Бронирование" },
 };
@@ -69,16 +70,31 @@ export function resolvePublicSiteFirstImage(manifest: Record<string, unknown>): 
   });
 }
 
-function guessImageType(url: string): string {
-  if (/\.png(?:$|\?)/i.test(url)) return "image/png";
-  if (/\.webp(?:$|\?)/i.test(url)) return "image/webp";
-  return "image/jpeg";
+function canonicalPathForPage(
+  page: PublicSiteOgPage,
+  siteSlug: string,
+  options?: { clientId?: string; canonicalPath?: string },
+): string {
+  if (options?.canonicalPath) {
+    return options.canonicalPath.startsWith("/")
+      ? options.canonicalPath
+      : `/${options.canonicalPath}`;
+  }
+  if (page === "demo") {
+    const path = `/demo/${encodeURIComponent(siteSlug)}`;
+    const clientId = options?.clientId?.trim();
+    if (!clientId) return path;
+    return `${path}?clientId=${encodeURIComponent(clientId)}`;
+  }
+  const pathSuffix = page === "site" ? "" : `/${page}`;
+  return `/site/${encodeURIComponent(siteSlug)}${pathSuffix}`;
 }
 
 export function buildPublicSiteMetadata(
   rawParam: string,
   page: PublicSiteOgPage,
   langHint?: string,
+  options?: { clientId?: string; canonicalPath?: string },
 ): Metadata {
   const origin = publicOrigin();
   const resolved = resolvePublicSiteParam(rawParam);
@@ -113,10 +129,8 @@ export function buildPublicSiteMetadata(
   const pageLabel = PAGE_LABELS[page][lang];
   const title = pageLabel ? `${businessName} — ${pageLabel}` : businessName;
   const description = city ? `${nicheLabel} · ${city}` : nicheLabel;
-  const image = toAbsoluteMediaUrl(resolvePublicSiteFirstImage(manifest), origin);
-  const pathSuffix = page === "site" ? "" : `/${page}`;
-  const pathname = `/site/${encodeURIComponent(resolved.siteSlug)}${pathSuffix}`;
-  const url = `${origin}${pathname}`;
+  const image = `${origin}/api/og-preview/${encodeURIComponent(resolved.siteSlug)}?v=og3`;
+  const url = `${origin}${canonicalPathForPage(page, resolved.siteSlug, options)}`;
 
   return {
     title,
@@ -132,10 +146,11 @@ export function buildPublicSiteMetadata(
       images: [
         {
           url: image,
-          width: 1920,
-          height: 1080,
+          secureUrl: image,
+          width: 1200,
+          height: 630,
           alt: businessName,
-          type: guessImageType(image),
+          type: "image/jpeg",
         },
       ],
     },

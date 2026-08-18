@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { LandingNavigationFix } from "@/components/landing-navigation-fix";
 import { SupportWidget } from "@/components/SupportWidget";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { DEFAULT_PUBLIC_ORIGIN } from "@/lib/cloudflare/iframe-ready";
 import { I18nProvider } from "@/lib/i18n/context";
 
 import "./globals.css";
@@ -21,11 +22,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Сайт + CRM + Бронирование — за 3 минуты",
   description: "Сайт + CRM + Бронирование для вашего бизнеса. €199/Monat — Website + CRM + Buchung.",
-  metadataBase: new URL("https://saas-mvp-funnel-production.up.railway.app"),
+  metadataBase: new URL(DEFAULT_PUBLIC_ORIGIN),
   openGraph: {
     title: "Сайт + CRM + Бронирование — за 3 минуты",
     description: "Сайт + CRM + Бронирование для вашего бизнеса. €199/Monat — Website + CRM + Buchung.",
-    url: "/",
+    url: DEFAULT_PUBLIC_ORIGIN,
     type: "website",
     images: [
       {

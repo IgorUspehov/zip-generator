@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { CrmLeadsBridge } from "@/components/crm-leads-bridge";
 import { DemoSiteFrame } from "@/components/demo-site-frame";
 import { DemoTenantLinksBar } from "@/components/demo-tenant-links-bar";
@@ -6,11 +8,23 @@ import { buildDemoEmbedSrc } from "@/lib/cloudflare/demo-embed";
 import { findDemoBySlug } from "@/lib/cloudflare/demo-registry";
 import { buildReadablePublicSiteUrl } from "@/lib/cloudflare/shared-project";
 import { loadClientManifest } from "@/lib/manifest/storage";
+import { buildPublicSiteMetadata } from "@/lib/site/public-site-metadata";
 
 type DemoPageProps = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ clientId?: string }>;
 };
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: DemoPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const query = await searchParams;
+  return buildPublicSiteMetadata(slug, "demo", undefined, {
+    clientId: query.clientId,
+  });
+}
 
 function resolveManifestLanguage(clientId: string): string | undefined {
   const manifest = loadClientManifest(clientId);
