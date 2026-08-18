@@ -18,6 +18,24 @@ export function getHeroImagePath(businessType: string): string {
   return `${getImageLibraryFolderUrl(businessType)}/hero.jpg`;
 }
 
+/** Same hero the public site uses: client photo, else first gallery shot, else niche library. */
+export function resolveClientHeroSrc(input: {
+  heroPhoto?: unknown;
+  galleryPhotos?: unknown;
+  businessType: string;
+}): string {
+  if (typeof input.heroPhoto === "string" && input.heroPhoto.trim()) {
+    return input.heroPhoto.trim();
+  }
+  if (Array.isArray(input.galleryPhotos)) {
+    const first = input.galleryPhotos.find(
+      (item) => typeof item === "string" && item.trim(),
+    );
+    if (typeof first === "string") return first.trim();
+  }
+  return getHeroImagePath(input.businessType);
+}
+
 export function getGalleryImagePaths(businessType: string): string[] {
   const base = getImageLibraryFolderUrl(businessType);
   return [1, 2, 3].map((index) => `${base}/gallery-${index}.jpg`);

@@ -79,6 +79,7 @@ export const leadFormCopy = {
     errorRequired: "Name and phone are required.",
     errorPhone: "Please enter a valid phone number.",
     openCrm: "Open CRM",
+    site: "Website",
   },
   de: {
     appointmentCta: "Termin buchen",
@@ -105,6 +106,7 @@ export const leadFormCopy = {
     errorRequired: "Name und Telefon sind erforderlich.",
     errorPhone: "Bitte gültige Telefonnummer eingeben.",
     openCrm: "CRM öffnen",
+    site: "Website",
   },
   ru: {
     appointmentCta: "Записаться",
@@ -131,6 +133,7 @@ export const leadFormCopy = {
     errorRequired: "Имя и телефон обязательны.",
     errorPhone: "Укажите корректный телефон.",
     openCrm: "Открыть CRM",
+    site: "Сайт",
   },
 } as const;
 

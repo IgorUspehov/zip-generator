@@ -11,6 +11,7 @@ import {
   normalizeLeadLang,
   resolveSectorModelForLead,
 } from "@/lib/leads/niche-mode";
+import { resolveClientHeroSrc } from "@/lib/image-library/paths";
 import { loadClientManifest } from "@/lib/manifest/storage";
 import { pickLocalized } from "@/lib/niches/sector-models";
 import { DEFAULT_BUSINESS_TYPE } from "@/lib/sector-mapping";
@@ -77,10 +78,11 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
     ? (manifest.galleryPhotos as string[]).slice(0, 3)
     : [];
   const heroFolder = (model?.businessType || businessType).replace(/_crm$/, "");
-  const hero =
-    typeof manifest.heroPhoto === "string"
-      ? manifest.heroPhoto
-      : gallery[0] || `/image-library/${heroFolder}/hero.jpg`;
+  const hero = resolveClientHeroSrc({
+    heroPhoto: manifest.heroPhoto,
+    galleryPhotos: gallery,
+    businessType: heroFolder,
+  });
 
   const langQuery = query.lang ? `?lang=${encodeURIComponent(lang)}` : "";
 

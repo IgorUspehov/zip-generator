@@ -12,6 +12,7 @@ import {
   resolveLeadFormMode,
   resolveSectorModelForLead,
 } from "@/lib/leads/niche-mode";
+import { resolveClientHeroSrc } from "@/lib/image-library/paths";
 import { loadClientManifest } from "@/lib/manifest/storage";
 import { pickLocalized } from "@/lib/niches/sector-models";
 import { DEFAULT_BUSINESS_TYPE } from "@/lib/sector-mapping";
@@ -80,20 +81,49 @@ export default async function PublicBookingPage({
   const services = await loadSharedCatalogNames(clientId, lang);
   const formCta = model ? pickLocalized(model.publicCta, lang) : undefined;
   const catalogLabel = model ? pickLocalized(model.catalog, lang) : undefined;
+  const businessName = String(
+    (manifest.businessName as string) ||
+      (manifest.business_name as string) ||
+      "",
+  );
+  const gallery = Array.isArray(manifest.galleryPhotos)
+    ? (manifest.galleryPhotos as string[]).slice(0, 3)
+    : [];
+  const heroFolder = (model?.businessType || businessType).replace(/_crm$/, "");
+  const heroSrc = resolveClientHeroSrc({
+    heroPhoto: manifest.heroPhoto,
+    galleryPhotos: gallery,
+    businessType: heroFolder,
+  });
+  const langQuery = query.lang ? `?lang=${encodeURIComponent(lang)}` : "";
+  const siteHref = `/site/${encodeURIComponent(resolved.siteSlug)}${langQuery}`;
 
   return (
-    <main className="flex min-h-svh items-start justify-center bg-slate-950 px-6 py-12 text-white">
-      <PublicBookingForm
-        clientId={clientId}
-        mode={mode}
-        language={lang}
-        services={services}
-        accent="#ea580c"
-        ctaLabel={formCta}
-        titleLabel={formCta}
-        serviceLabel={catalogLabel}
-        alwaysOpen
-      />
+    <main className="relative flex min-h-svh items-start justify-center overflow-hidden bg-slate-950 px-6 py-12 text-white">
+      {heroSrc ? (
+        <div
+          className="pointer-events-none absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${heroSrc})` }}
+          aria-hidden
+        />
+      ) : null}
+      <div className="pointer-events-none absolute inset-0 bg-slate-950/80" aria-hidden />
+      <div className="relative z-10 w-full max-w-lg">
+        <PublicBookingForm
+          clientId={clientId}
+          mode={mode}
+          language={lang}
+          services={services}
+          accent="#ea580c"
+          ctaLabel={formCta}
+          titleLabel={formCta}
+          serviceLabel={catalogLabel}
+          alwaysOpen
+          heroSrc={heroSrc}
+          businessName={businessName}
+          siteHref={siteHref}
+        />
+      </div>
     </main>
   );
 }

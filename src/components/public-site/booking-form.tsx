@@ -27,6 +27,9 @@ type BookingFormProps = {
   serviceLabel?: string;
   /** When true, render the form immediately (no CTA gate / close control). */
   alwaysOpen?: boolean;
+  heroSrc?: string;
+  businessName?: string;
+  siteHref?: string;
 };
 
 const FETCH_TIMEOUT_MS = 12_000;
@@ -92,6 +95,9 @@ export function PublicBookingForm({
   titleLabel,
   serviceLabel,
   alwaysOpen = false,
+  heroSrc,
+  businessName,
+  siteHref,
 }: BookingFormProps) {
   const lang = normalizeLeadLang(language);
   const t = leadFormCopy[lang];
@@ -172,7 +178,7 @@ export function PublicBookingForm({
   }
 
   return (
-    <section className="mt-10">
+    <section className="w-full">
       {!open ? (
         <button
           type="button"
@@ -185,109 +191,148 @@ export function PublicBookingForm({
       ) : (
         <form
           onSubmit={onSubmit}
-          className="mx-auto max-w-lg rounded-3xl border border-white/15 bg-white/10 p-6 shadow-xl backdrop-blur"
+          className="overflow-hidden rounded-3xl border border-white/15 bg-slate-950/70 shadow-2xl backdrop-blur-md"
         >
-          <h2 className="text-2xl font-black text-white">{title}</h2>
-          <div className="mt-5 grid gap-3">
-            <label className="grid gap-1 text-sm text-slate-200">
-              {t.name} *
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                maxLength={120}
-                className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
+          {heroSrc ? (
+            <div className="relative h-52 w-full overflow-hidden sm:h-64">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={heroSrc}
+                alt=""
+                className="h-full w-full object-cover"
               />
-            </label>
-            <label className="grid gap-1 text-sm text-slate-200">
-              {t.phone} *
-              <input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-                maxLength={40}
-                inputMode="tel"
-                className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
-              />
-            </label>
-            {serviceOptions.length > 0 ? (
-              <fieldset className="grid gap-2 text-sm text-slate-200">
-                <legend>{serviceLabel || t.service}</legend>
-                {serviceOptions.map((service) => (
-                  <label
-                    key={service}
-                    className="flex cursor-pointer items-center gap-2"
-                  >
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/35 to-transparent" />
+              {businessName ? (
+                <p className="absolute bottom-4 left-5 right-5 text-xl font-black tracking-tight text-white sm:text-2xl">
+                  {businessName}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
+          <div className="p-6 sm:p-7">
+            <h2 className="text-2xl font-black text-white">{title}</h2>
+            <div className="mt-5 grid gap-3">
+              <label className="grid gap-1 text-sm text-slate-200">
+                {t.name} *
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  maxLength={120}
+                  className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
+                />
+              </label>
+              <label className="grid gap-1 text-sm text-slate-200">
+                {t.phone} *
+                <input
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                  maxLength={40}
+                  inputMode="tel"
+                  className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
+                />
+              </label>
+              {serviceOptions.length > 0 ? (
+                <fieldset className="grid gap-2">
+                  <legend className="text-sm text-slate-200">
+                    {serviceLabel || t.service}
+                  </legend>
+                  {serviceOptions.map((service) => {
+                    const checked = selected.includes(service);
+                    return (
+                      <label
+                        key={service}
+                        className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-3 text-sm transition ${
+                          checked
+                            ? "border-orange-400 bg-orange-500/15 text-white"
+                            : "border-white/20 bg-slate-950/40 text-slate-200 hover:border-white/40"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          value={service}
+                          checked={checked}
+                          onChange={(e) => {
+                            if (e.target.checked)
+                              setSelected([...selected, service]);
+                            else
+                              setSelected(selected.filter((s) => s !== service));
+                          }}
+                          className="h-4 w-4 shrink-0 accent-orange-500"
+                        />
+                        <span className="font-medium">{service}</span>
+                      </label>
+                    );
+                  })}
+                </fieldset>
+              ) : null}
+              {showPreferred ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="grid gap-1 text-sm text-slate-200">
+                    {t.preferredDate}
                     <input
-                      type="checkbox"
-                      value={service}
-                      checked={selected.includes(service)}
-                      onChange={(e) => {
-                        if (e.target.checked)
-                          setSelected([...selected, service]);
-                        else
-                          setSelected(selected.filter((s) => s !== service));
-                      }}
+                      type="date"
+                      value={preferredDate}
+                      onChange={(e) => setPreferredDate(e.target.value)}
+                      className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
                     />
-                    {service}
                   </label>
-                ))}
-              </fieldset>
+                  <label className="grid gap-1 text-sm text-slate-200">
+                    {t.preferredTime}
+                    <input
+                      type="time"
+                      value={preferredTime}
+                      onChange={(e) => setPreferredTime(e.target.value)}
+                      className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
+                    />
+                  </label>
+                </div>
+              ) : null}
+            </div>
+            {error ? (
+              <p className="mt-3 text-sm font-semibold text-rose-300" role="alert">
+                {error}
+              </p>
             ) : null}
-            {showPreferred ? (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="grid gap-1 text-sm text-slate-200">
-                  {t.preferredDate}
-                  <input
-                    type="date"
-                    value={preferredDate}
-                    onChange={(e) => setPreferredDate(e.target.value)}
-                    className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
-                  />
-                </label>
-                <label className="grid gap-1 text-sm text-slate-200">
-                  {t.preferredTime}
-                  <input
-                    type="time"
-                    value={preferredTime}
-                    onChange={(e) => setPreferredTime(e.target.value)}
-                    className="rounded-xl border border-white/20 bg-slate-950/40 px-3 py-2.5 text-base text-white outline-none focus:border-orange-400"
-                  />
-                </label>
-              </div>
+            {success ? (
+              <p className="mt-3 text-sm font-semibold text-emerald-300" role="status">
+                {t.success}
+              </p>
             ) : null}
-          </div>
-          {error ? (
-            <p className="mt-3 text-sm font-semibold text-rose-300" role="alert">
-              {error}
-            </p>
-          ) : null}
-          {success ? (
-            <p className="mt-3 text-sm font-semibold text-emerald-300" role="status">
-              {t.success}
-            </p>
-          ) : null}
-          <div className="mt-5 flex flex-wrap gap-3">
-            <button
-              type="submit"
-              disabled={sending}
-              className="rounded-2xl px-5 py-3 text-base font-black text-white disabled:opacity-60"
-              style={{ background: accent }}
-            >
-              {sending ? t.sending : t.submit}
-            </button>
-            {alwaysOpen ? null : (
+            <div className="mt-5 flex flex-wrap gap-3">
               <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="rounded-2xl border border-white/25 px-5 py-3 text-base font-semibold text-slate-200"
+                type="submit"
+                disabled={sending}
+                className="w-full rounded-2xl px-5 py-3 text-base font-black text-white disabled:opacity-60"
+                style={{ background: accent }}
               >
-                ×
+                {sending ? t.sending : t.submit}
               </button>
-            )}
+              {alwaysOpen ? null : (
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="rounded-2xl border border-white/25 px-5 py-3 text-base font-semibold text-slate-200"
+                >
+                  ×
+                </button>
+              )}
+            </div>
           </div>
         </form>
       )}
+
+      {siteHref ? (
+        <a
+          href={siteHref}
+          className="mt-4 flex w-full items-center justify-center rounded-2xl px-5 py-3 text-base font-black text-white shadow-lg transition hover:opacity-95"
+          style={{ background: accent }}
+        >
+          {t.site}
+        </a>
+      ) : null}
     </section>
   );
 }
