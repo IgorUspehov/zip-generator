@@ -116,6 +116,7 @@ export async function sendResendEmail(input: {
   to: string;
   subject: string;
   text: string;
+  html?: string;
   from?: string;
   attachments?: ResendAttachment[];
   logPrefix?: string;
@@ -153,6 +154,7 @@ export async function sendResendEmail(input: {
       to: [to],
       subject: input.subject,
       text: input.text,
+      ...(input.html ? { html: input.html } : {}),
       ...(input.attachments?.length
         ? {
             attachments: input.attachments.map((attachment) => ({

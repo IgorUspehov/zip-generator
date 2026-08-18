@@ -43,7 +43,9 @@ function LoginForm() {
         return;
       }
       setStatus("sent");
-      setMessage("Wenn ein Konto zu dieser E-Mail existiert, senden wir einen Login-Link.");
+      setMessage(
+        "Wenn ein Konto zu dieser E-Mail existiert, senden wir einen Login-Link. Prüfen Sie auch Spam. Suche in Gmail: in:anywhere from:noreply@webstudio-muenchen.com",
+      );
     } catch {
       setStatus("error");
       setMessage("Senden fehlgeschlagen");
