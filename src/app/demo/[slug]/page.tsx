@@ -5,7 +5,7 @@ import { DemoSiteFrame } from "@/components/demo-site-frame";
 import { DemoTenantLinksBar } from "@/components/demo-tenant-links-bar";
 import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
 import { buildDemoEmbedSrc } from "@/lib/cloudflare/demo-embed";
-import { findDemoBySlug } from "@/lib/cloudflare/demo-registry";
+import { hydrateDemoRecord } from "@/lib/cloudflare/demo-registry";
 import { buildReadablePublicSiteUrl } from "@/lib/cloudflare/shared-project";
 import { loadClientManifest } from "@/lib/manifest/storage";
 import { buildPublicSiteMetadata } from "@/lib/site/public-site-metadata";
@@ -36,7 +36,7 @@ function resolveManifestLanguage(clientId: string): string | undefined {
 export default async function DemoPage({ params, searchParams }: DemoPageProps) {
   const { slug } = await params;
   const query = await searchParams;
-  const record = findDemoBySlug(slug);
+  const record = await hydrateDemoRecord({ slug, clientId: query.clientId });
 
   if (!record) {
     return (

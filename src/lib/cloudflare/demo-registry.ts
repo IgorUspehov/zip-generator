@@ -121,3 +121,93 @@ export function removeDemoByDeploymentId(deploymentId: string): void {
 export function listDemoRecords(): DemoSiteRecord[] {
   return readRegistry();
 }
+
+type FirestoreDemoFields = {
+  demoSlug?: unknown;
+  deploymentId?: unknown;
+  deploymentUrl?: unknown;
+  projectName?: unknown;
+  deployedAt?: unknown;
+  deleteAt?: unknown;
+  paid?: unknown;
+  polarEmail?: unknown;
+};
+
+function asTrimmedString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+async function loadFirestoreDemoFields(clientId: string): Promise<FirestoreDemoFields | null> {
+  const id = clientId.trim();
+  if (!id) return null;
+  try {
+    const { getFirestoreDb } = await import("@/lib/firebase/admin");
+    const snap = await getFirestoreDb().collection("clients").doc(id).get();
+    if (!snap.exists) return null;
+    return (snap.data() || {}) as FirestoreDemoFields;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Rebuild in-memory/disk registry from Firestore or the public URL.
+ * Render /tmp loses demo-registry.json on deploy, which drops /site and paid-bar links.
+ */
+export async function hydrateDemoRecord(input: {
+  slug?: string;
+  clientId?: string;
+}): Promise<DemoSiteRecord | undefined> {
+  const slugHint = asTrimmedString(input.slug);
+  const clientIdHint = asTrimmedString(input.clientId);
+  const existing =
+    (slugHint ? findDemoBySlug(slugHint) : undefined) ||
+    (clientIdHint ? findDemoByClientId(clientIdHint) : undefined);
+  if (existing) {
+    if (existing.paid) return existing;
+    if (!clientIdHint && !existing.clientId) return existing;
+    const data = await loadFirestoreDemoFields(existing.clientId || clientIdHint);
+    if (data && (data.paid === true || asTrimmedString(data.polarEmail))) {
+      markDemoPaidByClientId(existing.clientId);
+      return findDemoByClientId(existing.clientId) || existing;
+    }
+    return existing;
+  }
+
+  let clientId = clientIdHint;
+  let data: FirestoreDemoFields | null = clientId ? await loadFirestoreDemoFields(clientId) : null;
+
+  if (!data && slugHint) {
+    try {
+      const { getFirestoreDb } = await import("@/lib/firebase/admin");
+      const snap = await getFirestoreDb()
+        .collection("clients")
+        .where("demoSlug", "==", slugHint)
+        .limit(1)
+        .get();
+      if (!snap.empty) {
+        clientId = snap.docs[0]!.id;
+        data = (snap.docs[0]!.data() || {}) as FirestoreDemoFields;
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const slug = asTrimmedString(data?.demoSlug) || slugHint;
+  if (!clientId || !slug) return undefined;
+
+  const paid = data?.paid === true || Boolean(asTrimmedString(data?.polarEmail));
+  const record: DemoSiteRecord = {
+    slug,
+    clientId,
+    deploymentId: asTrimmedString(data?.deploymentId) || "hydrated",
+    deploymentUrl: asTrimmedString(data?.deploymentUrl),
+    projectName: asTrimmedString(data?.projectName) || "crm-demo-sites",
+    deployedAt: asTrimmedString(data?.deployedAt) || new Date().toISOString(),
+    deleteAt: asTrimmedString(data?.deleteAt) || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    paid,
+  };
+  upsertDemoRecord(record);
+  return findDemoBySlug(slug) || record;
+}

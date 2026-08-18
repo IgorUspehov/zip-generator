@@ -165,6 +165,76 @@ export async function findClientIdsByOwnerEmail(
   return [...ids];
 }
 
+export async function resolveMagicLinkClientId(
+  email: string,
+  clientIdHint?: string,
+): Promise<string | null> {
+  const normalized = normalizeEmail(email);
+  if (!normalized.includes("@")) return null;
+
+  const hintedId = typeof clientIdHint === "string" ? clientIdHint.trim() : "";
+  if (hintedId) {
+    const hintedRecord = await loadFirestoreClientRecord(hintedId);
+    const hintedManifest =
+      loadClientManifest(hintedId) ||
+      (hintedRecord?.manifest && typeof hintedRecord.manifest === "object"
+        ? (hintedRecord.manifest as Record<string, unknown>)
+        : null);
+    if (
+      recordOwnsEmail(hintedRecord, normalized) ||
+      emailsEquivalent(extractOwnerEmail(hintedManifest), normalized)
+    ) {
+      return hintedId;
+    }
+    return null;
+  }
+
+  const matches = await findClientIdsByOwnerEmail(normalized);
+  if (matches.length === 0) return null;
+  if (matches.length === 1) return matches[0]!;
+
+  const exact: string[] = [];
+  for (const id of matches) {
+    const record = await loadFirestoreClientRecord(id);
+    const manifest = loadClientManifest(id);
+    const emails = [
+      ...collectOwnerEmails(record),
+      extractOwnerEmail(manifest),
+    ].map((item) => normalizeEmail(item));
+    if (emails.includes(normalized)) exact.push(id);
+  }
+  const pool = exact.length > 0 ? exact : matches;
+  if (pool.length === 1) return pool[0]!;
+
+  let bestId = pool[0]!;
+  let bestTs = -1;
+  for (const id of pool) {
+    const ts = await clientRecencyMs(id);
+    if (ts >= bestTs) {
+      bestTs = ts;
+      bestId = id;
+    }
+  }
+  return bestId;
+}
+
+async function clientRecencyMs(clientId: string): Promise<number> {
+  const record = await loadFirestoreClientRecord(clientId);
+  const updated = record?.updatedAt as { toMillis?: () => number } | string | undefined;
+  if (updated && typeof updated === "object" && typeof updated.toMillis === "function") {
+    return updated.toMillis();
+  }
+  if (typeof updated === "string") {
+    const parsed = Date.parse(updated);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  try {
+    return fs.statSync(manifestPathForClient(clientId)).mtimeMs;
+  } catch {
+    return 0;
+  }
+}
+
 export function manifestPathForClient(clientId: string): string {
   return path.join(resolveManifestsDir(), `${clientId}.json`);
 }

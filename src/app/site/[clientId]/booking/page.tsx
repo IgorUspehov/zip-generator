@@ -8,6 +8,7 @@ import {
   resolveCatalogSeedForClient,
 } from "@/lib/catalog/resolve-catalog";
 import { resolvePublicSiteParam } from "@/lib/cloudflare/resolve-public-site";
+import { hydrateDemoRecord } from "@/lib/cloudflare/demo-registry";
 import {
   normalizeLeadLang,
   resolveLeadFormMode,
@@ -77,6 +78,7 @@ export default async function PublicBookingPage({
 }: BookingPageProps) {
   const { clientId: raw } = await params;
   const query = await searchParams;
+  await hydrateDemoRecord({ slug: raw, clientId: raw });
   const resolved = resolvePublicSiteParam(raw || "");
 
   if (!resolved) {

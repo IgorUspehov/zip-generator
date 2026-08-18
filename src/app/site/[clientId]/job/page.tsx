@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { JobForm } from "@/components/public-site/job-form";
 import { resolvePublicSiteParam } from "@/lib/cloudflare/resolve-public-site";
+import { hydrateDemoRecord } from "@/lib/cloudflare/demo-registry";
 import { resolveClientHeroSrc } from "@/lib/image-library/paths";
 import { normalizeLeadLang, resolveSectorModelForLead } from "@/lib/leads/niche-mode";
 import { loadClientManifest } from "@/lib/manifest/storage";
@@ -30,6 +31,7 @@ export default async function PublicJobPage({
 }: JobPageProps) {
   const { clientId: raw } = await params;
   const query = await searchParams;
+  await hydrateDemoRecord({ slug: raw, clientId: raw });
   const resolved = resolvePublicSiteParam(raw || "");
 
   if (!resolved) {

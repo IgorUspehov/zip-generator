@@ -11,6 +11,7 @@ type DemoTenantLinksBarProps = {
 const COPY = {
   en: {
     admin: "Admin",
+    website: "Website",
     vacancies: "Vacancies",
     booking: "Leads / Booking",
     copy: "Copy",
@@ -19,6 +20,7 @@ const COPY = {
   },
   de: {
     admin: "Admin",
+    website: "Website",
     vacancies: "Stellen",
     booking: "Anfragen / Buchung",
     copy: "Kopieren",
@@ -27,6 +29,7 @@ const COPY = {
   },
   ru: {
     admin: "Админ",
+    website: "Сайт",
     vacancies: "Вакансии",
     booking: "Заявки / Бронирование",
     copy: "Копировать",
@@ -203,6 +206,13 @@ export function DemoTenantLinksBar({
       <CopyableFormLink
         label={t.admin}
         href={clientId ? `/admin/login?clientId=${encodeURIComponent(clientId)}` : "/admin/login"}
+        copyLabel={t.copy}
+        copiedLabel={t.copied}
+        missingLabel={t.missing}
+      />
+      <CopyableFormLink
+        label={t.website}
+        href={siteBase}
         copyLabel={t.copy}
         copiedLabel={t.copied}
         missingLabel={t.missing}

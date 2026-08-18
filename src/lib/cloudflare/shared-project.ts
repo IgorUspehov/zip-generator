@@ -30,6 +30,34 @@ export function getPublicSiteOrigin(): string {
   );
 }
 
+function isLoopbackOrigin(value: string): boolean {
+  try {
+    const hostname = new URL(value).hostname.toLowerCase();
+    return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+  } catch {
+    return false;
+  }
+}
+
+/** Public https origin for emails and redirects. Never localhost in production. */
+export function resolvePublicAppOrigin(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "") || "";
+  if (fromEnv && !isLoopbackOrigin(fromEnv)) return fromEnv;
+  return "https://webstudio-muenchen.com";
+}
+
+export function resolveMagicLinkOrigin(request: Request): string {
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      const origin = new URL(request.url).origin;
+      if (origin) return origin;
+    } catch {
+      /* fall through */
+    }
+  }
+  return resolvePublicAppOrigin();
+}
+
 export function buildReadableDemoUrl(slug: string, clientId?: string): string {
   const base = `${getPublicSiteOrigin()}/demo/${slug}`;
   if (!clientId) return base;

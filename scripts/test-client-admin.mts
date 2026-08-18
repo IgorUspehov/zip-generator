@@ -3,7 +3,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 
-import { collectOwnerEmails, recordOwnsEmail } from "../src/lib/admin/lookup.ts";
+import { collectOwnerEmails, recordOwnsEmail, resolveMagicLinkClientId } from "../src/lib/admin/lookup.ts";
 import { applySiteContentPatch, parseSiteContentPatch, readSiteContent } from "../src/lib/admin/site-content.ts";
 import {
   buildAdminSessionValue,
@@ -15,6 +15,8 @@ import { resolveClientMediaFile, isClientMediaUrl } from "../src/lib/admin/media
 import { normalizeManifestMedia } from "../src/lib/manifest/normalize-manifest-media.ts";
 import { validateClientManifest } from "../src/lib/manifest/schema.ts";
 import { listActiveProtectedClientIds, markClientAdminEdited } from "../src/lib/site-delivery/dist-protection.ts";
+import { saveClientManifest } from "../src/lib/manifest/storage.ts";
+import { resolvePublicAppOrigin, resolveMagicLinkOrigin } from "../src/lib/cloudflare/shared-project.ts";
 
 process.env.PERSISTENT_DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "admin-test-"));
 process.env.ADMIN_SESSION_SECRET = "test-admin-secret";
@@ -118,6 +120,47 @@ if (fs.existsSync(fixturePath)) {
   assert.equal(recordOwnsEmail(record, "uspeh.polimer2022@gmail.com"), true);
   assert.equal(recordOwnsEmail(record, "nobody@example.com"), false);
   console.log("[PASS] owner email lookup includes polar + questionnaire aliases");
+}
+
+{
+  const prev = process.env.NEXT_PUBLIC_SITE_URL;
+  process.env.NEXT_PUBLIC_SITE_URL = "https://localhost:10000";
+  assert.equal(resolvePublicAppOrigin(), "https://webstudio-muenchen.com");
+  process.env.NEXT_PUBLIC_SITE_URL = "https://webstudio-muenchen.com";
+  assert.equal(resolvePublicAppOrigin(), "https://webstudio-muenchen.com");
+  const previousNodeEnv = process.env.NODE_ENV;
+  process.env.NODE_ENV = "production";
+  const origin = resolveMagicLinkOrigin(new Request("https://localhost:10000/api/admin/login"));
+  assert.equal(origin, "https://webstudio-muenchen.com");
+  assert.equal(origin.includes("localhost"), false);
+  process.env.NODE_ENV = previousNodeEnv;
+  process.env.NEXT_PUBLIC_SITE_URL = prev;
+  console.log("[PASS] production magic-link origin is webstudio-muenchen.com");
+}
+
+{
+  saveClientManifest("client-old", {
+    businessName: "Old Shop",
+    email: "uspeh.polimer2022+test2@gmail.com",
+  });
+  saveClientManifest("client-avtomoy", {
+    businessName: "Автомой",
+    email: "uspeh.polimer2022+test2@gmail.com",
+  });
+  const hinted = await resolveMagicLinkClientId(
+    "uspeh.polimer2022+test2@gmail.com",
+    "client-avtomoy",
+  );
+  assert.equal(hinted, "client-avtomoy");
+  const rejected = await resolveMagicLinkClientId(
+    "uspeh.polimer2022+test2@gmail.com",
+    "someone-else",
+  );
+  assert.equal(rejected, null);
+  const single = await resolveMagicLinkClientId("uspeh.polimer2022+test2@gmail.com");
+  assert.equal(typeof single, "string");
+  assert.equal(single === "client-old" || single === "client-avtomoy", true);
+  console.log("[PASS] magic link resolves a single clientId");
 }
 
 {
