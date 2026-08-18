@@ -137,6 +137,14 @@ function asTrimmedString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function asClientId(value: unknown): string {
+  const id = asTrimmedString(value);
+  return UUID_RE.test(id) ? id : "";
+}
+
 async function loadFirestoreDemoFields(clientId: string): Promise<FirestoreDemoFields | null> {
   const id = clientId.trim();
   if (!id) return null;
@@ -159,7 +167,7 @@ export async function hydrateDemoRecord(input: {
   clientId?: string;
 }): Promise<DemoSiteRecord | undefined> {
   const slugHint = asTrimmedString(input.slug);
-  const clientIdHint = asTrimmedString(input.clientId);
+  const clientIdHint = asClientId(input.clientId);
   const existing =
     (slugHint ? findDemoBySlug(slugHint) : undefined) ||
     (clientIdHint ? findDemoByClientId(clientIdHint) : undefined);
