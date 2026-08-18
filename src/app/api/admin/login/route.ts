@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { findClientIdsByOwnerEmail } from "@/lib/admin/lookup";
+import { findClientIdsByOwnerEmail, hydrateClientManifest } from "@/lib/admin/lookup";
 import { createMagicLink, ADMIN_MAGIC_LINK_FROM } from "@/lib/admin/magic-link";
 import { sendResendEmail } from "@/lib/email/resend";
 import { getPublicSiteOrigin } from "@/lib/cloudflare/shared-project";
-import { loadClientManifest } from "@/lib/manifest/storage";
 
 export const runtime = "nodejs";
 
@@ -18,9 +17,11 @@ function originFromRequest(request: Request): string {
 
 export async function POST(request: Request) {
   let email = "";
+  let clientIdHint = "";
   try {
-    const body = (await request.json()) as { email?: unknown };
+    const body = (await request.json()) as { email?: unknown; clientId?: unknown };
     email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    clientIdHint = typeof body.clientId === "string" ? body.clientId.trim() : "";
   } catch {
     return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
@@ -29,13 +30,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Valid email required" }, { status: 400 });
   }
 
-  const clientIds = await findClientIdsByOwnerEmail(email);
+  const clientIds = await findClientIdsByOwnerEmail(email, clientIdHint);
+  console.log("[admin/login] lookup", {
+    email,
+    clientIdHint: clientIdHint || null,
+    matchCount: clientIds.length,
+  });
   const origin = originFromRequest(request);
   const links: { clientId: string; url: string; businessName: string }[] = [];
 
   for (const clientId of clientIds) {
     const { token } = createMagicLink({ clientId, email });
-    const manifest = loadClientManifest(clientId) || {};
+    const manifest = (await hydrateClientManifest(clientId)) || {};
     links.push({
       clientId,
       url: `${origin}/api/admin/callback?token=${encodeURIComponent(token)}`,
@@ -54,8 +60,12 @@ export async function POST(request: Request) {
       text: `Open this link to edit your website. It expires in 30 minutes and can be used once.\n\n${lines}\n`,
       logPrefix: "[admin/login] resend",
     });
-    if (!sendResult.ok && process.env.NODE_ENV === "production") {
+    if (!sendResult.ok) {
       console.error("[admin/login] resend failed", sendResult.error);
+      return NextResponse.json(
+        { ok: false, error: "E-Mail konnte nicht gesendet werden. Bitte später erneut versuchen." },
+        { status: 502 },
+      );
     }
   }
 

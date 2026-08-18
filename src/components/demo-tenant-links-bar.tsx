@@ -5,6 +5,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 type DemoTenantLinksBarProps = {
   publicSiteUrl: string;
   language?: string;
+  clientId?: string;
 };
 
 const COPY = {
@@ -158,6 +159,7 @@ function CopyableFormLink({
 export function DemoTenantLinksBar({
   publicSiteUrl,
   language,
+  clientId,
 }: DemoTenantLinksBarProps) {
   const [lang, setLang] = useState(() => normalizeLang(language));
   const t = COPY[lang];
@@ -200,7 +202,7 @@ export function DemoTenantLinksBar({
     >
       <CopyableFormLink
         label={t.admin}
-        href="/admin/login"
+        href={clientId ? `/admin/login?clientId=${encodeURIComponent(clientId)}` : "/admin/login"}
         copyLabel={t.copy}
         copiedLabel={t.copied}
         missingLabel={t.missing}

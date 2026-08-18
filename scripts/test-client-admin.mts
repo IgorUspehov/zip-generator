@@ -3,6 +3,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 
+import { collectOwnerEmails, recordOwnsEmail } from "../src/lib/admin/lookup.ts";
 import { applySiteContentPatch, parseSiteContentPatch, readSiteContent } from "../src/lib/admin/site-content.ts";
 import {
   buildAdminSessionValue,
@@ -97,6 +98,24 @@ if (fs.existsSync(fixturePath)) {
   assert.equal(parsed?.email, "owner@example.com");
   assert.equal(parseAdminSessionValue(value.slice(0, -2) + "00"), null);
   console.log("[PASS] admin HMAC session roundtrip");
+}
+
+{
+  const record = {
+    email: "Owner@Example.com",
+    polarEmail: "uspeh.polimer2022+test1@gmail.com",
+    questionnaire: { email: "second@example.com" },
+    manifest: { email: "site@example.com" },
+  };
+  assert.deepEqual(collectOwnerEmails(record).sort(), [
+    "owner@example.com",
+    "second@example.com",
+    "site@example.com",
+    "uspeh.polimer2022+test1@gmail.com",
+  ]);
+  assert.equal(recordOwnsEmail(record, "uspeh.polimer2022+test1@gmail.com"), true);
+  assert.equal(recordOwnsEmail(record, "nobody@example.com"), false);
+  console.log("[PASS] owner email lookup includes polar + questionnaire aliases");
 }
 
 {

@@ -70,7 +70,7 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
         iframeSrc={src}
         iframeTitle={iframeTitle}
         paidBar={
-          <DemoTenantLinksBar publicSiteUrl={publicSiteUrl} language={language} />
+          <DemoTenantLinksBar publicSiteUrl={publicSiteUrl} language={language} clientId={clientId} />
         }
       />
     </>

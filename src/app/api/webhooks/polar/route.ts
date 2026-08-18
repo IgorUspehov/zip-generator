@@ -14,6 +14,30 @@ import { markDemoPaidByClientId } from "@/lib/cloudflare/demo-registry";
 import { markClientDistPaid } from "@/lib/site-delivery/dist-protection";
 import { fulfillPaidSiteDelivery } from "@/lib/site-delivery/post-payment-email";
 import { saveCheckoutReference } from "@/lib/polar/checkout-reference-store";
+import { FieldValue } from "firebase-admin/firestore";
+
+async function rememberPolarCustomerEmail(clientId: string, email: string): Promise<void> {
+  const normalized = email.trim().toLowerCase();
+  if (!clientId || !normalized.includes("@")) return;
+  try {
+    const { getFirestoreDb } = await import("@/lib/firebase/admin");
+    await getFirestoreDb()
+      .collection("clients")
+      .doc(clientId)
+      .set(
+        {
+          polarEmail: normalized,
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
+  } catch (error) {
+    console.warn("[polar] failed to store customer email", {
+      clientId,
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
 
 function extractSiteId(clientId: string | null): string | null {
   if (!clientId) return null;
@@ -82,6 +106,7 @@ export const POST = Webhooks({
 
     // Flip paid on registry + pending so Railway/CRM banners clear immediately.
     markTenantPaid(clientId);
+    await rememberPolarCustomerEmail(clientId, email || "");
 
     try {
       if (kind === "recurring") {

@@ -302,7 +302,7 @@ function normalizePayload(body: Record<string, unknown>) {
     business_name: String(body.business_name ?? "").trim(),
     business_type: resolveBusinessType(body),
     sector_id: String(body.sector_id ?? "").trim().toLowerCase(),
-    email: String(body.email ?? "").trim(),
+    email: String(body.email ?? "").trim().toLowerCase(),
     phone: String(body.phone ?? "").trim(),
     telegram: String(body.telegram ?? "").trim(),
     whatsapp: String(body.whatsapp ?? "").trim(),

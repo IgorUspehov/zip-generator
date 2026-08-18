@@ -12,6 +12,7 @@ import { Suspense } from "react";
 function LoginForm() {
   const search = useSearchParams();
   const errorCode = search?.get("error");
+  const clientId = search?.get("clientId")?.trim() || "";
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -33,7 +34,7 @@ function LoginForm() {
       const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, clientId: clientId || undefined }),
       });
       const data = (await response.json()) as { ok?: boolean; error?: string };
       if (!response.ok || !data.ok) {
