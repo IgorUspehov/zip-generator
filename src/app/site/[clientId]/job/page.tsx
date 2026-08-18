@@ -47,6 +47,7 @@ export default async function PublicJobPage({
     id: item.id,
     title: item.title,
     salary: item.salary || "",
+    requirements: item.requirements || "",
   }));
 
   return (

@@ -14,6 +14,7 @@ type JobLeadBody = {
   name?: unknown;
   phone?: unknown;
   position?: unknown;
+  positions?: unknown;
   salary?: unknown;
   experience?: unknown;
   language?: unknown;
@@ -22,6 +23,19 @@ type JobLeadBody = {
 function asTrimmedString(value: unknown, max: number): string {
   if (typeof value !== "string") return "";
   return value.trim().slice(0, max);
+}
+
+function parsePositions(body: JobLeadBody): string[] {
+  const fromArray = Array.isArray(body.positions)
+    ? body.positions
+        .map((item) => asTrimmedString(item, 120))
+        .filter(Boolean)
+    : [];
+  if (fromArray.length > 0) {
+    return [...new Set(fromArray)].slice(0, 20);
+  }
+  const single = asTrimmedString(body.position, 500);
+  return single ? [single] : [];
 }
 
 export async function OPTIONS() {
@@ -54,8 +68,9 @@ export async function POST(
 
   const name = asTrimmedString(body.name, 120);
   const phone = asTrimmedString(body.phone, 40);
-  const position = asTrimmedString(body.position, 120);
-  const salary = asTrimmedString(body.salary, 120);
+  const positions = parsePositions(body);
+  const position = positions.join(", ").slice(0, 500);
+  const salary = asTrimmedString(body.salary, 500);
   const experience = asTrimmedString(body.experience, 2000);
   const language = asTrimmedString(body.language, 8) || "de";
 
@@ -73,6 +88,7 @@ export async function POST(
     name,
     phone,
     position,
+    positions,
     salary,
     experience,
     language,

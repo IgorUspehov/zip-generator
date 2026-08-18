@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 
 export type JobVacancyOption = {
   id: string;
   title: string;
   salary: string;
+  requirements?: string;
 };
 
 type JobFormProps = {
@@ -19,49 +20,52 @@ const COPY = {
   de: {
     title: "Wir suchen Mitarbeiter",
     subtitle: "Bewerben Sie sich jetzt",
-    position: "Position",
+    position: "Offene Stellen",
     salary: "Gehalt",
+    requirements: "Anforderungen",
     name: "Vollständiger Name",
     phone: "Telefon",
     cta: "Bewerbung senden",
     success: "Bewerbung eingegangen! Wir melden uns bald.",
     sending: "Senden…",
     empty: "Вакансий пока нет",
-    selectPosition: "Position wählen",
-    selectSalary: "Gehalt wählen",
+    selectHint: "Markieren Sie eine oder mehrere Stellen",
     errorRequired: "Bitte alle Pflichtfelder ausfüllen.",
+    errorPositions: "Bitte mindestens eine Stelle auswählen.",
     errorGeneric: "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
   },
   ru: {
     title: "Вакансии",
     subtitle: "Отправьте заявку",
-    position: "Должность",
-    salary: "Ставка",
+    position: "Открытые вакансии",
+    salary: "Зарплата",
+    requirements: "Требования",
     name: "Полное имя",
     phone: "Телефон",
     cta: "Отправить заявку",
     success: "Заявка принята! Скоро свяжемся.",
     sending: "Отправка…",
     empty: "Вакансий пока нет",
-    selectPosition: "Выберите должность",
-    selectSalary: "Выберите ставку",
+    selectHint: "Отметьте одну или несколько вакансий",
     errorRequired: "Заполните обязательные поля.",
+    errorPositions: "Отметьте хотя бы одну вакансию.",
     errorGeneric: "Что-то пошло не так. Попробуйте ещё раз.",
   },
   en: {
     title: "We Are Hiring",
     subtitle: "Apply now",
-    position: "Position",
-    salary: "Rate",
+    position: "Open vacancies",
+    salary: "Salary",
+    requirements: "Requirements",
     name: "Full name",
     phone: "Phone",
     cta: "Submit application",
     success: "Application received! We'll be in touch.",
     sending: "Sending…",
     empty: "Вакансий пока нет",
-    selectPosition: "Select position",
-    selectSalary: "Select rate",
+    selectHint: "Select one or more vacancies",
     errorRequired: "Please fill in all required fields.",
+    errorPositions: "Please select at least one vacancy.",
     errorGeneric: "Something went wrong. Please try again.",
   },
 } as const;
@@ -86,28 +90,17 @@ export function JobForm({
   const lang = normalizeJobLang(language);
   const t = COPY[lang];
 
-  const [vacancyId, setVacancyId] = useState("");
-  const [salary, setSalary] = useState("");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const selectedVacancy = useMemo(
-    () => vacancies.find((item) => item.id === vacancyId) ?? null,
-    [vacancies, vacancyId],
-  );
-
-  const salaryOptions = useMemo(() => {
-    if (!selectedVacancy?.salary) return [] as string[];
-    return [selectedVacancy.salary];
-  }, [selectedVacancy]);
-
-  function onVacancyChange(nextId: string) {
-    setVacancyId(nextId);
-    const next = vacancies.find((item) => item.id === nextId);
-    setSalary(next?.salary ?? "");
+  function toggleVacancy(id: string) {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
     setError("");
   }
 
@@ -115,15 +108,24 @@ export function JobForm({
     event.preventDefault();
     setError("");
 
-    const position = selectedVacancy?.title?.trim() ?? "";
-    if (!position || !name.trim() || !phone.trim()) {
+    const selected = vacancies.filter((item) => selectedIds.includes(item.id));
+    const positions = selected
+      .map((item) => item.title.trim())
+      .filter(Boolean);
+
+    if (positions.length === 0) {
+      setError(t.errorPositions);
+      return;
+    }
+    if (!name.trim() || !phone.trim()) {
       setError(t.errorRequired);
       return;
     }
-    if (salaryOptions.length > 0 && !salary.trim()) {
-      setError(t.errorRequired);
-      return;
-    }
+
+    const salary = selected
+      .map((item) => item.salary.trim())
+      .filter(Boolean)
+      .join("; ");
 
     setSending(true);
     try {
@@ -133,8 +135,9 @@ export function JobForm({
         body: JSON.stringify({
           name: name.trim(),
           phone: phone.trim(),
-          position,
-          salary: salary.trim() || undefined,
+          positions,
+          position: positions.join(", "),
+          salary: salary || undefined,
           language: lang,
         }),
       });
@@ -147,8 +150,7 @@ export function JobForm({
         return;
       }
       setSuccess(true);
-      setVacancyId("");
-      setSalary("");
+      setSelectedIds([]);
       setName("");
       setPhone("");
     } catch {
@@ -187,47 +189,49 @@ export function JobForm({
       <h2 className="text-2xl font-black text-white">{t.title}</h2>
       <p className="mt-1 text-sm text-slate-300">{t.subtitle}</p>
       <div className="mt-5 grid gap-3">
-        <label className="grid gap-1 text-sm text-slate-200">
-          {t.position} *
-          <select
-            value={vacancyId}
-            onChange={(e) => onVacancyChange(e.target.value)}
-            required
-            className={fieldClassName}
-          >
-            <option value="">{t.selectPosition}</option>
-            {vacancies.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.title}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="grid gap-1 text-sm text-slate-200">
-          {t.salary}
-          {salaryOptions.length > 0 ? " *" : ""}
-          <select
-            value={salary}
-            onChange={(e) => setSalary(e.target.value)}
-            required={salaryOptions.length > 0}
-            disabled={!vacancyId || salaryOptions.length === 0}
-            className={`${fieldClassName} disabled:opacity-50`}
-          >
-            <option value="">
-              {!vacancyId
-                ? t.selectPosition
-                : salaryOptions.length === 0
-                  ? "—"
-                  : t.selectSalary}
-            </option>
-            {salaryOptions.map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
-        </label>
+        <fieldset className="grid gap-2">
+          <legend className="text-sm text-slate-200">
+            {t.position} *
+          </legend>
+          <p className="text-xs text-slate-400">{t.selectHint}</p>
+          <div className="grid gap-2">
+            {vacancies.map((item) => {
+              const checked = selectedIds.includes(item.id);
+              return (
+                <label
+                  key={item.id}
+                  className={`flex cursor-pointer items-start gap-3 rounded-xl border px-3 py-3 text-sm transition ${
+                    checked
+                      ? "border-orange-400 bg-orange-500/15"
+                      : "border-white/20 bg-slate-950/40 hover:border-white/40"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => toggleVacancy(item.id)}
+                    className="mt-1 h-4 w-4 shrink-0 accent-orange-500"
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-semibold text-white">
+                      {item.title}
+                    </span>
+                    {item.salary ? (
+                      <span className="mt-0.5 block text-slate-200">
+                        {t.salary}: {item.salary}
+                      </span>
+                    ) : null}
+                    {item.requirements ? (
+                      <span className="mt-0.5 block whitespace-pre-wrap text-slate-400">
+                        {t.requirements}: {item.requirements}
+                      </span>
+                    ) : null}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
 
         <label className="grid gap-1 text-sm text-slate-200">
           {t.name} *
