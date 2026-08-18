@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { PublicBookingForm } from "@/components/public-site/booking-form";
@@ -17,11 +18,21 @@ import { loadClientManifest } from "@/lib/manifest/storage";
 import { pickLocalized } from "@/lib/niches/sector-models";
 import { DEFAULT_BUSINESS_TYPE } from "@/lib/sector-mapping";
 import type { LeadLang } from "@/lib/leads/types";
+import { buildPublicSiteMetadata } from "@/lib/site/public-site-metadata";
 
 type BookingPageProps = {
   params: Promise<{ clientId: string }>;
   searchParams: Promise<{ lang?: string }>;
 };
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: BookingPageProps): Promise<Metadata> {
+  const { clientId } = await params;
+  const query = await searchParams;
+  return buildPublicSiteMetadata(clientId, "booking", query.lang);
+}
 
 async function loadSharedCatalogNames(
   clientId: string,
@@ -95,9 +106,6 @@ export default async function PublicBookingPage({
     galleryPhotos: gallery,
     businessType: heroFolder,
   });
-  const langQuery = query.lang ? `?lang=${encodeURIComponent(lang)}` : "";
-  const siteHref = `/site/${encodeURIComponent(resolved.siteSlug)}${langQuery}`;
-
   return (
     <main className="relative flex min-h-svh items-start justify-center overflow-hidden bg-slate-950 px-6 py-12 text-white">
       {heroSrc ? (
@@ -121,7 +129,6 @@ export default async function PublicBookingPage({
           alwaysOpen
           heroSrc={heroSrc}
           businessName={businessName}
-          siteHref={siteHref}
         />
       </div>
     </main>

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -15,11 +16,21 @@ import { resolveClientHeroSrc } from "@/lib/image-library/paths";
 import { loadClientManifest } from "@/lib/manifest/storage";
 import { pickLocalized } from "@/lib/niches/sector-models";
 import { DEFAULT_BUSINESS_TYPE } from "@/lib/sector-mapping";
+import { buildPublicSiteMetadata } from "@/lib/site/public-site-metadata";
 
 type SitePageProps = {
   params: Promise<{ clientId: string }>;
   searchParams: Promise<{ lang?: string }>;
 };
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: SitePageProps): Promise<Metadata> {
+  const { clientId } = await params;
+  const query = await searchParams;
+  return buildPublicSiteMetadata(clientId, "site", query.lang);
+}
 
 export default async function PublicSitePage({ params, searchParams }: SitePageProps) {
   const { clientId: raw } = await params;

@@ -51,24 +51,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de" className="light" suppressHydrationWarning>
-      <head>
-        <meta property="og:title" content="Сайт + CRM + Бронирование — за 3 минуты" />
-        <meta
-          property="og:description"
-          content="Сайт + CRM + Бронирование для вашего бизнеса. €199/Monat — Website + CRM + Buchung."
-        />
-        <meta
-          property="og:image"
-          content="https://webstudio-muenchen.com/assets/og-image-199.png?v=199"
-        />
-        <meta property="og:url" content="https://saas-mvp-funnel-production.up.railway.app/" />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          name="twitter:image"
-          content="https://webstudio-muenchen.com/assets/og-image-199.png?v=199"
-        />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-svh bg-background font-sans text-foreground antialiased`}
       >

@@ -2,9 +2,11 @@ import fs from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
 
+import { FieldValue } from "firebase-admin/firestore";
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 
+import { getFirestoreDb } from "@/lib/firebase/admin";
 import { DEFAULT_BUSINESS_TYPE, SECTOR_ID_TO_BUSINESS_TYPE } from "@/lib/sector-mapping";
 import { buildCommercialData } from "@/lib/payment/payment-service";
 import { notifyNewLead } from "@/lib/leads/notify-lead";
@@ -48,6 +50,40 @@ import { persistClientDistSnapshot } from "@/lib/site-delivery/dist-store";
 const sectorMapping = { sector_id_to_business_type: SECTOR_ID_TO_BUSINESS_TYPE };
 
 const QUESTIONNAIRE_PATH = path.join(process.cwd(), "input/client_onboarding_questionnaire.json");
+const CLIENTS_COLLECTION = "clients";
+
+async function saveClientRecordToFirestore(input: {
+  clientId: string;
+  payload: Record<string, unknown>;
+  manifest: Record<string, unknown>;
+}): Promise<void> {
+  const { clientId, payload, manifest } = input;
+  await getFirestoreDb()
+    .collection(CLIENTS_COLLECTION)
+    .doc(clientId)
+    .set(
+      {
+        name: payload.name,
+        businessName: payload.business_name,
+        businessType: payload.business_type,
+        sectorId: payload.sector_id || null,
+        email: payload.email,
+        phone: payload.phone,
+        whatsapp: payload.whatsapp,
+        telegram: payload.telegram,
+        city: payload.city,
+        address: payload.address,
+        postalCode: payload.postal_code,
+        language: payload.language,
+        questionnaire: payload,
+        manifest,
+        source: "client_questionnaire",
+        updatedAt: FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true },
+    );
+}
 
 /** Safe post-deploy probe — never logs secrets or full HTML. */
 async function logDeployedSiteProbe(siteUrl: string): Promise<void> {
@@ -636,10 +672,6 @@ export async function POST(request: Request) {
       }
     }
 
-    fs.mkdirSync(path.dirname(QUESTIONNAIRE_PATH), { recursive: true });
-    fs.writeFileSync(QUESTIONNAIRE_PATH, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
-    console.log("[client-questionnaire] questionnaire saved");
-
     const draft = normalizeManifestMedia(
       (await buildMvpManifestWithOpenAI(payload)) as Record<string, unknown>,
     ) as Record<string, unknown>;
@@ -684,6 +716,11 @@ export async function POST(request: Request) {
     }
 
     const clientId = randomUUID();
+    await saveClientRecordToFirestore({ clientId, payload, manifest });
+    console.log("[client-questionnaire] Firestore client record saved", {
+      clientId,
+      path: `${CLIENTS_COLLECTION}/${clientId}`,
+    });
     saveClientManifest(clientId, manifest);
     const { ensureLeadsReadSecret } = await import("@/lib/leads/read-secret");
     ensureLeadsReadSecret(clientId);
@@ -842,7 +879,7 @@ export async function POST(request: Request) {
       deployId,
       deploymentUrl: siteUrl,
       slug: demoSlug,
-      path: "input/client_onboarding_questionnaire.json",
+      path: `${CLIENTS_COLLECTION}/${clientId}`,
     });
   } catch (error) {
     console.error("[client-questionnaire] POST failed:", {

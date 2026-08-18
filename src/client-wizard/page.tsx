@@ -1430,24 +1430,6 @@ function ClientWizardFlow() {
                 </p>
               ) : null}
             </div>
-            <WizardStepNav>
-              <button
-                type="button"
-                className="btn-back btn-nav-secondary"
-                onClick={() => goTo("s2")}
-                disabled={isGenerating}
-              >
-                <span>{copy.btn_back}</span>
-              </button>
-              <button
-                type="button"
-                className="btn-primary btn-nav-primary"
-                onClick={() => goTo("s5")}
-                disabled={!pendingRedirectUrl || isGenerating}
-              >
-                <span>{copy.btn_review}</span>
-              </button>
-            </WizardStepNav>
           </div>
 
           {/* STEP 5 */}

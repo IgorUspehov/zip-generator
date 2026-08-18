@@ -48,7 +48,6 @@ export type CopyBundle = {
   btn_next: string;
   btn_back: string;
   btn_generate: string;
-  btn_review: string;
   btn_yes: string;
   btn_no: string;
   btn_restart: string;
@@ -150,7 +149,6 @@ const T: Record<UiLang, CopyBundle> = {
     btn_next: "Continue →",
     btn_back: "← Back",
     btn_generate: "Generate CRM Demo →",
-    btn_review: "Review preview & approve →",
     btn_yes: "Yes, looks great",
     btn_no: "Regenerate",
     btn_restart: "Start over",
@@ -278,7 +276,6 @@ const T: Record<UiLang, CopyBundle> = {
     btn_next: "Weiter →",
     btn_back: "← Zurück",
     btn_generate: "CRM Demo erstellen →",
-    btn_review: "Vorschau ansehen und freigeben →",
     btn_yes: "Ja, sieht gut aus",
     btn_no: "Neu generieren",
     btn_restart: "Von vorne",
@@ -406,7 +403,6 @@ const T: Record<UiLang, CopyBundle> = {
     btn_next: "Продолжить →",
     btn_back: "← Назад",
     btn_generate: "Создать CRM Demo →",
-    btn_review: "Смотреть превью и одобрить →",
     btn_yes: "Да, отлично",
     btn_no: "Пересобрать",
     btn_restart: "Начать заново",
