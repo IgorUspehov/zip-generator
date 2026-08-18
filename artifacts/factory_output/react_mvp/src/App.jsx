@@ -1539,6 +1539,80 @@ const INTEGRATION_STUB_CARDS = [
   },
 ];
 
+const SITE_COPY_UI = {
+  en: { label: "Website", copy: "Copy", copied: "Copied", missing: "Link not ready" },
+  de: { label: "Website", copy: "Kopieren", copied: "Kopiert", missing: "Link noch nicht bereit" },
+  ru: { label: "Сайт", copy: "Копировать", copied: "Скопировано", missing: "Ссылка пока недоступна" },
+};
+
+async function copyTextToClipboard(value) {
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch {
+    try {
+      const input = document.createElement("textarea");
+      input.value = value;
+      input.setAttribute("readonly", "");
+      input.style.position = "fixed";
+      input.style.left = "-9999px";
+      document.body.appendChild(input);
+      input.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(input);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+}
+
+function PublicSiteCopyRow({ url, language }) {
+  const [copied, setCopied] = useState(false);
+  const t = SITE_COPY_UI[language] || SITE_COPY_UI.en;
+  const href = String(url || "").trim();
+
+  return (
+    <div className="mvp-site-copy">
+      {href ? (
+        <a href={href} target="_blank" rel="noreferrer" className="mvp-site-copy-open">
+          {t.label}
+        </a>
+      ) : (
+        <span className="mvp-site-copy-open mvp-site-copy-open--disabled">{t.label}</span>
+      )}
+      {href ? (
+        <input
+          type="text"
+          readOnly
+          value={href}
+          aria-label={t.label}
+          className="mvp-site-copy-url"
+          onFocus={(event) => event.currentTarget.select()}
+          onClick={(event) => event.currentTarget.select()}
+        />
+      ) : (
+        <span className="mvp-site-copy-missing">{t.missing}</span>
+      )}
+      <button
+        type="button"
+        className="mvp-site-copy-btn"
+        disabled={!href}
+        onClick={() => {
+          if (!href) return;
+          void copyTextToClipboard(href).then((ok) => {
+            if (!ok) return;
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 2000);
+          });
+        }}
+      >
+        {copied ? t.copied : t.copy}
+      </button>
+    </div>
+  );
+}
+
 const INTEGRATIONS_UI_COPY = {
   en: {
     openIntegrations: "Integrations",
@@ -3308,15 +3382,19 @@ export default function App() {
               </section>
             )}
 
-            <div className="mvp-ready-compact">
-              <button
-                type="button"
-                className="mvp-ready-compact-btn"
-                onClick={() => setActiveTab("integrations")}
-              >
-                {t.openIntegrations}
-              </button>
-            </div>
+            {isPaidCrm ? (
+              <PublicSiteCopyRow url={publicSiteUrl} language={language} />
+            ) : isUnpaidDemo ? (
+              <div className="mvp-ready-compact">
+                <button
+                  type="button"
+                  className="mvp-ready-compact-btn"
+                  onClick={() => setActiveTab("integrations")}
+                >
+                  {t.openIntegrations}
+                </button>
+              </div>
+            ) : null}
           </>
         )}
 

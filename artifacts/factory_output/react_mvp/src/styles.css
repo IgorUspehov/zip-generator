@@ -395,6 +395,69 @@ body {
   text-decoration: underline;
 }
 
+.mvp-site-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
+  background: #0f172a;
+  text-align: left;
+}
+
+.mvp-site-copy-open,
+.mvp-site-copy-btn {
+  flex-shrink: 0;
+  border: 1px solid #ea580c;
+  border-radius: 8px;
+  background: #f97316;
+  color: #111827;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.mvp-site-copy-open:hover,
+.mvp-site-copy-btn:hover {
+  color: #111827;
+  text-decoration: none;
+  filter: brightness(1.05);
+}
+
+.mvp-site-copy-open--disabled,
+.mvp-site-copy-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.mvp-site-copy-url {
+  flex: 1 1 12rem;
+  min-width: 0;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.55rem;
+  outline: none;
+}
+
+.mvp-site-copy-missing {
+  flex: 1 1 12rem;
+  min-width: 0;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
 .integrations-factory-card {
   display: block;
   margin: 0 0 1.25rem;
