@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { PublicBookingForm } from "@/components/public-site/booking-form";
+import { listCatalogItems } from "@/lib/catalog/firestore-catalog";
 import {
   catalogNamesForLang,
   resolveCatalogSeedForClient,
 } from "@/lib/catalog/resolve-catalog";
-import { listCatalogItems } from "@/lib/catalog/firestore-catalog";
 import { resolvePublicSiteParam } from "@/lib/cloudflare/resolve-public-site";
 import {
   normalizeLeadLang,
@@ -34,16 +34,40 @@ export async function generateMetadata({
   return buildPublicSiteMetadata(clientId, "booking", query.lang);
 }
 
-async function loadSharedCatalogNames(
+async function loadSharedCatalog(
   clientId: string,
   lang: LeadLang,
-): Promise<string[]> {
+): Promise<{ names: string[]; items: { name: string; price?: string; duration?: string }[] }> {
   try {
     const items = await listCatalogItems(clientId);
-    return catalogNamesForLang(items, lang);
+    return {
+      names: catalogNamesForLang(items, lang),
+      items: items.map((item) => ({
+        name: pickLocalized(item.name, lang),
+        price: item.price,
+        duration:
+          typeof item.duration === "string"
+            ? item.duration
+            : item.duration
+              ? pickLocalized(item.duration, lang)
+              : undefined,
+      })),
+    };
   } catch {
     const { items } = resolveCatalogSeedForClient(clientId);
-    return catalogNamesForLang(items, lang);
+    return {
+      names: catalogNamesForLang(items, lang),
+      items: items.map((item) => ({
+        name: pickLocalized(item.name, lang),
+        price: item.price,
+        duration:
+          typeof item.duration === "string"
+            ? item.duration
+            : item.duration
+              ? pickLocalized(item.duration, lang)
+              : undefined,
+      })),
+    };
   }
 }
 
@@ -89,7 +113,8 @@ export default async function PublicBookingPage({
   );
   const model = resolveSectorModelForLead(businessType, sectorId);
   const mode = resolveLeadFormMode(businessType, sectorId);
-  const services = await loadSharedCatalogNames(clientId, lang);
+  const catalog = await loadSharedCatalog(clientId, lang);
+  const services = catalog.names;
   const formCta = model ? pickLocalized(model.publicCta, lang) : undefined;
   const catalogLabel = model ? pickLocalized(model.catalog, lang) : undefined;
   const businessName = String(
@@ -122,6 +147,7 @@ export default async function PublicBookingPage({
           mode={mode}
           language={lang}
           services={services}
+          catalogItems={catalog.items}
           accent="#ea580c"
           ctaLabel={formCta}
           titleLabel={formCta}

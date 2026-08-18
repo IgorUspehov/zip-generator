@@ -100,3 +100,46 @@ export async function deleteVacancy(
   await itemsCollection(clientId).doc(id).delete();
   return true;
 }
+
+export async function updateVacancy(
+  clientId: string,
+  vacancyId: string,
+  input: {
+    title?: string;
+    description?: string;
+    salary?: string;
+    requirements?: string;
+  },
+): Promise<VacancyRecord | null> {
+  const id = String(vacancyId || "").trim();
+  if (!id) return null;
+  const ref = itemsCollection(clientId).doc(id);
+  const snap = await ref.get();
+  if (!snap.exists) return null;
+  const current = normalizeVacancy(snap.data() as Record<string, unknown>, id);
+  if (!current) return null;
+  const title = input.title !== undefined ? String(input.title || "").trim() : current.title;
+  if (!title) {
+    throw new Error("title is required");
+  }
+  const salary =
+    input.salary !== undefined ? String(input.salary || "").trim() : current.salary || "";
+  const requirements =
+    input.requirements !== undefined
+      ? String(input.requirements || "").trim()
+      : current.requirements || "";
+  const description =
+    input.description !== undefined
+      ? String(input.description || "").trim() || requirements || title
+      : current.description;
+  const record: VacancyRecord = {
+    id,
+    title,
+    description,
+    ...(salary ? { salary } : {}),
+    ...(requirements ? { requirements } : {}),
+    createdAt: current.createdAt,
+  };
+  await ref.set(record);
+  return record;
+}

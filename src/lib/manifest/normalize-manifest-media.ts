@@ -21,6 +21,9 @@ function usesForeignMediaPath(value: string, businessType: string): boolean {
   if (value.startsWith(LEGACY_NICHE_PREFIX)) {
     return true;
   }
+  if (value.startsWith("/api/media/")) {
+    return false;
+  }
   if (!value.startsWith(IMAGE_LIBRARY_PREFIX)) {
     return false;
   }

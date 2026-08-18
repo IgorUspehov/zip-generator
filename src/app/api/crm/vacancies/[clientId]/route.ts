@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { readAdminSessionFromRequest } from "@/lib/admin/session";
 import {
   createVacancy,
   deleteVacancy,
@@ -44,7 +45,8 @@ function authorize(request: Request, clientId: string): boolean {
     const sessionClientId = parseLeadsSessionValue(decodeURIComponent(match[1]));
     return sessionClientId === clientId;
   }
-  return false;
+  const admin = readAdminSessionFromRequest(request);
+  return admin?.clientId === clientId;
 }
 
 /** Public list for /site; mutations require CRM secret / session. */

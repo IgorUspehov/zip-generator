@@ -128,7 +128,8 @@ export function buildPublicSiteMetadata(
 
   const pageLabel = PAGE_LABELS[page][lang];
   const title = pageLabel ? `${businessName} — ${pageLabel}` : businessName;
-  const description = city ? `${nicheLabel} · ${city}` : nicheLabel;
+  const contentDescription = String(manifest.description || "").trim();
+  const description = contentDescription || (city ? `${nicheLabel} · ${city}` : nicheLabel);
   const image = `${origin}/api/og-preview/${encodeURIComponent(resolved.siteSlug)}?v=og3`;
   const url = `${origin}${canonicalPathForPage(page, resolved.siteSlug, options)}`;
 

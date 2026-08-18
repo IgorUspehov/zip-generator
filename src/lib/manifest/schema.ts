@@ -28,6 +28,18 @@ const promotionSchema = z.object({
   en: z.string().min(1),
 });
 
+const socialLinksSchema = z
+  .object({
+    instagram: z.string().optional().default(""),
+    facebook: z.string().optional().default(""),
+    tiktok: z.string().optional().default(""),
+    website: z.string().optional().default(""),
+    linkedin: z.string().optional().default(""),
+    other: z.string().optional().default(""),
+  })
+  .partial()
+  .optional();
+
 /**
  * Strict client MVP manifest used for site/CRM bake.
  * Extra keys (leadsReadSecret, scenario, demoData, …) are allowed via passthrough.
@@ -54,6 +66,11 @@ export const clientManifestSchema = z
     features: z.array(z.string()).optional(),
     galleryPhotos: z.array(z.string()).optional(),
     heroPhoto: z.string().optional(),
+    logo: z.string().optional().default(""),
+    description: z.string().optional().default(""),
+    subtitle: z.string().optional().default(""),
+    socialLinks: socialLinksSchema,
+    social_links: socialLinksSchema,
     workingHours: z.record(z.string(), z.unknown()).optional(),
   })
   .passthrough()

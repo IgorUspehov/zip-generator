@@ -150,7 +150,12 @@ export function findLargestFiles(limit = 20): { path: string; sizeMb: number }[]
     }));
 }
 
-function pruneFilesByAge(dir: string, maxAgeMs: number, extension?: string): number {
+function pruneFilesByAge(
+  dir: string,
+  maxAgeMs: number,
+  extension?: string,
+  protectedClientIds?: Set<string>,
+): number {
   if (!fs.existsSync(dir)) {
     return 0;
   }
@@ -159,6 +164,10 @@ function pruneFilesByAge(dir: string, maxAgeMs: number, extension?: string): num
   let removed = 0;
 
   for (const entry of fs.readdirSync(dir)) {
+    const clientId = entry.replace(/\.json$/, "");
+    if (protectedClientIds?.has(clientId)) {
+      continue;
+    }
     const fullPath = path.join(dir, entry);
     const stat = safeStat(fullPath);
     if (!stat?.isFile()) {
@@ -215,7 +224,12 @@ function pruneDirectoriesByAge(dir: string, maxAgeMs: number, protectedClientIds
   return removed;
 }
 
-function pruneNewestOverflow(dir: string, keepCount: number, extension?: string): number {
+function pruneNewestOverflow(
+  dir: string,
+  keepCount: number,
+  extension?: string,
+  protectedClientIds?: Set<string>,
+): number {
   if (!fs.existsSync(dir)) {
     return 0;
   }
@@ -229,6 +243,10 @@ function pruneNewestOverflow(dir: string, keepCount: number, extension?: string)
         return null;
       }
       if (extension && !name.endsWith(extension)) {
+        return null;
+      }
+      const clientId = name.replace(/\.json$/, "");
+      if (protectedClientIds?.has(clientId)) {
         return null;
       }
       return { fullPath, mtimeMs: stat.mtimeMs };
@@ -426,8 +444,8 @@ export function runStorageCleanup(options?: {
   pruneExpiredDownloadAccessRecords();
 
   const deletedManifests =
-    pruneFilesByAge(manifestsDir, manifestMaxAgeMs, ".json") +
-    pruneNewestOverflow(manifestsDir, maxManifests, ".json");
+    pruneFilesByAge(manifestsDir, manifestMaxAgeMs, ".json", protectedClientIds) +
+    pruneNewestOverflow(manifestsDir, maxManifests, ".json", protectedClientIds);
   const deletedClientDists =
     pruneDirectoriesByAge(clientDistsDir, clientDistMaxAgeMs, protectedClientIds) +
     pruneDirectoryOverflow(clientDistsDir, maxClientDists, protectedClientIds);

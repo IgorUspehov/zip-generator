@@ -439,6 +439,13 @@ function buildMvpManifest(payload: Record<string, unknown>) {
     pages: defaultPages,
     demoData: JSON.parse(loadDemoData(businessType) || "{}"),
     workingHours: payload.working_hours ?? DEFAULT_WORKING_HOURS,
+    socialLinks:
+      payload.social_links && typeof payload.social_links === "object"
+        ? payload.social_links
+        : DEFAULT_SOCIAL_LINKS,
+    logo: String(payload.logo ?? "").trim(),
+    description: String(payload.description ?? "").trim(),
+    subtitle: String(payload.subtitle ?? "").trim(),
   };
 }
 
@@ -489,6 +496,18 @@ function normalizeManifestForTemplate(
         ? manifest.demoData
         : fallback.demoData,
     workingHours: manifest.workingHours ?? payload.working_hours ?? fallback.workingHours,
+    socialLinks:
+      manifest.socialLinks ??
+      manifest.social_links ??
+      payload.social_links ??
+      (fallback as { socialLinks?: unknown }).socialLinks,
+    logo: String(manifest.logo ?? payload.logo ?? (fallback as { logo?: string }).logo ?? ""),
+    description: String(
+      manifest.description ?? payload.description ?? (fallback as { description?: string }).description ?? "",
+    ),
+    subtitle: String(
+      manifest.subtitle ?? payload.subtitle ?? (fallback as { subtitle?: string }).subtitle ?? "",
+    ),
   };
 }
 

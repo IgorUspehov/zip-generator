@@ -15,11 +15,18 @@ import {
 } from "@/lib/leads/retry";
 import type { LeadFormMode } from "@/lib/leads/types";
 
+type PublicCatalogOption = {
+  name: string;
+  price?: string;
+  duration?: string;
+};
+
 type BookingFormProps = {
   clientId: string;
   mode: LeadFormMode;
   language: string;
   services: string[];
+  catalogItems?: PublicCatalogOption[];
   accent?: string;
   /** Niche-specific CTA from sector model (overrides mode default). */
   ctaLabel?: string;
@@ -90,6 +97,7 @@ export function PublicBookingForm({
   mode,
   language,
   services,
+  catalogItems,
   accent = "#c2410c",
   ctaLabel,
   titleLabel,
@@ -117,15 +125,23 @@ export function PublicBookingForm({
   const showPreferred = mode === "appointment" || mode === "reservation";
   const serviceOptions = useMemo(() => {
     const seen = new Set<string>();
-    const out: string[] = [];
-    for (const item of services) {
-      const name = typeof item === "string" ? item.trim() : "";
+    const out: PublicCatalogOption[] = [];
+    const source: PublicCatalogOption[] =
+      catalogItems && catalogItems.length
+        ? catalogItems
+        : services.map((name) => ({ name }));
+    for (const item of source) {
+      const name = typeof item.name === "string" ? item.name.trim() : "";
       if (!name || seen.has(name)) continue;
       seen.add(name);
-      out.push(name);
+      out.push({
+        name,
+        price: item.price?.trim() || "",
+        duration: item.duration?.trim() || "",
+      });
     }
     return out;
-  }, [services]);
+  }, [services, catalogItems]);
 
   function mapError(err: unknown): string {
     if (err instanceof LeadRequestError) {
@@ -240,10 +256,10 @@ export function PublicBookingForm({
                     {serviceLabel || t.service}
                   </legend>
                   {serviceOptions.map((service) => {
-                    const checked = selected.includes(service);
+                    const checked = selected.includes(service.name);
                     return (
                       <label
-                        key={service}
+                        key={service.name}
                         className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-3 text-sm transition ${
                           checked
                             ? "border-orange-400 bg-orange-500/15 text-white"
@@ -252,17 +268,25 @@ export function PublicBookingForm({
                       >
                         <input
                           type="checkbox"
-                          value={service}
+                          value={service.name}
                           checked={checked}
                           onChange={(e) => {
                             if (e.target.checked)
-                              setSelected([...selected, service]);
+                              setSelected([...selected, service.name]);
                             else
-                              setSelected(selected.filter((s) => s !== service));
+                              setSelected(selected.filter((s) => s !== service.name));
                           }}
                           className="h-4 w-4 shrink-0 accent-orange-500"
                         />
-                        <span className="font-medium">{service}</span>
+                        <span className="flex min-w-0 flex-1 flex-col">
+                          <span className="font-medium">{service.name}</span>
+                          {service.duration ? (
+                            <span className="text-xs text-slate-400">{service.duration}</span>
+                          ) : null}
+                        </span>
+                        {service.price ? (
+                          <span className="shrink-0 font-semibold text-orange-200">{service.price}</span>
+                        ) : null}
                       </label>
                     );
                   })}
