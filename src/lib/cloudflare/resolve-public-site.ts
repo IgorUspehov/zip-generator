@@ -4,6 +4,7 @@ import {
   findDemoBySlug,
   type DemoSiteRecord,
 } from "@/lib/cloudflare/demo-registry";
+import { restoreDemoByClientId, restoreDemoBySlug } from "@/lib/billing/paid-tenant";
 import { loadClientManifest } from "@/lib/manifest/storage";
 
 const UUID_RE =
@@ -59,6 +60,20 @@ export function resolvePublicSiteParam(rawParam: string): ResolvedPublicSite | n
   }
 
   return null;
+}
+
+export async function ensurePublicSiteResolved(rawParam: string): Promise<ResolvedPublicSite | null> {
+  const param = decodeURIComponent(String(rawParam || "").trim());
+  const existing = resolvePublicSiteParam(param);
+  if (existing) return existing;
+
+  if (isClientIdParam(param)) {
+    await restoreDemoByClientId(param);
+  } else if (param) {
+    await restoreDemoBySlug(param);
+  }
+
+  return resolvePublicSiteParam(param);
 }
 
 export function buildPublicSitePath(siteSlug: string, lang?: string): string {

@@ -7,8 +7,12 @@ import {
   pruneOldDeployments,
 } from "@/lib/cloudflare/deploy";
 import {
+  findDemoByClientId,
+  findDemoByDeploymentId,
+  findDemoBySlug,
   listDemoRecords,
   markDemoPaid,
+  markDemoPaidByClientId,
   removeDemoByDeploymentId,
 } from "@/lib/cloudflare/demo-registry";
 import {
@@ -18,7 +22,7 @@ import {
 import type { PendingDeletionRecord } from "@/lib/manifest/storage-manager";
 import { resolvePendingDeletionsPath } from "@/lib/manifest/storage-paths";
 import { removeClientDistIfUnprotected } from "@/lib/site-delivery/dist-store";
-import { isClientDistProtected } from "@/lib/site-delivery/dist-protection";
+import { getClientDistProtection, isClientDistProtected } from "@/lib/site-delivery/dist-protection";
 
 /** Test-mode default: auto-delete unpaid CRM Demo deployments after 10 minutes. */
 const DEFAULT_TTL_MINUTES = 10;
@@ -110,7 +114,7 @@ export function cancelDeletion(siteId: string): boolean {
   let updated = false;
 
   const next = entries.map((item) => {
-    if (item.siteId !== siteId && item.slug !== siteId) {
+    if (item.siteId !== siteId && item.slug !== siteId && item.clientId !== siteId) {
       return item;
     }
 
@@ -123,6 +127,33 @@ export function cancelDeletion(siteId: string): boolean {
   }
   const registryUpdated = markDemoPaid(siteId);
   return updated || registryUpdated;
+}
+
+/** Mark every pending TTL row for this tenant paid — Polar/promo must hit clientId, not only deploymentId. */
+export function cancelDeletionForClient(clientId: string): boolean {
+  const id = String(clientId || "").trim();
+  if (!id) return false;
+  const entries = readPendingDeletions();
+  let updated = false;
+  const next = entries.map((item) => {
+    if (item.clientId !== id && item.siteId !== id && item.slug !== id) {
+      return item;
+    }
+    updated = true;
+    return { ...item, paid: true };
+  });
+  if (updated) writePendingDeletions(next);
+  const registryUpdated = markDemoPaidByClientId(id) || markDemoPaid(id);
+  return updated || registryUpdated;
+}
+
+function isPendingEntryPaid(entry: PendingDeletion): boolean {
+  if (entry.paid) return true;
+  if (findDemoByClientId(entry.clientId)?.paid === true) return true;
+  if (findDemoByDeploymentId(entry.siteId)?.paid === true) return true;
+  if (entry.slug && findDemoBySlug(entry.slug)?.paid === true) return true;
+  if (getClientDistProtection(entry.clientId)?.paid === true) return true;
+  return false;
 }
 
 export function findPendingBySiteId(siteId: string): PendingDeletion | undefined {
@@ -152,8 +183,17 @@ export async function processExpiredDeletions(): Promise<void> {
   const remaining: PendingDeletion[] = [];
 
   for (const entry of entries) {
-    if (entry.paid) {
-      remaining.push(entry);
+    let paid = isPendingEntryPaid(entry);
+    if (!paid) {
+      try {
+        const { isClientPaidInStore } = await import("@/lib/billing/paid-tenant");
+        paid = await isClientPaidInStore(entry.clientId);
+      } catch {
+        paid = false;
+      }
+    }
+    if (paid) {
+      remaining.push({ ...entry, paid: true });
       continue;
     }
 

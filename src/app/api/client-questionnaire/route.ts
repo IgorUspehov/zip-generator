@@ -21,6 +21,7 @@ import {
   resolveMvpDistPath,
 } from "@/lib/cloudflare/deploy";
 import { upsertDemoRecord } from "@/lib/cloudflare/demo-registry";
+import { isEmailPaid, markTenantPaid, persistDemoDeployment, persistTenantPaid } from "@/lib/billing/paid-tenant";
 import {
   pruneSharedProjectDeployments,
   getCrmDemoTtlMs,
@@ -831,6 +832,28 @@ export async function POST(request: Request) {
         deployedAt,
         deleteAt,
       });
+
+      await persistDemoDeployment({
+        clientId,
+        slug: demoSlug,
+        deploymentId: deployResult.deploymentId,
+        deploymentUrl: deployResult.deploymentUrl,
+        email: String(payload.email || ""),
+      });
+
+      if (await isEmailPaid(String(payload.email || ""))) {
+        markTenantPaid(clientId);
+        await persistTenantPaid({
+          clientId,
+          email: String(payload.email || ""),
+          slug: demoSlug,
+          source: "polar_email_inherit",
+        });
+        console.log("[client-questionnaire] inherited paid status from Polar email", {
+          clientId,
+          demoSlug,
+        });
+      }
 
       console.log("[client-questionnaire] Cloudflare deploy success:", {
         siteId,

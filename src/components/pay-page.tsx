@@ -127,7 +127,15 @@ export function PayPageContent() {
         setError(t.missingDemoUrl);
         return;
       }
-      window.location.href = demoUrl;
+      void fetch("/api/redeem-promo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: promoInput.trim(), clientId }),
+      })
+        .catch(() => undefined)
+        .finally(() => {
+          window.location.href = demoUrl;
+        });
       return;
     }
 

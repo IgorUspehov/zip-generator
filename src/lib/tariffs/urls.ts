@@ -35,7 +35,11 @@ export function buildCrmDemoPolarUrl(
   locale?: string,
 ): string {
   const url = new URL(POLAR_CHECKOUT_WEBSTUDIO_199);
-  if (clientId) url.searchParams.set("reference_id", clientId);
+  if (clientId) {
+    url.searchParams.set("reference_id", clientId);
+    url.searchParams.set("metadata[client_id]", clientId);
+    url.searchParams.set("metadata[reference_id]", clientId);
+  }
   if (email?.trim()) url.searchParams.set("customer_email", email.trim());
   if (email?.trim()) url.searchParams.set("prefilled_email", email.trim());
   const lang = (locale || "").toLowerCase();

@@ -1029,7 +1029,10 @@ function ClientWizardFlow() {
         const response = await fetch("/api/redeem-promo", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: promoInput.trim() }),
+          body: JSON.stringify({
+            code: promoInput.trim(),
+            clientId: deployMeta?.clientId?.trim() || "",
+          }),
         });
         const data = (await response.json()) as { valid?: boolean };
         if (response.ok && data.valid) {

@@ -26,6 +26,8 @@ export function buildCrmDemoCheckoutUrl(clientId: string): string {
   const url = new URL(POLAR_CHECKOUT_WEBSTUDIO_199);
   if (clientId) {
     url.searchParams.set("reference_id", clientId);
+    url.searchParams.set("metadata[client_id]", clientId);
+    url.searchParams.set("metadata[reference_id]", clientId);
   }
   return url.toString();
 }

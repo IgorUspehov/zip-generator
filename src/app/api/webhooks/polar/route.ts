@@ -1,57 +1,32 @@
 import { Webhooks } from "@polar-sh/nextjs";
 
+import { markTenantPaid, persistTenantPaid } from "@/lib/billing/paid-tenant";
 import { fulfillCrmDemoOrder } from "@/lib/crm-demo/fulfillment";
 import { fulfillCrmFullOrder } from "@/lib/crm-full/fulfillment";
 import { fulfillMvpProOrder } from "@/lib/mvp-pro/fulfillment";
 import {
+  isPolarCheckoutSucceeded,
   resolveOrderClientId,
   resolveOrderEmail,
   resolveOrderId,
 } from "@/lib/polar/order-context";
 import { resolvePolarProductKind } from "@/lib/polar/product-match";
-import { cancelDeletion, findPendingByClientId } from "@/lib/cloudflare/scheduler";
-import { markDemoPaidByClientId } from "@/lib/cloudflare/demo-registry";
-import { markClientDistPaid } from "@/lib/site-delivery/dist-protection";
 import { fulfillPaidSiteDelivery } from "@/lib/site-delivery/post-payment-email";
 import { saveCheckoutReference } from "@/lib/polar/checkout-reference-store";
-import { FieldValue } from "firebase-admin/firestore";
 
-async function rememberPolarCustomerEmail(clientId: string, email: string): Promise<void> {
-  const normalized = email.trim().toLowerCase();
-  if (!clientId || !normalized.includes("@")) return;
-  try {
-    const { getFirestoreDb } = await import("@/lib/firebase/admin");
-    await getFirestoreDb()
-      .collection("clients")
-      .doc(clientId)
-      .set(
-        {
-          polarEmail: normalized,
-          updatedAt: FieldValue.serverTimestamp(),
-        },
-        { merge: true },
-      );
-  } catch (error) {
-    console.warn("[polar] failed to store customer email", {
-      clientId,
-      message: error instanceof Error ? error.message : String(error),
-    });
-  }
-}
-
-function extractSiteId(clientId: string | null): string | null {
-  if (!clientId) return null;
-  return findPendingByClientId(clientId)?.siteId ?? null;
-}
-
-function markTenantPaid(clientId: string): void {
-  markDemoPaidByClientId(clientId);
-  markClientDistPaid(clientId);
-  // Prefer pending.siteId so TTL row flips paid even if registry slug ≠ siteId.
-  const siteId = extractSiteId(clientId);
-  if (siteId) {
-    cancelDeletion(siteId);
-  }
+async function applyPolarPaid(input: {
+  clientId: string;
+  email?: string;
+  orderId?: string;
+  source: string;
+}): Promise<void> {
+  markTenantPaid(input.clientId);
+  await persistTenantPaid({
+    clientId: input.clientId,
+    email: input.email,
+    orderId: input.orderId,
+    source: input.source,
+  });
 }
 
 export const POST = Webhooks({
@@ -60,10 +35,27 @@ export const POST = Webhooks({
     const checkout = payload.data as Record<string, unknown>;
     const checkoutId = typeof checkout.id === "string" ? checkout.id : null;
     const clientId = resolveOrderClientId(checkout);
+    const email = resolveOrderEmail(checkout);
 
     if (checkoutId && clientId) {
       saveCheckoutReference(checkoutId, clientId);
-      console.log("[polar] checkout.updated reference saved", { checkoutId, clientId });
+      console.log("[polar] checkout.updated reference saved", {
+        checkoutId,
+        clientId,
+        status: checkout.status ?? null,
+      });
+    }
+
+    // 100% Polar discounts succeed the checkout immediately. Do not wait for a
+    // later order.paid if clientId is already known — otherwise TTL deletes the site.
+    if (clientId && isPolarCheckoutSucceeded(checkout)) {
+      console.log("[polar] checkout succeeded — marking tenant paid", { checkoutId, clientId });
+      await applyPolarPaid({
+        clientId,
+        email,
+        orderId: checkoutId || undefined,
+        source: "polar_checkout",
+      });
     }
   },
   onOrderPaid: async (payload) => {
@@ -100,13 +92,17 @@ export const POST = Webhooks({
         productId,
         productName,
         productKind: kind,
+        metadata: order.metadata ?? null,
       });
       return;
     }
 
-    // Flip paid on registry + pending so Railway/CRM banners clear immediately.
-    markTenantPaid(clientId);
-    await rememberPolarCustomerEmail(clientId, email || "");
+    await applyPolarPaid({
+      clientId,
+      email,
+      orderId,
+      source: "polar_order",
+    });
 
     try {
       if (kind === "recurring") {

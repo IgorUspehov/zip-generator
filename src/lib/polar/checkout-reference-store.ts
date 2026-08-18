@@ -56,14 +56,25 @@ export function pickReferenceId(data: Record<string, unknown>): string | null {
   const candidates = [
     metadata?.reference_id,
     metadata?.referenceId,
+    metadata?.client_id,
+    metadata?.clientId,
     data.referenceId,
     data.reference_id,
+    data.externalCustomerId,
+    data.external_customer_id,
     checkout?.referenceId,
     checkout?.reference_id,
+    checkout?.externalCustomerId,
+    checkout?.external_customer_id,
     checkoutMetadata?.reference_id,
     checkoutMetadata?.referenceId,
+    checkoutMetadata?.client_id,
+    checkoutMetadata?.clientId,
+    customer?.externalId,
+    customer?.external_id,
     customerMetadata?.reference_id,
     customerMetadata?.referenceId,
+    customerMetadata?.client_id,
   ];
 
   for (const value of candidates) {
