@@ -8,6 +8,25 @@ function normalizeEmail(value: unknown): string {
   return typeof value === "string" ? value.trim().toLowerCase() : "";
 }
 
+/** Gmail treats dots and +tags as the same mailbox. */
+export function canonicalizeEmail(email: string): string {
+  const normalized = normalizeEmail(email);
+  const at = normalized.lastIndexOf("@");
+  if (at < 1) return normalized;
+  const local = normalized.slice(0, at);
+  const domain = normalized.slice(at + 1);
+  if (domain === "gmail.com" || domain === "googlemail.com") {
+    return `${local.split("+")[0].replace(/\./g, "")}@gmail.com`;
+  }
+  return normalized;
+}
+
+export function emailsEquivalent(left: string, right: string): boolean {
+  const a = canonicalizeEmail(left);
+  const b = canonicalizeEmail(right);
+  return Boolean(a.includes("@") && a === b);
+}
+
 export function collectOwnerEmails(record: Record<string, unknown> | null | undefined): string[] {
   if (!record) return [];
   const emails = new Set<string>();
@@ -37,7 +56,7 @@ export function recordOwnsEmail(
 ): boolean {
   const normalized = normalizeEmail(email);
   if (!normalized.includes("@")) return false;
-  return collectOwnerEmails(record).includes(normalized);
+  return collectOwnerEmails(record).some((item) => emailsEquivalent(item, normalized));
 }
 
 function listManifestClientIds(): string[] {
@@ -59,6 +78,13 @@ async function queryFirestoreClientIdsByEmail(email: string): Promise<string[]> 
       db.collection("clients").where("email", "==", email).get(),
       db.collection("clients").where("polarEmail", "==", email).get(),
     ];
+    const canonical = canonicalizeEmail(email);
+    if (canonical !== email) {
+      queries.push(
+        db.collection("clients").where("email", "==", canonical).get(),
+        db.collection("clients").where("polarEmail", "==", canonical).get(),
+      );
+    }
     const results = await Promise.allSettled(queries);
     for (const result of results) {
       if (result.status !== "fulfilled") continue;
@@ -114,7 +140,7 @@ export async function findClientIdsByOwnerEmail(
     const hintedManifest = loadClientManifest(hintedId);
     if (
       recordOwnsEmail(hintedRecord, normalized) ||
-      extractOwnerEmail(hintedManifest) === normalized
+      emailsEquivalent(extractOwnerEmail(hintedManifest), normalized)
     ) {
       ids.add(hintedId);
     }
@@ -122,7 +148,7 @@ export async function findClientIdsByOwnerEmail(
 
   for (const id of listManifestClientIds()) {
     const manifest = loadClientManifest(id);
-    if (extractOwnerEmail(manifest) === normalized) {
+    if (emailsEquivalent(extractOwnerEmail(manifest), normalized)) {
       ids.add(id);
     }
   }
@@ -131,7 +157,7 @@ export async function findClientIdsByOwnerEmail(
   for (const id of fromFirestore) {
     const record = await loadFirestoreClientRecord(id);
     const manifest = loadClientManifest(id);
-    if (recordOwnsEmail(record, normalized) || extractOwnerEmail(manifest) === normalized) {
+    if (recordOwnsEmail(record, normalized) || emailsEquivalent(extractOwnerEmail(manifest), normalized)) {
       ids.add(id);
     }
   }

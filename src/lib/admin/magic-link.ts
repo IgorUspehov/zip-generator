@@ -7,7 +7,7 @@ import { resolvePersistentDataDir } from "@/lib/site-delivery/data-dir";
 const TOKEN_TTL_MS = 30 * 60 * 1000;
 
 /** Verified Resend domain — do not use onboarding@resend.dev (test mode). */
-export const ADMIN_MAGIC_LINK_FROM = "noreply@webstudio-muenchen.com";
+export const ADMIN_MAGIC_LINK_FROM = "Webstudio München <noreply@webstudio-muenchen.com>";
 
 export type MagicLinkRecord = {
   tokenHash: string;

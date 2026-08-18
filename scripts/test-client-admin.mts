@@ -114,6 +114,8 @@ if (fs.existsSync(fixturePath)) {
     "uspeh.polimer2022+test1@gmail.com",
   ]);
   assert.equal(recordOwnsEmail(record, "uspeh.polimer2022+test1@gmail.com"), true);
+  assert.equal(recordOwnsEmail(record, "uspeh.polimer2022+test3@gmail.com"), true);
+  assert.equal(recordOwnsEmail(record, "uspeh.polimer2022@gmail.com"), true);
   assert.equal(recordOwnsEmail(record, "nobody@example.com"), false);
   console.log("[PASS] owner email lookup includes polar + questionnaire aliases");
 }
