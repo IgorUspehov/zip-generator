@@ -4,13 +4,14 @@ import { NextResponse } from "next/server";
 import {
   POLAR_CHECKOUT_DEPLOYABLE_ZIP,
   POLAR_PRODUCT_DEPLOYABLE_ZIP,
+  isFactoryOwnedCrmFullCheckout,
 } from "@/lib/polar/constants";
 
 export const runtime = "nodejs";
 
 /**
  * Create a Polar checkout for Deployable ZIP (€999 one-time).
- * Requires POLAR_PRODUCT_DEPLOYABLE_ZIP (or NEXT_PUBLIC_…) on the server.
+ * Success URL is always webstudio-muenchen.com/success — never Factory SDK.
  */
 export async function POST(request: Request) {
   let body: { clientId?: string; email?: string; locale?: string } = {};
@@ -78,7 +79,7 @@ export async function POST(request: Request) {
     } catch (error) {
       const message = error instanceof Error ? error.message : "Polar checkout failed";
       console.error("[polar/deployable-zip-checkout]", message);
-      // Fall through to static checkout link if configured
+      // Fall through only to a SaaS-owned static link (never Factory CRM Full).
     }
   }
 
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
     process.env.POLAR_CHECKOUT_DEPLOYABLE_ZIP?.trim() ||
     POLAR_CHECKOUT_DEPLOYABLE_ZIP;
 
-  if (staticCheckout) {
+  if (staticCheckout && !isFactoryOwnedCrmFullCheckout(staticCheckout)) {
     const out = new URL(staticCheckout);
     out.searchParams.set("reference_id", clientId);
     out.searchParams.set("metadata[client_id]", clientId);
@@ -109,7 +110,7 @@ export async function POST(request: Request) {
   return NextResponse.json(
     {
       error:
-        "Deployable ZIP Polar product is not configured. Set POLAR_PRODUCT_DEPLOYABLE_ZIP (run scripts/setup-polar-deployable-zip-999.mjs).",
+        "Deployable ZIP Polar checkout is not configured for SaaS. Set POLAR_ACCESS_TOKEN + product id, or POLAR_CHECKOUT_DEPLOYABLE_ZIP with success URL on webstudio-muenchen.com (do not reuse Factory CRM Full link).",
     },
     { status: 503 },
   );

@@ -1,6 +1,7 @@
 import {
   POLAR_CHECKOUT_DEPLOYABLE_ZIP,
   POLAR_CHECKOUT_WEBSTUDIO_199,
+  isFactoryOwnedCrmFullCheckout,
 } from "@/lib/polar/constants";
 import type { TariffContext } from "@/lib/tariffs/copy";
 
@@ -56,14 +57,16 @@ export function buildCrmDemoPolarUrl(
   return url.toString();
 }
 
-/** Static Polar checkout for €999 Deployable ZIP (fallback when API checkout unavailable). */
+/** Static Polar checkout for €999 Deployable ZIP (SaaS success URL only — never Factory). */
 export function buildDeployableZipPolarUrl(
   clientId: string,
   email?: string,
   locale?: string,
 ): string | null {
   const base = POLAR_CHECKOUT_DEPLOYABLE_ZIP.trim();
-  if (!base) return null;
+  if (!base || isFactoryOwnedCrmFullCheckout(base)) {
+    return null;
+  }
   const url = new URL(base);
   if (clientId) {
     url.searchParams.set("reference_id", clientId);
