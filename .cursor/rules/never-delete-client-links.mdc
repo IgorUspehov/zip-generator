@@ -15,8 +15,10 @@ alwaysApply: true
 |---|---|---|
 | **Демо / CRM** | `/demo/{slug}?clientId=…`, Cloudflare Pages, demo-registry | Оболочка CRM + booking |
 | **Сайт** | `/site/{slug}` или `/site/{clientId}` | Публичный сайт клиента |
-| **Манифест** | `data/manifests/{clientId}.json` | Контент и резолв обеих ссылок |
+| **Манифест** | `data/manifests/{clientId}.json` (+ Firestore) | Контент и резолв обеих ссылок |
 | **Dist / deploy** | `client-dists`, Pages deployment, pending-deletions | Живой билд |
+
+На Render `demo-registry` и manifests лежат в `/tmp` и **пропадают после каждого деплоя**. Это не «удаление клиента» — код обязан **восстановить** их из Firestore (`ensurePublicSiteResolved` / `hydrateClientManifest`). Нельзя «чинить» отсутствующие ссылки удалением записей.
 
 Если сомневаешься «это демо или уже клиентский сайт» — **считай клиентским** и **не удаляй ни демо, ни сайт, ни зависимости**.
 

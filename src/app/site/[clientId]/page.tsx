@@ -4,9 +4,8 @@ import { redirect } from "next/navigation";
 
 import {
   buildPublicSitePath,
-  resolvePublicSiteParam,
+  ensurePublicSiteResolved,
 } from "@/lib/cloudflare/resolve-public-site";
-import { hydrateDemoRecord } from "@/lib/cloudflare/demo-registry";
 import { resolveSiteCrmHref } from "@/lib/cloudflare/resolve-site-crm-href";
 import { listCatalogItems } from "@/lib/catalog/firestore-catalog";
 import {
@@ -43,8 +42,7 @@ export async function generateMetadata({
 export default async function PublicSitePage({ params, searchParams }: SitePageProps) {
   const { clientId: raw } = await params;
   const query = await searchParams;
-  await hydrateDemoRecord({ slug: raw, clientId: raw });
-  const resolved = resolvePublicSiteParam(raw || "");
+  const resolved = await ensurePublicSiteResolved(raw || "");
 
   if (!resolved) {
     return (

@@ -3199,8 +3199,8 @@ export default function App() {
           ) : (
             <span className="domain-icon" aria-hidden="true">{businessIcon}</span>
           )}
-          <div>
-            <h2 className="sidebar-business-name">{businessName}</h2>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <h2 className="sidebar-business-name" style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>{businessName}</h2>
             <p className="sidebar-sector">{sectorLabel}</p>
             {city && <p className="sidebar-sector">{city}</p>}
           </div>
@@ -3256,8 +3256,8 @@ export default function App() {
               <div className="hero-top">
                 <span className="domain-badge">{sectorLabel}</span>
               </div>
-              <h1 className="business-name">{businessName}</h1>
-              <h2 className="dashboard-title">{displayPanelTitle}</h2>
+              <h1 className="business-name" style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>{businessName}</h1>
+              <h2 className="dashboard-title" style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>{displayPanelTitle}</h2>
               {metricValues[0] ? (
                 <p className="tagline" style={{ marginTop: "0.35rem" }}>
                   {getOwnerSummary(businessName, metricValues[0], language)}

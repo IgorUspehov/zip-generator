@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { hydrateClientManifest } from "@/lib/admin/lookup";
 import { normalizeManifestMedia } from "@/lib/manifest/normalize-manifest-media";
 import { loadClientManifest } from "@/lib/manifest/storage";
 import { stripLeadsSecrets } from "@/lib/leads/read-secret";
@@ -21,7 +22,10 @@ export async function GET(
   context: { params: Promise<{ clientId: string }> },
 ) {
   const { clientId } = await context.params;
-  const manifest = loadClientManifest(clientId);
+  // Render stores manifests under /tmp — after each deploy disk is empty.
+  // Rehydrate from Firestore; never treat a cold disk as "deleted client".
+  const manifest =
+    loadClientManifest(clientId) || (await hydrateClientManifest(clientId));
 
   if (!manifest) {
     return NextResponse.json(
