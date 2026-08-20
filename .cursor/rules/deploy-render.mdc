@@ -1,14 +1,33 @@
 ---
-description: Production deploy is Render.com via git push to main
+description: Production is ONLY Render.com — never Railway for SaaS
 alwaysApply: true
 ---
 
-# Deploy (Render.com)
+# Deploy & production (Render.com ONLY)
 
-- **Production:** Render Web Service → https://webstudio-muenchen.com (also https://saas-mvp-funnel.onrender.com).
-- **Service id (known):** `srv-da1dg061egvs73ai5ubg`
-- **How to deploy:** `git push origin main` — Render auto-deploys from GitHub `main`. That is the normal path.
-- Do **not** deploy SaaS to Railway / Netlify / Vercel. `railway.toml` is not the production path.
-- Do **not** run `railway up` for «деплой».
-- When user says «деплой» / «пуш»: commit relevant code (no secrets). Do **not** stage deletions of existing `data/manifests/*` or anything that would break a client link — see `never-delete-client-links.mdc`. Then `git push origin main`, then confirm site responds (`x-render-origin-server: Render`).
-- Render CLI may be unauthenticated; git push is enough when auto-deploy is on.
+## Hard rule — remember this every turn
+
+- **Весь SaaS-проект (saas-mvp-funnel) живёт на Render.com.** Не на Railway. Не на Netlify. Не на Vercel.
+- Env / secrets / Polar / Firebase / webhooks / диски / логи — смотреть и править **только в Render**.
+- **Запрещено:** `railway variables`, `railway up`, `railway logs`, Railway dashboard как «прод», копировать токены с Railway «потому что удобно».
+- `railway.toml` в репо — наследие, **не** production path.
+
+## Production
+
+- **Site:** https://webstudio-muenchen.com (also https://saas-mvp-funnel.onrender.com)
+- **Service id:** `srv-da1dg061egvs73ai5ubg`
+- **Deploy:** `git push origin main` → Render auto-deploy from GitHub `main`
+- After push: confirm `x-render-origin-server: Render`
+
+## When user says «деплой» / «пуш»
+
+1. Commit relevant code (no secrets). Do **not** stage deletions of `data/manifests/*` — see `never-delete-client-links.mdc`.
+2. `git push origin main`
+3. Confirm site responds with Render header
+
+Render CLI may be unauthenticated; git push is enough when auto-deploy is on.
+
+## Polar / ZIP / payments
+
+- Configure `POLAR_*` on **Render** service env, not Railway.
+- Never send SaaS €999 buyers to Factory SDK checkout success URL.

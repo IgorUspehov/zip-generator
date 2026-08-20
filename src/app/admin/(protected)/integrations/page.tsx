@@ -131,11 +131,11 @@ export default function AdminIntegrationsPage() {
       });
       const json = (await response.json()) as { checkout_url?: string; error?: string };
       if (!response.ok || !json.checkout_url) {
+        // Never surface raw English server dumps in the admin UI.
         setBuyError(
-          json.error ||
-            (response.status === 503
-              ? copy.integrations.buyZipCheckoutMissing
-              : copy.integrations.buyZipError),
+          response.status === 503
+            ? copy.integrations.buyZipCheckoutMissing
+            : copy.integrations.buyZipError,
         );
         setBuyState("error");
         return;

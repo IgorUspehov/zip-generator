@@ -170,7 +170,8 @@ const EN: AdminCopy = {
     buyZip: "Buy ZIP · €999",
     buyZipLoading: "Opening checkout…",
     buyZipError: "Could not start checkout. Try again.",
-    buyZipCheckoutMissing: "€999 ZIP product is not configured on the server yet.",
+    buyZipCheckoutMissing:
+      "ZIP €999 is not configured on Render. Set POLAR_ACCESS_TOKEN (checkouts:write) or POLAR_CHECKOUT_DEPLOYABLE_ZIP with success URL https://webstudio-muenchen.com/success — not the Factory link.",
     zipLockedHint: "One-time €999 unlocks your personalized static ZIP for any host.",
     zipUnlockedHint: "Payment confirmed — you can download your Deployable ZIP.",
   },
@@ -303,7 +304,8 @@ const DE: AdminCopy = {
     buyZip: "ZIP kaufen · €999",
     buyZipLoading: "Checkout wird geöffnet…",
     buyZipError: "Checkout konnte nicht gestartet werden. Bitte erneut versuchen.",
-    buyZipCheckoutMissing: "€999-ZIP-Produkt ist auf dem Server noch nicht konfiguriert.",
+    buyZipCheckoutMissing:
+      "ZIP €999 ist auf Render nicht konfiguriert. POLAR_ACCESS_TOKEN (checkouts:write) oder POLAR_CHECKOUT_DEPLOYABLE_ZIP mit Success-URL https://webstudio-muenchen.com/success setzen — nicht den Factory-Link.",
     zipLockedHint: "Einmalig €999 schaltet Ihr personalisiertes Static-ZIP für jedes Hosting frei.",
     zipUnlockedHint: "Zahlung bestätigt — Sie können Ihr Deployable ZIP herunterladen.",
   },
@@ -436,7 +438,8 @@ const RU: AdminCopy = {
     buyZip: "Купить ZIP · €999",
     buyZipLoading: "Открываем оплату…",
     buyZipError: "Не удалось открыть оплату. Попробуйте снова.",
-    buyZipCheckoutMissing: "Продукт ZIP €999 ещё не настроен на сервере.",
+    buyZipCheckoutMissing:
+      "ZIP €999 не настроен на Render. Добавьте POLAR_ACCESS_TOKEN (checkouts:write) или POLAR_CHECKOUT_DEPLOYABLE_ZIP с success URL https://webstudio-muenchen.com/success — не ссылку Factory.",
     zipLockedHint: "Разовая оплата €999 открывает персональный static ZIP для любого хостинга.",
     zipUnlockedHint: "Оплата подтверждена — можно скачать Deployable ZIP.",
   },

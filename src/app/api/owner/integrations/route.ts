@@ -6,7 +6,7 @@ import { canDownloadDeployableZip } from "@/lib/mvp-pro/zip-access";
 import { resolveOwnerIntegrations } from "@/lib/owner/integrations";
 import {
   POLAR_CHECKOUT_DEPLOYABLE_ZIP,
-  POLAR_PRODUCT_DEPLOYABLE_ZIP,
+  isFactoryOwnedCrmFullCheckout,
 } from "@/lib/polar/constants";
 import { clientDistExists } from "@/lib/site-delivery/dist-store";
 
@@ -55,8 +55,11 @@ export async function GET(request: Request) {
       zipUnlocked: zipAccess.allowed,
       zipUnlockReason: zipAccess.reason,
       email: pickEmail(manifest),
+      // Ready only when Render has a SaaS checkout path (API token or non-Factory link).
       checkoutConfigured: Boolean(
-        POLAR_PRODUCT_DEPLOYABLE_ZIP || POLAR_CHECKOUT_DEPLOYABLE_ZIP,
+        process.env.POLAR_ACCESS_TOKEN?.trim() ||
+          (POLAR_CHECKOUT_DEPLOYABLE_ZIP &&
+            !isFactoryOwnedCrmFullCheckout(POLAR_CHECKOUT_DEPLOYABLE_ZIP)),
       ),
       integrations,
     });
