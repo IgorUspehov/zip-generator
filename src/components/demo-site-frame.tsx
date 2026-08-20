@@ -30,7 +30,8 @@ export function DemoSiteFrame({
   iframeTitle,
   paidBar,
 }: DemoSiteFrameProps) {
-  const [framed, setFramed] = useState(true);
+  // Top-level /demo visits must show the paywall immediately; only hide chrome when iframed (/pay).
+  const [framed, setFramed] = useState(false);
   const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {

@@ -175,7 +175,8 @@ export async function hydrateDemoRecord(input: {
     if (existing.paid) return existing;
     if (!clientIdHint && !existing.clientId) return existing;
     const data = await loadFirestoreDemoFields(existing.clientId || clientIdHint);
-    if (data && (data.paid === true || asTrimmedString(data.polarEmail))) {
+    // Only explicit paid=true unlocks share links — polarEmail alone must not skip the paywall.
+    if (data?.paid === true) {
       markDemoPaidByClientId(existing.clientId);
       return findDemoByClientId(existing.clientId) || existing;
     }
@@ -205,7 +206,7 @@ export async function hydrateDemoRecord(input: {
   const slug = asTrimmedString(data?.demoSlug) || slugHint;
   if (!clientId || !slug) return undefined;
 
-  const paid = data?.paid === true || Boolean(asTrimmedString(data?.polarEmail));
+  const paid = data?.paid === true;
   const record: DemoSiteRecord = {
     slug,
     clientId,

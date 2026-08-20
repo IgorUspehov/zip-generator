@@ -830,6 +830,7 @@ function ClientWizardFlow() {
         address: string;
       },
     ) => {
+      const buildStartedAt = Date.now();
       setIsGenerating(true);
 
       const businessType = SECTOR_TO_BUSINESS_TYPE[selectedSector] ?? DEFAULT_BUSINESS_TYPE;
@@ -859,18 +860,27 @@ function ClientWizardFlow() {
         console.log("[wizard] API response:", data);
         const slug = data.slug?.trim() || "";
         const clientId = data.clientId?.trim() || "";
+
+        let demoPath = "";
         if (slug && clientId) {
-          const demoPath = `/demo/${encodeURIComponent(slug)}?clientId=${encodeURIComponent(clientId)}`;
-          console.log("[wizard] navigation target:", demoPath);
-          window.location.assign(demoPath);
-          return;
+          demoPath = `/demo/${encodeURIComponent(slug)}?clientId=${encodeURIComponent(clientId)}`;
+        } else if (data.redirectUrl?.trim()) {
+          demoPath = data.redirectUrl.trim();
         }
-        if (data.redirectUrl) {
-          console.log("[wizard] navigation target:", data.redirectUrl);
-          window.location.assign(data.redirectUrl);
-          return;
+        if (!demoPath) {
+          throw new Error("No redirect URL returned");
         }
-        throw new Error("No redirect URL returned");
+
+        // Keep the 01:00…00:00 board visible for the full timer even if API finishes early.
+        // Then open /demo with the unpaid tariff + promo banner (not paid share links).
+        const elapsedMs = Date.now() - buildStartedAt;
+        const remainingMs = BUILD_COUNTDOWN_SEC * 1000 - elapsedMs;
+        if (remainingMs > 0) {
+          await new Promise((resolve) => window.setTimeout(resolve, remainingMs));
+        }
+
+        console.log("[wizard] navigation target:", demoPath);
+        window.location.assign(demoPath);
       } catch (error) {
         console.error("POST /api/client-questionnaire failed:", error);
         console.log("[wizard] navigation target:", "s4 (build error, staying on build screen)");

@@ -12,18 +12,18 @@ type DemoUnpaidBannerProps = {
 const COPY = {
   en: {
     text: "Demo version. Choose a plan to continue.",
-    cta: "Choose plan",
-    promoCta: "Apply promo code",
+    cta: "SELECT PLAN",
+    promoCta: "Enter promo code",
   },
   de: {
     text: "Demo-Version. Wählen Sie einen Plan, um fortzufahren.",
-    cta: "Plan wählen",
-    promoCta: "Promo-Code einlösen",
+    cta: "TARIF WÄHLEN",
+    promoCta: "Promo-Code eingeben",
   },
   ru: {
     text: "Демо-версия. Выберите тариф, чтобы продолжить.",
-    cta: "Выбрать тариф",
-    promoCta: "Применить промокод",
+    cta: "ВЫБОР ТАРИФА",
+    promoCta: "Ввести промокод",
   },
 } as const;
 
