@@ -4,24 +4,21 @@ import { NextResponse } from "next/server";
 
 import { AdminUnauthorizedError, requireAdminSession, unauthorizedResponse } from "@/lib/admin/authorize";
 import { buildDeployableZip, DeployableZipError } from "@/lib/deployable-zip";
+import { canDownloadDeployableZip } from "@/lib/mvp-pro/zip-access";
 
 export const runtime = "nodejs";
 
 /**
- * OWNER Deployable ZIP download.
+ * Deployable ZIP download for the authenticated admin session.
  *
- * Auth: existing admin session cookie (`site_admin_client`).
- * clientId is taken ONLY from the signed session — query/body clientId is ignored
- * so callers cannot download another tenant's ZIP by changing URL params.
- *
- * Does not use /api/download-site, /api/download-zip, or /api/admin/download-zip.
+ * Gated by €999 Polar entitlement (or DEPLOYABLE_ZIP_OWNER_BYPASS=1).
+ * clientId is taken ONLY from the signed session.
  */
 export async function GET(request: Request) {
   try {
     const session = requireAdminSession(request);
     const clientId = session.clientId;
 
-    // Explicitly ignore any clientId in the URL (defense in depth).
     const url = new URL(request.url);
     const queried = url.searchParams.get("clientId")?.trim();
     if (queried && queried !== clientId) {
@@ -31,9 +28,22 @@ export async function GET(request: Request) {
       });
     }
 
+    const access = canDownloadDeployableZip(clientId);
+    if (!access.allowed) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Deployable ZIP requires €999 payment",
+          code: "PAYMENT_REQUIRED",
+          checkout: "/api/polar/deployable-zip-checkout",
+        },
+        { status: 402 },
+      );
+    }
+
     const result = await buildDeployableZip({
       clientId,
-      mode: "owner",
+      mode: access.reason === "bypass" ? "owner" : "subscription_export",
     });
 
     if (result.clientId !== clientId) {
@@ -52,7 +62,7 @@ export async function GET(request: Request) {
         "Content-Disposition": `attachment; filename="${result.filename}"`,
         "Cache-Control": "no-store",
         "X-Deployable-Zip-Client-Id": result.clientId,
-        "X-Deployable-Zip-Mode": "owner",
+        "X-Deployable-Zip-Mode": result.mode,
         "X-Deployable-Zip-Isolation-Ok": result.isolation.ok ? "1" : "0",
       },
     });

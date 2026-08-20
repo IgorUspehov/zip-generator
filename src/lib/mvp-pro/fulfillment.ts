@@ -1,8 +1,8 @@
 import { appendNotification } from "@/lib/client-notifications/notification-store";
 import { loadClientManifest } from "@/lib/manifest/storage";
 import { LEMONSQUEEZY_VARIANT_MVP_PRO } from "@/lib/mvp-pro/constants";
-import { snapshotClientDist } from "@/lib/mvp-pro/dist-resolver";
 import { grantMvpProEntitlement, type MvpProEntitlement } from "@/lib/mvp-pro/entitlement-store";
+import { clientDistExists } from "@/lib/site-delivery/dist-store";
 
 function pickString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
@@ -24,15 +24,15 @@ async function sendDownloadEmail(entitlement: MvpProEntitlement, downloadUrl: st
   }
 
   const subjects = {
-    ru: "Ваш MVP Pro готов к скачиванию",
-    de: "Ihr MVP Pro ist zum Download bereit",
-    en: "Your MVP Pro package is ready",
+    ru: "Ваш Deployable ZIP (€999) готов к скачиванию",
+    de: "Ihr Deployable ZIP (€999) ist zum Download bereit",
+    en: "Your Deployable ZIP (€999) is ready to download",
   } as const;
 
   const bodies = {
-    ru: `Оплата MVP Pro подтверждена.\n\nСкачайте ZIP:\n${downloadUrl}\n\nClient ID: ${entitlement.clientId}`,
-    de: `MVP Pro Zahlung bestätigt.\n\nZIP herunterladen:\n${downloadUrl}\n\nKunden-ID: ${entitlement.clientId}`,
-    en: `MVP Pro payment confirmed.\n\nDownload your ZIP:\n${downloadUrl}\n\nClient ID: ${entitlement.clientId}`,
+    ru: `Оплата Deployable ZIP (€999) подтверждена.\n\nСкачайте ZIP вашего сайта:\n${downloadUrl}\n\nClient ID: ${entitlement.clientId}\n\nВ архиве — статическая сборка Website + CRM для размещения на любом хостинге.`,
+    de: `Zahlung für Deployable ZIP (€999) bestätigt.\n\nZIP herunterladen:\n${downloadUrl}\n\nKunden-ID: ${entitlement.clientId}\n\nDas Archiv enthält Ihr statisches Website + CRM-Paket für jedes Hosting.`,
+    en: `Deployable ZIP (€999) payment confirmed.\n\nDownload your ZIP:\n${downloadUrl}\n\nClient ID: ${entitlement.clientId}\n\nThe archive is your static Website + CRM package for any host.`,
   } as const;
 
   const response = await fetch("https://api.resend.com/emails", {
@@ -60,10 +60,17 @@ export async function fulfillMvpProOrder(input: {
 }): Promise<MvpProEntitlement> {
   const manifest = loadClientManifest(input.clientId);
   const language = resolveLanguage(manifest);
-  const businessName = pickString(manifest?.business_name) || pickString(manifest?.businessName) || "MVP Pro Client";
-  const businessType = pickString(manifest?.business_type) || pickString(manifest?.businessType) || "business";
+  const businessName =
+    pickString(manifest?.business_name) || pickString(manifest?.businessName) || "Website + CRM";
+  const businessType =
+    pickString(manifest?.business_type) || pickString(manifest?.businessType) || "business";
 
-  snapshotClientDist(input.clientId);
+  if (!clientDistExists(input.clientId)) {
+    console.error("[mvp-pro] DIST_MISSING at fulfill — entitlement granted, download will 404 until dist exists", {
+      clientId: input.clientId,
+      orderId: input.orderId ?? null,
+    });
+  }
 
   const entitlement = grantMvpProEntitlement({
     clientId: input.clientId,
@@ -75,8 +82,8 @@ export async function fulfillMvpProOrder(input: {
     variantId: input.variantId ?? LEMONSQUEEZY_VARIANT_MVP_PRO,
   });
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const downloadUrl = `${siteUrl}/api/download-zip?clientId=${encodeURIComponent(entitlement.clientId)}&token=${encodeURIComponent(entitlement.downloadToken)}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://webstudio-muenchen.com";
+  const downloadUrl = `${siteUrl.replace(/\/$/, "")}/api/download-zip?clientId=${encodeURIComponent(entitlement.clientId)}&token=${encodeURIComponent(entitlement.downloadToken)}`;
 
   const emailed = await sendDownloadEmail(entitlement, downloadUrl);
 
@@ -92,6 +99,7 @@ export async function fulfillMvpProOrder(input: {
     clientId: entitlement.clientId,
     emailed,
     downloadUrl,
+    distReady: clientDistExists(input.clientId),
   });
 
   return entitlement;

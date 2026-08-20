@@ -40,12 +40,19 @@ export type AdminCopy = {
     downloadZipLoading: string;
     downloadZipError: string;
     downloadZipDistMissing: string;
+    buyZip: string;
+    buyZipLoading: string;
+    buyZipError: string;
+    buyZipCheckoutMissing: string;
+    zipLockedHint: string;
+    zipUnlockedHint: string;
     distReady: string;
     distMissing: string;
     statusReady: string;
     statusComingSoon: string;
     statusNotConfigured: string;
     statusPlatform: string;
+    openPlatform: string;
     items: {
       zip: { title: string; description: string };
       github: { title: string; description: string };
@@ -163,7 +170,7 @@ const EN: AdminCopy = {
     publicSiteMissing: "Public URL not available yet.",
     crm: "CRM / Booking:",
     sections: "Sections",
-    openIntegrations: "Integrations → Download ZIP",
+    openIntegrations: "Integrations → Deployable ZIP €999",
   },
   integrations: {
     title: "Integrations",
@@ -172,16 +179,24 @@ const EN: AdminCopy = {
     downloadZipLoading: "Creating ZIP…",
     downloadZipError: "Could not create ZIP. Try again.",
     downloadZipDistMissing: "Site files are not ready yet. Create or republish the site first.",
+    buyZip: "Buy Deployable ZIP · €999",
+    buyZipLoading: "Opening checkout…",
+    buyZipError: "Could not start checkout. Try again.",
+    buyZipCheckoutMissing: "€999 ZIP product is not configured on the server yet.",
+    zipLockedHint: "One-time €999 unlocks your personalized static ZIP for any host.",
+    zipUnlockedHint: "Payment confirmed — you can download your Deployable ZIP.",
     distReady: "Site dist ready",
     distMissing: "Site dist missing",
     statusReady: "Ready",
     statusComingSoon: "Coming soon",
     statusNotConfigured: "Not configured",
     statusPlatform: "Platform only",
+    openPlatform: "Open site",
     items: {
       zip: {
         title: "Deployable ZIP + README",
-        description: "Download a static package of this client site via Deployable ZIP Builder V2.",
+        description:
+          "Personalized static Website + CRM package. €999 one-time via Polar, then download anytime.",
       },
       github: {
         title: "GitHub",
@@ -324,7 +339,7 @@ const DE: AdminCopy = {
     publicSiteMissing: "Öffentliche URL noch nicht verfügbar.",
     crm: "CRM / Booking:",
     sections: "Bereiche",
-    openIntegrations: "Integrationen → ZIP herunterladen",
+    openIntegrations: "Integrationen → Deployable ZIP €999",
   },
   integrations: {
     title: "Integrationen",
@@ -333,16 +348,24 @@ const DE: AdminCopy = {
     downloadZipLoading: "ZIP wird erstellt…",
     downloadZipError: "ZIP konnte nicht erstellt werden. Bitte erneut versuchen.",
     downloadZipDistMissing: "Website-Dateien sind noch nicht bereit. Bitte zuerst veröffentlichen.",
+    buyZip: "Deployable ZIP kaufen · €999",
+    buyZipLoading: "Checkout wird geöffnet…",
+    buyZipError: "Checkout konnte nicht gestartet werden. Bitte erneut versuchen.",
+    buyZipCheckoutMissing: "€999-ZIP-Produkt ist auf dem Server noch nicht konfiguriert.",
+    zipLockedHint: "Einmalig €999 schaltet Ihr personalisiertes Static-ZIP für jedes Hosting frei.",
+    zipUnlockedHint: "Zahlung bestätigt — Sie können Ihr Deployable ZIP herunterladen.",
     distReady: "Site-Dist bereit",
     distMissing: "Site-Dist fehlt",
     statusReady: "Bereit",
     statusComingSoon: "Demnächst",
     statusNotConfigured: "Nicht konfiguriert",
     statusPlatform: "Nur Plattform",
+    openPlatform: "Zur Website",
     items: {
       zip: {
         title: "Deployable ZIP + README",
-        description: "Statisches Paket dieser Kunden-Website über Deployable ZIP Builder V2.",
+        description:
+          "Personalisiertes Static Website + CRM-Paket. Einmalig €999 über Polar, danach jederzeit downloadbar.",
       },
       github: {
         title: "GitHub",
@@ -485,7 +508,7 @@ const RU: AdminCopy = {
     publicSiteMissing: "Публичный URL пока недоступен.",
     crm: "CRM / Бронирование:",
     sections: "Разделы",
-    openIntegrations: "Интеграции → Скачать ZIP",
+    openIntegrations: "Интеграции → Deployable ZIP €999",
   },
   integrations: {
     title: "Интеграции",
@@ -494,16 +517,24 @@ const RU: AdminCopy = {
     downloadZipLoading: "Создание ZIP…",
     downloadZipError: "Не удалось создать ZIP. Попробуйте снова.",
     downloadZipDistMissing: "Файлы сайта ещё не готовы. Сначала создайте или опубликуйте сайт.",
+    buyZip: "Купить Deployable ZIP · €999",
+    buyZipLoading: "Открываем оплату…",
+    buyZipError: "Не удалось открыть оплату. Попробуйте снова.",
+    buyZipCheckoutMissing: "Продукт ZIP €999 ещё не настроен на сервере.",
+    zipLockedHint: "Разовая оплата €999 открывает персональный static ZIP для любого хостинга.",
+    zipUnlockedHint: "Оплата подтверждена — можно скачать Deployable ZIP.",
     distReady: "Dist сайта готов",
     distMissing: "Dist сайта отсутствует",
     statusReady: "Готово",
     statusComingSoon: "Скоро",
     statusNotConfigured: "Не настроено",
     statusPlatform: "Только платформа",
+    openPlatform: "Открыть сайт",
     items: {
       zip: {
         title: "Deployable ZIP + README",
-        description: "Статический пакет этого сайта через Deployable ZIP Builder V2.",
+        description:
+          "Персональный static-пакет Website + CRM. Разово €999 через Polar, затем скачивание в любое время.",
       },
       github: {
         title: "GitHub",

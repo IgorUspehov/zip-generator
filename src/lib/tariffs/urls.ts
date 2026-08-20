@@ -1,4 +1,7 @@
-import { POLAR_CHECKOUT_WEBSTUDIO_199 } from "@/lib/polar/constants";
+import {
+  POLAR_CHECKOUT_DEPLOYABLE_ZIP,
+  POLAR_CHECKOUT_WEBSTUDIO_199,
+} from "@/lib/polar/constants";
 import type { TariffContext } from "@/lib/tariffs/copy";
 
 export function buildTariffsPagePath(ctx: Partial<TariffContext> & { lang?: string }): string {
@@ -29,6 +32,13 @@ export function buildTariffsPageUrl(
   return origin ? `${origin}${path}` : path;
 }
 
+function applyPolarLocale(url: URL, locale?: string): void {
+  const lang = (locale || "").toLowerCase();
+  if (lang.startsWith("ru")) url.searchParams.set("locale", "ru");
+  else if (lang.startsWith("de")) url.searchParams.set("locale", "de");
+  else if (lang.startsWith("en")) url.searchParams.set("locale", "en");
+}
+
 export function buildCrmDemoPolarUrl(
   clientId: string,
   email?: string,
@@ -42,10 +52,30 @@ export function buildCrmDemoPolarUrl(
   }
   if (email?.trim()) url.searchParams.set("customer_email", email.trim());
   if (email?.trim()) url.searchParams.set("prefilled_email", email.trim());
-  const lang = (locale || "").toLowerCase();
-  if (lang.startsWith("ru")) url.searchParams.set("locale", "ru");
-  else if (lang.startsWith("de")) url.searchParams.set("locale", "de");
-  else if (lang.startsWith("en")) url.searchParams.set("locale", "en");
+  applyPolarLocale(url, locale);
+  return url.toString();
+}
+
+/** Static Polar checkout for €999 Deployable ZIP (fallback when API checkout unavailable). */
+export function buildDeployableZipPolarUrl(
+  clientId: string,
+  email?: string,
+  locale?: string,
+): string | null {
+  const base = POLAR_CHECKOUT_DEPLOYABLE_ZIP.trim();
+  if (!base) return null;
+  const url = new URL(base);
+  if (clientId) {
+    url.searchParams.set("reference_id", clientId);
+    url.searchParams.set("metadata[client_id]", clientId);
+    url.searchParams.set("metadata[reference_id]", clientId);
+    url.searchParams.set("metadata[product_kind]", "deployable_zip");
+  }
+  if (email?.trim()) {
+    url.searchParams.set("customer_email", email.trim());
+    url.searchParams.set("prefilled_email", email.trim());
+  }
+  applyPolarLocale(url, locale);
   return url.toString();
 }
 

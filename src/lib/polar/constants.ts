@@ -21,7 +21,17 @@ export const POLAR_PRODUCT_CRM_DEMO =
   LEGACY_PRODUCT_CRM_DEMO_ONETIME;
 
 export const POLAR_PRODUCT_RECURRING = "118dc1ba-7c1d-4f2e-bf3a-278cfa5b8164";
+/** CRM Full — €999 one-time (already in Polar catalogue). */
 export const POLAR_PRODUCT_CRM_FULL = "3aefa6b9-720b-47da-9d66-07d4bc0cb757";
+
+/**
+ * Deployable ZIP checkout uses CRM Full (€999) by default.
+ * Override with POLAR_PRODUCT_DEPLOYABLE_ZIP only if you create a separate product.
+ */
+export const POLAR_PRODUCT_DEPLOYABLE_ZIP =
+  env("NEXT_PUBLIC_POLAR_PRODUCT_DEPLOYABLE_ZIP") ||
+  env("POLAR_PRODUCT_DEPLOYABLE_ZIP") ||
+  POLAR_PRODUCT_CRM_FULL;
 
 export const POLAR_CHECKOUT_CRM_DEMO =
   env("NEXT_PUBLIC_POLAR_CHECKOUT_CRM_DEMO") ||
@@ -40,6 +50,12 @@ export const POLAR_CHECKOUT_RECURRING =
 
 export const POLAR_CHECKOUT_CRM_FULL =
   "https://buy.polar.sh/polar_cl_qVHaJpa4Zon7ZJjZNAI6UNDt7vkLdV0enAUZc085fTu";
+
+/** Same as CRM Full checkout — Admin “Buy ZIP €999” uses this. */
+export const POLAR_CHECKOUT_DEPLOYABLE_ZIP =
+  env("NEXT_PUBLIC_POLAR_CHECKOUT_DEPLOYABLE_ZIP") ||
+  env("POLAR_CHECKOUT_DEPLOYABLE_ZIP") ||
+  POLAR_CHECKOUT_CRM_FULL;
 
 export const POLAR_WEBHOOK_PATH = "/api/webhooks/polar";
 

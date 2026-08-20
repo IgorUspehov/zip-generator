@@ -10,7 +10,7 @@ const COPY = {
   ru: {
     title: "Оплата прошла успешно!",
     subtitleDemo: "Ваш Сайт + CRM + Бронирование сохранён навсегда",
-    subtitlePro: "Ваш CRM Pro готов к скачиванию",
+    subtitlePro: "Ваш Deployable ZIP (€999) готов к скачиванию",
     emailHint: "Сохраните ссылки ниже — сайт для клиентов, вакансии и бронирование.",
     download: "Скачать ZIP",
     home: "Вернуться на главную",
@@ -29,7 +29,7 @@ const COPY = {
   de: {
     title: "Zahlung erfolgreich!",
     subtitleDemo: "Ihr Website + CRM + Buchung ist dauerhaft gespeichert",
-    subtitlePro: "Ihr CRM Pro ist zum Download bereit",
+    subtitlePro: "Ihr Deployable ZIP (€999) ist zum Download bereit",
     emailHint: "Speichern Sie die Links unten — Kundenwebsite, Stellen und Buchung.",
     download: "ZIP herunterladen",
     home: "Zur Startseite",
@@ -48,7 +48,7 @@ const COPY = {
   en: {
     title: "Payment successful!",
     subtitleDemo: "Your Website + CRM + Booking is saved forever",
-    subtitlePro: "Your CRM Pro package is ready",
+    subtitlePro: "Your Deployable ZIP (€999) package is ready",
     emailHint: "Save the links below — customer site, jobs, and booking.",
     download: "Download ZIP",
     home: "Back to home",

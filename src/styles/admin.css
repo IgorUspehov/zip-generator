@@ -305,8 +305,23 @@
   margin-bottom: 0.35rem;
 }
 
+.admin-integration-card-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.65rem;
+  min-width: 0;
+}
+
 .admin-integration-card .admin-card-title {
   margin: 0;
+}
+
+.admin-integration-site-btn {
+  flex-shrink: 0;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 .admin-grid-2 {

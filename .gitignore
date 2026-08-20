@@ -53,6 +53,9 @@ data/checkout-references.json
 data/site-download-access.json
 data/client-dists/
 
+# local deployable-zip test artifacts
+tmp/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -105,19 +105,33 @@ export const POST = Webhooks({
     });
 
     try {
-      if (kind === "recurring") {
+      if (kind === "deployable_zip" || kind === "recurring") {
         await fulfillMvpProOrder({
           clientId,
           email: email || "",
           orderId,
-          variantId: "polar_recurring",
+          variantId: kind === "deployable_zip" ? "polar_deployable_zip" : "polar_recurring",
         });
         return;
       }
 
       if (kind === "crm_full") {
-        await fulfillCrmFullOrder({ clientId, email, orderId, variantId: "polar_crm_full" });
-        await fulfillPaidSiteDelivery({ clientId, email, orderId, productName });
+        // CRM Full (€999) = unlock Deployable ZIP + optional CRM provision
+        await fulfillMvpProOrder({
+          clientId,
+          email: email || "",
+          orderId,
+          variantId: "polar_crm_full",
+        });
+        try {
+          await fulfillCrmFullOrder({ clientId, email, orderId, variantId: "polar_crm_full" });
+        } catch (provisionError) {
+          console.error("[polar] crm_full provision failed (ZIP already granted)", {
+            clientId,
+            orderId,
+            error: provisionError instanceof Error ? provisionError.message : String(provisionError),
+          });
+        }
         return;
       }
 

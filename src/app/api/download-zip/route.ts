@@ -1,14 +1,14 @@
-import { Readable } from "node:stream";
-
 import { NextResponse } from "next/server";
 
+import { buildDeployableZip, DeployableZipError } from "@/lib/deployable-zip";
 import { verifyMvpProDownloadAccess } from "@/lib/mvp-pro/entitlement-store";
-import { resolveClientDistPath } from "@/lib/mvp-pro/dist-resolver";
-import { buildMvpProReadme } from "@/lib/mvp-pro/readme";
-import { buildZipFilename, createMvpProZipStream, readManifestJson } from "@/lib/mvp-pro/zip-stream";
 
 export const runtime = "nodejs";
 
+/**
+ * Paid Deployable ZIP download (€999 Polar / MVP Pro entitlement).
+ * Packs personalized `client-dists/{clientId}` via Deployable ZIP Builder V2.
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const clientId = searchParams.get("clientId")?.trim() ?? "";
@@ -25,21 +25,31 @@ export async function GET(request: Request) {
   }
 
   try {
-    const distPath = resolveClientDistPath(clientId);
-    const readmeContent = buildMvpProReadme(access.entitlement);
-    const manifestJson = readManifestJson(clientId);
-    const zipStream = createMvpProZipStream({ distPath, readmeContent, manifestJson });
-    const webStream = Readable.toWeb(zipStream) as ReadableStream;
+    const result = await buildDeployableZip({
+      clientId,
+      mode: "subscription_export",
+      readme: {
+        businessName: access.entitlement.businessName,
+        businessType: access.entitlement.businessType,
+        language: access.entitlement.language,
+      },
+    });
 
-    return new NextResponse(webStream, {
+    return new NextResponse(new Uint8Array(result.buffer), {
       status: 200,
       headers: {
         "Content-Type": "application/zip",
-        "Content-Disposition": `attachment; filename="${buildZipFilename(clientId)}"`,
+        "Content-Disposition": `attachment; filename="${result.filename}"`,
         "Cache-Control": "no-store",
+        "X-Deployable-Zip-Mode": "subscription_export",
+        "X-Deployable-Zip-Client-Id": result.clientId,
       },
     });
   } catch (error) {
+    if (error instanceof DeployableZipError) {
+      const status = error.code === "DIST_MISSING" ? 404 : 400;
+      return NextResponse.json({ error: error.message, code: error.code }, { status });
+    }
     const message = error instanceof Error ? error.message : "Failed to build ZIP";
     return NextResponse.json({ error: message }, { status: 500 });
   }

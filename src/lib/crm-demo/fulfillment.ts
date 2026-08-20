@@ -32,20 +32,19 @@ function resolveQuestionnaireEmail(manifest: Record<string, unknown> | null): st
   return pickString(contacts?.email);
 }
 
-function buildCrmDemoEmailText(siteUrl: string, downloadUrl?: string): string {
-  const zipNote = downloadUrl
-    ? `Download ZIP:
-${downloadUrl}`
-    : "Your site files are available from the Website + CRM + Booking dashboard.";
-
+function buildCrmDemoEmailText(siteUrl: string, _downloadUrl?: string): string {
   return `Hello.
 
-Your Website + CRM + Booking has been successfully created.
+Your Website + CRM + Booking subscription is active.
 
 Website:
 ${siteUrl}
 
-${zipNote}
+Admin panel:
+https://webstudio-muenchen.com/admin/login
+
+Need a downloadable static package for your own hosting?
+Unlock Deployable ZIP (€999 one-time) in Admin → Integrations.
 
 Thank you.`;
 }
