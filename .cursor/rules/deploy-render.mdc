@@ -1,0 +1,14 @@
+---
+description: Production deploy is Render.com via git push to main
+alwaysApply: true
+---
+
+# Deploy (Render.com)
+
+- **Production:** Render Web Service → https://webstudio-muenchen.com (also https://saas-mvp-funnel.onrender.com).
+- **Service id (known):** `srv-da1dg061egvs73ai5ubg`
+- **How to deploy:** `git push origin main` — Render auto-deploys from GitHub `main`. That is the normal path.
+- Do **not** deploy SaaS to Railway / Netlify / Vercel. `railway.toml` is not the production path.
+- Do **not** run `railway up` for «деплой».
+- When user says «деплой» / «пуш»: commit relevant code (no secrets). Do **not** stage deletions of existing `data/manifests/*` or anything that would break a client link — see `never-delete-client-links.mdc`. Then `git push origin main`, then confirm site responds (`x-render-origin-server: Render`).
+- Render CLI may be unauthenticated; git push is enough when auto-deploy is on.
