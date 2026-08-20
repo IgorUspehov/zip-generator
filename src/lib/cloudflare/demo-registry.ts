@@ -174,11 +174,22 @@ export async function hydrateDemoRecord(input: {
   if (existing) {
     if (existing.paid) return existing;
     if (!clientIdHint && !existing.clientId) return existing;
-    const data = await loadFirestoreDemoFields(existing.clientId || clientIdHint);
+    const clientId = existing.clientId || clientIdHint;
+    const data = await loadFirestoreDemoFields(clientId);
     // Only explicit paid=true unlocks share links — polarEmail alone must not skip the paywall.
     if (data?.paid === true) {
-      markDemoPaidByClientId(existing.clientId);
-      return findDemoByClientId(existing.clientId) || existing;
+      markDemoPaidByClientId(clientId);
+      return findDemoByClientId(clientId) || existing;
+    }
+    // Email may be paid even when clients/{id}.paid was never written.
+    try {
+      const { isClientPaidInStore } = await import("@/lib/billing/paid-tenant");
+      if (await isClientPaidInStore(clientId)) {
+        markDemoPaidByClientId(clientId);
+        return findDemoByClientId(clientId) || existing;
+      }
+    } catch {
+      /* ignore */
     }
     return existing;
   }
@@ -206,7 +217,15 @@ export async function hydrateDemoRecord(input: {
   const slug = asTrimmedString(data?.demoSlug) || slugHint;
   if (!clientId || !slug) return undefined;
 
-  const paid = data?.paid === true;
+  let paid = data?.paid === true;
+  if (!paid) {
+    try {
+      const { isClientPaidInStore } = await import("@/lib/billing/paid-tenant");
+      paid = await isClientPaidInStore(clientId);
+    } catch {
+      /* ignore */
+    }
+  }
   const record: DemoSiteRecord = {
     slug,
     clientId,

@@ -1,6 +1,7 @@
 /**
  * Redeploy shared CRM SPA (react_mvp dist) to Cloudflare Pages production.
- * Usage: railway run -- npx tsx scripts/redeploy-shared-crm-pages.ts
+ * Needs CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_API_TOKEN (Render service env).
+ * Usage: npx tsx scripts/redeploy-shared-crm-pages.ts
  */
 import path from "path";
 

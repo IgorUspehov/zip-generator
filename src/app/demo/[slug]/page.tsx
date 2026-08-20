@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { CrmLeadsBridge } from "@/components/crm-leads-bridge";
 import { DemoSiteFrame } from "@/components/demo-site-frame";
 import { DemoTenantLinksBar } from "@/components/demo-tenant-links-bar";
+import { restoreDemoByClientId } from "@/lib/billing/paid-tenant";
 import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
 import { buildDemoEmbedSrc } from "@/lib/cloudflare/demo-embed";
 import { hydrateDemoRecord } from "@/lib/cloudflare/demo-registry";
@@ -36,7 +37,7 @@ function resolveManifestLanguage(clientId: string): string | undefined {
 export default async function DemoPage({ params, searchParams }: DemoPageProps) {
   const { slug } = await params;
   const query = await searchParams;
-  const record = await hydrateDemoRecord({ slug, clientId: query.clientId });
+  let record = await hydrateDemoRecord({ slug, clientId: query.clientId });
 
   if (!record) {
     return (
@@ -48,6 +49,10 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
   }
 
   const clientId = query.clientId || record.clientId;
+  // Registry lives in /tmp on Render — re-check Firestore paid after every deploy wipe.
+  if (!record.paid && clientId) {
+    record = (await restoreDemoByClientId(clientId)) || record;
+  }
   const access = resolveDemoAccess(clientId);
   const unpaid = !access.paid;
   const language = resolveManifestLanguage(clientId);

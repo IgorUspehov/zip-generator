@@ -222,37 +222,39 @@ export async function restoreDemoByClientId(clientId: string): Promise<DemoSiteR
   const id = String(clientId || "").trim();
   if (!id) return undefined;
   const existing = findDemoByClientId(id);
-  if (existing) return existing;
+  // After Render /tmp wipe the registry row may come back unpaid — still re-check Firestore.
+  if (existing?.paid === true) return existing;
 
   try {
     const db = await getDb();
     const snap = await db.collection(CLIENTS_COLLECTION).doc(id).get();
-    if (!snap.exists) return undefined;
+    if (!snap.exists) return existing;
     const data = snap.data() || {};
     const slug =
       pickString(data.demoSlug) ||
+      existing?.slug ||
       buildDemoSlug({
         clientId: id,
         businessName: pickString(data.businessName),
         businessType: pickString(data.businessType),
       });
-    if (!slug) return undefined;
+    if (!slug) return existing;
     const email = pickString(data.polarEmail) || pickString(data.email);
     if (data.paid !== true && !(await isEmailPaid(email))) {
-      return undefined;
+      return existing;
     }
     await hydrateClientManifest(id);
     const record = stubDemoRecord({
       slug,
       clientId: id,
-      deploymentId: pickString(data.deploymentId),
-      deploymentUrl: pickString(data.deploymentUrl),
+      deploymentId: pickString(data.deploymentId) || existing?.deploymentId,
+      deploymentUrl: pickString(data.deploymentUrl) || existing?.deploymentUrl,
     });
     upsertDemoRecord(record);
     markTenantPaid(id);
     return findDemoByClientId(id) || record;
   } catch {
-    return undefined;
+    return existing;
   }
 }
 
