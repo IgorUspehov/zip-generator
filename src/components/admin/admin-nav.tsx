@@ -5,20 +5,13 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { AdminLangSwitcher } from "@/components/admin/admin-lang-switcher";
 import { useAdminI18n } from "@/components/admin/admin-i18n";
+import { adminNavItems } from "@/lib/admin/nav";
 
 export function AdminNav({ businessName }: { businessName?: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const { copy } = useAdminI18n();
-
-  const nav = [
-    { href: "/admin", label: copy.nav.overview },
-    { href: "/admin/content", label: copy.nav.content },
-    { href: "/admin/media", label: copy.nav.media },
-    { href: "/admin/services", label: copy.nav.services },
-    { href: "/admin/jobs", label: copy.nav.jobs },
-    { href: "/admin/contacts", label: copy.nav.contacts },
-  ];
+  const nav = adminNavItems(copy);
 
   async function logout() {
     await fetch("/api/admin/logout", { method: "POST", credentials: "same-origin" });

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useAdminI18n } from "@/components/admin/admin-i18n";
 import { AdminNav } from "@/components/admin/admin-nav";
+import { AdminSectionPager } from "@/components/admin/admin-section-pager";
 import type { SiteContent } from "@/lib/admin/site-content";
 
 export type AdminSiteResponse = {
@@ -72,6 +73,7 @@ export function AdminPageShell({
           {description ? <p className="admin-page-desc">{description}</p> : null}
         </div>
         {children}
+        <AdminSectionPager />
       </main>
     </div>
   );

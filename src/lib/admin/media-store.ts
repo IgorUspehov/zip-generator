@@ -62,7 +62,7 @@ async function processImage(input: Buffer, slot: MediaSlot): Promise<{ buffer: B
       .resize(800, 800, { fit: "inside", withoutEnlargement: true })
       .png({ compressionLevel: 9 })
       .toBuffer();
-    return { buffer, filename: "logo.png" };
+    return { buffer, filename: `logo-${id}.png` };
   }
 
   const buffer = await sharp(input)
@@ -70,7 +70,7 @@ async function processImage(input: Buffer, slot: MediaSlot): Promise<{ buffer: B
     .resize(1920, 1080, { fit: "cover", position: "centre" })
     .jpeg({ quality: 82, mozjpeg: true })
     .toBuffer();
-  const filename = slot === "hero" ? "hero.jpg" : `gallery-${id}.jpg`;
+  const filename = slot === "hero" ? `hero-${id}.jpg` : `gallery-${id}.jpg`;
   return { buffer, filename };
 }
 

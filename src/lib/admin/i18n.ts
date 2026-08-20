@@ -10,6 +10,8 @@ export type AdminCopy = {
   saved: string;
   saveFailed: string;
   viewSite: string;
+  prevSection: string;
+  nextSection: string;
   nav: {
     overview: string;
     content: string;
@@ -115,6 +117,8 @@ const EN: AdminCopy = {
   saved: "Saved",
   saveFailed: "Failed to save",
   viewSite: "View site →",
+  prevSection: "← Previous",
+  nextSection: "Next →",
   nav: {
     overview: "Overview",
     content: "Content",
@@ -228,6 +232,8 @@ const DE: AdminCopy = {
   saved: "Gespeichert",
   saveFailed: "Speichern fehlgeschlagen",
   viewSite: "Website ansehen →",
+  prevSection: "← Zurück",
+  nextSection: "Weiter →",
   nav: {
     overview: "Übersicht",
     content: "Inhalt",
@@ -341,6 +347,8 @@ const RU: AdminCopy = {
   saved: "Сохранено",
   saveFailed: "Не удалось сохранить",
   viewSite: "Посмотреть сайт →",
+  prevSection: "← Назад",
+  nextSection: "Далее →",
   nav: {
     overview: "Обзор",
     content: "Контент",

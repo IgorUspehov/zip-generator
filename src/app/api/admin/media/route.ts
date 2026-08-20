@@ -43,8 +43,16 @@ export async function POST(request: Request) {
     const manifest = await requireClientManifest(session.clientId);
     const content = readSiteContent(manifest);
     if (slot === "logo") {
+      const previous = filenameFromMediaUrl(content.logo, session.clientId);
+      if (previous && previous !== saved.filename) {
+        deleteClientMediaFile(session.clientId, previous);
+      }
       await persistClientManifest(session.clientId, applySiteContentPatch(manifest, { logo: saved.url }));
     } else if (slot === "hero") {
+      const previous = filenameFromMediaUrl(content.heroPhoto, session.clientId);
+      if (previous && previous !== saved.filename) {
+        deleteClientMediaFile(session.clientId, previous);
+      }
       await persistClientManifest(session.clientId, applySiteContentPatch(manifest, { heroPhoto: saved.url }));
     } else {
       const gallery = [...content.galleryPhotos.filter((item) => item !== saved.url), saved.url];

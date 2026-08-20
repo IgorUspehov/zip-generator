@@ -391,3 +391,43 @@
   top: 1rem;
   right: 1rem;
 }
+
+.admin-section-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(249, 115, 22, 0.25);
+}
+
+.admin-section-pager-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: 100%;
+  text-align: left;
+  text-decoration: none;
+  padding: 0.65rem 0.9rem;
+}
+
+.admin-section-pager-next {
+  margin-left: auto;
+  text-align: right;
+}
+
+.admin-section-pager-hint {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--admin-muted);
+}
+
+.admin-section-pager-name {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--admin-text);
+}

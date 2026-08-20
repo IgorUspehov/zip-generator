@@ -6,30 +6,47 @@ import { useAdminI18n } from "@/components/admin/admin-i18n";
 import { AdminPageShell, useAdminSite } from "@/components/admin/admin-shell";
 import { AdminSaveFeedback } from "@/components/admin/admin-save-feedback";
 import type { CatalogItem } from "@/lib/catalog/resolve-catalog";
+import type { Locale } from "@/lib/i18n/config";
+import type { LocalizedLabel } from "@/lib/niches/sector-models";
 
 type Row = {
   id: string;
-  name: string;
+  name: LocalizedLabel;
   price: string;
-  duration: string;
+  duration: LocalizedLabel;
 };
+
+function emptyLabel(): LocalizedLabel {
+  return { en: "", de: "", ru: "" };
+}
+
+function asLabel(value: CatalogItem["name"] | CatalogItem["duration"] | undefined): LocalizedLabel {
+  if (!value) return emptyLabel();
+  if (typeof value === "string") {
+    return { en: value, de: value, ru: value };
+  }
+  return {
+    en: value.en || "",
+    de: value.de || "",
+    ru: value.ru || "",
+  };
+}
+
+function pickLabel(label: LocalizedLabel, locale: Locale): string {
+  return label[locale] || label.en || label.de || label.ru || "";
+}
 
 function toRows(items: CatalogItem[]): Row[] {
   return items.map((item) => ({
     id: item.id,
-    name: item.name.de || item.name.en || item.name.ru,
+    name: asLabel(item.name),
     price: item.price || "",
-    duration:
-      typeof item.duration === "string"
-        ? item.duration
-        : item.duration
-          ? item.duration.de || item.duration.en || item.duration.ru
-          : "",
+    duration: asLabel(item.duration),
   }));
 }
 
 export default function AdminServicesPage() {
-  const { copy } = useAdminI18n();
+  const { copy, locale } = useAdminI18n();
   const { data } = useAdminSite();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +84,7 @@ export default function AdminServicesPage() {
     try {
       const items = nextRows.map((row) => ({
         id: row.id,
-        name: { en: row.name, de: row.name, ru: row.name },
+        name: row.name,
         price: row.price,
         duration: row.duration,
       }));
@@ -89,8 +106,24 @@ export default function AdminServicesPage() {
     }
   }
 
-  function updateRow(index: number, patch: Partial<Row>) {
-    setRows((current) => current.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+  function updateName(index: number, value: string) {
+    setRows((current) =>
+      current.map((row, i) =>
+        i === index ? { ...row, name: { ...row.name, [locale]: value } } : row,
+      ),
+    );
+  }
+
+  function updateDuration(index: number, value: string) {
+    setRows((current) =>
+      current.map((row, i) =>
+        i === index ? { ...row, duration: { ...row.duration, [locale]: value } } : row,
+      ),
+    );
+  }
+
+  function updatePrice(index: number, value: string) {
+    setRows((current) => current.map((row, i) => (i === index ? { ...row, price: value } : row)));
   }
 
   return (
@@ -108,48 +141,59 @@ export default function AdminServicesPage() {
         viewSiteLabel={copy.viewSite}
       />
       <div className="admin-card admin-stack">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.75rem",
+            flexWrap: "wrap",
+          }}
+        >
           <h2 className="admin-card-title" style={{ margin: 0 }}>
             {copy.services.catalog}
           </h2>
-          <button
-            type="button"
-            className="admin-btn-outline"
-            disabled={saving}
-            onClick={() =>
-              setRows((current) => [
-                ...current,
-                {
-                  id: `svc-${Date.now()}`,
-                  name: "",
-                  price: "",
-                  duration: "",
-                },
-              ])
-            }
-          >
-            {copy.services.add}
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <span className="admin-badge">{locale.toUpperCase()}</span>
+            <button
+              type="button"
+              className="admin-btn-outline"
+              disabled={saving}
+              onClick={() =>
+                setRows((current) => [
+                  ...current,
+                  {
+                    id: `svc-${Date.now()}`,
+                    name: emptyLabel(),
+                    price: "",
+                    duration: emptyLabel(),
+                  },
+                ])
+              }
+            >
+              {copy.services.add}
+            </button>
+          </div>
         </div>
         {rows.map((row, index) => (
           <div key={row.id} className="admin-service-row">
             <input
               className="admin-input"
-              placeholder={copy.services.name}
-              value={row.name}
-              onChange={(event) => updateRow(index, { name: event.target.value })}
+              placeholder={`${copy.services.name} (${locale.toUpperCase()})`}
+              value={pickLabel(row.name, locale)}
+              onChange={(event) => updateName(index, event.target.value)}
             />
             <input
               className="admin-input"
               placeholder={copy.services.price}
               value={row.price}
-              onChange={(event) => updateRow(index, { price: event.target.value })}
+              onChange={(event) => updatePrice(index, event.target.value)}
             />
             <input
               className="admin-input"
-              placeholder={copy.services.duration}
-              value={row.duration}
-              onChange={(event) => updateRow(index, { duration: event.target.value })}
+              placeholder={`${copy.services.duration} (${locale.toUpperCase()})`}
+              value={pickLabel(row.duration, locale)}
+              onChange={(event) => updateDuration(index, event.target.value)}
             />
             <button
               type="button"

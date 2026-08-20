@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { useAdminI18n } from "@/components/admin/admin-i18n";
 import { AdminPageShell, useAdminSite } from "@/components/admin/admin-shell";
@@ -21,14 +21,32 @@ async function uploadSlot(slot: "logo" | "hero" | "gallery", file: File) {
   }
 }
 
+function withCacheBust(url: string, revision: number): string {
+  if (!url) return url;
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}v=${revision}`;
+}
+
 export default function AdminMediaPage() {
   const { copy } = useAdminI18n();
   const { data, loading, error, reload } = useAdminSite();
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [mediaRevision, setMediaRevision] = useState(() => Date.now());
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const heroInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  async function handleUpload(slot: "logo" | "hero" | "gallery", file: File | undefined) {
+  function resetFileInput(ref: React.RefObject<HTMLInputElement | null>) {
+    if (ref.current) ref.current.value = "";
+  }
+
+  async function handleUpload(
+    slot: "logo" | "hero" | "gallery",
+    file: File | undefined,
+    inputRef: React.RefObject<HTMLInputElement | null>,
+  ) {
     if (!file) return;
     setBusy(true);
     setSaved(false);
@@ -36,10 +54,12 @@ export default function AdminMediaPage() {
     try {
       await uploadSlot(slot, file);
       setSaved(true);
+      setMediaRevision(Date.now());
       await reload();
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : copy.media.uploadFailed);
     } finally {
+      resetFileInput(inputRef);
       setBusy(false);
     }
   }
@@ -58,6 +78,7 @@ export default function AdminMediaPage() {
       const json = (await response.json()) as { ok?: boolean; error?: string };
       if (!response.ok || !json.ok) throw new Error(json.error || copy.media.deleteFailed);
       setSaved(true);
+      setMediaRevision(Date.now());
       await reload();
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : copy.media.deleteFailed);
@@ -118,7 +139,11 @@ export default function AdminMediaPage() {
           <h2 className="admin-card-title">{copy.media.logo}</h2>
           {content?.logo ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={content.logo} alt="" className="admin-media-logo" />
+            <img
+              src={withCacheBust(content.logo, mediaRevision)}
+              alt=""
+              className="admin-media-logo"
+            />
           ) : (
             <p className="admin-muted">{copy.media.noLogo}</p>
           )}
@@ -127,11 +152,14 @@ export default function AdminMediaPage() {
           </label>
           <input
             id="logo"
+            ref={logoInputRef}
             className="admin-input"
             type="file"
             accept="image/jpeg,image/png,image/webp"
             disabled={busy}
-            onChange={(event) => void handleUpload("logo", event.target.files?.[0])}
+            onChange={(event) =>
+              void handleUpload("logo", event.target.files?.[0], logoInputRef)
+            }
           />
           {content?.logo ? (
             <button
@@ -149,16 +177,23 @@ export default function AdminMediaPage() {
           <h2 className="admin-card-title">{copy.media.hero}</h2>
           {content?.heroPhoto ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={content.heroPhoto} alt="" className="admin-media-thumb" />
+            <img
+              src={withCacheBust(content.heroPhoto, mediaRevision)}
+              alt=""
+              className="admin-media-thumb"
+            />
           ) : (
             <p className="admin-muted">{copy.media.noHero}</p>
           )}
           <input
+            ref={heroInputRef}
             className="admin-input"
             type="file"
             accept="image/jpeg,image/png,image/webp"
             disabled={busy}
-            onChange={(event) => void handleUpload("hero", event.target.files?.[0])}
+            onChange={(event) =>
+              void handleUpload("hero", event.target.files?.[0], heroInputRef)
+            }
           />
           {content?.heroPhoto ? (
             <button
@@ -176,53 +211,58 @@ export default function AdminMediaPage() {
       <div className="admin-card admin-stack">
         <h2 className="admin-card-title">{copy.media.gallery}</h2>
         <input
+          ref={galleryInputRef}
           className="admin-input"
           type="file"
           accept="image/jpeg,image/png,image/webp"
           disabled={busy}
-          onChange={(event) => void handleUpload("gallery", event.target.files?.[0])}
+          onChange={(event) =>
+            void handleUpload("gallery", event.target.files?.[0], galleryInputRef)
+          }
         />
-        <div className="admin-grid-2" style={{ gridTemplateColumns: undefined }}>
-          <div
-            style={{
-              display: "grid",
-              gap: "1rem",
-              gridTemplateColumns: "repeat(auto-fill, minmax(10rem, 1fr))",
-            }}
-          >
-            {(content?.galleryPhotos || []).map((src, index) => (
-              <div key={`${src}-${index}`} className="admin-stack">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" className="admin-media-thumb" />
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
-                  <button
-                    type="button"
-                    className="admin-btn-outline"
-                    disabled={busy}
-                    onClick={() => void move(index, -1)}
-                  >
-                    ←
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-btn-outline"
-                    disabled={busy}
-                    onClick={() => void move(index, 1)}
-                  >
-                    →
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-btn-outline"
-                    disabled={busy}
-                    onClick={() => void remove("gallery", src)}
-                  >
-                    {copy.media.remove}
-                  </button>
-                </div>
+        <div
+          style={{
+            display: "grid",
+            gap: "1rem",
+            gridTemplateColumns: "repeat(auto-fill, minmax(10rem, 1fr))",
+          }}
+        >
+          {(content?.galleryPhotos || []).map((src, index) => (
+            <div key={`${src}-${index}`} className="admin-stack">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={withCacheBust(src, mediaRevision)}
+                alt=""
+                className="admin-media-thumb"
+              />
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+                <button
+                  type="button"
+                  className="admin-btn-outline"
+                  disabled={busy}
+                  onClick={() => void move(index, -1)}
+                >
+                  ←
+                </button>
+                <button
+                  type="button"
+                  className="admin-btn-outline"
+                  disabled={busy}
+                  onClick={() => void move(index, 1)}
+                >
+                  →
+                </button>
+                <button
+                  type="button"
+                  className="admin-btn-outline"
+                  disabled={busy}
+                  onClick={() => void remove("gallery", src)}
+                >
+                  {copy.media.remove}
+                </button>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </AdminPageShell>
