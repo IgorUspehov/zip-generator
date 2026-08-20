@@ -3,7 +3,11 @@
 import { useRef, useState } from "react";
 
 import { useAdminI18n } from "@/components/admin/admin-i18n";
-import { AdminPageShell, useAdminSite } from "@/components/admin/admin-shell";
+import {
+  AdminPageShell,
+  useAdminSite,
+  type AdminSiteResponse,
+} from "@/components/admin/admin-shell";
 import { AdminSaveFeedback } from "@/components/admin/admin-save-feedback";
 
 async function uploadSlot(slot: "logo" | "hero" | "gallery", file: File) {
@@ -27,19 +31,38 @@ function withCacheBust(url: string, revision: number): string {
   return `${url}${sep}v=${revision}`;
 }
 
+function resolveViewSiteUrl(data: AdminSiteResponse | null): string | null {
+  if (!data) return null;
+  if (data.publicSiteUrl) return data.publicSiteUrl;
+  if (data.slug) return `/site/${encodeURIComponent(data.slug)}`;
+  if (data.clientId) return `/site/${encodeURIComponent(data.clientId)}`;
+  return null;
+}
+
 export default function AdminMediaPage() {
   const { copy } = useAdminI18n();
   const { data, loading, error, reload } = useAdminSite();
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [viewSiteUrl, setViewSiteUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [mediaRevision, setMediaRevision] = useState(() => Date.now());
   const logoInputRef = useRef<HTMLInputElement>(null);
   const heroInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const feedbackRef = useRef<HTMLDivElement>(null);
 
   function resetFileInput(ref: React.RefObject<HTMLInputElement | null>) {
     if (ref.current) ref.current.value = "";
+  }
+
+  function showSavedFeedback(siteData: AdminSiteResponse | null) {
+    setSaveError("");
+    setViewSiteUrl(resolveViewSiteUrl(siteData));
+    setSaved(true);
+    window.requestAnimationFrame(() => {
+      feedbackRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
   }
 
   async function handleUpload(
@@ -51,12 +74,14 @@ export default function AdminMediaPage() {
     setBusy(true);
     setSaved(false);
     setSaveError("");
+    const siteSnapshot = data;
     try {
       await uploadSlot(slot, file);
-      setSaved(true);
       setMediaRevision(Date.now());
       await reload();
+      showSavedFeedback(siteSnapshot);
     } catch (err) {
+      setSaved(false);
       setSaveError(err instanceof Error ? err.message : copy.media.uploadFailed);
     } finally {
       resetFileInput(inputRef);
@@ -68,6 +93,7 @@ export default function AdminMediaPage() {
     setBusy(true);
     setSaved(false);
     setSaveError("");
+    const siteSnapshot = data;
     try {
       const params = new URLSearchParams({ slot });
       if (url) params.set("url", url);
@@ -77,10 +103,11 @@ export default function AdminMediaPage() {
       });
       const json = (await response.json()) as { ok?: boolean; error?: string };
       if (!response.ok || !json.ok) throw new Error(json.error || copy.media.deleteFailed);
-      setSaved(true);
       setMediaRevision(Date.now());
       await reload();
+      showSavedFeedback(siteSnapshot);
     } catch (err) {
+      setSaved(false);
       setSaveError(err instanceof Error ? err.message : copy.media.deleteFailed);
     } finally {
       setBusy(false);
@@ -97,6 +124,7 @@ export default function AdminMediaPage() {
     setBusy(true);
     setSaved(false);
     setSaveError("");
+    const siteSnapshot = data;
     try {
       const response = await fetch("/api/admin/site", {
         method: "PATCH",
@@ -109,14 +137,15 @@ export default function AdminMediaPage() {
         setSaveError(json.error || copy.saveFailed);
         return;
       }
-      setSaved(true);
       await reload();
+      showSavedFeedback(siteSnapshot);
     } finally {
       setBusy(false);
     }
   }
 
   const content = data?.content;
+  const feedbackSiteUrl = viewSiteUrl || resolveViewSiteUrl(data);
 
   return (
     <AdminPageShell
@@ -124,15 +153,8 @@ export default function AdminMediaPage() {
       description={copy.media.description}
       businessName={data?.content.businessName}
     >
-      {loading ? <p className="admin-muted">{copy.loading}</p> : null}
+      {loading && !busy ? <p className="admin-muted">{copy.loading}</p> : null}
       {error ? <p className="admin-error">{error}</p> : null}
-      <AdminSaveFeedback
-        saved={saved}
-        error={saveError}
-        siteUrl={data?.publicSiteUrl || (data?.slug ? `/site/${data.slug}` : null)}
-        savedLabel={copy.saved}
-        viewSiteLabel={copy.viewSite}
-      />
 
       <div className="admin-grid-2">
         <div className="admin-card admin-stack">
@@ -264,6 +286,21 @@ export default function AdminMediaPage() {
             </div>
           ))}
         </div>
+      </div>
+
+      <div ref={feedbackRef} className="admin-card">
+        <AdminSaveFeedback
+          saved={saved}
+          error={saveError}
+          siteUrl={feedbackSiteUrl}
+          savedLabel={copy.saved}
+          viewSiteLabel={copy.viewSite}
+        />
+        {!saved && !saveError ? (
+          <p className="admin-muted" style={{ margin: 0 }}>
+            {busy ? copy.saving : copy.media.description}
+          </p>
+        ) : null}
       </div>
     </AdminPageShell>
   );

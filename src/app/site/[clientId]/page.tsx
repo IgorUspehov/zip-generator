@@ -169,14 +169,14 @@ export default async function PublicSitePage({ params, searchParams }: SitePageP
             </Link>
             <Link
               href={`/site/${encodeURIComponent(siteSlug)}/job${langQuery}`}
-              className="rounded-full border border-white/30 bg-white/10 px-8 py-4 text-base font-bold text-white hover:bg-white/20"
+              className="rounded-full bg-orange-500 px-8 py-4 text-base font-bold text-white hover:bg-orange-400"
             >
               {copy.jobs}
             </Link>
             {wa ? (
               <a
                 href={wa}
-                className="rounded-full border border-white/30 bg-white/10 px-8 py-4 text-base font-bold text-white hover:bg-white/20"
+                className="rounded-full bg-orange-500 px-8 py-4 text-base font-bold text-white hover:bg-orange-400"
               >
                 WhatsApp
               </a>
