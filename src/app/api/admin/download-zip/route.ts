@@ -86,7 +86,7 @@ export async function GET(request: Request) {
     const zip = await zipBufferFromReadme(readme);
     const filename = `${slug}.zip`;
 
-    return new NextResponse(zip, {
+    return new NextResponse(new Uint8Array(zip), {
       status: 200,
       headers: {
         "Content-Type": "application/zip",
