@@ -31,7 +31,7 @@ function sitePayload(clientId: string, manifest: Record<string, unknown>) {
 export async function GET(request: Request) {
   try {
     const session = requireAdminSession(request);
-    const manifest = requireClientManifest(session.clientId);
+    const manifest = await requireClientManifest(session.clientId);
     return NextResponse.json(sitePayload(session.clientId, manifest), {
       headers: { "Cache-Control": "no-store" },
     });
@@ -59,7 +59,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ ok: false, error: parsed.error }, { status: 400 });
     }
 
-    const manifest = requireClientManifest(session.clientId);
+    const manifest = await requireClientManifest(session.clientId);
     const next = applySiteContentPatch(manifest, parsed.patch);
     await persistClientManifest(session.clientId, next);
     markClientAdminEdited(session.clientId);

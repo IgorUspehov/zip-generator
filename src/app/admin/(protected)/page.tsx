@@ -2,72 +2,74 @@
 
 import Link from "next/link";
 
+import { useAdminI18n } from "@/components/admin/admin-i18n";
 import { AdminPageShell, useAdminSite } from "@/components/admin/admin-shell";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AdminHomePage() {
+  const { copy } = useAdminI18n();
   const { data, loading, error } = useAdminSite();
 
   return (
-    <AdminPageShell title="Übersicht" description="Verwalten Sie den Inhalt Ihrer veröffentlichten Website.">
-      {loading ? <p className="text-sm text-muted-foreground">Laden…</p> : null}
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+    <AdminPageShell
+      title={copy.overview.title}
+      description={copy.overview.description}
+      businessName={data?.content.businessName}
+    >
+      {loading ? <p className="admin-muted">{copy.loading}</p> : null}
+      {error ? <p className="admin-error">{error}</p> : null}
       {data ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>{data.content.businessName || "Website"}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">Status</span>
-                <Badge variant={data.paid ? "default" : "secondary"}>
-                  {data.paid ? "Aktiv / bezahlt" : "Demo"}
-                </Badge>
+        <div className="admin-grid-2">
+          <div className="admin-card">
+            <h2 className="admin-card-title">{data.content.businessName || "Website"}</h2>
+            <div className="admin-stack" style={{ fontSize: "0.9rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span className="admin-muted">{copy.overview.status}</span>
+                <span className={data.paid ? "admin-badge" : "admin-badge admin-badge-muted"}>
+                  {data.paid ? copy.overview.paid : copy.overview.demo}
+                </span>
               </div>
               {data.publicSiteUrl ? (
-                <p>
-                  Öffentliche Website:{" "}
-                  <Link className="font-medium underline" href={data.publicSiteUrl} target="_blank">
+                <p style={{ margin: 0 }}>
+                  {copy.overview.publicSite}{" "}
+                  <Link className="admin-link" href={data.publicSiteUrl} target="_blank">
                     {data.publicSiteUrl}
                   </Link>
                 </p>
               ) : (
-                <p className="text-muted-foreground">Öffentliche URL noch nicht verfügbar.</p>
+                <p className="admin-muted" style={{ margin: 0 }}>
+                  {copy.overview.publicSiteMissing}
+                </p>
               )}
               {data.crmUrl ? (
-                <p>
-                  CRM / Booking:{" "}
-                  <Link className="font-medium underline" href={data.crmUrl} target="_blank">
+                <p style={{ margin: 0 }}>
+                  {copy.overview.crm}{" "}
+                  <Link className="admin-link" href={data.crmUrl} target="_blank">
                     {data.crmUrl}
                   </Link>
                 </p>
               ) : null}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Bereiche</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-2 text-sm">
-              <Link className="underline" href="/admin/content">
-                Inhalt
+            </div>
+          </div>
+          <div className="admin-card">
+            <h2 className="admin-card-title">{copy.overview.sections}</h2>
+            <div className="admin-stack" style={{ fontSize: "0.9rem" }}>
+              <Link className="admin-link" href="/admin/content">
+                {copy.nav.content}
               </Link>
-              <Link className="underline" href="/admin/media">
-                Medien
+              <Link className="admin-link" href="/admin/media">
+                {copy.nav.media}
               </Link>
-              <Link className="underline" href="/admin/services">
-                Leistungen & Preise
+              <Link className="admin-link" href="/admin/services">
+                {copy.nav.services}
               </Link>
-              <Link className="underline" href="/admin/jobs">
-                Stellen
+              <Link className="admin-link" href="/admin/jobs">
+                {copy.nav.jobs}
               </Link>
-              <Link className="underline" href="/admin/contacts">
-                Kontakt & Öffnungszeiten
+              <Link className="admin-link" href="/admin/contacts">
+                {copy.nav.contacts}
               </Link>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       ) : null}
     </AdminPageShell>

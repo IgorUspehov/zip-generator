@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { useAdminI18n } from "@/components/admin/admin-i18n";
 import { AdminNav } from "@/components/admin/admin-nav";
 import type { SiteContent } from "@/lib/admin/site-content";
 
@@ -17,6 +18,7 @@ export type AdminSiteResponse = {
 };
 
 export function useAdminSite() {
+  const { copy } = useAdminI18n();
   const [data, setData] = useState<AdminSiteResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -24,21 +26,24 @@ export function useAdminSite() {
   const reload = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/admin/site", { cache: "no-store" });
+      const response = await fetch("/api/admin/site", {
+        cache: "no-store",
+        credentials: "same-origin",
+      });
       const json = (await response.json()) as AdminSiteResponse;
       if (!response.ok || !json.ok) {
-        setError(json.error || "Laden fehlgeschlagen");
+        setError(json.error || copy.loadFailed);
         setData(null);
         return;
       }
       setError(null);
       setData(json);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Laden fehlgeschlagen");
+      setError(err instanceof Error ? err.message : copy.loadFailed);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [copy.loadFailed]);
 
   useEffect(() => {
     void reload();
@@ -50,20 +55,21 @@ export function useAdminSite() {
 export function AdminPageShell({
   title,
   description,
+  businessName,
   children,
 }: {
   title: string;
   description?: string;
+  businessName?: string;
   children: React.ReactNode;
 }) {
-  const { data } = useAdminSite();
   return (
-    <div className="min-h-svh bg-muted/30">
-      <AdminNav businessName={data?.content.businessName} />
-      <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
-        <div>
-          <h1 className="text-2xl font-semibold">{title}</h1>
-          {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
+    <div className="admin-root">
+      <AdminNav businessName={businessName} />
+      <main className="admin-main">
+        <div className="admin-page-intro">
+          <h1 className="admin-page-title">{title}</h1>
+          {description ? <p className="admin-page-desc">{description}</p> : null}
         </div>
         {children}
       </main>

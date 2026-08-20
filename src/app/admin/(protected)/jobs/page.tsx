@@ -2,24 +2,28 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
-import { AdminPageShell } from "@/components/admin/admin-shell";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { useAdminI18n } from "@/components/admin/admin-i18n";
+import { AdminPageShell, useAdminSite } from "@/components/admin/admin-shell";
+import { AdminSaveFeedback } from "@/components/admin/admin-save-feedback";
 import type { VacancyRecord } from "@/lib/vacancies/store";
 
 export default function AdminJobsPage() {
+  const { copy } = useAdminI18n();
+  const { data } = useAdminSite();
   const [items, setItems] = useState<VacancyRecord[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [salary, setSalary] = useState("");
   const [requirements, setRequirements] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [message, setMessage] = useState("");
+  const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   async function load() {
-    const response = await fetch("/api/admin/jobs", { cache: "no-store" });
+    const response = await fetch("/api/admin/jobs", {
+      cache: "no-store",
+      credentials: "same-origin",
+    });
     const json = (await response.json()) as { ok?: boolean; items?: VacancyRecord[] };
     if (json.ok) setItems(json.items || []);
   }
@@ -30,16 +34,18 @@ export default function AdminJobsPage() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-    setMessage("");
+    setSaved(false);
+    setSaveError("");
     const payload = { title, description, salary, requirements };
     const response = await fetch("/api/admin/jobs", {
       method: editingId ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
       body: JSON.stringify(editingId ? { id: editingId, ...payload } : payload),
     });
     const json = (await response.json()) as { ok?: boolean; error?: string };
     if (!response.ok || !json.ok) {
-      setMessage(json.error || "Speichern fehlgeschlagen");
+      setSaveError(json.error || copy.saveFailed);
       return;
     }
     setTitle("");
@@ -47,12 +53,15 @@ export default function AdminJobsPage() {
     setSalary("");
     setRequirements("");
     setEditingId(null);
-    setMessage("Gespeichert.");
+    setSaved(true);
     await load();
   }
 
   async function remove(id: string) {
-    await fetch(`/api/admin/jobs?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+    await fetch(`/api/admin/jobs?id=${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      credentials: "same-origin",
+    });
     await load();
   }
 
@@ -65,66 +74,94 @@ export default function AdminJobsPage() {
   }
 
   return (
-    <AdminPageShell title="Stellen" description="Offene Stellen für die öffentliche Job-Seite.">
-      {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
-      <Card>
-        <CardHeader>
-          <CardTitle>{editingId ? "Stelle bearbeiten" : "Neue Stelle"}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form className="space-y-3" onSubmit={(event) => void onSubmit(event)}>
-            <Input placeholder="Titel" required value={title} onChange={(event) => setTitle(event.target.value)} />
-            <Textarea
-              placeholder="Beschreibung"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-            />
-            <Input placeholder="Gehalt" value={salary} onChange={(event) => setSalary(event.target.value)} />
-            <Input
-              placeholder="Anforderungen"
-              value={requirements}
-              onChange={(event) => setRequirements(event.target.value)}
-            />
-            <div className="flex gap-2">
-              <Button type="submit">{editingId ? "Aktualisieren" : "Erstellen"}</Button>
-              {editingId ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setEditingId(null);
-                    setTitle("");
-                    setDescription("");
-                    setSalary("");
-                    setRequirements("");
-                  }}
-                >
-                  Abbrechen
-                </Button>
-              ) : null}
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-      <div className="space-y-3">
+    <AdminPageShell
+      title={copy.jobs.title}
+      description={copy.jobs.description}
+      businessName={data?.content.businessName}
+    >
+      <AdminSaveFeedback
+        saved={saved}
+        error={saveError}
+        siteUrl={data?.publicSiteUrl || (data?.slug ? `/site/${data.slug}` : null)}
+        savedLabel={copy.saved}
+        viewSiteLabel={copy.viewSite}
+      />
+      <div className="admin-card">
+        <h2 className="admin-card-title">{editingId ? copy.jobs.edit : copy.jobs.newJob}</h2>
+        <form className="admin-stack" onSubmit={(event) => void onSubmit(event)}>
+          <input
+            className="admin-input"
+            placeholder={copy.jobs.jobTitle}
+            required
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
+          <textarea
+            className="admin-textarea"
+            placeholder={copy.jobs.jobDescription}
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+          />
+          <input
+            className="admin-input"
+            placeholder={copy.jobs.salary}
+            value={salary}
+            onChange={(event) => setSalary(event.target.value)}
+          />
+          <input
+            className="admin-input"
+            placeholder={copy.jobs.requirements}
+            value={requirements}
+            onChange={(event) => setRequirements(event.target.value)}
+          />
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            <button type="submit" className="admin-btn-primary">
+              {editingId ? copy.jobs.update : copy.jobs.create}
+            </button>
+            {editingId ? (
+              <button
+                type="button"
+                className="admin-btn-outline"
+                onClick={() => {
+                  setEditingId(null);
+                  setTitle("");
+                  setDescription("");
+                  setSalary("");
+                  setRequirements("");
+                }}
+              >
+                {copy.jobs.cancel}
+              </button>
+            ) : null}
+          </div>
+        </form>
+      </div>
+      <div className="admin-stack">
         {items.map((item) => (
-          <Card key={item.id}>
-            <CardContent className="flex flex-col gap-2 pt-6 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="font-semibold">{item.title}</p>
-                {item.salary ? <p className="text-sm text-muted-foreground">{item.salary}</p> : null}
-                <p className="mt-1 text-sm">{item.description}</p>
+          <div key={item.id} className="admin-card">
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.75rem",
+              }}
+              className="sm:flex-row"
+            >
+              <div style={{ flex: 1 }}>
+                <p style={{ margin: 0, fontWeight: 700 }}>{item.title}</p>
+                {item.salary ? <p className="admin-muted" style={{ margin: "0.25rem 0 0" }}>{item.salary}</p> : null}
+                <p style={{ margin: "0.5rem 0 0", fontSize: "0.9rem" }}>{item.description}</p>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => edit(item)}>
-                  Bearbeiten
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => void remove(item.id)}>
-                  Löschen
-                </Button>
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <button type="button" className="admin-btn-outline" onClick={() => edit(item)}>
+                  {copy.jobs.editBtn}
+                </button>
+                <button type="button" className="admin-btn-outline" onClick={() => void remove(item.id)}>
+                  {copy.jobs.deleteBtn}
+                </button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
     </AdminPageShell>

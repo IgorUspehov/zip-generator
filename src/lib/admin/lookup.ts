@@ -1,8 +1,9 @@
 import fs from "fs";
 import path from "path";
 
+import { loadAdminManifest } from "@/lib/admin/persist";
 import { extractOwnerEmail } from "@/lib/admin/site-content";
-import { loadClientManifest, resolveManifestsDir, saveClientManifest } from "@/lib/manifest/storage";
+import { loadClientManifest, resolveManifestsDir } from "@/lib/manifest/storage";
 
 function normalizeEmail(value: unknown): string {
   return typeof value === "string" ? value.trim().toLowerCase() : "";
@@ -113,16 +114,7 @@ async function loadFirestoreClientRecord(
 }
 
 export async function hydrateClientManifest(clientId: string): Promise<Record<string, unknown> | null> {
-  const existing = loadClientManifest(clientId);
-  if (existing) return existing;
-  const record = await loadFirestoreClientRecord(clientId);
-  const manifest =
-    record?.manifest && typeof record.manifest === "object"
-      ? (record.manifest as Record<string, unknown>)
-      : null;
-  if (!manifest) return null;
-  saveClientManifest(clientId, manifest);
-  return loadClientManifest(clientId) || manifest;
+  return loadAdminManifest(clientId);
 }
 
 export async function findClientIdsByOwnerEmail(

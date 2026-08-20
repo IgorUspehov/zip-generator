@@ -2,20 +2,19 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
+import { useAdminI18n } from "@/components/admin/admin-i18n";
 import { AdminPageShell, useAdminSite } from "@/components/admin/admin-shell";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { AdminSaveFeedback } from "@/components/admin/admin-save-feedback";
 
 export default function AdminContentPage() {
+  const { copy } = useAdminI18n();
   const { data, loading, error, reload } = useAdminSite();
   const [businessName, setBusinessName] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
+  const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   useEffect(() => {
     if (!data) return;
@@ -27,19 +26,21 @@ export default function AdminContentPage() {
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setSaving(true);
-    setMessage("");
+    setSaved(false);
+    setSaveError("");
     try {
       const response = await fetch("/api/admin/site", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({ businessName, subtitle, description }),
       });
       const json = (await response.json()) as { ok?: boolean; error?: string };
       if (!response.ok || !json.ok) {
-        setMessage(json.error || "Speichern fehlgeschlagen");
+        setSaveError(json.error || copy.saveFailed);
         return;
       }
-      setMessage("Gespeichert.");
+      setSaved(true);
       await reload();
     } finally {
       setSaving(false);
@@ -47,40 +48,61 @@ export default function AdminContentPage() {
   }
 
   return (
-    <AdminPageShell title="Inhalt" description="Name und Beschreibung Ihrer Website.">
-      {loading ? <p className="text-sm text-muted-foreground">Laden…</p> : null}
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      <Card>
-        <CardContent className="pt-6">
-          <form className="space-y-4" onSubmit={(event) => void onSubmit(event)}>
-            <div className="space-y-2">
-              <Label htmlFor="businessName">Geschäftsname</Label>
-              <Input
-                id="businessName"
-                required
-                value={businessName}
-                onChange={(event) => setBusinessName(event.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="subtitle">Untertitel</Label>
-              <Input id="subtitle" value={subtitle} onChange={(event) => setSubtitle(event.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Beschreibung</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-              />
-            </div>
-            {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
-            <Button type="submit" disabled={saving || loading}>
-              {saving ? "Speichern…" : "Speichern"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+    <AdminPageShell
+      title={copy.content.title}
+      description={copy.content.description}
+      businessName={data?.content.businessName}
+    >
+      {loading ? <p className="admin-muted">{copy.loading}</p> : null}
+      {error ? <p className="admin-error">{error}</p> : null}
+      <div className="admin-card">
+        <form className="admin-stack" onSubmit={(event) => void onSubmit(event)}>
+          <div>
+            <label className="admin-label" htmlFor="businessName">
+              {copy.content.businessName}
+            </label>
+            <input
+              id="businessName"
+              className="admin-input"
+              required
+              value={businessName}
+              onChange={(event) => setBusinessName(event.target.value)}
+            />
+          </div>
+          <div>
+            <label className="admin-label" htmlFor="subtitle">
+              {copy.content.subtitle}
+            </label>
+            <input
+              id="subtitle"
+              className="admin-input"
+              value={subtitle}
+              onChange={(event) => setSubtitle(event.target.value)}
+            />
+          </div>
+          <div>
+            <label className="admin-label" htmlFor="description">
+              {copy.content.descriptionField}
+            </label>
+            <textarea
+              id="description"
+              className="admin-textarea"
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+            />
+          </div>
+          <AdminSaveFeedback
+            saved={saved}
+            error={saveError}
+            siteUrl={data?.publicSiteUrl || (data?.slug ? `/site/${data.slug}` : null)}
+            savedLabel={copy.saved}
+            viewSiteLabel={copy.viewSite}
+          />
+          <button type="submit" className="admin-btn-primary" disabled={saving || loading}>
+            {saving ? copy.saving : copy.save}
+          </button>
+        </form>
+      </div>
     </AdminPageShell>
   );
 }

@@ -2,38 +2,43 @@
 
 import { useState } from "react";
 
+import { useAdminI18n } from "@/components/admin/admin-i18n";
 import { AdminPageShell, useAdminSite } from "@/components/admin/admin-shell";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { AdminSaveFeedback } from "@/components/admin/admin-save-feedback";
 
 async function uploadSlot(slot: "logo" | "hero" | "gallery", file: File) {
   const body = new FormData();
   body.set("slot", slot);
   body.set("file", file);
-  const response = await fetch("/api/admin/media", { method: "POST", body });
+  const response = await fetch("/api/admin/media", {
+    method: "POST",
+    body,
+    credentials: "same-origin",
+  });
   const json = (await response.json()) as { ok?: boolean; error?: string };
   if (!response.ok || !json.ok) {
-    throw new Error(json.error || "Upload fehlgeschlagen");
+    throw new Error(json.error || "Upload failed");
   }
 }
 
 export default function AdminMediaPage() {
+  const { copy } = useAdminI18n();
   const { data, loading, error, reload } = useAdminSite();
-  const [message, setMessage] = useState("");
+  const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function handleUpload(slot: "logo" | "hero" | "gallery", file: File | undefined) {
     if (!file) return;
     setBusy(true);
-    setMessage("");
+    setSaved(false);
+    setSaveError("");
     try {
       await uploadSlot(slot, file);
-      setMessage("Gespeichert.");
+      setSaved(true);
       await reload();
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Upload fehlgeschlagen");
+      setSaveError(err instanceof Error ? err.message : copy.media.uploadFailed);
     } finally {
       setBusy(false);
     }
@@ -41,17 +46,21 @@ export default function AdminMediaPage() {
 
   async function remove(slot: "logo" | "hero" | "gallery", url?: string) {
     setBusy(true);
-    setMessage("");
+    setSaved(false);
+    setSaveError("");
     try {
       const params = new URLSearchParams({ slot });
       if (url) params.set("url", url);
-      const response = await fetch(`/api/admin/media?${params.toString()}`, { method: "DELETE" });
+      const response = await fetch(`/api/admin/media?${params.toString()}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
       const json = (await response.json()) as { ok?: boolean; error?: string };
-      if (!response.ok || !json.ok) throw new Error(json.error || "Löschen fehlgeschlagen");
-      setMessage("Aktualisiert.");
+      if (!response.ok || !json.ok) throw new Error(json.error || copy.media.deleteFailed);
+      setSaved(true);
       await reload();
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Löschen fehlgeschlagen");
+      setSaveError(err instanceof Error ? err.message : copy.media.deleteFailed);
     } finally {
       setBusy(false);
     }
@@ -65,12 +74,21 @@ export default function AdminMediaPage() {
     const [item] = gallery.splice(index, 1);
     gallery.splice(next, 0, item!);
     setBusy(true);
+    setSaved(false);
+    setSaveError("");
     try {
-      await fetch("/api/admin/site", {
+      const response = await fetch("/api/admin/site", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({ galleryPhotos: gallery }),
       });
+      const json = (await response.json()) as { ok?: boolean; error?: string };
+      if (!response.ok || !json.ok) {
+        setSaveError(json.error || copy.saveFailed);
+        return;
+      }
+      setSaved(true);
       await reload();
     } finally {
       setBusy(false);
@@ -80,102 +98,133 @@ export default function AdminMediaPage() {
   const content = data?.content;
 
   return (
-    <AdminPageShell title="Medien" description="Logo, Hauptbild und Galerie.">
-      {loading ? <p className="text-sm text-muted-foreground">Laden…</p> : null}
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
+    <AdminPageShell
+      title={copy.media.title}
+      description={copy.media.description}
+      businessName={data?.content.businessName}
+    >
+      {loading ? <p className="admin-muted">{copy.loading}</p> : null}
+      {error ? <p className="admin-error">{error}</p> : null}
+      <AdminSaveFeedback
+        saved={saved}
+        error={saveError}
+        siteUrl={data?.publicSiteUrl || (data?.slug ? `/site/${data.slug}` : null)}
+        savedLabel={copy.saved}
+        viewSiteLabel={copy.viewSite}
+      />
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Logo</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {content?.logo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={content.logo} alt="" className="h-20 w-20 rounded object-contain bg-muted" />
-            ) : (
-              <p className="text-sm text-muted-foreground">Kein Logo.</p>
-            )}
-            <Label htmlFor="logo">Datei wählen</Label>
-            <Input
-              id="logo"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              disabled={busy}
-              onChange={(event) => void handleUpload("logo", event.target.files?.[0])}
-            />
-            {content?.logo ? (
-              <Button variant="outline" size="sm" disabled={busy} onClick={() => void remove("logo")}>
-                Logo entfernen
-              </Button>
-            ) : null}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Hauptbild</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {content?.heroPhoto ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={content.heroPhoto} alt="" className="h-32 w-full rounded object-cover" />
-            ) : (
-              <p className="text-sm text-muted-foreground">Kein Hauptbild.</p>
-            )}
-            <Input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              disabled={busy}
-              onChange={(event) => void handleUpload("hero", event.target.files?.[0])}
-            />
-            {content?.heroPhoto ? (
-              <Button variant="outline" size="sm" disabled={busy} onClick={() => void remove("hero")}>
-                Hauptbild entfernen
-              </Button>
-            ) : null}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Galerie</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Input
+      <div className="admin-grid-2">
+        <div className="admin-card admin-stack">
+          <h2 className="admin-card-title">{copy.media.logo}</h2>
+          {content?.logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={content.logo} alt="" className="admin-media-logo" />
+          ) : (
+            <p className="admin-muted">{copy.media.noLogo}</p>
+          )}
+          <label className="admin-label" htmlFor="logo">
+            {copy.media.chooseFile}
+          </label>
+          <input
+            id="logo"
+            className="admin-input"
             type="file"
             accept="image/jpeg,image/png,image/webp"
             disabled={busy}
-            onChange={(event) => void handleUpload("gallery", event.target.files?.[0])}
+            onChange={(event) => void handleUpload("logo", event.target.files?.[0])}
           />
-          <div className="grid gap-4 sm:grid-cols-3">
+          {content?.logo ? (
+            <button
+              type="button"
+              className="admin-btn-outline"
+              disabled={busy}
+              onClick={() => void remove("logo")}
+            >
+              {copy.media.removeLogo}
+            </button>
+          ) : null}
+        </div>
+
+        <div className="admin-card admin-stack">
+          <h2 className="admin-card-title">{copy.media.hero}</h2>
+          {content?.heroPhoto ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={content.heroPhoto} alt="" className="admin-media-thumb" />
+          ) : (
+            <p className="admin-muted">{copy.media.noHero}</p>
+          )}
+          <input
+            className="admin-input"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            disabled={busy}
+            onChange={(event) => void handleUpload("hero", event.target.files?.[0])}
+          />
+          {content?.heroPhoto ? (
+            <button
+              type="button"
+              className="admin-btn-outline"
+              disabled={busy}
+              onClick={() => void remove("hero")}
+            >
+              {copy.media.removeHero}
+            </button>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="admin-card admin-stack">
+        <h2 className="admin-card-title">{copy.media.gallery}</h2>
+        <input
+          className="admin-input"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          disabled={busy}
+          onChange={(event) => void handleUpload("gallery", event.target.files?.[0])}
+        />
+        <div className="admin-grid-2" style={{ gridTemplateColumns: undefined }}>
+          <div
+            style={{
+              display: "grid",
+              gap: "1rem",
+              gridTemplateColumns: "repeat(auto-fill, minmax(10rem, 1fr))",
+            }}
+          >
             {(content?.galleryPhotos || []).map((src, index) => (
-              <div key={`${src}-${index}`} className="space-y-2">
+              <div key={`${src}-${index}`} className="admin-stack">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" className="h-32 w-full rounded object-cover" />
-                <div className="flex flex-wrap gap-1">
-                  <Button size="xs" variant="outline" disabled={busy} onClick={() => void move(index, -1)}>
+                <img src={src} alt="" className="admin-media-thumb" />
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+                  <button
+                    type="button"
+                    className="admin-btn-outline"
+                    disabled={busy}
+                    onClick={() => void move(index, -1)}
+                  >
                     ←
-                  </Button>
-                  <Button size="xs" variant="outline" disabled={busy} onClick={() => void move(index, 1)}>
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-btn-outline"
+                    disabled={busy}
+                    onClick={() => void move(index, 1)}
+                  >
                     →
-                  </Button>
-                  <Button
-                    size="xs"
-                    variant="outline"
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-btn-outline"
                     disabled={busy}
                     onClick={() => void remove("gallery", src)}
                   >
-                    Entfernen
-                  </Button>
+                    {copy.media.remove}
+                  </button>
                 </div>
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </AdminPageShell>
   );
 }

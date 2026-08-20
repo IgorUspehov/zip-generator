@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       mime: file.type || "application/octet-stream",
     });
 
-    const manifest = requireClientManifest(session.clientId);
+    const manifest = await requireClientManifest(session.clientId);
     const content = readSiteContent(manifest);
     if (slot === "logo") {
       await persistClientManifest(session.clientId, applySiteContentPatch(manifest, { logo: saved.url }));
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
       await persistClientManifest(session.clientId, applySiteContentPatch(manifest, { galleryPhotos: gallery }));
     }
     markClientAdminEdited(session.clientId);
-    const next = requireClientManifest(session.clientId);
+    const next = await requireClientManifest(session.clientId);
     return NextResponse.json({ ok: true, url: saved.url, content: readSiteContent(next) });
   } catch (error) {
     if (error instanceof AdminUnauthorizedError) return unauthorizedResponse();
@@ -75,7 +75,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ ok: false, error: "slot required" }, { status: 400 });
     }
 
-    const manifest = requireClientManifest(session.clientId);
+    const manifest = await requireClientManifest(session.clientId);
     const content = readSiteContent(manifest);
     if (slot === "logo") {
       const filename = filenameFromMediaUrl(content.logo, session.clientId);
@@ -96,7 +96,7 @@ export async function DELETE(request: Request) {
       );
     }
     markClientAdminEdited(session.clientId);
-    const next = requireClientManifest(session.clientId);
+    const next = await requireClientManifest(session.clientId);
     return NextResponse.json({ ok: true, content: readSiteContent(next) });
   } catch (error) {
     if (error instanceof AdminUnauthorizedError) return unauthorizedResponse();

@@ -254,9 +254,12 @@ export function applySiteContentPatch(
     throw new Error("businessName cannot be empty");
   }
 
+  const businessName = nextContent.businessName || current.businessName;
+
   return {
     ...manifest,
-    businessName: nextContent.businessName || current.businessName,
+    businessName,
+    business_name: businessName,
     description: nextContent.description,
     subtitle: nextContent.subtitle,
     logo: nextContent.logo,
@@ -272,6 +275,7 @@ export function applySiteContentPatch(
     postal_code: nextContent.postalCode,
     city: nextContent.city,
     workingHours: nextContent.workingHours,
+    working_hours: nextContent.workingHours,
     socialLinks: nextContent.socialLinks,
     social_links: nextContent.socialLinks,
     adminEditedAt: new Date().toISOString(),

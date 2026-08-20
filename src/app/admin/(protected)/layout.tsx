@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { AdminI18nProvider } from "@/components/admin/admin-i18n";
 import { readAdminSessionFromCookies } from "@/lib/admin/authorize";
 
 export default async function ProtectedAdminLayout({
@@ -11,5 +12,5 @@ export default async function ProtectedAdminLayout({
   if (!session) {
     redirect("/admin/login");
   }
-  return children;
+  return <AdminI18nProvider>{children}</AdminI18nProvider>;
 }
