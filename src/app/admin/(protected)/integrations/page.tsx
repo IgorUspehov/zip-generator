@@ -4,61 +4,23 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useAdminI18n } from "@/components/admin/admin-i18n";
 import { AdminPageShell, useAdminSite } from "@/components/admin/admin-shell";
-import type {
-  OwnerIntegrationId,
-  OwnerIntegrationInfo,
-  OwnerIntegrationStatus,
-} from "@/lib/owner/integrations";
+import { OWNER_PLATFORM_LINKS } from "@/lib/owner/integrations";
 
 type IntegrationsResponse = {
   ok: boolean;
   clientId?: string;
   distReady?: boolean;
   zipUnlocked?: boolean;
-  zipUnlockReason?: string;
   email?: string;
   checkoutConfigured?: boolean;
-  integrations?: OwnerIntegrationInfo[];
   error?: string;
 };
 
 type ZipDownloadState = "ready" | "loading" | "error";
 
-function statusLabel(
-  status: OwnerIntegrationStatus,
-  copy: ReturnType<typeof useAdminI18n>["copy"]["integrations"],
-): string {
-  switch (status) {
-    case "ready":
-      return copy.statusReady;
-    case "coming_soon":
-      return copy.statusComingSoon;
-    case "not_configured":
-      return copy.statusNotConfigured;
-    case "platform":
-      return copy.statusPlatform;
-    default:
-      return copy.statusComingSoon;
-  }
-}
-
-function statusBadgeClass(status: OwnerIntegrationStatus): string {
-  if (status === "ready") return "admin-badge";
-  if (status === "platform") return "admin-badge admin-badge-platform";
-  return "admin-badge admin-badge-muted";
-}
-
-function itemCopy(
-  id: OwnerIntegrationId,
-  copy: ReturnType<typeof useAdminI18n>["copy"]["integrations"],
-): { title: string; description: string } {
-  return copy.items[id];
-}
-
 export default function AdminIntegrationsPage() {
   const { copy, locale } = useAdminI18n();
   const { data, loading, error } = useAdminSite();
-  const [integrations, setIntegrations] = useState<OwnerIntegrationInfo[]>([]);
   const [distReady, setDistReady] = useState<boolean | null>(null);
   const [zipUnlocked, setZipUnlocked] = useState(false);
   const [checkoutConfigured, setCheckoutConfigured] = useState(true);
@@ -81,7 +43,6 @@ export default function AdminIntegrationsPage() {
         return;
       }
       setStatusError("");
-      setIntegrations(json.integrations || []);
       setDistReady(Boolean(json.distReady));
       setZipUnlocked(Boolean(json.zipUnlocked));
       setCheckoutConfigured(json.checkoutConfigured !== false);
@@ -186,6 +147,8 @@ export default function AdminIntegrationsPage() {
     }
   }
 
+  const zipBusy = zipState === "loading" || buyState === "loading";
+
   return (
     <AdminPageShell
       title={copy.integrations.title}
@@ -196,94 +159,83 @@ export default function AdminIntegrationsPage() {
       {error ? <p className="admin-error">{error}</p> : null}
       {statusError ? <p className="admin-error">{statusError}</p> : null}
 
-      {distReady !== null ? (
-        <p className="admin-muted" style={{ marginTop: 0 }}>
-          {distReady ? copy.integrations.distReady : copy.integrations.distMissing}
-          {data?.clientId ? ` · ${data.clientId}` : null}
-        </p>
-      ) : null}
+      <div className="admin-delivery-card">
+        <div className="admin-delivery-card-head">
+          <h2 className="admin-delivery-card-title">
+            {zipUnlocked
+              ? copy.integrations.readyTitle
+              : copy.integrations.launchTitle}
+          </h2>
+        </div>
 
-      <div className="admin-integrations-grid">
-        {integrations.map((item) => {
-          const labels = itemCopy(item.id, copy.integrations);
-          const isZip = item.id === "zip";
-
-          return (
-            <div key={item.id} className="admin-card admin-integration-card">
-              <div className="admin-integration-card-head">
-                <div className="admin-integration-card-title-row">
-                  <h2 className="admin-card-title">{labels.title}</h2>
-                  {item.siteUrl ? (
-                    <a
-                      className="admin-btn-outline admin-integration-site-btn"
-                      href={item.siteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {copy.integrations.openPlatform}
-                    </a>
-                  ) : null}
-                </div>
-                <span className={statusBadgeClass(item.status)}>
-                  {statusLabel(item.status, copy.integrations)}
+        <ul className="admin-delivery-list">
+          {zipUnlocked ? (
+            <li>
+              <button
+                type="button"
+                className="admin-delivery-row admin-delivery-row--primary"
+                disabled={zipBusy || distReady === false}
+                onClick={() => void downloadOwnerZip()}
+              >
+                <span className="admin-delivery-icon" aria-hidden>
+                  📦
                 </span>
-              </div>
-              <p className="admin-muted" style={{ margin: "0 0 0.75rem" }}>
-                {labels.description}
-              </p>
+                <span className="admin-delivery-label">
+                  {zipState === "loading"
+                    ? copy.integrations.downloadZipLoading
+                    : copy.integrations.downloadZip}
+                </span>
+              </button>
+            </li>
+          ) : (
+            <li>
+              <button
+                type="button"
+                className="admin-delivery-row admin-delivery-row--primary"
+                disabled={zipBusy || !checkoutConfigured}
+                onClick={() => void buyDeployableZip()}
+              >
+                <span className="admin-delivery-icon" aria-hidden>
+                  📦
+                </span>
+                <span className="admin-delivery-label">
+                  {buyState === "loading"
+                    ? copy.integrations.buyZipLoading
+                    : copy.integrations.buyZip}
+                </span>
+              </button>
+            </li>
+          )}
 
-              {isZip && item.actionable ? (
-                <div className="admin-stack">
-                  {zipUnlocked ? (
-                    <>
-                      <p className="admin-muted" style={{ margin: 0, fontSize: "0.85rem" }}>
-                        {copy.integrations.zipUnlockedHint}
-                      </p>
-                      <button
-                        type="button"
-                        className="admin-btn-primary"
-                        disabled={zipState === "loading" || distReady === false}
-                        onClick={() => void downloadOwnerZip()}
-                      >
-                        {zipState === "loading"
-                          ? copy.integrations.downloadZipLoading
-                          : copy.integrations.downloadZip}
-                      </button>
-                      {zipError ? <p className="admin-error">{zipError}</p> : null}
-                      {distReady === false ? (
-                        <p className="admin-muted">{copy.integrations.downloadZipDistMissing}</p>
-                      ) : null}
-                    </>
-                  ) : (
-                    <>
-                      <p className="admin-muted" style={{ margin: 0, fontSize: "0.85rem" }}>
-                        {copy.integrations.zipLockedHint}
-                      </p>
-                      <button
-                        type="button"
-                        className="admin-btn-primary"
-                        disabled={buyState === "loading" || !checkoutConfigured}
-                        onClick={() => void buyDeployableZip()}
-                      >
-                        {buyState === "loading"
-                          ? copy.integrations.buyZipLoading
-                          : copy.integrations.buyZip}
-                      </button>
-                      {buyError ? <p className="admin-error">{buyError}</p> : null}
-                      {!checkoutConfigured ? (
-                        <p className="admin-muted">{copy.integrations.buyZipCheckoutMissing}</p>
-                      ) : null}
-                    </>
-                  )}
-                </div>
-              ) : (
-                <p className="admin-muted" style={{ margin: 0, fontSize: "0.8rem" }}>
-                  {item.note || statusLabel(item.status, copy.integrations)}
-                </p>
-              )}
-            </div>
-          );
-        })}
+          {OWNER_PLATFORM_LINKS.map((platform) => (
+            <li key={platform.id}>
+              <a
+                className="admin-delivery-row"
+                href={platform.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="admin-delivery-icon" aria-hidden>
+                  {platform.icon}
+                </span>
+                <span className="admin-delivery-label">{platform.label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        {zipError ? <p className="admin-error admin-delivery-msg">{zipError}</p> : null}
+        {buyError ? <p className="admin-error admin-delivery-msg">{buyError}</p> : null}
+        {zipUnlocked && distReady === false ? (
+          <p className="admin-muted admin-delivery-msg">
+            {copy.integrations.downloadZipDistMissing}
+          </p>
+        ) : null}
+        {!zipUnlocked && !checkoutConfigured ? (
+          <p className="admin-muted admin-delivery-msg">
+            {copy.integrations.buyZipCheckoutMissing}
+          </p>
+        ) : null}
       </div>
     </AdminPageShell>
   );

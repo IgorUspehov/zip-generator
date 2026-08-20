@@ -36,6 +36,8 @@ export type AdminCopy = {
   integrations: {
     title: string;
     description: string;
+    launchTitle: string;
+    readyTitle: string;
     downloadZip: string;
     downloadZipLoading: string;
     downloadZipError: string;
@@ -46,22 +48,6 @@ export type AdminCopy = {
     buyZipCheckoutMissing: string;
     zipLockedHint: string;
     zipUnlockedHint: string;
-    distReady: string;
-    distMissing: string;
-    statusReady: string;
-    statusComingSoon: string;
-    statusNotConfigured: string;
-    statusPlatform: string;
-    openPlatform: string;
-    items: {
-      zip: { title: string; description: string };
-      github: { title: string; description: string };
-      netlify: { title: string; description: string };
-      railway: { title: string; description: string };
-      soundfire: { title: string; description: string };
-      firebase: { title: string; description: string };
-      redis: { title: string; description: string };
-    };
   };
   content: {
     title: string;
@@ -174,55 +160,19 @@ const EN: AdminCopy = {
   },
   integrations: {
     title: "Integrations",
-    description: "Export your site and see which platform connections are available.",
-    downloadZip: "Download ZIP + README",
+    description: "Download your site and open platforms.",
+    launchTitle: "Launch your project",
+    readyTitle: "Your project is ready to launch",
+    downloadZip: "Download ZIP",
     downloadZipLoading: "Creating ZIP…",
     downloadZipError: "Could not create ZIP. Try again.",
     downloadZipDistMissing: "Site files are not ready yet. Create or republish the site first.",
-    buyZip: "Buy Deployable ZIP · €999",
+    buyZip: "Buy ZIP · €999",
     buyZipLoading: "Opening checkout…",
     buyZipError: "Could not start checkout. Try again.",
     buyZipCheckoutMissing: "€999 ZIP product is not configured on the server yet.",
     zipLockedHint: "One-time €999 unlocks your personalized static ZIP for any host.",
     zipUnlockedHint: "Payment confirmed — you can download your Deployable ZIP.",
-    distReady: "Site dist ready",
-    distMissing: "Site dist missing",
-    statusReady: "Ready",
-    statusComingSoon: "Coming soon",
-    statusNotConfigured: "Not configured",
-    statusPlatform: "Platform only",
-    openPlatform: "Open site",
-    items: {
-      zip: {
-        title: "Deployable ZIP + README",
-        description:
-          "Personalized static Website + CRM package. €999 one-time via Polar, then download anytime.",
-      },
-      github: {
-        title: "GitHub",
-        description: "One-click GitHub export is not available in Owner yet.",
-      },
-      netlify: {
-        title: "Netlify",
-        description: "Netlify deploy is deprecated; live hosting uses Cloudflare Pages.",
-      },
-      railway: {
-        title: "Railway",
-        description: "This SaaS already runs on Railway. No separate Owner deploy action.",
-      },
-      soundfire: {
-        title: "SoundFire",
-        description: "Not found in this codebase.",
-      },
-      firebase: {
-        title: "Firebase",
-        description: "Used by platform APIs when configured. Credentials are never packed into the ZIP.",
-      },
-      redis: {
-        title: "Redis",
-        description: "Not found in this codebase.",
-      },
-    },
   },
   content: {
     title: "Content",
@@ -343,55 +293,19 @@ const DE: AdminCopy = {
   },
   integrations: {
     title: "Integrationen",
-    description: "Exportieren Sie Ihre Website und sehen Sie verfügbare Plattform-Verbindungen.",
-    downloadZip: "ZIP + README herunterladen",
+    description: "Website herunterladen und Plattformen öffnen.",
+    launchTitle: "Projekt starten",
+    readyTitle: "Ihr Projekt ist startklar",
+    downloadZip: "ZIP herunterladen",
     downloadZipLoading: "ZIP wird erstellt…",
     downloadZipError: "ZIP konnte nicht erstellt werden. Bitte erneut versuchen.",
     downloadZipDistMissing: "Website-Dateien sind noch nicht bereit. Bitte zuerst veröffentlichen.",
-    buyZip: "Deployable ZIP kaufen · €999",
+    buyZip: "ZIP kaufen · €999",
     buyZipLoading: "Checkout wird geöffnet…",
     buyZipError: "Checkout konnte nicht gestartet werden. Bitte erneut versuchen.",
     buyZipCheckoutMissing: "€999-ZIP-Produkt ist auf dem Server noch nicht konfiguriert.",
     zipLockedHint: "Einmalig €999 schaltet Ihr personalisiertes Static-ZIP für jedes Hosting frei.",
     zipUnlockedHint: "Zahlung bestätigt — Sie können Ihr Deployable ZIP herunterladen.",
-    distReady: "Site-Dist bereit",
-    distMissing: "Site-Dist fehlt",
-    statusReady: "Bereit",
-    statusComingSoon: "Demnächst",
-    statusNotConfigured: "Nicht konfiguriert",
-    statusPlatform: "Nur Plattform",
-    openPlatform: "Zur Website",
-    items: {
-      zip: {
-        title: "Deployable ZIP + README",
-        description:
-          "Personalisiertes Static Website + CRM-Paket. Einmalig €999 über Polar, danach jederzeit downloadbar.",
-      },
-      github: {
-        title: "GitHub",
-        description: "One-Click GitHub-Export ist im Owner noch nicht verfügbar.",
-      },
-      netlify: {
-        title: "Netlify",
-        description: "Netlify-Deploy ist veraltet; Live-Hosting nutzt Cloudflare Pages.",
-      },
-      railway: {
-        title: "Railway",
-        description: "Diese SaaS läuft bereits auf Railway. Keine separate Owner-Deploy-Aktion.",
-      },
-      soundfire: {
-        title: "SoundFire",
-        description: "Im Repository nicht gefunden.",
-      },
-      firebase: {
-        title: "Firebase",
-        description: "Für Plattform-APIs, wenn konfiguriert. Credentials kommen nie ins ZIP.",
-      },
-      redis: {
-        title: "Redis",
-        description: "Im Repository nicht gefunden.",
-      },
-    },
   },
   content: {
     title: "Inhalt",
@@ -512,55 +426,19 @@ const RU: AdminCopy = {
   },
   integrations: {
     title: "Интеграции",
-    description: "Экспорт сайта и статус подключений платформы.",
-    downloadZip: "Скачать ZIP + README",
+    description: "Скачайте сайт и откройте платформы.",
+    launchTitle: "Запустить проект",
+    readyTitle: "Ваш проект готов к запуску",
+    downloadZip: "Скачать ZIP",
     downloadZipLoading: "Создание ZIP…",
     downloadZipError: "Не удалось создать ZIP. Попробуйте снова.",
     downloadZipDistMissing: "Файлы сайта ещё не готовы. Сначала создайте или опубликуйте сайт.",
-    buyZip: "Купить Deployable ZIP · €999",
+    buyZip: "Купить ZIP · €999",
     buyZipLoading: "Открываем оплату…",
     buyZipError: "Не удалось открыть оплату. Попробуйте снова.",
     buyZipCheckoutMissing: "Продукт ZIP €999 ещё не настроен на сервере.",
     zipLockedHint: "Разовая оплата €999 открывает персональный static ZIP для любого хостинга.",
     zipUnlockedHint: "Оплата подтверждена — можно скачать Deployable ZIP.",
-    distReady: "Dist сайта готов",
-    distMissing: "Dist сайта отсутствует",
-    statusReady: "Готово",
-    statusComingSoon: "Скоро",
-    statusNotConfigured: "Не настроено",
-    statusPlatform: "Только платформа",
-    openPlatform: "Открыть сайт",
-    items: {
-      zip: {
-        title: "Deployable ZIP + README",
-        description:
-          "Персональный static-пакет Website + CRM. Разово €999 через Polar, затем скачивание в любое время.",
-      },
-      github: {
-        title: "GitHub",
-        description: "One-click экспорт в GitHub в Owner пока недоступен.",
-      },
-      netlify: {
-        title: "Netlify",
-        description: "Deploy в Netlify устарел; live-хостинг идёт через Cloudflare Pages.",
-      },
-      railway: {
-        title: "Railway",
-        description: "SaaS уже работает на Railway. Отдельной Owner-кнопки деплоя нет.",
-      },
-      soundfire: {
-        title: "SoundFire",
-        description: "В репозитории не найдено.",
-      },
-      firebase: {
-        title: "Firebase",
-        description: "Используется платформенными API при наличии credentials. В ZIP не попадает.",
-      },
-      redis: {
-        title: "Redis",
-        description: "В репозитории не найдено.",
-      },
-    },
   },
   content: {
     title: "Контент",
