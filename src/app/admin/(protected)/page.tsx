@@ -48,6 +48,9 @@ export default function AdminHomePage() {
                   </Link>
                 </p>
               ) : null}
+              <a className="admin-btn-primary admin-btn-inline" href="/api/admin/download-zip">
+                📦 Скачать ZIP
+              </a>
             </div>
           </div>
           <div className="admin-card">
