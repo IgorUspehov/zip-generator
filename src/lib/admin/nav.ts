@@ -7,6 +7,7 @@ export const ADMIN_SECTION_HREFS = [
   "/admin/services",
   "/admin/jobs",
   "/admin/contacts",
+  "/admin/integrations",
 ] as const;
 
 export type AdminSectionHref = (typeof ADMIN_SECTION_HREFS)[number];
@@ -19,6 +20,7 @@ export function adminNavItems(copy: AdminCopy): { href: AdminSectionHref; label:
     { href: "/admin/services", label: copy.nav.services },
     { href: "/admin/jobs", label: copy.nav.jobs },
     { href: "/admin/contacts", label: copy.nav.contacts },
+    { href: "/admin/integrations", label: copy.nav.integrations },
   ];
 }
 

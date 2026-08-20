@@ -1,10 +1,11 @@
 import type { Archiver } from "archiver";
 import { createRequire } from "node:module";
-import { PassThrough, type Readable } from "node:stream";
+import { PassThrough, Readable } from "node:stream";
 
 import fs from "fs";
 import path from "path";
 
+import { packDirectoryToTraditionalZipBuffer } from "@/lib/deployable-zip/traditional-zip";
 import { resolveManifestsDir } from "@/lib/manifest/storage-paths";
 
 const require = createRequire(import.meta.url);
@@ -18,28 +19,23 @@ export function createMvpProZipStream(input: {
   readmeContent: string;
   manifestJson?: string;
 }): Readable {
-  const archive = createArchiver("zip", { zlib: { level: 9 } });
-  const stream = new PassThrough();
+  // Traditional ZIP (no data descriptors) — compatible with Netlify, bolt.new, and LLM parsers.
+  const buffer = buildClientDistZipBufferSync(input);
+  return Readable.from(buffer);
+}
 
-  archive.on("error", (error) => {
-    stream.destroy(error);
-  });
-
-  archive.pipe(stream);
-
-  if (fs.existsSync(input.distPath)) {
-    archive.directory(input.distPath, false);
-  }
-
-  archive.append(input.readmeContent, { name: "README.md" });
-
+function buildClientDistZipBufferSync(input: {
+  distPath: string;
+  readmeContent: string;
+  manifestJson?: string;
+}): Buffer {
+  const extras: Array<{ name: string; content: string }> = [
+    { name: "README.md", content: input.readmeContent },
+  ];
   if (input.manifestJson) {
-    archive.append(input.manifestJson, { name: "client-manifest.json" });
+    extras.push({ name: "client-manifest.json", content: input.manifestJson });
   }
-
-  void archive.finalize();
-
-  return stream;
+  return packDirectoryToTraditionalZipBuffer(input.distPath, extras);
 }
 
 export function buildZipFilename(clientId: string): string {
@@ -57,16 +53,7 @@ export async function buildClientDistZipBuffer(input: {
   readmeContent: string;
   manifestJson?: string;
 }): Promise<Buffer> {
-  const stream = createMvpProZipStream(input);
-  const chunks: Buffer[] = [];
-
-  return new Promise((resolve, reject) => {
-    stream.on("data", (chunk) => {
-      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-    });
-    stream.on("end", () => resolve(Buffer.concat(chunks)));
-    stream.on("error", reject);
-  });
+  return buildClientDistZipBufferSync(input);
 }
 
 const CRM_DEMO_README = `Website + CRM + Booking

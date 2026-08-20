@@ -48,8 +48,8 @@ export default function AdminHomePage() {
                   </Link>
                 </p>
               ) : null}
-              <a className="admin-btn-primary admin-btn-inline" href="/api/admin/download-zip">
-                📦 Скачать ZIP
+              <a className="admin-btn-primary admin-btn-inline" href="/admin/integrations">
+                {copy.overview.openIntegrations}
               </a>
             </div>
           </div>
@@ -70,6 +70,9 @@ export default function AdminHomePage() {
               </Link>
               <Link className="admin-link" href="/admin/contacts">
                 {copy.nav.contacts}
+              </Link>
+              <Link className="admin-link" href="/admin/integrations">
+                {copy.nav.integrations}
               </Link>
             </div>
           </div>

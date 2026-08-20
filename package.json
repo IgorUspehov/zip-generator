@@ -6,6 +6,8 @@
     "dev": "next dev",
     "image-library:bootstrap": "node scripts/bootstrap-image-library.mjs",
     "smoke:factory-crm": "npx tsx scripts/smoke-factory-crm-bootstrap.mjs",
+    "test:deployable-zip": "npx tsx scripts/test-deployable-zip.mts",
+    "test:owner-deployable-zip": "npx tsx scripts/test-owner-deployable-zip.mts",
     "react-mvp:install": "npm install --prefix artifacts/factory_output/react_mvp",
     "react-mvp:build": "VITE_MANIFEST_API_BASE=https://webstudio-muenchen.com npm run build --prefix artifacts/factory_output/react_mvp",
     "dev:client-funnel": "next dev -p 3001",

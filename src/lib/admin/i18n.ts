@@ -19,6 +19,7 @@ export type AdminCopy = {
     services: string;
     jobs: string;
     contacts: string;
+    integrations: string;
   };
   overview: {
     title: string;
@@ -30,6 +31,30 @@ export type AdminCopy = {
     publicSiteMissing: string;
     crm: string;
     sections: string;
+    openIntegrations: string;
+  };
+  integrations: {
+    title: string;
+    description: string;
+    downloadZip: string;
+    downloadZipLoading: string;
+    downloadZipError: string;
+    downloadZipDistMissing: string;
+    distReady: string;
+    distMissing: string;
+    statusReady: string;
+    statusComingSoon: string;
+    statusNotConfigured: string;
+    statusPlatform: string;
+    items: {
+      zip: { title: string; description: string };
+      github: { title: string; description: string };
+      netlify: { title: string; description: string };
+      railway: { title: string; description: string };
+      soundfire: { title: string; description: string };
+      firebase: { title: string; description: string };
+      redis: { title: string; description: string };
+    };
   };
   content: {
     title: string;
@@ -126,6 +151,7 @@ const EN: AdminCopy = {
     services: "Services",
     jobs: "Jobs",
     contacts: "Contact",
+    integrations: "Integrations",
   },
   overview: {
     title: "Overview",
@@ -137,6 +163,51 @@ const EN: AdminCopy = {
     publicSiteMissing: "Public URL not available yet.",
     crm: "CRM / Booking:",
     sections: "Sections",
+    openIntegrations: "Integrations → Download ZIP",
+  },
+  integrations: {
+    title: "Integrations",
+    description: "Export your site and see which platform connections are available.",
+    downloadZip: "Download ZIP + README",
+    downloadZipLoading: "Creating ZIP…",
+    downloadZipError: "Could not create ZIP. Try again.",
+    downloadZipDistMissing: "Site files are not ready yet. Create or republish the site first.",
+    distReady: "Site dist ready",
+    distMissing: "Site dist missing",
+    statusReady: "Ready",
+    statusComingSoon: "Coming soon",
+    statusNotConfigured: "Not configured",
+    statusPlatform: "Platform only",
+    items: {
+      zip: {
+        title: "Deployable ZIP + README",
+        description: "Download a static package of this client site via Deployable ZIP Builder V2.",
+      },
+      github: {
+        title: "GitHub",
+        description: "One-click GitHub export is not available in Owner yet.",
+      },
+      netlify: {
+        title: "Netlify",
+        description: "Netlify deploy is deprecated; live hosting uses Cloudflare Pages.",
+      },
+      railway: {
+        title: "Railway",
+        description: "This SaaS already runs on Railway. No separate Owner deploy action.",
+      },
+      soundfire: {
+        title: "SoundFire",
+        description: "Not found in this codebase.",
+      },
+      firebase: {
+        title: "Firebase",
+        description: "Used by platform APIs when configured. Credentials are never packed into the ZIP.",
+      },
+      redis: {
+        title: "Redis",
+        description: "Not found in this codebase.",
+      },
+    },
   },
   content: {
     title: "Content",
@@ -241,6 +312,7 @@ const DE: AdminCopy = {
     services: "Leistungen",
     jobs: "Stellen",
     contacts: "Kontakt",
+    integrations: "Integrationen",
   },
   overview: {
     title: "Übersicht",
@@ -252,6 +324,51 @@ const DE: AdminCopy = {
     publicSiteMissing: "Öffentliche URL noch nicht verfügbar.",
     crm: "CRM / Booking:",
     sections: "Bereiche",
+    openIntegrations: "Integrationen → ZIP herunterladen",
+  },
+  integrations: {
+    title: "Integrationen",
+    description: "Exportieren Sie Ihre Website und sehen Sie verfügbare Plattform-Verbindungen.",
+    downloadZip: "ZIP + README herunterladen",
+    downloadZipLoading: "ZIP wird erstellt…",
+    downloadZipError: "ZIP konnte nicht erstellt werden. Bitte erneut versuchen.",
+    downloadZipDistMissing: "Website-Dateien sind noch nicht bereit. Bitte zuerst veröffentlichen.",
+    distReady: "Site-Dist bereit",
+    distMissing: "Site-Dist fehlt",
+    statusReady: "Bereit",
+    statusComingSoon: "Demnächst",
+    statusNotConfigured: "Nicht konfiguriert",
+    statusPlatform: "Nur Plattform",
+    items: {
+      zip: {
+        title: "Deployable ZIP + README",
+        description: "Statisches Paket dieser Kunden-Website über Deployable ZIP Builder V2.",
+      },
+      github: {
+        title: "GitHub",
+        description: "One-Click GitHub-Export ist im Owner noch nicht verfügbar.",
+      },
+      netlify: {
+        title: "Netlify",
+        description: "Netlify-Deploy ist veraltet; Live-Hosting nutzt Cloudflare Pages.",
+      },
+      railway: {
+        title: "Railway",
+        description: "Diese SaaS läuft bereits auf Railway. Keine separate Owner-Deploy-Aktion.",
+      },
+      soundfire: {
+        title: "SoundFire",
+        description: "Im Repository nicht gefunden.",
+      },
+      firebase: {
+        title: "Firebase",
+        description: "Für Plattform-APIs, wenn konfiguriert. Credentials kommen nie ins ZIP.",
+      },
+      redis: {
+        title: "Redis",
+        description: "Im Repository nicht gefunden.",
+      },
+    },
   },
   content: {
     title: "Inhalt",
@@ -356,6 +473,7 @@ const RU: AdminCopy = {
     services: "Услуги",
     jobs: "Вакансии",
     contacts: "Контакты",
+    integrations: "Интеграции",
   },
   overview: {
     title: "Обзор",
@@ -367,6 +485,51 @@ const RU: AdminCopy = {
     publicSiteMissing: "Публичный URL пока недоступен.",
     crm: "CRM / Бронирование:",
     sections: "Разделы",
+    openIntegrations: "Интеграции → Скачать ZIP",
+  },
+  integrations: {
+    title: "Интеграции",
+    description: "Экспорт сайта и статус подключений платформы.",
+    downloadZip: "Скачать ZIP + README",
+    downloadZipLoading: "Создание ZIP…",
+    downloadZipError: "Не удалось создать ZIP. Попробуйте снова.",
+    downloadZipDistMissing: "Файлы сайта ещё не готовы. Сначала создайте или опубликуйте сайт.",
+    distReady: "Dist сайта готов",
+    distMissing: "Dist сайта отсутствует",
+    statusReady: "Готово",
+    statusComingSoon: "Скоро",
+    statusNotConfigured: "Не настроено",
+    statusPlatform: "Только платформа",
+    items: {
+      zip: {
+        title: "Deployable ZIP + README",
+        description: "Статический пакет этого сайта через Deployable ZIP Builder V2.",
+      },
+      github: {
+        title: "GitHub",
+        description: "One-click экспорт в GitHub в Owner пока недоступен.",
+      },
+      netlify: {
+        title: "Netlify",
+        description: "Deploy в Netlify устарел; live-хостинг идёт через Cloudflare Pages.",
+      },
+      railway: {
+        title: "Railway",
+        description: "SaaS уже работает на Railway. Отдельной Owner-кнопки деплоя нет.",
+      },
+      soundfire: {
+        title: "SoundFire",
+        description: "В репозитории не найдено.",
+      },
+      firebase: {
+        title: "Firebase",
+        description: "Используется платформенными API при наличии credentials. В ZIP не попадает.",
+      },
+      redis: {
+        title: "Redis",
+        description: "В репозитории не найдено.",
+      },
+    },
   },
   content: {
     title: "Контент",

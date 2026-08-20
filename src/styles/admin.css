@@ -280,6 +280,35 @@
   color: var(--admin-muted);
 }
 
+.admin-badge-platform {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+}
+
+.admin-integrations-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 720px) {
+  .admin-integrations-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.admin-integration-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.admin-integration-card .admin-card-title {
+  margin: 0;
+}
+
 .admin-grid-2 {
   display: grid;
   gap: 1rem;
