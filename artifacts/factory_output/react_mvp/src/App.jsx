@@ -563,7 +563,7 @@ function getPageRecords(data, pageKey) {
 }
 
 const DEFAULT_BUSINESS_TYPE = "beauty_salon";
-const LOADING_DOCUMENT_TITLE = "Website + CRM + Booking — Loading…";
+const LOADING_DOCUMENT_TITLE = "Website + CRM + Booking";
 
 const NICHE_FOLDER_MAP = {
   beauty_salon: "beauty",
@@ -2938,6 +2938,18 @@ export default function App() {
     }
   }, [language]);
 
+  // Tell parent /demo frame the CRM UI is ready (hide loading cover without flicker).
+  useEffect(() => {
+    if (!manifestLoaded || typeof window === "undefined") {
+      return;
+    }
+    try {
+      window.parent.postMessage({ type: "crm-demo-ready" }, "*");
+    } catch {
+      /* ignore */
+    }
+  }, [manifestLoaded]);
+
   const settingsFieldStyle = {
     display: "flex",
     flexDirection: "column",
@@ -3094,8 +3106,19 @@ export default function App() {
 
   if (manifestPending && !manifestLoaded) {
     return (
-      <div className="app-shell app-loading" style={{ minHeight: "100vh", display: "grid", placeItems: "center" }}>
-        <p style={{ fontSize: "1.1rem", color: "#475569" }}>Loading Website + CRM + Booking…</p>
+      <div
+        className="app-shell app-loading"
+        style={{
+          minHeight: "100vh",
+          display: "grid",
+          placeItems: "center",
+          background: "#0f172a",
+          color: "transparent",
+        }}
+        aria-busy="true"
+        aria-live="polite"
+      >
+        <span className="sr-only">Loading…</span>
       </div>
     );
   }
@@ -3111,8 +3134,10 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell" data-domain={effectiveBusinessType || domainUi.domain_key}>
-      {demoAccessReady && isUnpaidDemo && isTopFrame ? (
+    <div
+      className="app-shell app-shell--ready"
+      data-domain={effectiveBusinessType || domainUi.domain_key}
+    >      {demoAccessReady && isUnpaidDemo && isTopFrame ? (
         <>
           <div
             style={{
