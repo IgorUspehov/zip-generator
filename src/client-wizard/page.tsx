@@ -859,25 +859,64 @@ function ClientWizardFlow() {
         console.log("[wizard] API response:", data);
         const slug = data.slug?.trim() || "";
         const clientId = data.clientId?.trim() || "";
-        if (slug && clientId) {
-          const demoPath = `/demo/${encodeURIComponent(slug)}?clientId=${encodeURIComponent(clientId)}`;
-          console.log("[wizard] navigation target:", demoPath);
-          window.location.assign(demoPath);
-          return;
+
+        const resolveDemoUrl = (): string | null => {
+          if (slug && clientId) {
+            const demoPath = `/demo/${encodeURIComponent(slug)}?clientId=${encodeURIComponent(clientId)}`;
+            return `${window.location.origin}${demoPath}`;
+          }
+          const redirectUrl = data.redirectUrl?.trim() || "";
+          if (redirectUrl && isReadableDemoPreviewUrl(redirectUrl)) {
+            return redirectUrl;
+          }
+          return null;
+        };
+
+        const demoUrl = resolveDemoUrl();
+        if (!demoUrl) {
+          throw new Error("No redirect URL returned");
         }
-        if (data.redirectUrl) {
-          console.log("[wizard] navigation target:", data.redirectUrl);
-          window.location.assign(data.redirectUrl);
-          return;
+
+        let resolvedSlug = slug;
+        let resolvedClientId = clientId;
+        try {
+          const parsed = new URL(demoUrl);
+          const parts = parsed.pathname.split("/").filter(Boolean);
+          if (!resolvedSlug && parts[0] === "demo" && parts[1]) {
+            resolvedSlug = decodeURIComponent(parts[1]);
+          }
+          if (!resolvedClientId) {
+            resolvedClientId = parsed.searchParams.get("clientId")?.trim() || "";
+          }
+        } catch {
+          /* keep slug/clientId from API */
         }
-        throw new Error("No redirect URL returned");
+
+        setDeployMeta({
+          demoUrl,
+          publicSiteUrl: data.publicSiteUrl,
+          siteId: data.siteId,
+          clientId: resolvedClientId || undefined,
+          slug: resolvedSlug || undefined,
+        });
+        setPendingRedirectUrl(demoUrl);
+        setPreviewTitle(companyName.trim() || contactName.trim() || "—");
+        setAutoAdvancedToPreview(true);
+        setShowPromo(false);
+        setPromoInput("");
+        setPromoValidated(false);
+        setPromoError(false);
+        setIsGenerating(false);
+        // s6 = tariff / promo / Polar entry (do not skip to /demo)
+        console.log("[wizard] navigation target:", "s6");
+        goTo("s6");
       } catch (error) {
         console.error("POST /api/client-questionnaire failed:", error);
         console.log("[wizard] navigation target:", "s4 (build error, staying on build screen)");
         setIsGenerating(false);
       }
     },
-    [agbAccepted, email, lang],
+    [agbAccepted, email, goTo, lang],
   );
 
   function goRestart() {
