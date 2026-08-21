@@ -4,6 +4,7 @@ import path from "path";
 import { stripLeadsSecrets } from "@/lib/leads/read-secret";
 
 import type { SecretFinding } from "@/lib/deployable-zip/types";
+import { stripDemoPaywallFromDist } from "@/lib/deployable-zip/strip-demo-paywall";
 
 const SECRET_MANIFEST_KEYS = new Set([
   "leadsReadSecret",
@@ -216,6 +217,13 @@ export type SanitizeStagingResult = {
   excludedFiles: string[];
   redactedFiles: string[];
 };
+
+/**
+ * @deprecated Prefer stripDemoPaywallFromDist — kept for callers that only need index.html unlock.
+ */
+export function markStagingAsPaidBuyer(stagingDir: string): boolean {
+  return stripDemoPaywallFromDist(stagingDir).length > 0;
+}
 
 /**
  * Walk a staging dist tree: exclude secret filenames, redact text that looks like credentials.

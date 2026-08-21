@@ -1872,9 +1872,19 @@ export default function App() {
   const [manifestLoaded, setManifestLoaded] = useState(false);
   const [manifestError, setManifestError] = useState(null);
   /** null = access unknown (hold seeds); true = paid empty CRM; false = unpaid demo */
-  const [demoPaid, setDemoPaid] = useState(() => (bootClientId ? null : true));
+  const [demoPaid, setDemoPaid] = useState(() => {
+    if (typeof window !== "undefined" && window.__CRM_DEPLOYABLE_PAID__ === true) {
+      return true;
+    }
+    return bootClientId ? null : true;
+  });
   const [demoCheckoutUrl, setDemoCheckoutUrl] = useState("");
-  const [demoAccessReady, setDemoAccessReady] = useState(() => !bootClientId);
+  const [demoAccessReady, setDemoAccessReady] = useState(() => {
+    if (typeof window !== "undefined" && window.__CRM_DEPLOYABLE_PAID__ === true) {
+      return true;
+    }
+    return !bootClientId;
+  });
   const [isTopFrame, setIsTopFrame] = useState(true);
 
   const effectiveBusinessType = useMemo(() => {
@@ -1970,8 +1980,22 @@ export default function App() {
       return undefined;
     }
 
+    // Paid marketplace / deployable ZIP — never call SaaS demo-access paywall.
+    if (typeof window !== "undefined" && window.__CRM_DEPLOYABLE_PAID__ === true) {
+      setDemoPaid(true);
+      setDemoAccessReady(true);
+      return undefined;
+    }
+
     const params = new URLSearchParams(window.location.search);
     if (params.get("paid") === "1" || params.get("paid") === "true") {
+      setDemoPaid(true);
+      setDemoAccessReady(true);
+      return undefined;
+    }
+
+    const bakedManifest = readDeployedManifest();
+    if (bakedManifest?.deployablePaid === true || bakedManifest?.paid === true) {
       setDemoPaid(true);
       setDemoAccessReady(true);
       return undefined;

@@ -68,6 +68,7 @@ export function buildDeployableZipReadme(input: {
           `Пакет: **${modeLabel(input.mode, lang)}**.`,
           "",
           "Это **статическая** оболочка Website + CRM (Vite/React), персонализированная для одного клиента.",
+          "Пакет уже **разблокирован** (без баннера «Выберите тариф» / DEMO paywall) — это цифровой товар после оплаты.",
           "Это **не** полный клон SaaS (Next.js Admin, SSR `/site`, серверные API) и **не** обещает полную автономность всех функций.",
         ]
       : lang === "de"
@@ -77,6 +78,7 @@ export function buildDeployableZipReadme(input: {
             `Paket: **${modeLabel(input.mode, lang)}**.`,
             "",
             "Dies ist eine **statische** Website + CRM-Shell (Vite/React), personalisiert für einen Kunden.",
+            "Das Paket ist **freigeschaltet** (kein Banner „Plan wählen“ / DEMO-Paywall) — digitales Produkt nach Zahlung.",
             "Es ist **kein** vollständiger SaaS-Klon (Next.js Admin, SSR `/site`, Server-APIs) und verspricht **keine** volle Autonomie aller Funktionen.",
           ]
         : [
@@ -85,6 +87,7 @@ export function buildDeployableZipReadme(input: {
             `Package: **${modeLabel(input.mode, lang)}**.`,
             "",
             "This is a **static** Website + CRM shell (Vite/React), personalized for one client.",
+            "The package is **unlocked** (no “Choose a plan” banner / DEMO paywall) — a paid digital product.",
             "It is **not** a full SaaS clone (Next.js Admin, SSR `/site`, server APIs) and does **not** claim full autonomy for every feature.",
           ];
 

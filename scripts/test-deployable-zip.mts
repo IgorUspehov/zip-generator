@@ -179,6 +179,31 @@ async function main(): Promise<void> {
   assert(!("leadsReadSecret" in manifest), "leadsReadSecret must not be in ZIP manifest");
   assert(!("polarAccessToken" in manifest), "polarAccessToken must not be in ZIP manifest");
   assert(!manifestRaw.includes("should-never-appear"), "secret values must not appear in manifest");
+  assert(manifest.deployablePaid === true, "manifest must mark deployablePaid for buyers");
+  assert(manifest.paid === true, "manifest must mark paid for buyers");
+
+  const indexHtml = fs.readFileSync(path.join(extractDir, "index.html"), "utf8");
+  assert(
+    indexHtml.includes("__CRM_DEPLOYABLE_PAID__") || indexHtml.includes("__DEPLOYABLE_SITE_URL__"),
+    "index.html must unlock paid mode (no demo paywall on Netlify)",
+  );
+  assert(
+    /searchParams\.set\(["']paid["'],\s*["']1["']\)/.test(indexHtml),
+    "index.html must inject paid=1 for legacy CRM bundles",
+  );
+  assert(
+    indexHtml.includes("/api/demo-access") || indexHtml.includes("demo-access"),
+    "index.html must mock or short-circuit demo-access fetch",
+  );
+
+  const jsBundle = entryNames.find((n) => /^assets\/index-.*\.js$/.test(n));
+  assert(jsBundle, "ZIP must contain hashed CRM JS bundle");
+  const jsRaw = fs.readFileSync(path.join(extractDir, jsBundle!), "utf8");
+  assert(
+    !jsRaw.includes("Демо-версия. Выберите тариф, чтобы продолжить."),
+    "JS bundle must not contain RU demo paywall string",
+  );
+  assert(!jsRaw.includes("DEMO · €199"), "JS bundle must not contain DEMO watermark string");
 
   assert(
     !entryNames.some(

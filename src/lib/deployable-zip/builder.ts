@@ -17,6 +17,7 @@ import {
   sanitizeManifestForZip,
   sanitizeStagingDist,
 } from "@/lib/deployable-zip/sanitize";
+import { stripDemoPaywallFromDist } from "@/lib/deployable-zip/strip-demo-paywall";
 import type {
   BuildDeployableZipInput,
   DeployableZipBuildResult,
@@ -131,6 +132,9 @@ export function enrichPublicManifestForBuyer(
     businessType: pickString(manifest.businessType) || niche,
     business_type: pickString(manifest.business_type) || niche,
     language,
+    // Marketplace / paid ZIP: unlock CRM shell (no demo paywall).
+    paid: true,
+    deployablePaid: true,
     // Hints for humans editing the JSON (UI ignores unknown keys).
     _editHint:
       "Change businessName and niche, save this file, re-upload the folder to Netlify.",
@@ -303,6 +307,10 @@ export async function buildDeployableZip(
     );
 
     const stagingSanitize = sanitizeStagingDist(stagingPath);
+    const paywallStripped = stripDemoPaywallFromDist(stagingPath);
+    if (!paywallStripped.length) {
+      console.warn("[deployable-zip] demo paywall strip touched 0 files", { clientId });
+    }
     const slimRemoved = slimStagingForClient(stagingPath, publicManifest);
     if (slimRemoved.length) {
       console.info("[deployable-zip] slimmed staging", { clientId, removed: slimRemoved.length });
