@@ -2,6 +2,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 
+import { slugifyProjectSegment } from "@/lib/cloudflare/deploy";
 import { loadClientManifest } from "@/lib/manifest/storage";
 import { buildClientDistZipBuffer } from "@/lib/mvp-pro/zip-stream";
 import {
@@ -80,10 +81,21 @@ export function resolveDeployableDistPath(clientId: string, distPath?: string): 
   return assertDistBelongsToClient(id, resolveClientDistPath(id));
 }
 
-export function buildDeployableZipFilename(clientId: string, mode: string): string {
-  const safeId = clientId.replace(/[^a-zA-Z0-9_-]/g, "") || "site";
-  const safeMode = mode.replace(/[^a-zA-Z0-9_-]/g, "") || "export";
-  return `deployable-${safeMode}-${safeId}.zip`;
+/**
+ * Download name from the site/business title (ASCII slug), e.g. «КРАСАВЧИКИ» → krasavchiki.zip.
+ * Falls back to a short clientId fragment when the name is empty.
+ */
+export function buildDeployableZipFilename(
+  clientId: string,
+  _mode: string,
+  businessName?: string,
+): string {
+  const nameSlug = slugifyProjectSegment(businessName || "").slice(0, 72);
+  if (nameSlug) {
+    return `${nameSlug}.zip`;
+  }
+  const safeId = clientId.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 12) || "site";
+  return `site-${safeId}.zip`;
 }
 
 function pickString(value: unknown): string {
@@ -335,11 +347,14 @@ export async function buildDeployableZip(
       // client-manifest.json is already written into staging (sanitized).
     });
 
-    const filename = buildDeployableZipFilename(clientId, input.mode);
+    const businessName =
+      pickString(publicManifest.businessName) || pickString(publicManifest.business_name);
+    const filename = buildDeployableZipFilename(clientId, input.mode, businessName);
 
     console.info("[deployable-zip] built", {
       clientId,
       mode: input.mode,
+      businessName: businessName || null,
       filename,
       bytes: buffer.length,
       securityFindings: security.findings.length,
