@@ -10,6 +10,11 @@ import path from "path";
  * 3. ./data under cwd (local dev)
  */
 export function resolvePersistentDataDir(): string {
+  // Explicit tmp mode wins (Render free instances often lack a writable disk mount).
+  if (process.env.USE_TMP_DATA_DIR === "1") {
+    return path.join(os.tmpdir(), "saas-mvp-funnel-data");
+  }
+
   const volumePath =
     process.env.RAILWAY_VOLUME_MOUNT_PATH?.trim() ||
     process.env.RENDER_DISK_MOUNT_PATH?.trim() ||
@@ -19,9 +24,7 @@ export function resolvePersistentDataDir(): string {
   }
 
   const useTmp =
-    process.env.USE_TMP_DATA_DIR === "1" ||
-    process.env.RENDER === "true" ||
-    Boolean(process.env.RENDER_SERVICE_ID?.trim());
+    process.env.RENDER === "true" || Boolean(process.env.RENDER_SERVICE_ID?.trim());
 
   if (useTmp) {
     return path.join(os.tmpdir(), "saas-mvp-funnel-data");
