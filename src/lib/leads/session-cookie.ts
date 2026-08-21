@@ -9,7 +9,6 @@ function signingKey(): string {
   return (
     process.env.CRM_LEADS_COOKIE_SECRET ||
     process.env.FIREBASE_PRIVATE_KEY ||
-    process.env.POLAR_WEBHOOK_SECRET ||
     "local-dev-crm-leads-cookie"
   );
 }

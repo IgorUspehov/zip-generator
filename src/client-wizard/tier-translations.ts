@@ -8,7 +8,7 @@ export const tierTranslations = {
     downloadZip: "Скачать ZIP",
     mvpDemo: {
       name: "Сайт + CRM + Бронирование",
-      description: "€199 / месяц · Polar checkout",
+      description: "€199 / месяц",
     },
     mvpPro: {
       name: "Factory Website + CRM",
@@ -27,7 +27,7 @@ export const tierTranslations = {
     downloadZip: "ZIP herunterladen",
     mvpDemo: {
       name: "Website + CRM + Buchung",
-      description: "€199 / Monat · Polar-Checkout",
+      description: "€199 / Monat",
     },
     mvpPro: {
       name: "Factory Website + CRM",
@@ -46,7 +46,7 @@ export const tierTranslations = {
     downloadZip: "Download ZIP",
     mvpDemo: {
       name: "Website + CRM + Booking",
-      description: "€199 / month · Polar checkout",
+      description: "€199 / month",
     },
     mvpPro: {
       name: "Factory Website + CRM",

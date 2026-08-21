@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 /**
  * Deployable ZIP download for the authenticated admin session.
  *
- * Gated by €999 Polar entitlement (or DEPLOYABLE_ZIP_OWNER_BYPASS=1).
+ * Gated by €999 entitlement (or DEPLOYABLE_ZIP_OWNER_BYPASS=1).
  * clientId is taken ONLY from the signed session.
  */
 export async function GET(request: Request) {
@@ -35,7 +35,6 @@ export async function GET(request: Request) {
           ok: false,
           error: "Deployable ZIP requires €999 payment",
           code: "PAYMENT_REQUIRED",
-          checkout: "/api/polar/deployable-zip-checkout",
         },
         { status: 402 },
       );

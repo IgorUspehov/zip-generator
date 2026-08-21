@@ -12,24 +12,18 @@ type IntegrationsResponse = {
   distReady?: boolean;
   zipUnlocked?: boolean;
   email?: string;
-  checkoutConfigured?: boolean;
   error?: string;
 };
 
 type ZipDownloadState = "ready" | "loading" | "error";
 
 export default function AdminIntegrationsPage() {
-  const { copy, locale } = useAdminI18n();
+  const { copy } = useAdminI18n();
   const { data, loading, error } = useAdminSite();
   const [distReady, setDistReady] = useState<boolean | null>(null);
-  const [zipUnlocked, setZipUnlocked] = useState(false);
-  const [checkoutConfigured, setCheckoutConfigured] = useState(true);
-  const [clientEmail, setClientEmail] = useState("");
   const [statusError, setStatusError] = useState("");
-  const [zipState, setZipState] = useState<ZipDownloadState>("ready");
+  const [zipState, setZipDownloadState] = useState<ZipDownloadState>("ready");
   const [zipError, setZipError] = useState("");
-  const [buyState, setBuyState] = useState<ZipDownloadState>("ready");
-  const [buyError, setBuyError] = useState("");
 
   const loadStatus = useCallback(async () => {
     try {
@@ -44,9 +38,6 @@ export default function AdminIntegrationsPage() {
       }
       setStatusError("");
       setDistReady(Boolean(json.distReady));
-      setZipUnlocked(Boolean(json.zipUnlocked));
-      setCheckoutConfigured(json.checkoutConfigured !== false);
-      setClientEmail(json.email || "");
     } catch (err) {
       setStatusError(err instanceof Error ? err.message : copy.loadFailed);
     }
@@ -57,7 +48,7 @@ export default function AdminIntegrationsPage() {
   }, [loadStatus]);
 
   async function downloadOwnerZip() {
-    setZipState("loading");
+    setZipDownloadState("loading");
     setZipError("");
     try {
       const response = await fetch("/api/owner/deployable-zip", {
@@ -72,9 +63,6 @@ export default function AdminIntegrationsPage() {
           const json = (await response.json()) as { error?: string; code?: string };
           if (json.code === "DIST_MISSING") {
             message = copy.integrations.downloadZipDistMissing;
-          } else if (json.code === "PAYMENT_REQUIRED") {
-            message = copy.integrations.zipLockedHint;
-            setZipUnlocked(false);
           } else if (json.error) {
             message = json.error;
           }
@@ -82,7 +70,7 @@ export default function AdminIntegrationsPage() {
           /* non-JSON error body */
         }
         setZipError(message);
-        setZipState("error");
+        setZipDownloadState("error");
         return;
       }
 
@@ -100,54 +88,15 @@ export default function AdminIntegrationsPage() {
       anchor.remove();
       URL.revokeObjectURL(objectUrl);
 
-      setZipState("ready");
+      setZipDownloadState("ready");
       await loadStatus();
     } catch (err) {
       setZipError(err instanceof Error ? err.message : copy.integrations.downloadZipError);
-      setZipState("error");
+      setZipDownloadState("error");
     }
   }
 
-  async function buyDeployableZip() {
-    const clientId = data?.clientId?.trim() || "";
-    if (!clientId) {
-      setBuyError(copy.integrations.buyZipError);
-      setBuyState("error");
-      return;
-    }
-
-    setBuyState("loading");
-    setBuyError("");
-    try {
-      const response = await fetch("/api/polar/deployable-zip-checkout", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientId,
-          email: clientEmail || undefined,
-          locale,
-        }),
-      });
-      const json = (await response.json()) as { checkout_url?: string; error?: string };
-      if (!response.ok || !json.checkout_url) {
-        // Never surface raw English server dumps in the admin UI.
-        setBuyError(
-          response.status === 503
-            ? copy.integrations.buyZipCheckoutMissing
-            : copy.integrations.buyZipError,
-        );
-        setBuyState("error");
-        return;
-      }
-      window.location.href = json.checkout_url;
-    } catch (err) {
-      setBuyError(err instanceof Error ? err.message : copy.integrations.buyZipError);
-      setBuyState("error");
-    }
-  }
-
-  const zipBusy = zipState === "loading" || buyState === "loading";
+  const zipBusy = zipState === "loading";
 
   return (
     <AdminPageShell
@@ -161,51 +110,27 @@ export default function AdminIntegrationsPage() {
 
       <div className="admin-delivery-card">
         <div className="admin-delivery-card-head">
-          <h2 className="admin-delivery-card-title">
-            {zipUnlocked
-              ? copy.integrations.readyTitle
-              : copy.integrations.launchTitle}
-          </h2>
+          <h2 className="admin-delivery-card-title">{copy.integrations.readyTitle}</h2>
         </div>
 
         <ul className="admin-delivery-list">
-          {zipUnlocked ? (
-            <li>
-              <button
-                type="button"
-                className="admin-delivery-row admin-delivery-row--primary"
-                disabled={zipBusy || distReady === false}
-                onClick={() => void downloadOwnerZip()}
-              >
-                <span className="admin-delivery-icon" aria-hidden>
-                  📦
-                </span>
-                <span className="admin-delivery-label">
-                  {zipState === "loading"
-                    ? copy.integrations.downloadZipLoading
-                    : copy.integrations.downloadZip}
-                </span>
-              </button>
-            </li>
-          ) : (
-            <li>
-              <button
-                type="button"
-                className="admin-delivery-row admin-delivery-row--primary"
-                disabled={zipBusy || !checkoutConfigured}
-                onClick={() => void buyDeployableZip()}
-              >
-                <span className="admin-delivery-icon" aria-hidden>
-                  📦
-                </span>
-                <span className="admin-delivery-label">
-                  {buyState === "loading"
-                    ? copy.integrations.buyZipLoading
-                    : copy.integrations.buyZip}
-                </span>
-              </button>
-            </li>
-          )}
+          <li>
+            <button
+              type="button"
+              className="admin-delivery-row admin-delivery-row--primary"
+              disabled={zipBusy || distReady === false}
+              onClick={() => void downloadOwnerZip()}
+            >
+              <span className="admin-delivery-icon" aria-hidden>
+                📦
+              </span>
+              <span className="admin-delivery-label">
+                {zipState === "loading"
+                  ? copy.integrations.downloadZipLoading
+                  : copy.integrations.downloadZip}
+              </span>
+            </button>
+          </li>
 
           {OWNER_PLATFORM_LINKS.map((platform) => (
             <li key={platform.id}>
@@ -225,15 +150,9 @@ export default function AdminIntegrationsPage() {
         </ul>
 
         {zipError ? <p className="admin-error admin-delivery-msg">{zipError}</p> : null}
-        {buyError ? <p className="admin-error admin-delivery-msg">{buyError}</p> : null}
-        {zipUnlocked && distReady === false ? (
+        {distReady === false ? (
           <p className="admin-muted admin-delivery-msg">
             {copy.integrations.downloadZipDistMissing}
-          </p>
-        ) : null}
-        {!zipUnlocked && !checkoutConfigured ? (
-          <p className="admin-muted admin-delivery-msg">
-            {copy.integrations.buyZipCheckoutMissing}
           </p>
         ) : null}
       </div>

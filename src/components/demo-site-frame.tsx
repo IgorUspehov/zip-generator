@@ -2,12 +2,8 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 
-import { DemoUnpaidBanner } from "@/components/demo-unpaid-banner";
-
 type DemoSiteFrameProps = {
-  unpaid: boolean;
   clientId: string;
-  checkoutUrl: string;
   language?: string;
   iframeSrc: string;
   iframeTitle: string;
@@ -17,20 +13,14 @@ type DemoSiteFrameProps = {
 const REVEAL_FALLBACK_MS = 2500;
 
 /**
- * Demo wrapper chrome (paywall banner / tenant links) belongs on a top-level
- * /demo or /d visit. When the same URL is iframed on /pay, hide it so the
- * preview is the actual site — /pay already has plan + promo actions.
+ * CRM wrapper chrome (tenant links) for /demo and /d visits.
+ * When the same URL is iframed (e.g. preview embeds), hide chrome.
  */
 export function DemoSiteFrame({
-  unpaid,
-  clientId,
-  checkoutUrl,
-  language,
   iframeSrc,
   iframeTitle,
   paidBar,
 }: DemoSiteFrameProps) {
-  // Top-level /demo visits must show the paywall immediately; only hide chrome when iframed (/pay).
   const [framed, setFramed] = useState(false);
   const [revealed, setRevealed] = useState(false);
 
@@ -60,8 +50,7 @@ export function DemoSiteFrame({
     return () => window.clearTimeout(timer);
   }, [revealed, iframeSrc]);
 
-  const showUnpaidBanner = unpaid && !framed;
-  const showPaidBar = Boolean(paidBar) && !unpaid && !framed;
+  const showPaidBar = Boolean(paidBar) && !framed;
 
   return (
     <div
@@ -73,9 +62,6 @@ export function DemoSiteFrame({
         background: "#0f172a",
       }}
     >
-      {showUnpaidBanner ? (
-        <DemoUnpaidBanner clientId={clientId} checkoutUrl={checkoutUrl} language={language} />
-      ) : null}
       {showPaidBar ? paidBar : null}
       <div style={{ position: "relative", flex: 1, minHeight: 0 }}>
         <iframe

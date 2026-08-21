@@ -766,31 +766,73 @@ export async function POST(request: Request) {
     let publicSiteUrl: string | undefined;
 
     logCloudflareEnvPresence("client-questionnaire");
+
+    const distPath = resolveMvpDistPath();
+    const businessType = String(
+      (manifest as { businessType?: unknown }).businessType ??
+        payload.business_type ??
+        "business",
+    );
+    const businessName = String(
+      (manifest as { businessName?: unknown }).businessName ??
+        payload.business_name ??
+        "",
+    );
+    demoSlug = buildDemoSlug({ clientId, businessType, businessName });
+
     if (!isCloudflareDeployConfigured()) {
-      return NextResponse.json(
-        {
-          ok: false,
-          success: false,
-          error: "Cloudflare is not configured",
-          clientId,
-        },
-        { status: 503 },
+      console.warn(
+        "[client-questionnaire] Cloudflare not configured — local client-dist fallback",
+        { clientId, demoSlug },
       );
+      const clientDistPath = await prepareClientDistWithOgImage(
+        clientId,
+        distPath,
+        manifest as Record<string, unknown>,
+      );
+      try {
+        persistClientDistSnapshot(clientId, clientDistPath);
+      } finally {
+        cleanupClientDist(clientDistPath);
+      }
+
+      const origin = new URL(request.url).origin;
+      const localDeploymentUrl = `${origin}/api/client-dist/${encodeURIComponent(clientId)}/?localDist=1`;
+      const deployedAt = new Date().toISOString();
+      const deleteAt = new Date(Date.now() + getCrmDemoTtlMs()).toISOString();
+      siteId = `local-${clientId}`;
+      siteUrl = localDeploymentUrl;
+      deployId = siteId;
+      redirectUrl = buildReadableDemoUrl(demoSlug, clientId);
+      publicSiteUrl = buildReadablePublicSiteUrl(demoSlug);
+
+      upsertDemoRecord({
+        slug: demoSlug,
+        clientId,
+        deploymentId: siteId,
+        deploymentUrl: localDeploymentUrl,
+        projectName: "local-client-dist",
+        deployedAt,
+        deleteAt,
+      });
+
+      return NextResponse.json({
+        ok: true,
+        success: true,
+        redirectUrl,
+        publicSiteUrl,
+        clientId,
+        siteId,
+        siteUrl: redirectUrl,
+        deployId,
+        deploymentUrl: siteUrl,
+        slug: demoSlug,
+        localFallback: true,
+        path: `${CLIENTS_COLLECTION}/${clientId}`,
+      });
     }
 
     try {
-      const distPath = resolveMvpDistPath();
-      const businessType = String(
-        (manifest as { businessType?: unknown }).businessType ??
-          payload.business_type ??
-          "business",
-      );
-      const businessName = String(
-        (manifest as { businessName?: unknown }).businessName ??
-          payload.business_name ??
-          "",
-      );
-      demoSlug = buildDemoSlug({ clientId, businessType, businessName });
       console.log("[client-questionnaire] Cloudflare deploy starting:", {
         clientId,
         distPath,

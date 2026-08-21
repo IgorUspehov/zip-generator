@@ -10,7 +10,7 @@ import {
   type TariffContext,
   type TariffLang,
 } from "@/lib/tariffs/copy";
-import { buildCrmDemoPolarUrl, buildFactoryBridgeApiPath } from "@/lib/tariffs/urls";
+import { buildFactoryBridgeApiPath } from "@/lib/tariffs/urls";
 
 /** Factory €499 / €999 cards — keep code, hide from public UI for now. */
 const SHOW_FACTORY_TARIFF_CARDS = false;
@@ -121,9 +121,15 @@ export function TariffChooser() {
   }
 
   function goCrmDemo() {
-    // Static Polar checkout (€199/month) — do not use /api/polar/crm-demo-checkout
-    // (that route still targets the legacy CRM Demo product).
-    window.location.href = buildCrmDemoPolarUrl(clientId, ctx.email || undefined, lang);
+    const params = new URLSearchParams();
+    if (clientId) params.set("client_id", clientId);
+    if (demoUrl) params.set("demo_url", demoUrl);
+    if (ctx.email) params.set("email", ctx.email);
+    if (ctx.businessName || ctx.ownerName) {
+      params.set("name", ctx.businessName || ctx.ownerName || "");
+    }
+    const q = params.toString();
+    window.location.href = q ? `/pay?${q}` : "/pay";
   }
 
   return (

@@ -4,10 +4,6 @@ import { AdminUnauthorizedError, requireAdminSession, unauthorizedResponse } fro
 import { loadClientManifest } from "@/lib/manifest/storage";
 import { canDownloadDeployableZip } from "@/lib/mvp-pro/zip-access";
 import { resolveOwnerIntegrations } from "@/lib/owner/integrations";
-import {
-  POLAR_CHECKOUT_DEPLOYABLE_ZIP,
-  isFactoryOwnedCrmFullCheckout,
-} from "@/lib/polar/constants";
 import { clientDistExists } from "@/lib/site-delivery/dist-store";
 
 export const runtime = "nodejs";
@@ -29,22 +25,16 @@ export async function GET(request: Request) {
     const manifest = loadClientManifest(clientId);
     const integrations = resolveOwnerIntegrations().map((item) => {
       if (item.id !== "zip") return item;
-      if (zipAccess.allowed) {
-        return {
-          ...item,
-          status: "ready" as const,
-          actionable: true,
-          note:
-            zipAccess.reason === "bypass"
-              ? "Owner bypass (DEPLOYABLE_ZIP_OWNER_BYPASS=1)"
-              : "Unlocked after €999 Deployable ZIP payment",
-        };
-      }
       return {
         ...item,
-        status: "not_configured" as const,
+        status: "ready" as const,
         actionable: true,
-        note: "Pay €999 once to unlock Deployable ZIP download",
+        note:
+          zipAccess.reason === "bypass"
+            ? "Owner bypass (DEPLOYABLE_ZIP_OWNER_BYPASS=1)"
+            : zipAccess.allowed
+              ? "Unlocked after €999 Deployable ZIP payment"
+              : "Deployable ZIP download (Polar checkout disabled)",
       };
     });
 
@@ -52,15 +42,11 @@ export async function GET(request: Request) {
       ok: true,
       clientId,
       distReady: clientDistExists(clientId),
-      zipUnlocked: zipAccess.allowed,
-      zipUnlockReason: zipAccess.reason,
+      // Polar €999 checkout removed — UI always offers free download; API still honors bypass/entitlement.
+      zipUnlocked: true,
+      zipUnlockReason: zipAccess.allowed ? zipAccess.reason : "bypass",
       email: pickEmail(manifest),
-      // Ready only when Render has a SaaS checkout path (API token or non-Factory link).
-      checkoutConfigured: Boolean(
-        process.env.POLAR_ACCESS_TOKEN?.trim() ||
-          (POLAR_CHECKOUT_DEPLOYABLE_ZIP &&
-            !isFactoryOwnedCrmFullCheckout(POLAR_CHECKOUT_DEPLOYABLE_ZIP)),
-      ),
+      checkoutConfigured: false,
       integrations,
     });
   } catch (error) {

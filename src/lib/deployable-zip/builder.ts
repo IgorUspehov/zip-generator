@@ -90,6 +90,68 @@ function pickString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+/**
+ * Buyer-facing public fields so Netlify deployers can rename business / niche
+ * by editing `client-manifest.json` (and optionally mirroring via `.env.example`).
+ */
+export function enrichPublicManifestForBuyer(
+  manifest: Record<string, unknown>,
+  clientId: string,
+): Record<string, unknown> {
+  const businessName =
+    pickString(manifest.businessName) ||
+    pickString(manifest.business_name) ||
+    "My Business";
+  const niche =
+    pickString(manifest.niche) ||
+    pickString(manifest.businessType) ||
+    pickString(manifest.business_type) ||
+    "business";
+  const language = pickString(manifest.language) || pickString(manifest.lang) || "en";
+
+  return {
+    ...manifest,
+    clientId,
+    client_id: clientId,
+    businessName,
+    business_name: businessName,
+    niche,
+    businessType: pickString(manifest.businessType) || niche,
+    business_type: pickString(manifest.business_type) || niche,
+    language,
+    // Hints for humans editing the JSON (UI ignores unknown keys).
+    _editHint:
+      "Change businessName and niche, save this file, re-upload the folder to Netlify.",
+  };
+}
+
+export function buildDeployableZipEnvExample(manifest: Record<string, unknown>): string {
+  const businessName = pickString(manifest.businessName) || "My Business";
+  const niche =
+    pickString(manifest.niche) ||
+    pickString(manifest.businessType) ||
+    "business";
+  const language = pickString(manifest.language) || "en";
+  const city = pickString(manifest.city) || "";
+  const phone = pickString(manifest.phone) || "";
+  const email = pickString(manifest.email) || "";
+
+  return [
+    "# Optional local overrides for documentation / tooling.",
+    "# The live static site reads client-manifest.json — edit that file to change branding.",
+    "# Copy to .env only if your host/tooling needs env vars (do not commit real secrets).",
+    "",
+    `BUSINESS_NAME=${businessName}`,
+    `NICHE=${niche}`,
+    `BUSINESS_TYPE=${niche}`,
+    `LANGUAGE=${language}`,
+    city ? `CITY=${city}` : "CITY=",
+    phone ? `PHONE=${phone}` : "PHONE=",
+    email ? `EMAIL=${email}` : "EMAIL=",
+    "",
+  ].join("\n");
+}
+
 function resolveReadmeContext(
   input: BuildDeployableZipInput,
   manifest: Record<string, unknown>,
@@ -205,10 +267,12 @@ export async function buildDeployableZip(
       : loadClientManifest(clientId) || {};
 
   const {
-    manifest: publicManifest,
+    manifest: sanitizedManifest,
     findings: manifestFindings,
     strippedKeys,
   } = sanitizeManifestForZip(rawManifest, clientId);
+
+  const publicManifest = enrichPublicManifestForBuyer(sanitizedManifest, clientId);
 
   const stagingPath = writeStagingFromDist(distPath, clientId);
 
@@ -217,6 +281,12 @@ export async function buildDeployableZip(
     fs.writeFileSync(
       path.join(stagingPath, "client-manifest.json"),
       `${JSON.stringify(publicManifest, null, 2)}\n`,
+      "utf8",
+    );
+
+    fs.writeFileSync(
+      path.join(stagingPath, ".env.example"),
+      buildDeployableZipEnvExample(publicManifest),
       "utf8",
     );
 

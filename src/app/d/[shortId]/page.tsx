@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 
 import { CrmLeadsBridge } from "@/components/crm-leads-bridge";
 import { DemoSiteFrame } from "@/components/demo-site-frame";
-import { resolveDemoAccess } from "@/lib/cloudflare/demo-access";
 import { buildDemoEmbedSrc } from "@/lib/cloudflare/demo-embed";
 import { findDemoByShortId } from "@/lib/cloudflare/demo-registry";
 import { loadClientManifest } from "@/lib/manifest/storage";
@@ -46,11 +45,7 @@ export default async function ShortDemoPage({ params }: ShortDemoPageProps) {
     );
   }
 
-  const access = resolveDemoAccess(record.clientId);
-  const unpaid = !access.paid;
   const language = resolveManifestLanguage(record.clientId);
-  /** Outer banner → tariff chooser (not Polar directly). */
-  const checkoutUrl = access.checkoutUrl;
   const src = buildDemoEmbedSrc(record);
   const iframeTitle = `Website + CRM + Booking ${shortId}`;
 
@@ -62,9 +57,7 @@ export default async function ShortDemoPage({ params }: ShortDemoPageProps) {
         iframeTitle={iframeTitle}
       />
       <DemoSiteFrame
-        unpaid={unpaid}
         clientId={record.clientId}
-        checkoutUrl={checkoutUrl}
         language={language}
         iframeSrc={src}
         iframeTitle={iframeTitle}

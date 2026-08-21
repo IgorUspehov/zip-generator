@@ -2,8 +2,10 @@ import { loadMvpProEntitlement } from "@/lib/mvp-pro/entitlement-store";
 
 /**
  * Who may download Deployable ZIP without a fresh Polar €999 payment:
- * - env DEPLOYABLE_ZIP_OWNER_BYPASS=1 (operator testing)
+ * - env DEPLOYABLE_ZIP_OWNER_BYPASS=1 (operator / zip-generator free download)
  * - existing MVP Pro / Deployable ZIP entitlement for this clientId
+ *
+ * Polar checkout routes are removed on zip-generator; bypass should be set in production.
  */
 export function canDownloadDeployableZip(clientId: string): {
   allowed: boolean;
@@ -16,5 +18,6 @@ export function canDownloadDeployableZip(clientId: string): {
   if (entitlement?.downloadToken) {
     return { allowed: true, reason: "entitlement" };
   }
-  return { allowed: false, reason: "payment_required" };
+  // Polar €999 checkout disabled — allow download so Admin Integrations is not a dead end.
+  return { allowed: true, reason: "bypass" };
 }

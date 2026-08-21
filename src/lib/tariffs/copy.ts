@@ -17,7 +17,7 @@ export const tariffCopy = {
       name: "Website + CRM + Booking",
       price: "€199",
       period: "/ month",
-      description: "Live website + CRM + booking for your niche — continue with Polar checkout.",
+      description: "Live website + CRM + booking for your niche.",
       cta: "Pay €199 · Website + CRM + Booking",
       bullets: [
         "Working website + CRM for your niche",
@@ -63,7 +63,7 @@ export const tariffCopy = {
       name: "Website + CRM + Buchung",
       price: "€199",
       period: "/ Monat",
-      description: "Live-Website + CRM + Buchung für Ihre Nische — weiter zur Polar-Zahlung.",
+      description: "Live-Website + CRM + Buchung für Ihre Nische.",
       cta: "€199 zahlen · Website + CRM + Buchung",
       bullets: [
         "Funktionierende Website + CRM für Ihre Nische",
@@ -110,7 +110,7 @@ export const tariffCopy = {
       name: "Сайт + CRM + Бронирование",
       price: "€199",
       period: "/ месяц",
-      description: "Живой сайт + CRM + бронирование под вашу нишу — далее оплата через Polar.",
+      description: "Живой сайт + CRM + бронирование под вашу нишу.",
       cta: "Оплатить €199 · Сайт + CRM + Бронирование",
       bullets: [
         "Рабочий сайт + CRM под нишу",

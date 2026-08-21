@@ -54,10 +54,7 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
     record = (await restoreDemoByClientId(clientId)) || record;
   }
   const access = resolveDemoAccess(clientId);
-  const unpaid = !access.paid;
   const language = resolveManifestLanguage(clientId);
-  /** Outer banner → tariff chooser (not Polar directly). */
-  const checkoutUrl = access.checkoutUrl;
   const publicSiteUrl =
     access.publicSiteUrl || buildReadablePublicSiteUrl(record.slug);
 
@@ -68,9 +65,7 @@ export default async function DemoPage({ params, searchParams }: DemoPageProps) 
     <>
       <CrmLeadsBridge clientId={clientId} slug={slug} iframeTitle={iframeTitle} />
       <DemoSiteFrame
-        unpaid={unpaid}
         clientId={clientId}
-        checkoutUrl={checkoutUrl}
         language={language}
         iframeSrc={src}
         iframeTitle={iframeTitle}

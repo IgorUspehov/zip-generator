@@ -5,8 +5,20 @@ export const DEFAULT_PUBLIC_ORIGIN = "https://webstudio-muenchen.com";
 export const DEFAULT_RAILWAY_ORIGIN =
   "https://saas-mvp-funnel-production.up.railway.app";
 
+/** Render.com saas-mvp-funnel — must embed crm-demo-sites (not only the custom domain). */
+export const RENDER_FRAME_ANCESTOR = "https://saas-mvp-funnel.onrender.com";
+
+/** Render.com zip-generator — separate service; CSP must allow its /demo iframe parent. */
+export const ZIP_GENERATOR_FRAME_ANCESTOR = "https://zip-generator.onrender.com";
+
 /** Custom domain that must also be allowed to embed crm-demo-sites. */
 export const CUSTOM_SITE_FRAME_ANCESTOR = "https://webstudio-muenchen.com";
+
+/** Local wizard /demo parents (Live Preview embeds Pages from localhost). */
+export const LOCAL_FRAME_ANCESTORS = [
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+] as const;
 
 /**
  * Current public site origin (env override or production default).
@@ -18,10 +30,17 @@ export const RAILWAY_FRAME_ANCESTOR =
 
 /**
  * All parents allowed to embed the Cloudflare Pages CRM iframe.
- * Always includes Railway + custom domain; also includes NEXT_PUBLIC_SITE_URL if set.
+ * Always includes custom domain + both Render services + Railway; also NEXT_PUBLIC_SITE_URL if set.
+ * Missing zip-generator here shows Chrome “refused to connect” inside its /demo iframe.
  */
 export const FRAME_ANCESTORS: readonly string[] = (() => {
-  const set = new Set<string>([DEFAULT_RAILWAY_ORIGIN, CUSTOM_SITE_FRAME_ANCESTOR]);
+  const set = new Set<string>([
+    CUSTOM_SITE_FRAME_ANCESTOR,
+    RENDER_FRAME_ANCESTOR,
+    ZIP_GENERATOR_FRAME_ANCESTOR,
+    DEFAULT_RAILWAY_ORIGIN,
+    ...LOCAL_FRAME_ANCESTORS,
+  ]);
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");
   if (fromEnv) set.add(fromEnv);
   return Array.from(set);
