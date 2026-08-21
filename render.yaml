@@ -13,7 +13,7 @@ services:
     healthCheckPath: /api/client-questionnaire
     # Root npm install is done by Render before buildCommand when using native Node.
     # Explicit full cycle: install nested Vite MVP, build it, then Next.js.
-    buildCommand: npm run build:render
+    buildCommand: npm install && npm run build:render
     startCommand: npm run start
     disk:
       name: zip-generator-data

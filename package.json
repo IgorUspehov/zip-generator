@@ -174,7 +174,7 @@
     "storage:cleanup": "npx tsx scripts/run-storage-cleanup.mts",
     "promo:create": "npx tsx scripts/create-promo.mjs",
     "build": "npm run build:render",
-    "build:railway": "next build",
+    "build:railway": "npm exec next build",
     "build:railway:deploy": "npm run react-mvp:install && npm run react-mvp:build && next build",
     "build:render": "npm run react-mvp:install && npm run react-mvp:build && npm run build:railway",
     "start": "next start",
