@@ -156,7 +156,7 @@ const EN: AdminCopy = {
     publicSiteMissing: "Public URL not available yet.",
     crm: "CRM / Booking:",
     sections: "Sections",
-    openIntegrations: "Integrations → Deployable ZIP €999",
+    openIntegrations: "Integrations → Deployable ZIP",
   },
   integrations: {
     title: "Integrations",
@@ -290,7 +290,7 @@ const DE: AdminCopy = {
     publicSiteMissing: "Öffentliche URL noch nicht verfügbar.",
     crm: "CRM / Booking:",
     sections: "Bereiche",
-    openIntegrations: "Integrationen → Deployable ZIP €999",
+    openIntegrations: "Integrationen → Deployable ZIP",
   },
   integrations: {
     title: "Integrationen",
@@ -424,7 +424,7 @@ const RU: AdminCopy = {
     publicSiteMissing: "Публичный URL пока недоступен.",
     crm: "CRM / Бронирование:",
     sections: "Разделы",
-    openIntegrations: "Интеграции → Deployable ZIP €999",
+    openIntegrations: "Интеграции → Deployable ZIP",
   },
   integrations: {
     title: "Интеграции",
