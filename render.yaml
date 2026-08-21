@@ -11,7 +11,9 @@ services:
     branch: zip-generator
     autoDeploy: true
     healthCheckPath: /api/client-questionnaire
-    buildCommand: npm run build:railway:deploy
+    # Root npm install is done by Render before buildCommand when using native Node.
+    # Explicit full cycle: install nested Vite MVP, build it, then Next.js.
+    buildCommand: npm run build:render
     startCommand: npm run start
     disk:
       name: zip-generator-data
@@ -26,8 +28,14 @@ services:
         sync: false
       - key: RENDER_DISK_MOUNT_PATH
         value: /var/data
+      - key: VITE_MANIFEST_API_BASE
+        sync: false
       - key: OPENAI_API_KEY
         sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: AI_PROVIDER
+        value: openai
       - key: FIREBASE_PROJECT_ID
         sync: false
       - key: FIREBASE_CLIENT_EMAIL
@@ -40,6 +48,8 @@ services:
         sync: false
       - key: CLOUDFLARE_PAGES_PROJECT_NAME
         value: crm-demo-sites
+      - key: CLOUDFLARE_DEPLOYMENT_KEEP
+        value: "40"
       - key: RESEND_API_KEY
         sync: false
       - key: RESEND_FROM_EMAIL
@@ -53,4 +63,6 @@ services:
       - key: NEXT_PUBLIC_POLAR_CHECKOUT_DEPLOYABLE_ZIP
         sync: false
       - key: ADMIN_SESSION_SECRET
+        sync: false
+      - key: CRM_LEADS_COOKIE_SECRET
         sync: false
