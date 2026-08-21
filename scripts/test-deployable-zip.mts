@@ -152,6 +152,7 @@ async function main(): Promise<void> {
   assert(entryNames.includes("index.html"), "ZIP must contain index.html (dist)");
   assert(entryNames.includes("README.md"), "ZIP must contain README.md");
   assert(entryNames.includes("client-manifest.json"), "ZIP must contain client-manifest.json");
+  assert(entryNames.includes(".env.example"), "ZIP must contain .env.example");
   assert(
     entryNames.some((name) => name.startsWith("assets/")),
     "ZIP must contain assets/",
@@ -179,10 +180,25 @@ async function main(): Promise<void> {
   assert(!("polarAccessToken" in manifest), "polarAccessToken must not be in ZIP manifest");
   assert(!manifestRaw.includes("should-never-appear"), "secret values must not appear in manifest");
 
-  assert(!entryNames.some((n) => /(^|\/)\.env(\.|$)/i.test(n)), ".env must be excluded");
+  assert(
+    !entryNames.some(
+      (n) =>
+        /(^|\/)\.env$/i.test(n) ||
+        /(^|\/)\.env\.(local|production|development|test|staging)$/i.test(n),
+    ),
+    "real .env files must be excluded",
+  );
   assert(
     !entryNames.some((n) => /service-account/i.test(n)),
     "service-account file must be excluded",
+  );
+  assert(
+    !entryNames.some((n) => /\.backup/i.test(n)),
+    "no .backup files in ZIP",
+  );
+  assert(
+    !entryNames.some((n) => /(^|\/)node_modules(\/|$)/i.test(n)),
+    "no node_modules in ZIP",
   );
 
   const joinedSample = `${entryNames.join("\n")}\n${readme}\n${manifestRaw}`;

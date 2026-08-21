@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Smoke: tariff chooser EN/DE/RU + €99 Polar vs Factory bridge for €499/€999.
+ * Smoke: tariff chooser EN/DE/RU + €199 → /pay vs Factory bridge for €499/€999.
  */
 import { chromium } from "playwright";
 import assert from "node:assert/strict";
@@ -9,9 +9,9 @@ const BASE = process.env.SCREENSHOT_BASE_URL || "http://127.0.0.1:3010";
 const outDir = new URL("../docs/ui-review-screenshots/", import.meta.url);
 
 const EXPECT = {
-  en: { title: "Choose your plan", c99: "Pay €99 · Website + CRM + Booking", c499: "Continue to Factory · €499", c999: "Continue to Factory · €999" },
-  de: { title: "Plan wählen", c99: "€99 zahlen · Website + CRM + Buchung", c499: "Weiter zu Factory · €499", c999: "Weiter zu Factory · €999" },
-  ru: { title: "Выберите тариф", c99: "Оплатить €99 · Сайт + CRM + Бронирование", c499: "Перейти в Factory · €499", c999: "Перейти в Factory · €999" },
+  en: { title: "Choose your plan", c199: "Pay €199 · Website + CRM + Booking", c499: "Continue to Factory · €499", c999: "Continue to Factory · €999" },
+  de: { title: "Plan wählen", c199: "€199 zahlen · Website + CRM + Buchung", c499: "Weiter zu Factory · €499", c999: "Weiter zu Factory · €999" },
+  ru: { title: "Выберите тариф", c199: "Оплатить €199 · Сайт + CRM + Бронирование", c499: "Перейти в Factory · €499", c999: "Перейти в Factory · €999" },
 };
 
 async function main() {
@@ -29,7 +29,7 @@ async function main() {
     const body = await page.evaluate(() => document.body.innerText);
     const exp = EXPECT[lang];
     assert.ok(body.includes(exp.title), `${lang} title`);
-    assert.ok(body.includes(exp.c99), `${lang} €99`);
+    assert.ok(body.includes(exp.c199), `${lang} €199`);
     assert.ok(body.includes(exp.c499), `${lang} €499`);
     assert.ok(body.includes(exp.c999), `${lang} €999`);
     assert.ok(!/remove limits|keep your site|сохранить сайт|Website zu behalten/i.test(body), `${lang} old promise`);
@@ -37,14 +37,14 @@ async function main() {
     console.log("PASS", lang);
   }
 
-  // €99 should navigate toward Polar
+  // €199 should navigate toward /pay
   await page.goto(`${BASE}/tariffs?${qs}en`, { waitUntil: "networkidle" });
-  const [polarNav] = await Promise.all([
-    page.waitForURL(/buy\.polar\.sh|polar/i, { timeout: 15000 }).catch(() => null),
-    page.getByRole("button", { name: /Pay €99/i }).click(),
+  const [payNav] = await Promise.all([
+    page.waitForURL(/\/pay/i, { timeout: 15000 }).catch(() => null),
+    page.getByRole("button", { name: /Pay €199/i }).click(),
   ]);
-  const polarOk = Boolean(polarNav) || /polar/i.test(page.url());
-  console.log(polarOk ? "PASS polar-99" : "FAIL polar-99", page.url());
+  const payOk = Boolean(payNav) || /\/pay/i.test(page.url());
+  console.log(payOk ? "PASS pay-199" : "FAIL pay-199", page.url());
 
   // €499 → factory bridge / handoff
   await page.goto(`${BASE}/tariffs?${qs}en`, { waitUntil: "networkidle" });
@@ -59,7 +59,7 @@ async function main() {
   await page.screenshot({ path: new URL("08-factory-handoff.png", outDir).pathname });
 
   await browser.close();
-  if (!polarOk || !factoryOk) process.exit(1);
+  if (!payOk || !factoryOk) process.exit(1);
   console.log("ALL TARIFF SMOKES PASS");
 }
 

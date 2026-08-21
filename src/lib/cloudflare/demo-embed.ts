@@ -19,6 +19,25 @@ export function buildDemoEmbedSrc(
   clientIdOverride?: string,
 ): string {
   const clientId = clientIdOverride || record.clientId;
+
+  // Local / self-hosted dist (no Cloudflare Pages).
+  try {
+    const stored = new URL(record.deploymentUrl);
+    if (
+      stored.pathname.includes("/api/client-dist/") ||
+      stored.searchParams.get("localDist") === "1"
+    ) {
+      const url = new URL(stored.toString());
+      if (clientId && !url.pathname.includes(encodeURIComponent(clientId))) {
+        url.pathname = `/api/client-dist/${encodeURIComponent(clientId)}/`;
+      }
+      if (clientId) url.searchParams.set("clientId", clientId);
+      return url.toString();
+    }
+  } catch {
+    /* fall through to Pages alias */
+  }
+
   const sharedProject = getSharedPagesProjectName();
   const canonicalOrigin = `https://${sharedProject}.pages.dev`;
 

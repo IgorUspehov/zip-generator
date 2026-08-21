@@ -101,26 +101,8 @@ function PaymentReturnScreen({
       }
     }
 
-    if (checkoutId) {
-      try {
-        const params = new URLSearchParams({ checkout_id: checkoutId });
-        const response = await fetch(`/api/checkout-lookup?${params.toString()}`, {
-          redirect: "manual",
-        });
-        if (response.status >= 300 && response.status < 400) {
-          const location = response.headers.get("Location");
-          if (location && !location.includes("payment=processing") && !location.includes("payment=error")) {
-            window.location.href = location;
-            return true;
-          }
-        }
-      } catch {
-        /* retry on next interval */
-      }
-    }
-
     return false;
-  }, [checkoutId, clientId]);
+  }, [clientId]);
 
   useEffect(() => {
     if (mode !== "processing" || timedOut) {
@@ -620,6 +602,7 @@ function ClientWizardFlow() {
     nicheLocked ? nicheFromUrl : null,
   );
   const [isGenerating, setIsGenerating] = useState(false);
+  const [buildError, setBuildError] = useState<string | null>(null);
   const [buildSecondsLeft, setBuildSecondsLeft] = useState(BUILD_COUNTDOWN_SEC);
   const [pendingRedirectUrl, setPendingRedirectUrl] = useState<string | null>(null);
   const [deployMeta, setDeployMeta] = useState<{
@@ -832,6 +815,7 @@ function ClientWizardFlow() {
     ) => {
       const buildStartedAt = Date.now();
       setIsGenerating(true);
+      setBuildError(null);
 
       const businessType = SECTOR_TO_BUSINESS_TYPE[selectedSector] ?? DEFAULT_BUSINESS_TYPE;
       const languageCode = lang;
@@ -872,7 +856,7 @@ function ClientWizardFlow() {
         }
 
         // Keep the 01:00…00:00 board visible for the full timer even if API finishes early.
-        // Then open /demo with the unpaid tariff + promo banner (not paid share links).
+        // Then open /demo with tenant Admin/Website links (no Polar paywall).
         const elapsedMs = Date.now() - buildStartedAt;
         const remainingMs = BUILD_COUNTDOWN_SEC * 1000 - elapsedMs;
         if (remainingMs > 0) {
@@ -884,6 +868,9 @@ function ClientWizardFlow() {
       } catch (error) {
         console.error("POST /api/client-questionnaire failed:", error);
         console.log("[wizard] navigation target:", "s4 (build error, staying on build screen)");
+        setBuildError(
+          error instanceof Error ? error.message : "Could not generate CRM Demo",
+        );
         setIsGenerating(false);
       }
     },
@@ -1439,6 +1426,23 @@ function ClientWizardFlow() {
                     />
                   </div>
                 </>
+              ) : buildError ? (
+                <div style={{ textAlign: "center", marginTop: 16 }}>
+                  <p className="step-sub" style={{ color: "#fca5a5", fontWeight: 600 }}>
+                    {buildError}
+                  </p>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    style={{ marginTop: 16 }}
+                    onClick={() => {
+                      setBuildError(null);
+                      goTo("s2");
+                    }}
+                  >
+                    {copy.btn_back}
+                  </button>
+                </div>
               ) : pendingRedirectUrl ? (
                 <p className="step-sub" style={{ textAlign: "center", marginTop: 12, fontWeight: 600 }}>
                   {copy.s4_build_done}

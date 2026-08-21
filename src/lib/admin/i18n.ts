@@ -171,7 +171,7 @@ const EN: AdminCopy = {
     buyZipLoading: "Opening checkout…",
     buyZipError: "Could not start checkout. Try again.",
     buyZipCheckoutMissing:
-      "ZIP €999 is not configured on Render. Set POLAR_ACCESS_TOKEN (checkouts:write) or POLAR_CHECKOUT_DEPLOYABLE_ZIP with success URL https://webstudio-muenchen.com/success — not the Factory link.",
+      "ZIP €999 checkout is not configured.",
     zipLockedHint: "One-time €999 unlocks your personalized static ZIP for any host.",
     zipUnlockedHint: "Payment confirmed — you can download your Deployable ZIP.",
   },
@@ -305,7 +305,7 @@ const DE: AdminCopy = {
     buyZipLoading: "Checkout wird geöffnet…",
     buyZipError: "Checkout konnte nicht gestartet werden. Bitte erneut versuchen.",
     buyZipCheckoutMissing:
-      "ZIP €999 ist auf Render nicht konfiguriert. POLAR_ACCESS_TOKEN (checkouts:write) oder POLAR_CHECKOUT_DEPLOYABLE_ZIP mit Success-URL https://webstudio-muenchen.com/success setzen — nicht den Factory-Link.",
+      "ZIP €999 Checkout ist nicht konfiguriert.",
     zipLockedHint: "Einmalig €999 schaltet Ihr personalisiertes Static-ZIP für jedes Hosting frei.",
     zipUnlockedHint: "Zahlung bestätigt — Sie können Ihr Deployable ZIP herunterladen.",
   },
@@ -439,7 +439,7 @@ const RU: AdminCopy = {
     buyZipLoading: "Открываем оплату…",
     buyZipError: "Не удалось открыть оплату. Попробуйте снова.",
     buyZipCheckoutMissing:
-      "ZIP €999 не настроен на Render. Добавьте POLAR_ACCESS_TOKEN (checkouts:write) или POLAR_CHECKOUT_DEPLOYABLE_ZIP с success URL https://webstudio-muenchen.com/success — не ссылку Factory.",
+      "Checkout ZIP €999 не настроен.",
     zipLockedHint: "Разовая оплата €999 открывает персональный static ZIP для любого хостинга.",
     zipUnlockedHint: "Оплата подтверждена — можно скачать Deployable ZIP.",
   },

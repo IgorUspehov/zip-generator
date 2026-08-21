@@ -14,7 +14,6 @@ function signingKey(): string {
     process.env.ADMIN_SESSION_SECRET?.trim() ||
     process.env.CRM_LEADS_COOKIE_SECRET?.trim() ||
     process.env.FIREBASE_PRIVATE_KEY?.trim() ||
-    process.env.POLAR_WEBHOOK_SECRET?.trim() ||
     "local-dev-admin-session"
   );
 }

@@ -40,8 +40,9 @@ function isSecretManifestKey(key: string): boolean {
 }
 
 const EXCLUDED_BASENAME_PATTERNS: RegExp[] = [
-  /^\.env(\..+)?$/i,
-  /^\.env\.local$/i,
+  // Real env files only — keep `.env.example` / `.env.sample` for buyers.
+  /^\.env$/i,
+  /^\.env\.(local|production|development|test|staging)(\..+)?$/i,
   /credentials/i,
   /service[-_]?account/i,
   /\.pem$/i,
@@ -94,8 +95,15 @@ const TEXT_EXTENSIONS = new Set([
 ]);
 
 export function shouldExcludeBasename(basename: string): string | null {
+  const name = String(basename || "");
+  if (/^\.env\.(example|sample)$/i.test(name)) {
+    return null;
+  }
+  if (/\.backup(\.|$)/i.test(name) || /\.bak$/i.test(name)) {
+    return `excluded_basename:${basename}`;
+  }
   for (const pattern of EXCLUDED_BASENAME_PATTERNS) {
-    if (pattern.test(basename)) {
+    if (pattern.test(name)) {
       return `excluded_basename:${basename}`;
     }
   }

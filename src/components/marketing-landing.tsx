@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { POLAR_CHECKOUT_WEBSTUDIO_199 } from "@/lib/polar/constants";
 
 type Lang = "de" | "en" | "ru";
 
@@ -297,7 +296,7 @@ export function MarketingLanding() {
             {t.heroSubtitle}
           </p>
           <div className="mt-10">
-            <CtaButton href={POLAR_CHECKOUT_WEBSTUDIO_199}>{t.heroCta}</CtaButton>
+            <CtaButton href="/client">{t.heroCta}</CtaButton>
           </div>
         </div>
       </section>
@@ -385,7 +384,7 @@ export function MarketingLanding() {
               {t.demoNote}
             </p>
             <div className="mt-10">
-              <CtaButton href={POLAR_CHECKOUT_WEBSTUDIO_199}>{t.priceCta}</CtaButton>
+              <CtaButton href="/client">{t.priceCta}</CtaButton>
             </div>
           </div>
         </div>
