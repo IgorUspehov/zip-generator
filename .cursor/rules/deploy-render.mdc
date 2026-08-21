@@ -1,33 +1,29 @@
 ---
-description: Production is ONLY Render.com — never Railway for SaaS
+description: Deploy ONLY the isolated zip-generator Render service — never saas-mvp-funnel / main / webstudio-muenchen.com
 alwaysApply: true
 ---
 
-# Deploy & production (Render.com ONLY)
+# Deploy — zip-generator ONLY
 
-## Hard rule — remember this every turn
+## Hard rule
 
-- **Весь SaaS-проект (saas-mvp-funnel) живёт на Render.com.** Не на Railway. Не на Netlify. Не на Vercel.
-- Env / secrets / Polar / Firebase / webhooks / диски / логи — смотреть и править **только в Render**.
-- **Запрещено:** `railway variables`, `railway up`, `railway logs`, Railway dashboard как «прод», копировать токены с Railway «потому что удобно».
-- `railway.toml` в репо — наследие, **не** production path.
+- Work and deploy **only** Render service **`zip-generator`** (branch `zip-generator`).
+- **Forbidden forever:** push/change `main`, touch service **`saas-mvp-funnel`** (`srv-da1dg061egvs73ai5ubg`), or change **https://webstudio-muenchen.com**.
+- **Forbidden:** Railway / Netlify / Vercel as production for this workstream.
 
-## Production
+## This service
 
-- **Site:** https://webstudio-muenchen.com (also https://saas-mvp-funnel.onrender.com)
-- **Service id:** `srv-da1dg061egvs73ai5ubg`
-- **Deploy:** `git push origin main` → Render auto-deploy from GitHub `main`
-- After push: confirm `x-render-origin-server: Render`
+- **Name:** `zip-generator`
+- **Git branch:** `zip-generator` only
+- **Blueprint:** `render.yaml` on branch `zip-generator` (service name must stay `zip-generator`)
+- **URL:** the `*.onrender.com` URL of **zip-generator**, never webstudio-muenchen.com
 
 ## When user says «деплой» / «пуш»
 
-1. Commit relevant code (no secrets). Do **not** stage deletions of `data/manifests/*` — see `never-delete-client-links.mdc`.
-2. `git push origin main`
-3. Confirm site responds with Render header
+1. Commit on branch **`zip-generator`** (no secrets; do not delete `data/manifests/*`).
+2. `git push origin zip-generator` — **never** `main`.
+3. Confirm the **zip-generator** service URL (not webstudio-muenchen.com).
 
-Render CLI may be unauthenticated; git push is enough when auto-deploy is on.
+## Env / secrets
 
-## Polar / ZIP / payments
-
-- Configure `POLAR_*` on **Render** service env, not Railway.
-- Never send SaaS €999 buyers to Factory SDK checkout success URL.
+Configure env only on the **zip-generator** Render service. Do not edit env on saas-mvp-funnel.
