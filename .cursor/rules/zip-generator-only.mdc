@@ -1,0 +1,11 @@
+---
+description: Work ONLY on zip-generator Render service — never touch saas-mvp-funnel / main / webstudio-muenchen.com
+alwaysApply: true
+---
+
+# zip-generator isolation (hard rule)
+
+- Production SaaS site **webstudio-muenchen.com** / service **saas-mvp-funnel** is **OFF LIMITS**.
+- **Forbidden:** `git push` to `main`, edits meant for saas-mvp-funnel, Render changes to `srv-da1dg061egvs73ai5ubg`, deploys that hit webstudio-muenchen.com.
+- **Allowed:** branch `zip-generator`, Render service **zip-generator**, its own URL and env vars only.
+- If the user says «деплой» in this project context, deploy **zip-generator** only — never saas-mvp-funnel.

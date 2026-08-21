@@ -1,0 +1,56 @@
+# Isolated Render service — zip-generator ONLY
+# Do NOT rename to saas-mvp-funnel. Do NOT deploy this Blueprint onto the existing production service.
+# Deploy source: Git branch `zip-generator` only.
+
+services:
+  - type: web
+    name: zip-generator
+    runtime: node
+    plan: starter
+    region: frankfurt
+    branch: zip-generator
+    autoDeploy: true
+    healthCheckPath: /api/client-questionnaire
+    buildCommand: npm run build:railway:deploy
+    startCommand: npm run start
+    disk:
+      name: zip-generator-data
+      mountPath: /var/data
+      sizeGB: 5
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
+      - key: RENDER_DISK_MOUNT_PATH
+        value: /var/data
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: CLOUDFLARE_ACCOUNT_ID
+        sync: false
+      - key: CLOUDFLARE_API_TOKEN
+        sync: false
+      - key: CLOUDFLARE_PAGES_PROJECT_NAME
+        value: crm-demo-sites
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false
+      - key: POLAR_WEBHOOK_SECRET
+        sync: false
+      - key: POLAR_ACCESS_TOKEN
+        sync: false
+      - key: POLAR_CHECKOUT_DEPLOYABLE_ZIP
+        sync: false
+      - key: NEXT_PUBLIC_POLAR_CHECKOUT_DEPLOYABLE_ZIP
+        sync: false
+      - key: ADMIN_SESSION_SECRET
+        sync: false
