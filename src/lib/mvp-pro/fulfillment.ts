@@ -1,4 +1,5 @@
 import { appendNotification } from "@/lib/client-notifications/notification-store";
+import { persistZipUnlocked } from "@/lib/billing/paid-tenant";
 import { loadClientManifest } from "@/lib/manifest/storage";
 import { LEMONSQUEEZY_VARIANT_MVP_PRO } from "@/lib/mvp-pro/constants";
 import { grantMvpProEntitlement, type MvpProEntitlement } from "@/lib/mvp-pro/entitlement-store";
@@ -29,10 +30,15 @@ async function sendDownloadEmail(entitlement: MvpProEntitlement, downloadUrl: st
     en: "Your Deployable ZIP (€999) is ready to download",
   } as const;
 
+  const siteBase = (
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://webstudio-muenchen.com"
+  ).replace(/\/$/, "");
+  const id = encodeURIComponent(entitlement.clientId);
+
   const bodies = {
-    ru: `Оплата Deployable ZIP (€999) подтверждена.\n\nСкачайте ZIP вашего сайта:\n${downloadUrl}\n\nClient ID: ${entitlement.clientId}\n\nВ архиве — статическая сборка Website + CRM для размещения на любом хостинге.`,
-    de: `Zahlung für Deployable ZIP (€999) bestätigt.\n\nZIP herunterladen:\n${downloadUrl}\n\nKunden-ID: ${entitlement.clientId}\n\nDas Archiv enthält Ihr statisches Website + CRM-Paket für jedes Hosting.`,
-    en: `Deployable ZIP (€999) payment confirmed.\n\nDownload your ZIP:\n${downloadUrl}\n\nClient ID: ${entitlement.clientId}\n\nThe archive is your static Website + CRM package for any host.`,
+    ru: `Оплата Deployable ZIP (€999) подтверждена.\n\nСкачайте ZIP вашего сайта:\n${downloadUrl}\n\nВаши ссылки:\n• Admin (текст, контакты, фото): ${siteBase}/admin/login?clientId=${id}\n• Вакансии: ${siteBase}/site/${id}/job\n• Бронирование: ${siteBase}/site/${id}/booking\n\nВ Admin введите email, с которым оплачивали — придёт ссылка для входа.\n\nClient ID: ${entitlement.clientId}\n\nВ архиве — статическая сборка Website + CRM для размещения на любом хостинге.`,
+    de: `Zahlung für Deployable ZIP (€999) bestätigt.\n\nZIP herunterladen:\n${downloadUrl}\n\nIhre Links:\n• Admin (Texte, Kontakte, Fotos): ${siteBase}/admin/login?clientId=${id}\n• Stellen: ${siteBase}/site/${id}/job\n• Buchung: ${siteBase}/site/${id}/booking\n\nIm Admin die E-Mail der Zahlung eingeben — Login-Link per E-Mail.\n\nKunden-ID: ${entitlement.clientId}\n\nDas Archiv enthält Ihr statisches Website + CRM-Paket für jedes Hosting.`,
+    en: `Deployable ZIP (€999) payment confirmed.\n\nDownload your ZIP:\n${downloadUrl}\n\nYour links:\n• Admin (copy, contacts, photos): ${siteBase}/admin/login?clientId=${id}\n• Jobs: ${siteBase}/site/${id}/job\n• Booking: ${siteBase}/site/${id}/booking\n\nIn Admin, enter the email used at checkout — you will receive a login link.\n\nClient ID: ${entitlement.clientId}\n\nThe archive is your static Website + CRM package for any host.`,
   } as const;
 
   const response = await fetch("https://api.resend.com/emails", {
@@ -80,6 +86,14 @@ export async function fulfillMvpProOrder(input: {
     businessType,
     orderId: input.orderId,
     variantId: input.variantId ?? LEMONSQUEEZY_VARIANT_MVP_PRO,
+  });
+
+  await persistZipUnlocked({
+    clientId: input.clientId,
+    email: input.email,
+    orderId: input.orderId,
+    source: "mvp_pro_fulfillment",
+    downloadToken: entitlement.downloadToken,
   });
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://webstudio-muenchen.com";

@@ -2,6 +2,8 @@ export {
   buildDeployableZip,
   buildDeployableZipBuffer,
   buildDeployableZipFilename,
+  buildDeployableZipEnvExample,
+  enrichPublicManifestForBuyer,
   DeployableZipError,
   resolveDeployableDistPath,
   assertDistBelongsToClient,

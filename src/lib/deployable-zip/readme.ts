@@ -53,6 +53,78 @@ export function buildDeployableZipReadme(input: {
         ? "Bewahren Sie diese README und die Client-ID für den Support auf."
         : "Keep this README and your Client ID for support.");
 
+  const publicOrigin = (
+    input.context?.publicOrigin ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://webstudio-muenchen.com"
+  )
+    .trim()
+    .replace(/\/$/, "");
+  const slug = input.context?.slug?.trim() || "";
+
+  const publicSiteLine =
+    lang === "ru"
+      ? slug
+        ? `- 🌐 Публичный сайт (SaaS): ${publicOrigin}/site/${slug}`
+        : `- 🌐 Публичный сайт (SaaS): ${publicOrigin}/site/{slug}`
+      : lang === "de"
+        ? slug
+          ? `- 🌐 Öffentliche Site: ${publicOrigin}/site/${slug}`
+          : `- 🌐 Öffentliche Site: ${publicOrigin}/site/{slug}`
+        : slug
+          ? `- 🌐 Public site: ${publicOrigin}/site/${slug}`
+          : `- 🌐 Public site: ${publicOrigin}/site/{slug}`;
+
+  const buyerLinks =
+    lang === "ru"
+      ? [
+          "## Ваши ссылки (сайт + CRM + Admin)",
+          "",
+          "После заливки ZIP на Netlify:",
+          "",
+          "- **CRM** — URL вашего деплоя (корень сайта)",
+          "- **Admin / редактирование** — кнопка «Админ» в верхней панели CRM (magic link на email)",
+          "- **Сайт, вакансии, бронирование** — кнопки в той же панели",
+          "",
+          publicSiteLine,
+          `- 🔐 Admin: ${publicOrigin}/admin/login?clientId=${input.clientId}`,
+          `- 📋 Вакансии: ${publicOrigin}/site/${encodeURIComponent(input.clientId)}/job`,
+          `- 📅 Бронирование: ${publicOrigin}/site/${encodeURIComponent(input.clientId)}/booking`,
+          "",
+          `Client ID: \`${input.clientId}\``,
+        ]
+      : lang === "de"
+        ? [
+            "## Ihre Links (Site + CRM + Admin)",
+            "",
+            "Nach dem Upload des ZIP auf Netlify:",
+            "",
+            "- **CRM** — URL Ihres Deployments",
+            "- **Admin / Bearbeitung** — Schaltfläche „Admin“ in der oberen CRM-Leiste",
+            "",
+            publicSiteLine,
+            `- 🔐 Admin: ${publicOrigin}/admin/login?clientId=${input.clientId}`,
+            `- 📋 Stellen: ${publicOrigin}/site/${encodeURIComponent(input.clientId)}/job`,
+            `- 📅 Buchung: ${publicOrigin}/site/${encodeURIComponent(input.clientId)}/booking`,
+            "",
+            `Client-ID: \`${input.clientId}\``,
+          ]
+        : [
+            "## Your links (site + CRM + Admin)",
+            "",
+            "After uploading the ZIP to Netlify:",
+            "",
+            "- **CRM** — your deploy URL",
+            "- **Admin / editing** — “Admin” button in the CRM top bar",
+            "",
+            publicSiteLine,
+            `- 🔐 Admin: ${publicOrigin}/admin/login?clientId=${input.clientId}`,
+            `- 📋 Jobs: ${publicOrigin}/site/${encodeURIComponent(input.clientId)}/job`,
+            `- 📅 Booking: ${publicOrigin}/site/${encodeURIComponent(input.clientId)}/booking`,
+            "",
+            `Client ID: \`${input.clientId}\``,
+          ];
+
   const title =
     lang === "ru"
       ? `# ${businessName} — Deployable ZIP`
@@ -68,6 +140,7 @@ export function buildDeployableZipReadme(input: {
           `Пакет: **${modeLabel(input.mode, lang)}**.`,
           "",
           "Это **статическая** оболочка Website + CRM (Vite/React), персонализированная для одного клиента.",
+          "Пакет **разблокирован** — без баннера «Выберите тариф» / DEMO paywall. Это оплаченный цифровой товар.",
           "Это **не** полный клон SaaS (Next.js Admin, SSR `/site`, серверные API) и **не** обещает полную автономность всех функций.",
         ]
       : lang === "de"
@@ -96,8 +169,7 @@ export function buildDeployableZipReadme(input: {
           "- `index.html` — точка входа UI",
           "- `assets/` — JS/CSS и статические ресурсы сборки",
           "- `image-library/` — изображения ниши (если есть)",
-          "- `client-manifest.json` — публичная персонализация (без секретов); правьте `businessName` и `niche`",
-          "- `.env.example` — пример переменных (зеркало полей манифеста; сайт читает JSON)",
+          "- `client-manifest.json` — публичная персонализация (без секретов)",
           "- `_headers` — опциональные заголовки для Cloudflare Pages",
           "- `netlify.toml` / `_redirects` — подсказки для static-хостинга (Netlify и аналоги)",
           "- `README.md` — эта инструкция",
@@ -109,8 +181,7 @@ export function buildDeployableZipReadme(input: {
             "- `index.html` — UI-Einstieg",
             "- `assets/` — JS/CSS und Build-Assets",
             "- `image-library/` — Branchenbilder (falls vorhanden)",
-            "- `client-manifest.json` — öffentliche Personalisierung (ohne Secrets); `businessName` und `niche` editieren",
-            "- `.env.example` — Beispiel-Variablen (Spiegel der Manifest-Felder; die Site liest JSON)",
+            "- `client-manifest.json` — öffentliche Personalisierung (ohne Secrets)",
             "- `_headers` — optionale Cloudflare-Pages-Header",
             "- `netlify.toml` / `_redirects` — Hinweise für Static-Hosting (Netlify u.a.)",
             "- `README.md` — diese Anleitung",
@@ -121,42 +192,10 @@ export function buildDeployableZipReadme(input: {
             "- `index.html` — UI entry point",
             "- `assets/` — built JS/CSS and static assets",
             "- `image-library/` — niche images (when present)",
-            "- `client-manifest.json` — public personalization (secrets stripped); edit `businessName` and `niche`",
-            "- `.env.example` — sample env vars (mirrors manifest fields; the site reads the JSON)",
+            "- `client-manifest.json` — public personalization (secrets stripped)",
             "- `_headers` — optional Cloudflare Pages headers",
             "- `netlify.toml` / `_redirects` — static-host hints (Netlify and similar)",
             "- `README.md` — this guide",
-          ];
-
-  const customize =
-    lang === "ru"
-      ? [
-          "## Как сменить название бизнеса и нишу",
-          "",
-          "1. Откройте `client-manifest.json` в любом редакторе.",
-          "2. Измените поля `businessName` (название) и `niche` / `businessType` (ниша).",
-          "3. Сохраните файл и снова загрузите **всю папку** на Netlify (или другой static-хост).",
-          "",
-          "Файл `.env.example` — справочник тех же полей; сам static-сайт читает манифест, не `.env`.",
-        ]
-      : lang === "de"
-        ? [
-            "## Firmenname und Branche ändern",
-            "",
-            "1. Öffnen Sie `client-manifest.json` in einem Editor.",
-            "2. Ändern Sie `businessName` und `niche` / `businessType`.",
-            "3. Speichern und den **ganzen Ordner** erneut auf Netlify (oder anderen Static-Host) hochladen.",
-            "",
-            "`.env.example` spiegelt dieselben Felder; die Static-Site liest das Manifest, nicht `.env`.",
-          ]
-        : [
-            "## Change business name and niche",
-            "",
-            "1. Open `client-manifest.json` in any editor.",
-            "2. Edit `businessName` and `niche` / `businessType`.",
-            "3. Save and re-upload the **entire folder** to Netlify (or another static host).",
-            "",
-            "`.env.example` mirrors the same fields; the static site reads the manifest, not `.env`.",
           ];
 
   const requirements =
@@ -512,11 +551,11 @@ export function buildDeployableZipReadme(input: {
     "",
     ...overview,
     "",
+    ...buyerLinks,
+    "",
     ...identity,
     "",
     ...contents,
-    "",
-    ...customize,
     "",
     ...requirements,
     "",

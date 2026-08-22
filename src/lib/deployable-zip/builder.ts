@@ -3,6 +3,7 @@ import os from "os";
 import path from "path";
 
 import { slugifyProjectSegment } from "@/lib/cloudflare/deploy";
+import { findDemoByClientId } from "@/lib/cloudflare/demo-registry";
 import { loadClientManifest } from "@/lib/manifest/storage";
 import { buildClientDistZipBuffer } from "@/lib/mvp-pro/zip-stream";
 import {
@@ -12,11 +13,16 @@ import {
 } from "@/lib/site-delivery/dist-store";
 
 import { buildDeployableZipReadme } from "@/lib/deployable-zip/readme";
+import { resolvePublicAppOrigin } from "@/lib/cloudflare/shared-project";
 import {
   collectClientIdMentions,
   sanitizeManifestForZip,
   sanitizeStagingDist,
 } from "@/lib/deployable-zip/sanitize";
+import {
+  findRemainingPaywallMarkers,
+  stripDemoPaywallFromDist,
+} from "@/lib/deployable-zip/strip-demo-paywall";
 import type {
   BuildDeployableZipInput,
   DeployableZipBuildResult,
@@ -81,10 +87,6 @@ export function resolveDeployableDistPath(clientId: string, distPath?: string): 
   return assertDistBelongsToClient(id, resolveClientDistPath(id));
 }
 
-/**
- * Download name from the site/business title (ASCII slug), e.g. «КРАСАВЧИКИ» → krasavchiki.zip.
- * Falls back to a short clientId fragment when the name is empty.
- */
 export function buildDeployableZipFilename(
   clientId: string,
   _mode: string,
@@ -98,14 +100,7 @@ export function buildDeployableZipFilename(
   return `site-${safeId}.zip`;
 }
 
-function pickString(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-/**
- * Buyer-facing public fields so Netlify deployers can rename business / niche
- * by editing `client-manifest.json` (and optionally mirroring via `.env.example`).
- */
+/** Buyer-facing public fields for Netlify self-host packages. */
 export function enrichPublicManifestForBuyer(
   manifest: Record<string, unknown>,
   clientId: string,
@@ -131,7 +126,8 @@ export function enrichPublicManifestForBuyer(
     businessType: pickString(manifest.businessType) || niche,
     business_type: pickString(manifest.business_type) || niche,
     language,
-    // Hints for humans editing the JSON (UI ignores unknown keys).
+    paid: true,
+    deployablePaid: true,
     _editHint:
       "Change businessName and niche, save this file, re-upload the folder to Netlify.",
   };
@@ -151,7 +147,6 @@ export function buildDeployableZipEnvExample(manifest: Record<string, unknown>):
   return [
     "# Optional local overrides for documentation / tooling.",
     "# The live static site reads client-manifest.json — edit that file to change branding.",
-    "# Copy to .env only if your host/tooling needs env vars (do not commit real secrets).",
     "",
     `BUSINESS_NAME=${businessName}`,
     `NICHE=${niche}`,
@@ -164,13 +159,38 @@ export function buildDeployableZipEnvExample(manifest: Record<string, unknown>):
   ].join("\n");
 }
 
+function pickString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 function resolveReadmeContext(
   input: BuildDeployableZipInput,
   manifest: Record<string, unknown>,
+  clientId: string,
 ): BuildDeployableZipInput["readme"] {
   const languageRaw = pickString(input.readme?.language) || pickString(manifest.language);
   const language =
     languageRaw === "ru" || languageRaw === "de" || languageRaw === "en" ? languageRaw : "en";
+
+  let demoSlug = "";
+  try {
+    demoSlug = pickString(findDemoByClientId(clientId)?.slug);
+  } catch {
+    demoSlug = "";
+  }
+
+  const slug =
+    pickString(input.readme?.slug) ||
+    pickString(manifest.slug) ||
+    pickString(manifest.demoSlug) ||
+    pickString(manifest.publicSlug) ||
+    demoSlug;
+
+  const publicOrigin =
+    pickString(input.readme?.publicOrigin) ||
+    pickString(manifest.publicOrigin) ||
+    (process.env.NEXT_PUBLIC_SITE_URL || "").trim().replace(/\/$/, "") ||
+    undefined;
 
   return {
     businessName:
@@ -185,6 +205,8 @@ function resolveReadmeContext(
       "business",
     language,
     supportNote: input.readme?.supportNote,
+    slug: slug || undefined,
+    publicOrigin,
   };
 }
 
@@ -285,11 +307,17 @@ export async function buildDeployableZip(
   } = sanitizeManifestForZip(rawManifest, clientId);
 
   const publicManifest = enrichPublicManifestForBuyer(sanitizedManifest, clientId);
+  const saasOrigin = resolvePublicAppOrigin();
+  if (!pickString(publicManifest.publicSiteUrl)) {
+    publicManifest.publicSiteUrl = `${saasOrigin}/site/${encodeURIComponent(clientId)}`;
+  }
+  if (!pickString(publicManifest.siteUrl)) {
+    publicManifest.siteUrl = String(publicManifest.publicSiteUrl);
+  }
 
   const stagingPath = writeStagingFromDist(distPath, clientId);
 
   try {
-    // Prefer sanitized public manifest inside the package.
     fs.writeFileSync(
       path.join(stagingPath, "client-manifest.json"),
       `${JSON.stringify(publicManifest, null, 2)}\n`,
@@ -303,6 +331,42 @@ export async function buildDeployableZip(
     );
 
     const stagingSanitize = sanitizeStagingDist(stagingPath);
+    const paywallStripped = stripDemoPaywallFromDist(stagingPath, saasOrigin);
+    const paywallLeftovers = findRemainingPaywallMarkers(stagingPath);
+    if (!paywallStripped.length) {
+      console.warn("[deployable-zip] demo paywall strip touched 0 files", { clientId });
+    }
+    if (paywallLeftovers.length) {
+      throw new DeployableZipError(
+        "PAYWALL_STRIP_FAILED",
+        `Deployable ZIP still contains demo paywall UI after unlock: ${paywallLeftovers.slice(0, 3).join("; ")}`,
+      );
+    }
+
+    const RU_DEMO_BANNER = "Демо-версия. Выберите тариф, чтобы продолжить.";
+    const jsHits: string[] = [];
+    const walkJs = (dir: string): void => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          walkJs(full);
+          continue;
+        }
+        if (!/\.(js|mjs|cjs)$/i.test(entry.name)) continue;
+        const text = fs.readFileSync(full, "utf8");
+        if (text.includes(RU_DEMO_BANNER)) {
+          jsHits.push(path.relative(stagingPath, full).replace(/\\/g, "/"));
+        }
+      }
+    };
+    walkJs(stagingPath);
+    if (jsHits.length) {
+      throw new DeployableZipError(
+        "PAYWALL_STRIP_FAILED",
+        `RU demo banner still present after stripDemoPaywallFromDist: ${jsHits.join(", ")}`,
+      );
+    }
+
     const slimRemoved = slimStagingForClient(stagingPath, publicManifest);
     if (slimRemoved.length) {
       console.info("[deployable-zip] slimmed staging", { clientId, removed: slimRemoved.length });
@@ -333,7 +397,7 @@ export async function buildDeployableZip(
       strippedManifestKeys: strippedKeys,
     };
 
-    const readmeContext = resolveReadmeContext(input, publicManifest);
+    const readmeContext = resolveReadmeContext(input, publicManifest, clientId);
     const readmeContent = buildDeployableZipReadme({
       clientId,
       mode: input.mode,
@@ -344,7 +408,6 @@ export async function buildDeployableZip(
     const buffer = await buildClientDistZipBuffer({
       distPath: stagingPath,
       readmeContent,
-      // client-manifest.json is already written into staging (sanitized).
     });
 
     const businessName =
@@ -359,6 +422,7 @@ export async function buildDeployableZip(
       bytes: buffer.length,
       securityFindings: security.findings.length,
       isolationOk: isolation.ok,
+      paywallStripped: paywallStripped.length,
     });
 
     return {

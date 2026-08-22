@@ -84,6 +84,75 @@ function readDeployedManifest() {
   return null;
 }
 
+function isDeployablePaidBoot() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  if (window.__CRM_DEPLOYABLE_PAID__ === true) {
+    return true;
+  }
+  const baked = readDeployedManifest();
+  if (baked?.deployablePaid === true || baked?.paid === true) {
+    return true;
+  }
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("paid") === "1" || params.get("paid") === "true") {
+      return true;
+    }
+  } catch {
+    /* ignore */
+  }
+  return false;
+}
+
+function resolveManifestApiBase() {
+  return import.meta.env.VITE_MANIFEST_API_BASE || "https://webstudio-muenchen.com";
+}
+
+function resolveDeployableSiteBase(publicSiteUrl) {
+  try {
+    const deployable = window.__DEPLOYABLE_SITE_URL__;
+    if (deployable && String(deployable).trim()) {
+      return String(deployable).trim().replace(/\/$/, "").replace(/#.*$/, "");
+    }
+  } catch {
+    /* ignore */
+  }
+  const fromPublic = String(publicSiteUrl || "").trim().replace(/\/$/, "").replace(/#.*$/, "");
+  if (fromPublic) {
+    return fromPublic;
+  }
+  try {
+    const origin = window.location.origin;
+    if (origin && origin !== "null") {
+      return origin.replace(/\/$/, "");
+    }
+  } catch {
+    /* ignore */
+  }
+  return "";
+}
+
+function readSaasOrigin() {
+  if (typeof window === "undefined") {
+    return resolveManifestApiBase().replace(/\/$/, "");
+  }
+  const baked = window.__CRM_SAAS_ORIGIN__;
+  if (typeof baked === "string" && baked.trim()) {
+    return baked.trim().replace(/\/$/, "");
+  }
+  return resolveManifestApiBase().replace(/\/$/, "");
+}
+
+function resolveAdminLoginUrl(clientId) {
+  const apiBase = readSaasOrigin();
+  const id = String(clientId || "").trim();
+  return id
+    ? `${apiBase}/admin/login?clientId=${encodeURIComponent(id)}`
+    : `${apiBase}/admin/login`;
+}
+
 function readClientIdFromLocation() {
   if (typeof window === "undefined") {
     return null;
@@ -1545,6 +1614,36 @@ const SITE_COPY_UI = {
   ru: { label: "Сайт", copy: "Копировать", copied: "Скопировано", missing: "Ссылка пока недоступна" },
 };
 
+const TENANT_LINKS_UI = {
+  en: {
+    admin: "Admin",
+    website: "Website",
+    vacancies: "Vacancies",
+    booking: "Leads / Booking",
+    copy: "Copy",
+    copied: "Copied",
+    missing: "Link not ready",
+  },
+  de: {
+    admin: "Admin",
+    website: "Website",
+    vacancies: "Stellen",
+    booking: "Anfragen / Buchung",
+    copy: "Kopieren",
+    copied: "Kopiert",
+    missing: "Link noch nicht bereit",
+  },
+  ru: {
+    admin: "Админ",
+    website: "Сайт",
+    vacancies: "Вакансии",
+    booking: "Заявки / Бронирование",
+    copy: "Копировать",
+    copied: "Скопировано",
+    missing: "Ссылка пока недоступна",
+  },
+};
+
 function isForeignPagesHost(hostname) {
   const host = String(hostname || "").toLowerCase();
   return host === "pages.dev" || host.endsWith(".pages.dev");
@@ -1602,6 +1701,93 @@ async function copyTextToClipboard(value) {
       return false;
     }
   }
+}
+
+function TenantFormLinkRow({ label, href, copyLabel, copiedLabel, missingLabel }) {
+  const [copied, setCopied] = useState(false);
+  const link = String(href || "").trim();
+
+  return (
+    <div className="mvp-tenant-link-row">
+      {link ? (
+        <a href={link} target="_blank" rel="noreferrer" className="mvp-tenant-link-open">
+          {label}
+        </a>
+      ) : (
+        <span className="mvp-tenant-link-open mvp-tenant-link-open--disabled">{label}</span>
+      )}
+      {link ? (
+        <input
+          type="text"
+          readOnly
+          value={link}
+          aria-label={label}
+          className="mvp-tenant-link-url"
+          onFocus={(event) => event.currentTarget.select()}
+          onClick={(event) => event.currentTarget.select()}
+        />
+      ) : (
+        <span className="mvp-tenant-link-missing">{missingLabel}</span>
+      )}
+      <button
+        type="button"
+        className="mvp-tenant-link-btn"
+        disabled={!link}
+        onClick={() => {
+          if (!link) return;
+          void copyTextToClipboard(link).then((ok) => {
+            if (!ok) return;
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 2000);
+          });
+        }}
+      >
+        {copied ? copiedLabel : copyLabel}
+      </button>
+    </div>
+  );
+}
+
+function DeployableTenantLinksBar({ publicSiteUrl, language, clientId }) {
+  const t = TENANT_LINKS_UI[language] || TENANT_LINKS_UI.en;
+  const siteBase = resolveDeployableSiteBase(publicSiteUrl);
+  const saasOrigin = readSaasOrigin();
+  const id = String(clientId || "").trim();
+  const vacanciesHref = id ? `${saasOrigin}/site/${encodeURIComponent(id)}/job` : "";
+  const bookingHref = id ? `${saasOrigin}/site/${encodeURIComponent(id)}/booking` : "";
+
+  return (
+    <div className="mvp-tenant-links-bar">
+      <TenantFormLinkRow
+        label={t.admin}
+        href={resolveAdminLoginUrl(clientId)}
+        copyLabel={t.copy}
+        copiedLabel={t.copied}
+        missingLabel={t.missing}
+      />
+      <TenantFormLinkRow
+        label={t.website}
+        href={siteBase}
+        copyLabel={t.copy}
+        copiedLabel={t.copied}
+        missingLabel={t.missing}
+      />
+      <TenantFormLinkRow
+        label={t.vacancies}
+        href={vacanciesHref}
+        copyLabel={t.copy}
+        copiedLabel={t.copied}
+        missingLabel={t.missing}
+      />
+      <TenantFormLinkRow
+        label={t.booking}
+        href={bookingHref}
+        copyLabel={t.copy}
+        copiedLabel={t.copied}
+        missingLabel={t.missing}
+      />
+    </div>
+  );
 }
 
 function PublicSiteCopyRow({ url, language }) {
@@ -1872,9 +2058,19 @@ export default function App() {
   const [manifestLoaded, setManifestLoaded] = useState(false);
   const [manifestError, setManifestError] = useState(null);
   /** null = access unknown (hold seeds); true = paid empty CRM; false = unpaid demo */
-  const [demoPaid, setDemoPaid] = useState(() => (bootClientId ? null : true));
+  const [demoPaid, setDemoPaid] = useState(() => {
+    if (isDeployablePaidBoot()) {
+      return true;
+    }
+    return bootClientId ? null : true;
+  });
   const [demoCheckoutUrl, setDemoCheckoutUrl] = useState("");
-  const [demoAccessReady, setDemoAccessReady] = useState(() => !bootClientId);
+  const [demoAccessReady, setDemoAccessReady] = useState(() => {
+    if (isDeployablePaidBoot()) {
+      return true;
+    }
+    return !bootClientId;
+  });
   const [isTopFrame, setIsTopFrame] = useState(true);
 
   const effectiveBusinessType = useMemo(() => {
@@ -1970,17 +2166,28 @@ export default function App() {
       return undefined;
     }
 
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("paid") === "1" || params.get("paid") === "true") {
+    if (isDeployablePaidBoot()) {
       setDemoPaid(true);
       setDemoAccessReady(true);
       return undefined;
     }
 
-    const manifestApiBase =
-      import.meta.env.VITE_MANIFEST_API_BASE ||
-      "https://webstudio-muenchen.com";
     let cancelled = false;
+    const manifestApiBase = resolveManifestApiBase();
+
+    const markDeployablePaid = () => {
+      setDemoPaid(true);
+      setDemoAccessReady(true);
+      try {
+        window.__CRM_DEPLOYABLE_PAID__ = true;
+        if (window.__CRM_DEMO_MANIFEST__ && typeof window.__CRM_DEMO_MANIFEST__ === "object") {
+          window.__CRM_DEMO_MANIFEST__.paid = true;
+          window.__CRM_DEMO_MANIFEST__.deployablePaid = true;
+        }
+      } catch {
+        /* ignore */
+      }
+    };
 
     const checkAccess = async () => {
       try {
@@ -2003,7 +2210,6 @@ export default function App() {
         if (typeof data.checkoutUrl === "string" && data.checkoutUrl) {
           setDemoCheckoutUrl(data.checkoutUrl);
         }
-        // Never keep a foreign pages.dev URL on the "open in new tab" button.
         if (typeof data.crmUrl === "string" && data.crmUrl) {
           setMvpUrl(data.crmUrl);
         }
@@ -2019,8 +2225,30 @@ export default function App() {
       }
     };
 
-    void checkAccess();
+    const resolveAccess = async () => {
+      try {
+        const response = await fetch("./client-manifest.json", { cache: "no-store" });
+        if (response.ok) {
+          const manifest = await response.json();
+          if (cancelled) return;
+          if (manifest?.deployablePaid === true || manifest?.paid === true) {
+            markDeployablePaid();
+            return;
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+
+      if (cancelled) return;
+      await checkAccess();
+    };
+
+    void resolveAccess();
     const intervalId = window.setInterval(() => {
+      if (window.__CRM_DEPLOYABLE_PAID__ === true || isDeployablePaidBoot()) {
+        return;
+      }
       void checkAccess();
     }, 20000);
 
@@ -2202,6 +2430,7 @@ export default function App() {
   const services = demoSource.services || [];
   const isPaidCrm = demoPaid === true;
   const isUnpaidDemo = demoPaid === false;
+  const showDeployableLinksBar = Boolean(bootClientId) && isPaidCrm && isTopFrame;
   const holdCrmRecords = Boolean(bootClientId) && demoPaid === null;
   const allowSeed = isUnpaidDemo;
 
@@ -3137,7 +3366,14 @@ export default function App() {
     <div
       className="app-shell app-shell--ready"
       data-domain={effectiveBusinessType || domainUi.domain_key}
-    >      {demoAccessReady && isUnpaidDemo && isTopFrame ? (
+    >      {showDeployableLinksBar ? (
+        <DeployableTenantLinksBar
+          publicSiteUrl={publicSiteUrl}
+          language={language}
+          clientId={bootClientId}
+        />
+      ) : null}
+      {demoAccessReady && isUnpaidDemo && isTopFrame ? (
         <>
           <div
             style={{
@@ -3191,7 +3427,7 @@ export default function App() {
             </div>
           </div>
       ) : null}
-      <aside className="mvp-sidebar" style={demoAccessReady && isUnpaidDemo && isTopFrame ? { paddingTop: "3.25rem" } : undefined}>
+      <aside className="mvp-sidebar" style={showDeployableLinksBar ? { paddingTop: "3.25rem" } : demoAccessReady && isUnpaidDemo && isTopFrame ? { paddingTop: "3.25rem" } : undefined}>
         <div className="sidebar-brand">
           {typeof businessIcon === "string" &&
           (businessIcon.startsWith("/") || businessIcon.startsWith("http") || businessIcon.endsWith(".png") || businessIcon.endsWith(".svg")) ? (
@@ -3249,7 +3485,7 @@ export default function App() {
         </nav>
       </aside>
 
-      <div className="mvp-content" style={demoAccessReady && isUnpaidDemo && isTopFrame ? { paddingTop: "3.25rem" } : undefined}>
+      <div className="mvp-content" style={showDeployableLinksBar ? { paddingTop: "3.25rem" } : demoAccessReady && isUnpaidDemo && isTopFrame ? { paddingTop: "3.25rem" } : undefined}>
         {activeTab === "dashboard" && (
           <>
             <header className="hero-header" style={{ background: heroBackground }}>

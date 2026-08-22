@@ -504,6 +504,71 @@ body {
   font-size: 0.8rem;
 }
 
+.mvp-tenant-links-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2147483646;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
+  padding: 0.55rem 0.85rem;
+  background: #0f172a;
+  color: #e2e8f0;
+  border-bottom: 1px solid #1e293b;
+}
+
+.mvp-tenant-link-row {
+  display: flex;
+  flex: 1 1 18rem;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.mvp-tenant-link-open,
+.mvp-tenant-link-btn {
+  flex-shrink: 0;
+  border: 1px solid #ea580c;
+  border-radius: 8px;
+  background: #f97316;
+  color: #111827;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.65rem;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.mvp-tenant-link-open--disabled,
+.mvp-tenant-link-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mvp-tenant-link-url {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.55rem;
+  outline: none;
+}
+
+.mvp-tenant-link-missing {
+  flex: 1;
+  min-width: 0;
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
 .integrations-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
